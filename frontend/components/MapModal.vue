@@ -460,9 +460,9 @@ onBeforeUnmount(() => {
 }
 
 .district-pill.on {
-  background: var(--ac, #059669);
+  background: var(--ac, #174D3A);
   color: #fff;
-  border-color: var(--ac, #059669);
+  border-color: var(--ac, #174D3A);
 }
 
 .owner-toggle-pill {
@@ -470,21 +470,21 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 6px;
   margin-left: auto;
-  background: #f0fdf4;
-  border: 1px solid #86efac;
-  color: #166534;
+  background: var(--mint-subtle, #e8f8f0);
+  border: 1px solid var(--mint, #b9f2d0);
+  color: var(--ac, #174D3A);
   padding: 6px 12px;
   border-radius: 20px;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   flex-shrink: 0;
 }
 
 .owner-toggle-pill.active {
-  background: #16a34a;
+  background: var(--ac, #174D3A);
   color: #fff;
-  border-color: #16a34a;
+  border-color: var(--ac, #174D3A);
 }
 
 .map-body-wrapper {
@@ -585,7 +585,7 @@ onBeforeUnmount(() => {
 .card-price {
   font-size: 15px;
   font-weight: 700;
-  color: var(--ac, #059669);
+  color: var(--ac, #174D3A);
   display: flex;
   align-items: center;
   gap: 6px;
@@ -593,8 +593,9 @@ onBeforeUnmount(() => {
 
 .badge-maklersiz {
   font-size: 10px;
-  background: #dcfce7;
-  color: #15803d;
+  background: var(--mint, #b9f2d0);
+  color: var(--ac-dark, #103b2e);
+  font-weight: 800;
   padding: 2px 6px;
   border-radius: 4px;
 }

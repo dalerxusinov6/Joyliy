@@ -58,13 +58,13 @@ onMounted(() => {
   sunLight.shadow.mapSize.height = 1024
   scene.add(sunLight)
 
-  // Emerald brand accent light
-  const emeraldLight = new THREE.PointLight(0x10b981, isDark ? 4.5 : 3.0, 30)
+  // Forest Green brand accent light
+  const emeraldLight = new THREE.PointLight(0x174d3a, isDark ? 4.5 : 3.0, 30)
   emeraldLight.position.set(0, 8, 4)
   scene.add(emeraldLight)
 
-  // Cyan fill light
-  const cyanLight = new THREE.PointLight(0x06b6d4, isDark ? 3.0 : 1.8, 25)
+  // Warm mint fill light
+  const cyanLight = new THREE.PointLight(0xb9f2d0, isDark ? 3.0 : 1.8, 25)
   cyanLight.position.set(-6, 5, -5)
   scene.add(cyanLight)
 
@@ -74,13 +74,13 @@ onMounted(() => {
 
   // Materials
   const buildingMaterialLight = new THREE.MeshStandardMaterial({
-    color: isDark ? 0x1e293b : 0xf1f5f9,
+    color: isDark ? 0x1e2b24 : 0xf4f6f2,
     roughness: 0.25,
     metalness: 0.15,
   })
 
   const glassMaterial = new THREE.MeshPhysicalMaterial({
-    color: isDark ? 0x064e3b : 0x059669,
+    color: isDark ? 0x103b2e : 0x174d3a,
     roughness: 0.1,
     metalness: 0.8,
     transmission: 0.4,
@@ -96,7 +96,7 @@ onMounted(() => {
   })
 
   const accentMaterial = new THREE.MeshStandardMaterial({
-    color: 0x10b981,
+    color: 0x174d3a,
     roughness: 0.2,
     metalness: 0.4,
   })
@@ -489,8 +489,8 @@ onMounted(() => {
 .float-badge.hover,
 .float-badge:hover {
   transform: translateY(-4px) scale(1.04);
-  box-shadow: 0 16px 32px -4px rgba(16, 185, 129, 0.25);
-  border-color: #10b981;
+  box-shadow: 0 16px 32px -4px rgba(23, 77, 58, 0.2);
+  border-color: var(--ac, #174D3A);
 }
 
 .badge-top-left {
@@ -529,20 +529,20 @@ onMounted(() => {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #10b981;
-  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  background: var(--ac, #174D3A);
+  box-shadow: 0 0 0 0 rgba(23, 77, 58, 0.7);
   animation: pulse-ring 1.8s infinite;
 }
 
 @keyframes pulse-ring {
   0% {
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+    box-shadow: 0 0 0 0 rgba(23, 77, 58, 0.7);
   }
   70% {
-    box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+    box-shadow: 0 0 0 8px rgba(23, 77, 58, 0);
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+    box-shadow: 0 0 0 0 rgba(23, 77, 58, 0);
   }
 }
 
