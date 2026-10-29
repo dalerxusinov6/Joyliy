@@ -58,13 +58,13 @@ onMounted(() => {
   sunLight.shadow.mapSize.height = 1024
   scene.add(sunLight)
 
-  // Forest Green brand accent light
-  const emeraldLight = new THREE.PointLight(0x174d3a, isDark ? 4.5 : 3.0, 30)
+  // Terracotta editorial accent light
+  const emeraldLight = new THREE.PointLight(0xbc684b, isDark ? 4.5 : 3.0, 30)
   emeraldLight.position.set(0, 8, 4)
   scene.add(emeraldLight)
 
-  // Warm mint fill light
-  const cyanLight = new THREE.PointLight(0xb9f2d0, isDark ? 3.0 : 1.8, 25)
+  // Soft olive fill light
+  const cyanLight = new THREE.PointLight(0x92957a, isDark ? 3.0 : 1.8, 25)
   cyanLight.position.set(-6, 5, -5)
   scene.add(cyanLight)
 
@@ -74,31 +74,31 @@ onMounted(() => {
 
   // Materials
   const buildingMaterialLight = new THREE.MeshStandardMaterial({
-    color: isDark ? 0x1e2b24 : 0xf4f6f2,
-    roughness: 0.25,
-    metalness: 0.15,
+    color: isDark ? 0x202620 : 0xebe5db,
+    roughness: 0.3,
+    metalness: 0.1,
   })
 
   const glassMaterial = new THREE.MeshPhysicalMaterial({
-    color: isDark ? 0x103b2e : 0x174d3a,
+    color: isDark ? 0x2c332c : 0xbc684b,
     roughness: 0.1,
-    metalness: 0.8,
-    transmission: 0.4,
+    metalness: 0.6,
+    transmission: 0.3,
     transparent: true,
-    opacity: 0.9,
+    opacity: 0.85,
   })
 
   const windowMaterial = new THREE.MeshStandardMaterial({
-    color: 0xfef08a,
-    emissive: 0xfbbf24,
-    emissiveIntensity: isDark ? 0.9 : 0.4,
+    color: 0xf3ede2,
+    emissive: 0xbc684b,
+    emissiveIntensity: isDark ? 0.7 : 0.25,
     roughness: 0.1,
   })
 
   const accentMaterial = new THREE.MeshStandardMaterial({
-    color: 0x174d3a,
-    roughness: 0.2,
-    metalness: 0.4,
+    color: 0xbc684b,
+    roughness: 0.25,
+    metalness: 0.3,
   })
 
   // Frameless, transparent ground shadow receiver (buildings cast soft shadows directly onto the page)
@@ -379,7 +379,7 @@ onMounted(() => {
   <div class="hero-3d-wrapper" ref="containerRef">
     <!-- 3D Canvas dynamically mounted here -->
 
-    <!-- Floating 3D Interactive HUD Badges -->
+    <!-- Floating Monograph HUD Badges -->
     <div
       class="float-badge badge-top-left"
       :class="{ hover: activeBadge === 1 }"
@@ -388,12 +388,12 @@ onMounted(() => {
     >
       <div class="badge-icon">
         <svg viewBox="0 0 24 24">
-          <path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z" fill="#10b981" />
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="#BC684B" />
           <path d="m9 12 2 2 4-4" stroke="#fff" stroke-width="2" fill="none" />
         </svg>
       </div>
       <div>
-        <div class="badge-title">Maklersiz 0%</div>
+        <div class="badge-title">Maklersiz · 0%</div>
         <div class="badge-sub">Egasidan to‘g‘ridan-to‘g‘ri</div>
       </div>
     </div>
@@ -406,7 +406,7 @@ onMounted(() => {
     >
       <div class="badge-icon city">
         <svg viewBox="0 0 24 24">
-          <path d="M3 21h18M6 21V7l8-4v18M14 11h4v10" stroke="#0284c7" stroke-width="2" fill="none" />
+          <path d="M3 21h18M6 21V7l8-4v18M14 11h4v10" stroke="#92957A" stroke-width="2" fill="none" />
         </svg>
       </div>
       <div>
@@ -423,9 +423,9 @@ onMounted(() => {
     >
       <div class="badge-pulse"></div>
       <span class="badge-text">
-        ⚡ <b>82 ta</b> faol e’lon xaritada
+        № <b>82 ta</b> faol e’lon xaritada
       </span>
-      <span class="badge-hint">Sichqoncha bilan 3D xaritani aylantiring</span>
+      <span class="badge-hint">Sichqoncha bilan modelni aylantiring</span>
     </div>
   </div>
 </template>
@@ -488,13 +488,13 @@ onMounted(() => {
 
 .float-badge.hover,
 .float-badge:hover {
-  transform: translateY(-4px) scale(1.04);
-  box-shadow: 0 16px 32px -4px rgba(23, 77, 58, 0.2);
-  border-color: var(--ac, #174D3A);
+  transform: translateY(-3px);
+  box-shadow: 0 14px 28px -4px rgba(32, 38, 32, 0.15);
+  border-color: var(--terracotta, #BC684B);
 }
 
 .badge-top-left {
-  top: 10px;
+  top: 12px;
   left: 0;
   animation-delay: 0s;
 }
@@ -511,14 +511,14 @@ onMounted(() => {
   transform: translateX(-50%);
   animation: floatSlow 4s ease-in-out 0.8s infinite;
   padding: 8px 18px;
-  border-radius: 24px;
+  border-radius: var(--radius-xs, 2px);
   flex-direction: column;
   gap: 2px;
   text-align: center;
 }
 
 .badge-bottom-center:hover {
-  transform: translateX(-50%) translateY(-3px) scale(1.03);
+  transform: translateX(-50%) translateY(-2px);
 }
 
 .badge-pulse {
@@ -526,23 +526,23 @@ onMounted(() => {
   left: 14px;
   top: 50%;
   transform: translateY(-50%);
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
-  background: var(--ac, #174D3A);
-  box-shadow: 0 0 0 0 rgba(23, 77, 58, 0.7);
-  animation: pulse-ring 1.8s infinite;
+  background: var(--terracotta, #BC684B);
+  box-shadow: 0 0 0 0 rgba(188, 104, 75, 0.7);
+  animation: pulse-ring 2s infinite;
 }
 
 @keyframes pulse-ring {
   0% {
-    box-shadow: 0 0 0 0 rgba(23, 77, 58, 0.7);
+    box-shadow: 0 0 0 0 rgba(188, 104, 75, 0.7);
   }
   70% {
-    box-shadow: 0 0 0 8px rgba(23, 77, 58, 0);
+    box-shadow: 0 0 0 8px rgba(188, 104, 75, 0);
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(23, 77, 58, 0);
+    box-shadow: 0 0 0 0 rgba(188, 104, 75, 0);
   }
 }
 

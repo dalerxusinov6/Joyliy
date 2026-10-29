@@ -30,178 +30,157 @@ const onReport = () => {
 const sourceViewLabel = computed(() => {
   return t('view_on_olx')
 })
-
-const audienceBoxStyle = computed(() => {
-  if (props.listing?.target_audience === 'family') {
-    return 'background: #EEF6F2; color: #174D3A; border: 1px solid #B9F2D0;'
-  } else if (props.listing?.target_audience === 'female') {
-    return 'background: #FFF1F5; color: #9F1239; border: 1px solid #FECDD3;'
-  } else if (props.listing?.target_audience === 'male') {
-    return 'background: #F0F9FF; color: #0369A1; border: 1px solid #BAE6FD;'
-  }
-  return ''
-})
 </script>
 
 <template>
   <div v-if="listing" class="ov show" @click.self="$emit('close')">
-    <div class="sheet detail-sheet">
-      <!-- Modal Header -->
-      <div class="top detail-header">
-        <div class="header-info">
-          <span class="header-title">{{ listing.rooms }} {{ t('rooms_apartment') }}</span>
-          <span class="header-district">📍 {{ listing.district }}</span>
+    <div class="sheet exhibition-sheet">
+      <!-- Top Exhibition Header -->
+      <div class="top exhibition-header">
+        <div class="exhibition-meta">
+          <span class="exhibit-tag">XONADON HUJJATI</span>
+          <span class="exhibit-sep">/</span>
+          <span class="exhibit-title">{{ listing.rooms }} xonali · {{ listing.district }}</span>
         </div>
-        <button class="ib close-btn" @click="$emit('close')" :aria-label="t('close')">
+        <button class="ib" @click="$emit('close')" :aria-label="t('close')">
           <svg class="i" viewBox="0 0 24 24">
-            <path d="M18 6 6 18M6 6l12 12" />
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
           </svg>
         </button>
       </div>
 
-      <div class="bd detail-body">
-        <!-- Photo Gallery Carousel -->
-        <div class="gallery-wrapper">
-          <div v-if="listing.image_urls && listing.image_urls.length" class="main-photo-box">
+      <div class="bd exhibition-body">
+        <!-- Main Photography Gallery Carousel -->
+        <div class="exhibition-gallery">
+          <div v-if="listing.image_urls && listing.image_urls.length" class="hero-photo-wrapper">
             <img
               :src="listing.image_urls[activePhotoIndex] || listing.image_urls[0]"
               :alt="listing.title"
-              class="main-photo"
+              class="hero-photo"
             />
-            <div class="photo-counter">
+            <div class="photo-indicator">
               {{ activePhotoIndex + 1 }} / {{ listing.image_urls.length }}
             </div>
           </div>
-          <div v-else class="main-photo-placeholder">
-            <svg class="i placeholder-icon" viewBox="0 0 24 24">
-              <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
-              <circle cx="8.5" cy="8.5" r="1.5" />
-              <path d="M21 15l-5-5L5 21" />
-            </svg>
+          <div v-else class="hero-photo-placeholder">
             <span>Fotosurat mavjud emas</span>
           </div>
 
-          <!-- Thumbnails Row -->
-          <div v-if="listing.image_urls && listing.image_urls.length > 1" class="thumb-strip">
+          <!-- Thumbnails Strip -->
+          <div v-if="listing.image_urls && listing.image_urls.length > 1" class="gallery-thumbs">
             <button
               v-for="(img, idx) in listing.image_urls"
               :key="idx"
               type="button"
-              class="thumb-btn"
+              class="gallery-thumb-btn"
               :class="{ active: activePhotoIndex === idx }"
               @click="activePhotoIndex = idx"
             >
-              <img :src="img" :alt="`Thumbnail ${idx + 1}`" />
+              <img :src="img" :alt="`Rasm ${idx + 1}`" />
             </button>
           </div>
         </div>
 
-        <!-- Price Banner -->
-        <div class="detail-price-box">
-          <div class="detail-price">
-            {{ formatPrice(listing.price_uzs) }} <span class="price-period">{{ t('per_month') }}</span>
+        <!-- Price & Trust Masthead -->
+        <div class="exhibition-price-bar">
+          <div class="price-cluster">
+            <span class="large-price">{{ formatPrice(listing.price_uzs) }}</span>
+            <span class="period-label">{{ t('per_month') }}</span>
           </div>
-          <div v-if="listing.is_owner" class="verified-pill">
-            <svg class="i" viewBox="0 0 24 24">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-              <path d="m9 12 2 2 4-4" />
-            </svg>
-            <span>Maklersiz · Egasidan</span>
+          <div v-if="listing.is_owner" class="terracotta-status-badge">
+            <span class="status-badge-dot"></span>
+            <span>100% Maklersiz · Egasidan</span>
           </div>
         </div>
 
-        <h2 class="detail-listing-title">{{ listing.title }}</h2>
+        <!-- Title -->
+        <h2 class="exhibition-listing-title">
+          {{ listing.title }}
+        </h2>
 
-        <!-- Key Architectural Facts Grid -->
-        <div class="facts detail-facts">
-          <div class="fact-card">
-            <span class="fact-label">Maydon</span>
-            <b class="fact-val">{{ listing.area }} m²</b>
+        <!-- Architectural Specifications Grid -->
+        <div class="exhibition-specs-grid">
+          <div class="spec-cell">
+            <span class="cell-k">Umumiy Maydon</span>
+            <span class="cell-v">{{ listing.area }} m²</span>
           </div>
-          <div class="fact-card">
-            <span class="fact-label">Xonalar</span>
-            <b class="fact-val">{{ listing.rooms }} xona</b>
+          <div class="spec-cell">
+            <span class="cell-k">Xonalar Soni</span>
+            <span class="cell-v">{{ listing.rooms }} xona</span>
           </div>
-          <div class="fact-card">
-            <span class="fact-label">Qavat</span>
-            <b class="fact-val">{{ listing.floor || '3/9' }}</b>
+          <div class="spec-cell">
+            <span class="cell-k">Joylashgan Qavat</span>
+            <span class="cell-v">{{ listing.floor || '3/9' }}</span>
           </div>
-          <div class="fact-card">
-            <span class="fact-label">Metrogacha</span>
-            <b class="fact-val">{{ listing.metro_minutes || 5 }} daqiqa</b>
+          <div class="spec-cell">
+            <span class="cell-k">Metro Masofasi</span>
+            <span class="cell-v">{{ listing.metro_minutes || 5 }} daqiqa</span>
           </div>
         </div>
 
-        <!-- Audience Tag Info -->
-        <div
-          v-if="listing.target_audience && listing.target_audience !== 'any'"
-          class="audience-box"
-          :style="audienceBoxStyle"
-        >
-          <span class="audience-emoji">
-            <template v-if="listing.target_audience === 'family'">👨‍👩‍👧</template>
-            <template v-else-if="listing.target_audience === 'female'">👩</template>
-            <template v-else-if="listing.target_audience === 'male'">👨</template>
-          </span>
-          <div>
-            <div class="audience-title">
+        <!-- Audience Tag Notice -->
+        <div v-if="listing.target_audience && listing.target_audience !== 'any'" class="target-audience-card">
+          <div class="target-left">
+            <span class="target-icon">
+              <template v-if="listing.target_audience === 'family'">👨‍👩‍👧</template>
+              <template v-else-if="listing.target_audience === 'female'">👩</template>
+              <template v-else-if="listing.target_audience === 'male'">👨</template>
+            </span>
+          </div>
+          <div class="target-right">
+            <div class="target-headline">
               <template v-if="listing.target_audience === 'family'">Faqat oila uchun mo‘ljallangan</template>
               <template v-else-if="listing.target_audience === 'female'">Qizlar / Ayollar uchun mo‘ljallangan</template>
               <template v-else-if="listing.target_audience === 'male'">Yigitlar / Talabalar uchun mo‘ljallangan</template>
             </div>
-            <div class="audience-desc">E’londa ijarachilar toifasi egasi tomonidan belgilangan</div>
+            <div class="target-hint">E’lon matnida ijarachilar toifasi egasi tomonidan alohida belgilangan</div>
           </div>
         </div>
 
-        <!-- Description -->
-        <div v-if="listing.description" class="description-section">
-          <h4 class="section-subheading">Kvartira haqida batafsil</h4>
-          <p class="description-text">
+        <!-- Description Text -->
+        <div v-if="listing.description" class="exhibition-description-block">
+          <span class="editorial-meta">TAVSIF VA SHARTLAR</span>
+          <p class="description-body">
             {{ listing.description }}
           </p>
         </div>
 
-        <!-- Trust & Source Notice -->
-        <div class="trust-notice-card">
-          <div class="trust-notice-row">
-            <svg class="i trust-notice-icon" viewBox="0 0 24 24">
-              <circle cx="12" cy="12" r="10" />
-              <line x1="12" y1="8" x2="12" y2="12" />
-              <line x1="12" y1="16" x2="12.01" y2="16" />
-            </svg>
-            <div class="trust-notice-text">
-              <span class="trust-notice-source">Manba: <b>{{ listing.source_attribution || 'OLX.uz' }}</b></span>
-              <p class="trust-notice-p">
-                {{ listing.disclaimer || 'Ushbu e’lon ommaviy platformadan to‘g‘ridan-to‘g‘ri olingan. Har doim kvartirani joyida ko‘rib, hujjatlarni tekshirib keyin to‘lov qiling.' }}
-              </p>
-            </div>
+        <!-- Provenance & Disclaimer -->
+        <div class="provenance-block">
+          <div class="prov-top">
+            <span class="prov-label">E’LON METADATASI</span>
+            <span class="prov-source">Manba: {{ listing.source_attribution || 'OLX.uz' }}</span>
           </div>
+          <p class="prov-text">
+            {{ listing.disclaimer || 'Ushbu e’lon ommaviy platformadan to‘g‘ridan-to‘g‘ri olingan. To‘lovdan avval xonadonni o‘z ko‘zingiz bilan ko‘rib, hujjatlarni tekshirib olishingizni tavsiya qilamiz.' }}
+          </p>
         </div>
 
-        <!-- Report Issue Button -->
-        <div class="report-row">
-          <button class="btn report-btn" type="button" @click="onReport">
+        <!-- Report Issue -->
+        <div class="report-action-wrap">
+          <button class="btn report-action-btn" type="button" @click="onReport">
             <svg class="i" viewBox="0 0 24 24">
               <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
-              <line x1="4" x2="4" y1="22" y2="15" />
+              <line x1="4" y1="22" x2="4" y2="15" />
             </svg>
             <span>Noto‘g‘ri ma’lumot haqida xabar berish</span>
           </button>
         </div>
       </div>
 
-      <!-- Action Footer Buttons -->
-      <div class="cbar detail-cbar">
+      <!-- Action Footer Bar -->
+      <div class="cbar exhibition-cbar">
         <a
           v-if="listing.contact_phone"
-          class="btn p call-action-btn"
+          class="btn p call-btn"
           :href="`tel:${listing.contact_phone}`"
         >
           📞 Qo‘ng‘iroq qilish
         </a>
         <a
           v-if="listing.contact_telegram"
-          class="btn telegram-action-btn"
+          class="btn tg-btn"
           :href="`https://t.me/${listing.contact_telegram.replace('@', '')}`"
           target="_blank"
           rel="noopener"
@@ -210,30 +189,27 @@ const audienceBoxStyle = computed(() => {
         </a>
         <a
           v-if="listing.canonical_url"
-          class="btn source-action-btn"
+          class="btn source-btn"
           :class="{ p: !listing.contact_phone && !listing.contact_telegram }"
           :href="listing.canonical_url"
           target="_blank"
           rel="noopener"
         >
+          <span>{{ sourceViewLabel }}</span>
           <svg class="i" viewBox="0 0 24 24">
             <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
             <polyline points="15 3 21 3 21 9" />
             <line x1="10" y1="14" x2="21" y2="3" />
           </svg>
-          {{ sourceViewLabel }}
         </a>
         <a
           v-if="!listing.contact_telegram && !listing.contact_phone"
-          class="btn bot-action-btn"
+          class="btn"
           href="https://t.me/joyliy_bot"
           target="_blank"
           rel="noopener"
         >
-          <svg class="i" viewBox="0 0 24 24">
-            <path d="m22 2-11 11M22 2l-7 20-4-9-9-4z" />
-          </svg>
-          {{ t('telegram') }}
+          🤖 Telegram Bot
         </a>
       </div>
     </div>
@@ -241,87 +217,87 @@ const audienceBoxStyle = computed(() => {
 </template>
 
 <style scoped>
-.detail-sheet {
-  max-width: 680px;
+.exhibition-sheet {
+  max-width: 720px;
 }
 
-.detail-header {
-  padding: 16px 24px;
+.exhibition-header {
+  padding: 18px 24px;
 }
 
-.header-info {
+.exhibition-meta {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
 }
 
-.header-title {
-  font-size: 17px;
-  font-weight: 800;
-  color: var(--tx);
-  letter-spacing: -0.02em;
+.exhibit-tag {
+  color: var(--terracotta);
+  font-weight: 700;
+  letter-spacing: 0.1em;
 }
 
-.header-district {
-  font-size: 13px;
-  color: var(--tx-muted);
-  font-weight: 500;
+.exhibit-sep {
+  color: var(--sand);
 }
 
-.detail-body {
+.exhibit-title {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.exhibition-body {
   padding: 24px;
 }
 
-.gallery-wrapper {
-  margin-bottom: 20px;
+.exhibition-gallery {
+  margin-bottom: 24px;
 }
 
-.main-photo-box {
+.hero-photo-wrapper {
   position: relative;
   aspect-ratio: 16/10;
-  border-radius: var(--radius-lg);
+  border: 1px solid var(--sand);
+  border-radius: var(--radius-xs);
   overflow: hidden;
-  background: var(--surf-muted);
+  background: var(--sand-light);
 }
 
-.main-photo {
+.hero-photo {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.photo-counter {
+.photo-indicator {
   position: absolute;
   right: 14px;
   bottom: 14px;
-  background: rgba(17, 24, 20, 0.75);
-  backdrop-filter: blur(8px);
+  background: rgba(32, 38, 32, 0.85);
   color: #FFFFFF;
-  font-size: 12px;
-  font-weight: 700;
-  padding: 4px 10px;
-  border-radius: var(--radius-full);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  padding: 3px 8px;
+  border-radius: var(--radius-xs);
 }
 
-.main-photo-placeholder {
+.hero-photo-placeholder {
   aspect-ratio: 16/10;
-  border-radius: var(--radius-lg);
-  background: var(--surf-muted);
+  border: 1px solid var(--sand);
+  border-radius: var(--radius-xs);
+  background: var(--sand-light);
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  color: var(--tx-muted);
-  font-size: 14px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--muted);
 }
 
-.placeholder-icon {
-  width: 44px;
-  height: 44px;
-  opacity: 0.5;
-}
-
-.thumb-strip {
+.gallery-thumbs {
   display: flex;
   gap: 8px;
   margin-top: 10px;
@@ -330,233 +306,230 @@ const audienceBoxStyle = computed(() => {
   scrollbar-width: none;
 }
 
-.thumb-strip::-webkit-scrollbar {
+.gallery-thumbs::-webkit-scrollbar {
   display: none;
 }
 
-.thumb-btn {
+.gallery-thumb-btn {
   width: 64px;
   height: 48px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-xs);
   overflow: hidden;
-  border: 2px solid transparent;
+  border: 1px solid var(--sand);
   flex: none;
   cursor: pointer;
-  transition: all 0.18s ease;
   padding: 0;
+  transition: all 0.18s ease;
 }
 
-.thumb-btn.active {
-  border-color: var(--ac);
-  transform: scale(1.05);
+.gallery-thumb-btn.active {
+  border-color: var(--terracotta);
+  box-shadow: 0 0 0 2px var(--terracotta);
 }
 
-.thumb-btn img {
+.gallery-thumb-btn img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.detail-price-box {
+.exhibition-price-bar {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
+  align-items: center;
+  margin-bottom: 14px;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 12px;
 }
 
-.detail-price {
+.price-cluster {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.large-price {
+  font-family: var(--font-sans);
   font-size: 28px;
   font-weight: 800;
-  letter-spacing: -0.035em;
-  color: var(--tx);
+  letter-spacing: -0.03em;
+  color: var(--ink);
+  font-feature-settings: "tnum";
 }
 
-.price-period {
-  font-size: 15px;
-  font-weight: 500;
-  color: var(--tx-muted);
+.period-label {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--muted);
 }
 
-.verified-pill {
+.terracotta-status-badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: var(--mint-subtle);
-  color: var(--ac);
-  border: 1px solid rgba(23, 77, 58, 0.18);
-  font-size: 12px;
-  font-weight: 700;
-  padding: 4px 12px;
-  border-radius: var(--radius-full);
-}
-
-.verified-pill svg {
-  width: 14px;
-  height: 14px;
-}
-
-.detail-listing-title {
-  margin: 0 0 18px;
-  font-size: 20px;
-  font-weight: 700;
-  line-height: 1.4;
-  color: var(--tx);
-}
-
-.detail-facts {
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-.fact-card {
-  background: var(--surf);
-  border: 1px solid var(--bd);
-  border-radius: var(--radius-md);
-  padding: 12px 14px;
-  text-align: center;
-}
-
-.fact-label {
+  background: var(--terracotta-subtle);
+  color: var(--terracotta);
+  border: 1px solid var(--terracotta);
+  font-family: var(--font-mono);
   font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--tx-muted);
+  letter-spacing: 0.08em;
+  padding: 4px 10px;
+  border-radius: var(--radius-xs);
   font-weight: 700;
-  display: block;
 }
 
-.fact-val {
-  font-size: 16px;
-  font-weight: 800;
-  color: var(--tx);
-  margin-top: 4px;
-  display: block;
+.status-badge-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--terracotta);
+  border-radius: 50%;
 }
 
-.audience-box {
-  padding: 14px 18px;
-  border-radius: var(--radius-md);
+.exhibition-listing-title {
+  font-family: var(--font-serif);
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 1.35;
+  color: var(--ink);
+  margin: 0 0 20px;
+}
+
+.exhibition-specs-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--sand);
+  border: 1px solid var(--sand);
+  border-radius: var(--radius-xs);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.spec-cell {
+  background: var(--surf);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+}
+
+.cell-k {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.cell-v {
+  font-size: 15.5px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-top: 2px;
+}
+
+.target-audience-card {
   display: flex;
   align-items: center;
   gap: 14px;
-  margin-bottom: 20px;
+  padding: 14px 18px;
+  background: var(--surf);
+  border: 1px solid var(--sand);
+  border-radius: var(--radius-xs);
+  margin-bottom: 24px;
 }
 
-.audience-emoji {
-  font-size: 26px;
+.target-icon {
+  font-size: 24px;
   line-height: 1;
 }
 
-.audience-title {
-  font-size: 14.5px;
+.target-headline {
+  font-size: 14px;
   font-weight: 700;
+  color: var(--ink);
 }
 
-.audience-desc {
+.target-hint {
   font-size: 12px;
-  opacity: 0.85;
-  margin-top: 2px;
+  color: var(--muted);
 }
 
-.description-section {
-  margin-bottom: 20px;
+.exhibition-description-block {
+  margin-bottom: 24px;
 }
 
-.section-subheading {
-  margin: 0 0 8px;
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--tx);
-}
-
-.description-text {
+.description-body {
   white-space: pre-line;
-  color: var(--tx);
-  line-height: 1.65;
   font-size: 14.5px;
-  margin: 0;
+  line-height: 1.7;
+  color: var(--ink);
+  margin: 8px 0 0;
 }
 
-.trust-notice-card {
-  background: var(--surf);
-  border: 1px solid var(--bd);
-  border-radius: var(--radius-md);
+.provenance-block {
+  background: var(--sand-light);
+  border: 1px solid var(--sand);
+  border-radius: var(--radius-xs);
   padding: 14px 18px;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
-.trust-notice-row {
+.prov-top {
   display: flex;
-  gap: 12px;
-  align-items: flex-start;
-}
-
-.trust-notice-icon {
-  width: 18px;
-  height: 18px;
-  color: var(--ac);
-  margin-top: 2px;
-  flex: none;
-}
-
-.trust-notice-source {
-  font-size: 13px;
-  color: var(--tx);
-  display: block;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
   margin-bottom: 4px;
 }
 
-.trust-notice-p {
-  font-size: 12px;
-  color: var(--tx-muted);
+.prov-label {
+  color: var(--muted);
+}
+
+.prov-source {
+  color: var(--terracotta);
+  font-weight: 700;
+}
+
+.prov-text {
+  font-size: 12.5px;
+  color: var(--muted);
   line-height: 1.5;
   margin: 0;
 }
 
-.report-row {
-  margin-top: 10px;
+.report-action-btn {
+  font-size: 12px;
+  color: var(--muted);
 }
 
-.report-btn {
-  font-size: 12.5px;
-  color: var(--tx-muted);
-  border-color: var(--bd);
+.report-action-btn:hover {
+  color: var(--terracotta);
 }
 
-.report-btn:hover {
-  color: #E11D48;
-  border-color: #FECDD3;
-}
-
-.detail-cbar {
+.exhibition-cbar {
   display: flex;
   gap: 10px;
 }
 
-.call-action-btn {
-  background: var(--ac) !important;
-  color: #FFFFFF !important;
+.call-btn {
   flex: 1.2;
 }
 
-.telegram-action-btn {
-  background: var(--surf) !important;
-  border-color: var(--bd) !important;
+.tg-btn {
   flex: 1;
 }
 
-.source-action-btn {
+.source-btn {
   flex: 1;
 }
 
 @media (max-width: 640px) {
-  .detail-facts {
+  .exhibition-specs-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  .detail-cbar {
+  .exhibition-cbar {
     flex-direction: column;
   }
 }

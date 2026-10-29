@@ -4,155 +4,211 @@ const { t } = useI18n()
 </script>
 
 <template>
-  <footer class="app-footer">
-    <div class="wrap fg footer-grid">
-      <!-- Brand Column -->
-      <div class="footer-brand-col">
-        <NuxtLink to="/" class="logo footer-logo">
-          <div class="logo-icon-box">
-            <svg viewBox="0 0 24 24" class="logo-svg" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M3 10.5 12 3l9 7.5v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-              <circle cx="12" cy="13" r="2.5" />
-              <path d="M12 15.5v3.5M14 17.5h-2" />
-            </svg>
-          </div>
-          <div class="logo-wordmark">
-            <span class="logo-title">Joyliy</span>
-            <span class="logo-sub">Toshkent</span>
-          </div>
-        </NuxtLink>
-        <p class="brand-desc">
-          Toshkent shahrida kvartira egalari va ijarachilarni to‘g‘ridan-to‘g‘ri bog‘lovchi platforma. Ortiqcha maklerlik to‘lovlarsiz va shaffof shartlar bilan orzuingizdagi uyni toping.
-        </p>
-        <div class="brand-stats">
-          <span class="stat-pill">⚡️ 100% Maklersiz</span>
-          <span class="stat-pill">📍 Toshkent bo‘ylab</span>
+  <footer class="monograph-footer">
+    <div class="wrap">
+      <!-- Top Masthead of Footer -->
+      <div class="footer-top-bar">
+        <div class="footer-brand">
+          <span class="footer-brand-title">JOYLIY</span>
+          <span class="footer-brand-sub">Toshkent Arxitektura va Ijara Monografiyasi</span>
+        </div>
+        <div class="footer-edition">
+          <span>Nashr № 01 · 2026</span>
         </div>
       </div>
 
-      <!-- Column 1: Platform -->
-      <div>
-        <h4>Platforma</h4>
-        <a href="#natija">{{ t('find_apartment') }}</a>
-        <a href="#natija">{{ t('no_agent_rentals') }}</a>
-        <a href="#qanday">{{ t('how_it_works') }}</a>
-        <a href="#nega">Nega Joyliy?</a>
-        <a href="#owner">Uy egalari uchun</a>
-      </div>
+      <!-- Main Columns Grid -->
+      <div class="footer-columns-grid">
+        <!-- Col 1: About / Statement -->
+        <div class="footer-col about-col">
+          <h4 class="col-heading">Toshkent Ijarasi</h4>
+          <p class="col-desc">
+            Joyliy — mulk egalari va ijarachilarni to‘g‘ridan-to‘g‘ri bog‘lovchi mustaqil arxitektura va turar-joy maydoni. Ortiqcha komissiyalarsiz va shaffof shartlar bilan yangi uyingizni kashf eting.
+          </p>
+          <div class="footer-badges">
+            <span class="f-badge">0% Vositachilik</span>
+            <span class="f-badge">Shaffof narxlar</span>
+          </div>
+        </div>
 
-      <!-- Column 2: Audience Categories -->
-      <div>
-        <h4>Kategoriyalar</h4>
-        <a href="#natija">👨‍👩‍👧 Oila uchun ijara</a>
-        <a href="#natija">👩 Qizlar va ayollar uchun</a>
-        <a href="#natija">👨 Yigitlar va talabalar uchun</a>
-        <a href="#natija">🚇 Metro yaqinidagi uylar</a>
-        <a href="#natija">🛋 Mebelli xonadonlar</a>
-      </div>
+        <!-- Col 2: Directory -->
+        <div class="footer-col">
+          <h4 class="col-heading">01 / Katalog</h4>
+          <a href="#katalog" class="footer-link">Barcha xonadonlar</a>
+          <a href="#katalog" class="footer-link">Maklersiz uylar</a>
+          <a href="#katalog" class="footer-link">Oxirgi 3 kunlik</a>
+          <a href="#katalog" class="footer-link">Sheriklik va talabalar</a>
+        </div>
 
-      <!-- Column 3: Contact & Telegram -->
-      <div>
-        <h4>Aloqa va Bot</h4>
-        <a href="https://t.me/joyliy_bot" target="_blank" rel="noopener">
-          🤖 Telegram Bot: @joyliy_bot
-        </a>
-        <a href="https://t.me/joyliy_uz" target="_blank" rel="noopener">
-          📢 Telegram Kanal: @joyliy_uz
-        </a>
-        <a href="mailto:salom@joyliy.uz">
-          ✉️ salom@joyliy.uz
-        </a>
-        <div class="address-text">
-          Toshkent shahri, O‘zbekiston
+        <!-- Col 3: Districts -->
+        <div class="footer-col">
+          <h4 class="col-heading">02 / Koordinatalar</h4>
+          <a href="#katalog" class="footer-link">Chilonzor tumani</a>
+          <a href="#katalog" class="footer-link">Yunusobod tumani</a>
+          <a href="#katalog" class="footer-link">Mirzo Ulug‘bek tumani</a>
+          <a href="#katalog" class="footer-link">Mirobod tumani</a>
+          <a href="#katalog" class="footer-link">Yakkasaroy tumani</a>
+        </div>
+
+        <!-- Col 4: Telegram & Contacts -->
+        <div class="footer-col">
+          <h4 class="col-heading">03 / Aloqa va Bot</h4>
+          <a href="https://t.me/joyliy_bot" target="_blank" rel="noopener" class="footer-link special">
+            🤖 Telegram Bot: @joyliy_bot
+          </a>
+          <a href="https://t.me/joyliy_uz" target="_blank" rel="noopener" class="footer-link special">
+            📢 Telegram Kanal: @joyliy_uz
+          </a>
+          <a href="mailto:salom@joyliy.uz" class="footer-link">
+            ✉️ salom@joyliy.uz
+          </a>
+          <span class="city-location">Toshkent, O‘zbekiston</span>
         </div>
       </div>
-    </div>
 
-    <!-- Sub Footer -->
-    <div class="wrap sub-footer">
-      <div class="sub-footer-text">
-        © 2026 Joyliy. Barcha huquqlar himoyalangan.
-      </div>
-      <div class="sub-footer-disclaimer">
-        E’lonlar ommaviy manbalar va uy egalari tomonidan joylashtiriladi.
+      <!-- Bottom Legal Line -->
+      <div class="footer-bottom-line">
+        <div class="legal-left">
+          © 2026 Joyliy. Barcha huquqlar himoyalangan.
+        </div>
+        <div class="legal-right">
+          E’lonlar ochiq manbalar va mulk egalari tomonidan taqdim etiladi.
+        </div>
       </div>
     </div>
   </footer>
 </template>
 
 <style scoped>
-.app-footer {
+.monograph-footer {
   background: var(--surf);
-  border-top: 1px solid var(--bd);
-  padding: 56px 0 28px;
-  margin-top: 56px;
+  border-top: 1px solid var(--sand);
+  padding: 56px 0 32px;
+  margin-top: 60px;
 }
 
-.footer-grid {
-  gap: 36px;
-}
-
-.footer-brand-col {
+.footer-top-bar {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--sand);
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+  gap: 16px;
 }
 
-.footer-logo {
-  margin-bottom: 14px;
+.footer-brand {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
-.brand-desc {
+.footer-brand-title {
+  font-family: var(--font-serif);
+  font-size: 24px;
+  letter-spacing: 0.15em;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.footer-brand-sub {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.footer-edition {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--terracotta);
+}
+
+.footer-columns-grid {
+  display: grid;
+  gap: 36px;
+  grid-template-columns: 1fr;
+  margin-bottom: 48px;
+}
+
+.col-heading {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin: 0 0 16px;
+}
+
+.col-desc {
   font-size: 14px;
   line-height: 1.65;
-  color: var(--tx-muted);
-  margin: 0 0 16px;
-  max-width: 340px;
+  color: var(--muted);
+  margin: 0 0 18px;
 }
 
-.brand-stats {
+.footer-badges {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
 }
 
-.stat-pill {
-  font-size: 11px;
-  font-weight: 700;
-  background: var(--mint-subtle);
-  color: var(--ac);
-  border: 1px solid rgba(23, 77, 58, 0.15);
-  padding: 3px 10px;
-  border-radius: var(--radius-full);
+.f-badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  padding: 3px 8px;
+  border: 1px solid var(--sand);
+  border-radius: var(--radius-xs);
+  color: var(--muted);
+  background: var(--ivory);
 }
 
-.address-text {
-  font-size: 13px;
-  color: var(--tx-muted);
+.footer-link {
+  display: block;
+  font-size: 13.5px;
+  color: var(--muted);
+  padding: 5px 0;
+  transition: color 0.18s ease;
+}
+
+.footer-link:hover {
+  color: var(--terracotta);
+}
+
+.footer-link.special {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.city-location {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted);
   margin-top: 8px;
 }
 
-.sub-footer {
-  margin-top: 40px;
-  padding-top: 24px;
-  border-top: 1px solid var(--bd);
+.footer-bottom-line {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding-top: 24px;
+  border-top: 1px solid var(--sand);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted);
   flex-wrap: wrap;
   gap: 12px;
-  font-size: 13px;
-  color: var(--tx-muted);
 }
 
-.sub-footer-disclaimer {
-  font-size: 12px;
-  opacity: 0.8;
-}
-
-@media (max-width: 767px) {
-  .sub-footer {
-    flex-direction: column;
-    align-items: flex-start;
+@media (min-width: 768px) {
+  .footer-columns-grid {
+    grid-template-columns: 1.5fr 1fr 1fr 1.2fr;
   }
 }
 </style>

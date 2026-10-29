@@ -43,24 +43,28 @@ const onApply = () => {
     <div class="sheet filter-sheet">
       <!-- Header -->
       <div class="top filter-header">
-        <span class="filter-header-title">{{ t('filters') }}</span>
+        <div class="filter-header-left">
+          <span class="editorial-meta">PARAMETRLAR</span>
+          <span class="filter-heading-text">Kengaytirilgan filtrlar</span>
+        </div>
         <button class="ib" @click="$emit('close')" :aria-label="t('close')">
           <svg class="i" viewBox="0 0 24 24">
-            <path d="M18 6 6 18M6 6l12 12" />
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
           </svg>
         </button>
       </div>
 
       <div class="bd filter-body">
-        <!-- Sort Segmented Buttons -->
-        <div class="filter-group">
-          <label class="filter-group-label">Saralash tartibi</label>
-          <div class="segmented-control">
+        <!-- Sort Segment -->
+        <div class="filter-section">
+          <span class="editorial-meta">01 / SARALASH TARTIBI</span>
+          <div class="sort-segmented">
             <button
               v-for="opt in sortOptions"
               :key="opt.value"
               type="button"
-              class="segment-btn"
+              class="sort-tab"
               :class="{ active: filterSort === opt.value }"
               @click="filterSort = opt.value"
             >
@@ -69,77 +73,77 @@ const onApply = () => {
           </div>
         </div>
 
-        <!-- Audience Selector -->
-        <div class="filter-group">
-          <label class="filter-group-label">Kimlar uchun (Ijarachi toifasi)</label>
-          <div class="audience-grid">
+        <!-- Audience Grid -->
+        <div class="filter-section">
+          <span class="editorial-meta">02 / IJARACHI TOIFASI</span>
+          <div class="audience-select-grid">
             <button
               v-for="aud in audienceList"
               :key="aud.value"
               type="button"
-              class="aud-select-btn"
+              class="audience-select-card"
               :class="{ active: filterAudience === aud.value }"
               @click="filterAudience = aud.value"
             >
-              <span class="aud-select-icon">{{ aud.icon }}</span>
-              <span class="aud-select-name">{{ aud.label }}</span>
+              <span class="aud-icon">{{ aud.icon }}</span>
+              <span class="aud-text">{{ aud.label }}</span>
             </button>
           </div>
         </div>
 
-        <!-- Amenities & Requirements Checklist -->
-        <div class="filter-group">
-          <label class="filter-group-label">Qulayliklar va mezonlar</label>
-          <div class="checklist-box">
-            <!-- Owner only / Maklersiz -->
-            <label class="chk-item owner-chk-item">
+        <!-- Amenities Checklist -->
+        <div class="filter-section">
+          <span class="editorial-meta">03 / QULAYLIKLAR VA MEZONLAR</span>
+          <div class="amenities-container">
+            <!-- Owner Only -->
+            <label class="amenity-row owner-highlight">
               <input type="checkbox" v-model="filterAmenities.owner_only" />
-              <div class="chk-text">
-                <span class="chk-name">Faqat egasidan (Maklersiz)</span>
-                <span class="chk-sub">Vositachisiz to‘g‘ridan-to‘g‘ri e’lonlar</span>
+              <div class="amenity-desc">
+                <span class="amenity-title">Faqat egasidan (Maklersiz)</span>
+                <span class="amenity-sub">100% vositachilik komissiyasisiz e’lonlar</span>
               </div>
             </label>
 
             <!-- Mebel -->
-            <label class="chk-item">
+            <label class="amenity-row">
               <input type="checkbox" v-model="filterAmenities.mebel" />
-              <div class="chk-text">
-                <span class="chk-name">Mebel mavjud</span>
-                <span class="chk-sub">Yashash uchun barcha kerakli mebellar</span>
+              <div class="amenity-desc">
+                <span class="amenity-title">Mebel mavjud</span>
+                <span class="amenity-sub">Yashash uchun to‘liq jihozlangan</span>
               </div>
             </label>
 
             <!-- Konditsioner -->
-            <label class="chk-item">
+            <label class="amenity-row">
               <input type="checkbox" v-model="filterAmenities.kond" />
-              <div class="chk-text">
-                <span class="chk-name">Konditsioner</span>
-                <span class="chk-sub">Yozgi salqinlik va qishki isitish</span>
+              <div class="amenity-desc">
+                <span class="amenity-title">Konditsioner</span>
+                <span class="amenity-sub">Sovutish va isitish iqlim uskunasi</span>
               </div>
             </label>
 
             <!-- Kir yuvish -->
-            <label class="chk-item">
+            <label class="amenity-row">
               <input type="checkbox" v-model="filterAmenities.kir" />
-              <div class="chk-text">
-                <span class="chk-name">Kir yuvish mashinasi</span>
-                <span class="chk-sub">Avtomat kir yuvish uskunasi</span>
+              <div class="amenity-desc">
+                <span class="amenity-title">Kir yuvish mashinasi</span>
+                <span class="amenity-sub">Avtomat kir yuvish texnikasi</span>
               </div>
             </label>
 
             <!-- Wi-Fi -->
-            <label class="chk-item">
+            <label class="amenity-row">
               <input type="checkbox" v-model="filterAmenities.net" />
-              <div class="chk-text">
-                <span class="chk-name">Yuqori tezlikdagi Wi-Fi</span>
-                <span class="chk-sub">Internet tarmog‘i ulangan</span>
+              <div class="amenity-desc">
+                <span class="amenity-title">Wi-Fi Internet</span>
+                <span class="amenity-sub">Tezkor internet tarmog‘i</span>
               </div>
             </label>
           </div>
         </div>
       </div>
 
-      <!-- Action Footer -->
+      <!-- Action Footer Bar -->
       <div class="cbar filter-cbar">
         <button class="btn" type="button" @click="onReset">{{ t('clear') }}</button>
         <button class="btn p" type="button" @click="onApply">Filtrlarni qo‘llash</button>
@@ -153,143 +157,146 @@ const onApply = () => {
   max-width: 540px;
 }
 
-.filter-header-title {
-  font-size: 18px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
+.filter-header {
+  padding: 18px 24px;
+}
+
+.filter-header-left {
+  display: flex;
+  flex-direction: column;
+}
+
+.filter-heading-text {
+  font-family: var(--font-serif);
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--ink);
 }
 
 .filter-body {
-  padding: 22px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 24px;
 }
 
-.filter-group-label {
-  font-size: 12px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--tx-muted);
-  margin-bottom: 10px;
-  display: block;
+.filter-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.segmented-control {
+.sort-segmented {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  background: var(--surf-muted);
-  padding: 4px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--bd);
+  background: var(--sand-light);
+  border: 1px solid var(--sand);
+  border-radius: var(--radius-xs);
+  padding: 3px;
 }
 
-.segment-btn {
-  padding: 8px 12px;
-  border-radius: var(--radius-sm);
-  font-size: 13.5px;
+.sort-tab {
+  padding: 8px;
+  font-size: 13px;
   font-weight: 600;
-  color: var(--tx-muted);
-  cursor: pointer;
-  transition: all 0.18s ease;
+  color: var(--muted);
+  border-radius: var(--radius-xs);
+  transition: all 0.15s ease;
   text-align: center;
 }
 
-.segment-btn.active {
-  background: var(--card);
-  color: var(--tx);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+.sort-tab.active {
+  background: var(--surf);
+  color: var(--ink);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
-.audience-grid {
+.audience-select-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 8px;
 }
 
-.aud-select-btn {
+.audience-select-card {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   padding: 10px 14px;
   background: var(--surf);
-  border: 1px solid var(--bd);
-  border-radius: var(--radius-md);
+  border: 1px solid var(--sand);
+  border-radius: var(--radius-xs);
   cursor: pointer;
   transition: all 0.18s ease;
 }
 
-.aud-select-btn:hover {
-  border-color: var(--bd-hover);
-  background: var(--surf-muted);
+.audience-select-card:hover {
+  border-color: var(--ink);
 }
 
-.aud-select-btn.active {
-  border-color: var(--ac);
-  background: var(--mint-subtle);
-  color: var(--ac);
+.audience-select-card.active {
+  background: var(--terracotta-subtle);
+  border-color: var(--terracotta);
+  color: var(--terracotta);
 }
 
-.aud-select-icon {
-  font-size: 18px;
+.aud-icon {
+  font-size: 16px;
 }
 
-.aud-select-name {
-  font-size: 13.5px;
+.aud-text {
+  font-size: 13px;
   font-weight: 600;
 }
 
-.checklist-box {
+.amenities-container {
   background: var(--surf);
-  border: 1px solid var(--bd);
-  border-radius: var(--radius-lg);
+  border: 1px solid var(--sand);
+  border-radius: var(--radius-xs);
   overflow: hidden;
 }
 
-.chk-item {
+.amenity-row {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   padding: 12px 16px;
-  border-bottom: 1px solid var(--bd);
+  border-bottom: 1px solid var(--sand-light);
   cursor: pointer;
   transition: background 0.15s ease;
 }
 
-.chk-item:last-child {
+.amenity-row:last-child {
   border-bottom: none;
 }
 
-.chk-item:hover {
-  background: var(--surf-muted);
+.amenity-row:hover {
+  background: var(--ivory);
 }
 
-.owner-chk-item {
-  background: var(--mint-subtle);
+.owner-highlight {
+  background: var(--terracotta-subtle);
 }
 
-.chk-item input {
-  width: 18px;
-  height: 18px;
-  accent-color: var(--ac);
-  cursor: pointer;
+.amenity-row input {
+  width: 17px;
+  height: 17px;
+  accent-color: var(--terracotta);
 }
 
-.chk-text {
+.amenity-desc {
   display: flex;
   flex-direction: column;
 }
 
-.chk-name {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--tx);
+.amenity-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink);
 }
 
-.chk-sub {
-  font-size: 11.5px;
-  color: var(--tx-muted);
+.amenity-sub {
+  font-size: 11px;
+  color: var(--muted);
 }
 
 .filter-cbar {
@@ -299,8 +306,6 @@ const onApply = () => {
 
 .filter-cbar .btn.p {
   flex: 2;
-  background: var(--ac);
-  color: #FFFFFF;
 }
 
 .filter-cbar .btn:first-child {

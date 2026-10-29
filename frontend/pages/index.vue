@@ -18,6 +18,7 @@ const {
   filterAudience,
   filterAmenities,
   filterSort,
+  availableDistricts,
   fetchListings,
 } = useListings()
 
@@ -29,18 +30,18 @@ await useAsyncData('listings_ssr', async () => {
   return true
 })
 
-// Category definitions
+// Editorial categories
 const categories = [
-  { key: '3days', title: 'Oxirgi 3 kun', icon: 'calendar' },
-  { key: 'mk', title: 'Maklersiz kvartiralar', icon: 'shield' },
-  { key: '1', title: '1 xonali', icon: 'bed' },
-  { key: '2', title: '2 xonali', icon: 'bed' },
-  { key: '3', title: '3 xonali', icon: 'bed' },
-  { key: 'room', title: 'Sheriklik uchun', icon: 'users' },
-  { key: 'stu', title: 'Talabalar uchun', icon: 'cap' },
+  { key: '', title: 'Barcha takliflar', code: '00' },
+  { key: 'mk', title: 'Maklersiz e’lonlar', code: '01' },
+  { key: '3days', title: 'Oxirgi 3 kun', code: '02' },
+  { key: '1', title: '1 xonali', code: '03' },
+  { key: '2', title: '2 xonali', code: '04' },
+  { key: '3', title: '3 xonali', code: '05' },
+  { key: 'room', title: 'Sheriklik uchun', code: '06' },
 ]
 
-// Audience options (family, female, male, all)
+// Audience options
 const audienceOptions = [
   { key: 'all', title: 'Barchasi', icon: '🌐' },
   { key: 'family', title: 'Oila uchun', icon: '👨‍👩‍👧' },
@@ -53,12 +54,12 @@ const getAudienceCount = (key: string) => {
   return listings.value.filter((x) => x.target_audience === key).length
 }
 
-const toggleCategory = (catKey: string) => {
-  if (filterCategory.value === catKey) {
-    filterCategory.value = ''
-  } else {
-    filterCategory.value = catKey
-  }
+const getDistrictCount = (name: string) => {
+  return listings.value.filter((x) => x.district === name).length
+}
+
+const selectCategory = (catKey: string) => {
+  filterCategory.value = catKey
 }
 
 const onSelectListing = (item: ListingItem) => {
@@ -95,130 +96,163 @@ const hasActiveFilters = computed(() => {
   )
 })
 
-// Curated collections
-const newListings = computed(() => {
-  return [...listings.value]
-    .filter((x) => (x.days_ago || 0) <= 3)
-    .sort((a, b) => (a.days_ago || 0) - (b.days_ago || 0))
-    .slice(0, 8)
+// Dominant featured listing vs grid listings
+const dominantFeatured = computed(() => {
+  if (!filteredListings.value.length) return null
+  return filteredListings.value[0]
 })
 
-const metroListings = computed(() => {
-  return listings.value.filter((x) => (x.metro_minutes || 5) <= 7).slice(0, 4)
+const remainingListings = computed(() => {
+  if (!filteredListings.value.length) return []
+  return filteredListings.value.slice(1)
 })
 
-const roomListings = computed(() => {
-  return listings.value.filter((x) => x.is_shared_room || x.rooms <= 1).slice(0, 4)
-})
+const formatPrice = (val: number) => {
+  return val.toLocaleString('ru-RU').replace(/\u00a0/g, ' ') + ' so‘m'
+}
 </script>
 
 <template>
-  <div class="home-page">
-    <!-- Hero with Search -->
+  <div class="editorial-home">
+    <!-- Hero with Architectural Console -->
     <HeroSearch @openFilters="showFilters = true" />
 
-    <!-- Categories Shelf -->
+    <!-- Curated Category Tabs Bar -->
     <div class="wrap">
-      <section class="shelf-section">
-        <div class="cats" id="cats">
+      <div class="category-strip">
+        <div class="category-scroll">
           <button
             v-for="cat in categories"
             :key="cat.key"
-            class="cat"
-            :class="{ on: filterCategory === cat.key }"
-            @click="toggleCategory(cat.key)"
+            type="button"
+            class="cat-tab"
+            :class="{ active: filterCategory === cat.key }"
+            @click="selectCategory(cat.key)"
           >
-            <!-- Bed icon -->
-            <svg v-if="cat.icon === 'bed'" class="i cat-icon" viewBox="0 0 24 24">
-              <path d="M2 4v16M2 8h18a2 2 0 0 1 2 2v10M2 17h20M6 8v9" />
-            </svg>
-
-            <!-- Users icon -->
-            <svg v-else-if="cat.icon === 'users'" class="i cat-icon" viewBox="0 0 24 24">
-              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-              <circle cx="9" cy="7" r="4" />
-              <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
-            </svg>
-
-            <!-- Cap icon -->
-            <svg v-else-if="cat.icon === 'cap'" class="i cat-icon" viewBox="0 0 24 24">
-              <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
-              <path d="M6 12v5c3 3 9 3 12 0v-5" />
-            </svg>
-
-            <!-- Shield icon -->
-            <svg v-else-if="cat.icon === 'shield'" class="i cat-icon" viewBox="0 0 24 24">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-            </svg>
-
-            <!-- Calendar icon -->
-            <svg v-else-if="cat.icon === 'calendar'" class="i cat-icon" viewBox="0 0 24 24">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-              <line x1="16" y1="2" x2="16" y2="6" />
-              <line x1="8" y1="2" x2="8" y2="6" />
-              <line x1="3" y1="10" x2="21" y2="10" />
-            </svg>
-
-            <span class="cat-label">{{ cat.title }}</span>
+            <span class="cat-code">{{ cat.code }}</span>
+            <span class="cat-name">{{ cat.title }}</span>
           </button>
         </div>
-      </section>
+      </div>
     </div>
 
-    <!-- Main Results Section -->
+    <!-- Main Catalog Section -->
     <div class="wrap">
-      <section id="natija">
-        <div class="sh results-header">
-          <div>
-            <div class="results-tag">E’lonlar katalogi</div>
-            <h2 id="rt" class="section-heading">{{ t('featured_rentals') }}</h2>
-            <p class="sub" id="rc">
-              {{ isLoading ? 'Yuklanmoqda...' : `${filteredListings.length} ta tasdiqlangan e’lon topildi` }}
+      <section id="katalog" class="catalog-section">
+        <!-- Catalog Header -->
+        <div class="catalog-header">
+          <div class="header-left">
+            <span class="editorial-meta">TOSHKENT IJARA ARXIVI</span>
+            <h2 class="editorial-headline catalog-title">
+              Saralangan <em>xonadonlar.</em>
+            </h2>
+            <p class="catalog-count-note">
+              {{ isLoading ? 'Yuklanmoqda...' : `${filteredListings.length} ta tekshirilgan e’lon topildi` }}
             </p>
           </div>
 
-          <div class="results-actions">
-            <!-- Map trigger button -->
-            <button class="btn map-btn" type="button" @click="showMap = true">
+          <!-- Catalog Actions -->
+          <div class="header-right">
+            <button class="btn map-view-btn" type="button" @click="showMap = true">
               <svg class="i" viewBox="0 0 24 24">
                 <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" />
                 <line x1="8" y1="2" x2="8" y2="18" />
                 <line x1="16" y1="6" x2="16" y2="22" />
               </svg>
-              <span>{{ t('view_on_map') }}</span>
+              <span>Xaritada ko‘rish</span>
             </button>
 
-            <!-- Clear filters button -->
-            <button v-if="hasActiveFilters" class="btn clear-btn" type="button" id="clr" @click="clearFilters">
-              {{ t('clear') }}
+            <button v-if="hasActiveFilters" class="btn clear-filter-btn" type="button" @click="clearFilters">
+              <span>Filtrlarni tozalash</span>
             </button>
           </div>
         </div>
 
-        <!-- Audience Filter Bar (Kimlar uchun: Oila / Qizlar / Yigitlar / Barchasi) -->
-        <div class="aud-filter-wrap">
-          <div class="aud-pills-row">
+        <!-- Audience Filter Strip -->
+        <div class="audience-strip">
+          <span class="audience-title">Ijarachilar toifasi:</span>
+          <div class="audience-pills">
             <button
               v-for="aud in audienceOptions"
               :key="aud.key"
               type="button"
-              class="aud-pill"
+              class="aud-btn"
               :class="{ active: filterAudience === aud.key }"
               @click="filterAudience = aud.key"
             >
               <span class="aud-icon">{{ aud.icon }}</span>
-              <span class="aud-text">{{ aud.title }}</span>
-              <span class="aud-num" v-if="getAudienceCount(aud.key) > 0">
+              <span class="aud-name">{{ aud.title }}</span>
+              <span class="aud-count" v-if="getAudienceCount(aud.key) > 0">
                 {{ getAudienceCount(aud.key) }}
               </span>
             </button>
           </div>
         </div>
 
-        <!-- Listings Grid -->
-        <div v-if="filteredListings.length" class="grid g4" id="gMain">
+        <!-- Dominant Featured Showcase (1 visually dominant hero card) -->
+        <div v-if="dominantFeatured" class="featured-showcase" @click="onSelectListing(dominantFeatured)">
+          <div class="featured-media">
+            <img
+              v-if="dominantFeatured.image_urls && dominantFeatured.image_urls.length"
+              :src="dominantFeatured.image_urls[0]"
+              :alt="dominantFeatured.title"
+              class="featured-img"
+            />
+            <div v-else class="featured-placeholder">
+              <span>Tanlangan turar joy</span>
+            </div>
+            <div class="featured-badge-bar">
+              <span class="featured-pill">Tanlangan e’lon</span>
+              <span v-if="dominantFeatured.is_owner" class="featured-owner-pill">100% Maklersiz</span>
+            </div>
+          </div>
+
+          <div class="featured-info">
+            <div class="featured-top-meta">
+              <span class="editorial-meta">{{ dominantFeatured.district }} · METROGA {{ dominantFeatured.metro_minutes || 5 }} DAQIQA</span>
+              <span class="featured-index-num">№ 01</span>
+            </div>
+
+            <h3 class="featured-title">
+              {{ dominantFeatured.title }}
+            </h3>
+
+            <div class="featured-specs-row">
+              <div class="spec-block">
+                <span class="spec-k">Maydon</span>
+                <span class="spec-v">{{ dominantFeatured.area }} m²</span>
+              </div>
+              <div class="spec-block">
+                <span class="spec-k">Xonalar</span>
+                <span class="spec-v">{{ dominantFeatured.rooms }} xona</span>
+              </div>
+              <div class="spec-block">
+                <span class="spec-k">Qavat</span>
+                <span class="spec-v">{{ dominantFeatured.floor || '3/9' }}</span>
+              </div>
+            </div>
+
+            <div class="featured-bottom-bar">
+              <div class="featured-price">
+                <span class="f-price">{{ formatPrice(dominantFeatured.price_uzs) }}</span>
+                <span class="f-period">/ oy</span>
+              </div>
+
+              <button class="btn p inspect-btn" type="button">
+                <span>Batafsil ko‘rish</span>
+                <svg class="i" viewBox="0 0 24 24">
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                  <polyline points="12 5 19 12 12 19" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Remaining Listings Architectural Grid -->
+        <div v-if="remainingListings.length" class="grid g4 catalog-grid">
           <ListingCard
-            v-for="item in filteredListings"
+            v-for="item in remainingListings"
             :key="item.id"
             :listing="item"
             @select="onSelectListing"
@@ -226,174 +260,107 @@ const roomListings = computed(() => {
         </div>
 
         <!-- Empty State -->
-        <div v-else class="empty">
-          <svg class="i" style="width: 48px; height: 48px; margin-bottom: 12px; color: var(--tx-muted)" viewBox="0 0 24 24">
-            <circle cx="11" cy="11" r="8" />
-            <line x1="21" y1="21" x2="16.65" y2="16.65" />
-          </svg>
-          <h3 style="margin: 0 0 8px; font-size: 18px">{{ t('no_results') }}</h3>
-          <p class="mu" style="margin: 0 0 18px">{{ t('try_adjusting') }}</p>
-          <button class="btn p" type="button" @click="clearFilters">{{ t('clear') }}</button>
+        <div v-else-if="!dominantFeatured" class="empty-monograph">
+          <span class="numeral-accent">00</span>
+          <h3>Hech qanday e’lon topilmadi</h3>
+          <p>Tanlangan filtrlarga mos xonadonlar mavjud emas. Filtrlarni o‘zgartirib qayta urinib ko‘ring.</p>
+          <button class="btn p" type="button" @click="clearFilters">Filtrlarni tozalash</button>
         </div>
       </section>
 
-      <!-- Section: Yangi qo‘shilganlar -->
-      <section v-if="newListings.length" class="curated-section">
-        <div class="sh">
-          <div>
-            <div class="results-tag">Eng so‘nggi takliflar</div>
-            <h2 class="section-heading">Oxirgi 3 kundagi e’lonlar</h2>
-            <p class="sub">Yaqinda joylangan va hozirda ijaraga tayyor bo‘lgan xonadonlar</p>
-          </div>
-        </div>
-        <div class="grid g4" id="gNew">
-          <ListingCard
-            v-for="item in newListings"
-            :key="'new-' + item.id"
-            :listing="item"
-            @select="onSelectListing"
-          />
-        </div>
-      </section>
-
-      <!-- Section: Metro yaqinida -->
-      <section v-if="metroListings.length" class="curated-section">
-        <div class="sh">
-          <div>
-            <div class="results-tag">Transport qulayligi</div>
-            <h2 class="section-heading">Metro bekatlariga yaqin uylar</h2>
-            <p class="sub">Toshkent metropolitenigacha 7 daqiqagacha piyoda masofadagi uylar</p>
-          </div>
-        </div>
-        <div class="grid g4" id="gMetro">
-          <ListingCard
-            v-for="item in metroListings"
-            :key="'metro-' + item.id"
-            :listing="item"
-            @select="onSelectListing"
-          />
-        </div>
-      </section>
-
-      <!-- Section: Sheriklik uchun -->
-      <section v-if="roomListings.length" class="curated-section">
-        <div class="sh">
-          <div>
-            <div class="results-tag">Tejamkor ijara</div>
-            <h2 class="section-heading">Sheriklik va talabalar uchun</h2>
-            <p class="sub">Xonadosh bilan birga yashash yoki qulay 1 xonali ixcham kvartiralar</p>
-          </div>
-        </div>
-        <div class="grid g4" id="gRoom">
-          <ListingCard
-            v-for="item in roomListings"
-            :key="'room-' + item.id"
-            :listing="item"
-            @select="onSelectListing"
-          />
-        </div>
-      </section>
-
-      <!-- Trust & Differentiation Section: Nega aynan Joyliy? -->
-      <section id="nega" class="trust-section">
-        <div class="trust-header">
-          <span class="results-tag">Afzalliklarimiz</span>
-          <h2 class="section-heading">Nega aynan Joyliy?</h2>
-          <p class="sub">O‘zbekiston ijara bozorini shaffof, adolatli va zamonaviy qilishga intilamiz</p>
+      <!-- Neighborhood Exploration Section (District Index) -->
+      <section class="neighborhood-section">
+        <div class="section-title-wrap">
+          <span class="editorial-meta">HUDUDLAR REESTRI</span>
+          <h2 class="editorial-headline section-title">
+            Toshkent <em>tumanlari.</em>
+          </h2>
+          <p class="section-subtitle">
+            O‘zingizga ma’qul hududni tanlang va bevosita ushbu koordinatadagi uylarni o‘rganing.
+          </p>
         </div>
 
-        <div class="trust-grid">
-          <div class="trust-card">
-            <div class="trust-icon-box">
-              <svg class="i trust-icon" viewBox="0 0 24 24">
-                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                <circle cx="9" cy="7" r="4" />
-                <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
-              </svg>
+        <div class="districts-index-grid">
+          <button
+            v-for="d in availableDistricts.slice(0, 8)"
+            :key="d"
+            type="button"
+            class="district-index-card"
+            :class="{ active: filterDistrict === d }"
+            @click="filterDistrict = filterDistrict === d ? '' : d"
+          >
+            <div class="district-top">
+              <span class="district-code">TASHKENT</span>
+              <span class="district-count">{{ getDistrictCount(d) }} ta e’lon</span>
             </div>
-            <h3>To‘g‘ridan-to‘g‘ri uy egasi</h3>
-            <p>Hech qanday makler yoki rieltorlik foizlarisiz. 1 oylik yoki 50% qo‘shimcha komissiyalarni unuting.</p>
-          </div>
-
-          <div class="trust-card">
-            <div class="trust-icon-box">
-              <svg class="i trust-icon" viewBox="0 0 24 24">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                <path d="m9 12 2 2 4-4" />
-              </svg>
+            <h4 class="district-heading">{{ d }}</h4>
+            <div class="district-bottom">
+              <span class="district-link-text">Katalogda ko‘rish →</span>
             </div>
-            <h3>Saralangan toza e’lonlar</h3>
-            <p>Dublikatlar, eskirgan takliflar va soxta rasmlar filtrlanadi. Har bir e’londa asl manba shaffof ko‘rsatiladi.</p>
-          </div>
-
-          <div class="trust-card">
-            <div class="trust-icon-box">
-              <svg class="i trust-icon" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="10" />
-                <path d="m4.93 4.93 4.24 4.24M14.83 14.83l4.24 4.24M14.83 9.17l4.24-4.24M4.93 19.07l4.24-4.24" />
-              </svg>
-            </div>
-            <h3>Aniq maqsadli filtrlash</h3>
-            <p>Oila uchun alohida, talabalar, qizlar yoki yigitlar uchun mos xonadonlarni bir bosishda toping.</p>
-          </div>
-
-          <div class="trust-card">
-            <div class="trust-icon-box">
-              <svg class="i trust-icon" viewBox="0 0 24 24">
-                <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" />
-                <line x1="8" y1="2" x2="8" y2="18" />
-                <line x1="16" y1="6" x2="16" y2="22" />
-              </svg>
-            </div>
-            <h3>Interaktiv xarita va bot</h3>
-            <p>Toshkent tumanlari bo‘yicha narxlarni xaritada solishtiring yoki Telegram bot orqali yangilarini kuzating.</p>
-          </div>
+          </button>
         </div>
       </section>
 
-      <!-- How it Works Section -->
-      <section id="qanday" class="how-section">
-        <div class="trust-header">
-          <span class="results-tag">Oddiy jarayon</span>
-          <h2 class="section-heading">{{ t('how_it_works') }}</h2>
-          <p class="sub">{{ t('three_steps') }}</p>
+      <!-- Brand Story / Philosophy Section (Falsafa) -->
+      <section id="falsafa" class="philosophy-section">
+        <div class="philosophy-masthead">
+          <span class="editorial-meta">JOYLIY FALSAFASI</span>
+          <h2 class="editorial-headline philosophy-heading">
+            Uy ijarasi sokin, shaffof va <em>vositachilarsiz</em> bo‘lishi lozim.
+          </h2>
         </div>
 
-        <div class="steps">
-          <div class="step">
-            <div class="n">01</div>
-            <h3>Uyni qidiring</h3>
-            <p>O‘zingizga ma’qul tuman, metro masofasi, xonalar soni va byudjet bo‘yicha filtrlang.</p>
-          </div>
-          <div class="step">
-            <div class="n">02</div>
-            <h3>E’lonni ko‘rib chiqing</h3>
-            <p>Haqiqiy fotosuratlar, qulayliklar va joylashuvni ko‘rib, sizga mos kelishini aniqlang.</p>
-          </div>
-          <div class="step">
-            <div class="n">03</div>
-            <h3>Uy egasi bilan bog‘laning</h3>
-            <p>Telefon orqali qo‘ng‘iroq qiling yoki Telegram orqali yozib, vositachisiz shartlarni kelishing.</p>
-          </div>
-        </div>
-      </section>
-
-      <!-- Owner CTA Section -->
-      <section id="owner">
-        <div class="cta">
-          <div class="cta-content">
-            <span class="cta-pill">Uy egalari uchun</span>
-            <h2>O‘z kvartirangizni vositachisiz ijaraga bering</h2>
-            <p>
-              Joyliy platformasida e’lon berish bepul va qulay. Ijarachilar siz bilan to‘g‘ridan-to‘g‘ri bog‘lanadi va har ikki tomon ham mablag‘ini tejaydi.
+        <div class="philosophy-grid">
+          <!-- Pillar 1 -->
+          <div class="philosophy-col">
+            <span class="numeral-accent">01</span>
+            <h3 class="col-title">To‘g‘ridan-to‘g‘ri aloqa</h3>
+            <p class="col-text">
+              Hech qanday makler va keraksiz 50% vositachilik to‘lovisiz. Ijarachi va mulk egasi o‘rtasida shaffof, qulay muloqot o‘rnatiladi.
             </p>
           </div>
-          <button class="btn" type="button" id="pub2" @click="showPostAd = true">
-            <svg class="i" viewBox="0 0 24 24">
-              <path d="M12 5v14M5 12h14" />
-            </svg>
-            <span>E’lon berish</span>
-          </button>
+
+          <!-- Pillar 2 -->
+          <div class="philosophy-col">
+            <span class="numeral-accent">02</span>
+            <h3 class="col-title">Saralangan tozalik</h3>
+            <p class="col-text">
+              Dublikatlar va soxta fotosuratlar doimiy filtrlanadi. Har bir e’londa asl manba, haqiqiy narx va maydon ochiq ko‘rsatiladi.
+            </p>
+          </div>
+
+          <!-- Pillar 3 -->
+          <div class="philosophy-col">
+            <span class="numeral-accent">03</span>
+            <h3 class="col-title">Maqsadli qulaylik</h3>
+            <p class="col-text">
+              Oila uchun alohida, talabalar, xonadoshlar va qizlar uchun moslashtirilgan aqlli tahlil yordamida o‘z uyingizni tezroq topasiz.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Owner Conversion Section -->
+      <section class="owner-conversion-section">
+        <div class="conversion-panel">
+          <div class="conversion-left">
+            <span class="conversion-eyebrow">UY EGALARI UCHUN TAKLIF</span>
+            <h2 class="editorial-headline conversion-title">
+              Kvartirangizni vositachisiz <em>ijaraga bering.</em>
+            </h2>
+            <p class="conversion-lead">
+              E’loningizni Joyliy platformasida bepul chop eting. Munosib ijarachilar bilan to‘g‘ridan-to‘g‘ri bog‘lanib, vaqtingizni va vositachilik xarajatlarini tejang.
+            </p>
+          </div>
+          <div class="conversion-right">
+            <button class="btn p conversion-btn" type="button" @click="showPostAd = true">
+              <span>E’lonni joylashtirish</span>
+              <svg class="i" viewBox="0 0 24 24">
+                <line x1="5" y1="12" x2="19" y2="12" />
+                <polyline points="12 5 19 12 12 19" />
+              </svg>
+            </button>
+          </div>
         </div>
       </section>
     </div>
@@ -401,224 +368,552 @@ const roomListings = computed(() => {
 </template>
 
 <style scoped>
-.shelf-section {
-  padding: 16px 0 8px;
+.editorial-home {
+  padding-bottom: 40px;
 }
 
-.cat-icon {
-  width: 18px;
-  height: 18px;
-  stroke-width: 2;
+/* Category Strip */
+.category-strip {
+  border-top: 1px solid var(--sand);
+  border-bottom: 1px solid var(--sand);
+  padding: 12px 0;
+  margin-bottom: 40px;
 }
 
-.cat-label {
-  letter-spacing: -0.01em;
-}
-
-.results-header {
-  align-items: flex-end;
-}
-
-.results-tag {
-  font-size: 11px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--ac);
-  margin-bottom: 4px;
-}
-
-.section-heading {
-  font-size: 26px;
-  letter-spacing: -0.03em;
-  margin: 0 0 6px;
-}
-
-.results-actions {
+.category-scroll {
   display: flex;
   gap: 10px;
-  align-items: center;
-}
-
-.map-btn {
-  background: var(--surf);
-  border-color: var(--bd);
-  font-weight: 600;
-}
-
-.map-btn:hover {
-  border-color: var(--ac);
-  color: var(--ac);
-}
-
-.clear-btn {
-  color: #E11D48;
-  border-color: #FECDD3;
-  background: #FFF1F2;
-}
-
-.clear-btn:hover {
-  background: #FFE4E6;
-  border-color: #FDA4AF;
-}
-
-.aud-filter-wrap {
-  margin: 14px 0 24px;
   overflow-x: auto;
-  padding-bottom: 6px;
   scrollbar-width: none;
 }
 
-.aud-filter-wrap::-webkit-scrollbar {
+.category-scroll::-webkit-scrollbar {
   display: none;
 }
 
-.aud-pills-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: nowrap;
-}
-
-.aud-pill {
+.cat-tab {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: var(--card);
-  border: 1px solid var(--bd);
-  border-radius: var(--radius-full);
-  padding: 8px 18px;
-  font-size: 13.5px;
+  padding: 8px 16px;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--sand);
+  background: var(--surf);
+  color: var(--ink);
+  font-size: 13px;
   font-weight: 600;
-  color: var(--tx);
-  cursor: pointer;
-  transition: all 0.2s var(--ease-smooth);
   white-space: nowrap;
-  user-select: none;
+  transition: all 0.2s ease;
+  cursor: pointer;
 }
 
-.aud-pill:hover {
-  border-color: var(--bd-hover);
-  background: var(--surf-muted);
-  transform: translateY(-1px);
+.cat-code {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--terracotta);
 }
 
-.aud-pill.active {
-  background: var(--ac);
-  color: #FFFFFF;
-  border-color: var(--ac);
-  box-shadow: 0 4px 14px rgba(23, 77, 58, 0.25);
+.cat-tab:hover {
+  border-color: var(--ink);
 }
 
-.aud-icon {
-  font-size: 15px;
-  line-height: 1;
+.cat-tab.active {
+  background: var(--ink);
+  color: var(--ivory);
+  border-color: var(--ink);
 }
 
-.aud-num {
+.cat-tab.active .cat-code {
+  color: var(--terracotta);
+}
+
+/* Catalog Section */
+.catalog-section {
+  padding: 20px 0 60px;
+}
+
+.catalog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 24px;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.catalog-title {
+  font-size: clamp(28px, 4vw, 44px);
+  margin: 6px 0 4px;
+}
+
+.catalog-count-note {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--muted);
+  margin: 0;
+}
+
+.header-right {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.map-view-btn {
+  background: var(--surf);
+  border-color: var(--sand);
+}
+
+.map-view-btn:hover {
+  border-color: var(--ink);
+}
+
+.clear-filter-btn {
+  color: var(--terracotta);
+  border-color: var(--terracotta);
+  background: var(--terracotta-subtle);
+}
+
+/* Audience Strip */
+.audience-strip {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 32px;
+  padding: 12px 18px;
+  background: var(--surf);
+  border: 1px solid var(--sand);
+  border-radius: var(--radius-xs);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.audience-title {
+  font-family: var(--font-mono);
   font-size: 11px;
-  font-weight: 800;
-  padding: 2px 7px;
-  border-radius: 12px;
-  background: var(--surf-muted);
-  color: var(--tx-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  white-space: nowrap;
 }
 
-.aud-pill.active .aud-num {
+.audience-pills {
+  display: flex;
+  gap: 8px;
+}
+
+.aud-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--sand);
+  background: var(--ivory);
+  color: var(--ink);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.18s ease;
+}
+
+.aud-btn:hover {
+  border-color: var(--ink);
+}
+
+.aud-btn.active {
+  background: var(--terracotta);
+  border-color: var(--terracotta);
+  color: #FFFFFF;
+}
+
+.aud-count {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: var(--radius-xs);
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.aud-btn.active .aud-count {
   background: rgba(255, 255, 255, 0.25);
   color: #FFFFFF;
 }
 
-.curated-section {
-  padding-top: 48px;
-}
-
-.trust-section,
-.how-section {
-  padding: 56px 0 32px;
-}
-
-.trust-header {
-  text-align: center;
-  max-width: 620px;
-  margin: 0 auto 36px;
-}
-
-.trust-grid {
+/* Featured Showcase (Visually Dominant Hero Item) */
+.featured-showcase {
   display: grid;
-  gap: 20px;
   grid-template-columns: 1fr;
+  background: var(--surf);
+  border: 1px solid var(--sand);
+  border-radius: var(--radius-xs);
+  overflow: hidden;
+  margin-bottom: 36px;
+  box-shadow: var(--sh-card);
+  cursor: pointer;
+  transition: all 0.25s var(--ease);
 }
 
-.trust-card {
-  background: var(--card);
-  border: 1px solid var(--bd);
-  border-radius: var(--radius-lg);
-  padding: 28px 24px;
-  transition: transform 0.2s var(--ease-smooth), border-color 0.2s ease, box-shadow 0.2s ease;
+.featured-showcase:hover {
+  border-color: var(--ink);
+  box-shadow: var(--sh-hover);
+  transform: translateY(-2px);
 }
 
-.trust-card:hover {
-  transform: translateY(-3px);
-  border-color: var(--bd-hover);
-  box-shadow: var(--sh);
+.featured-media {
+  position: relative;
+  aspect-ratio: 16/10;
+  background: var(--sand-light);
+  overflow: hidden;
 }
 
-.trust-icon-box {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  background: var(--mint-subtle);
-  color: var(--ac);
+.featured-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s var(--ease);
+}
+
+.featured-showcase:hover .featured-img {
+  transform: scale(1.02);
+}
+
+.featured-badge-bar {
+  position: absolute;
+  top: 16px;
+  left: 16px;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 18px;
+  gap: 8px;
 }
 
-.trust-icon {
-  width: 22px;
-  height: 22px;
-  stroke-width: 2;
-}
-
-.trust-card h3 {
-  margin: 0 0 8px;
-  font-size: 17px;
-  font-weight: 700;
-  color: var(--tx);
-  letter-spacing: -0.015em;
-}
-
-.trust-card p {
-  margin: 0;
-  font-size: 14px;
-  line-height: 1.6;
-  color: var(--tx-muted);
-}
-
-.cta-pill {
-  display: inline-block;
-  background: rgba(185, 242, 208, 0.2);
-  color: var(--mint);
-  font-size: 11px;
-  font-weight: 800;
+.featured-pill {
+  background: var(--ink);
+  color: var(--ivory);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  padding: 4px 12px;
-  border-radius: var(--radius-full);
+  padding: 4px 10px;
+  border-radius: var(--radius-xs);
+  font-weight: 700;
+}
+
+.featured-owner-pill {
+  background: var(--terracotta);
+  color: #FFFFFF;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: var(--radius-xs);
+  font-weight: 700;
+}
+
+.featured-info {
+  padding: 28px 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.featured-top-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 12px;
 }
 
+.featured-index-num {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 20px;
+  color: var(--terracotta);
+}
+
+.featured-title {
+  font-family: var(--font-serif);
+  font-size: clamp(20px, 2.5vw, 28px);
+  line-height: 1.25;
+  color: var(--ink);
+  margin: 0 0 20px;
+  font-weight: 500;
+}
+
+.featured-specs-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding: 16px 0;
+  border-top: 1px solid var(--sand-light);
+  border-bottom: 1px solid var(--sand-light);
+  margin-bottom: 24px;
+}
+
+.spec-block {
+  display: flex;
+  flex-direction: column;
+}
+
+.spec-k {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.spec-v {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-top: 2px;
+}
+
+.featured-bottom-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.featured-price {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.f-price {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+  font-feature-settings: "tnum";
+}
+
+.f-period {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.inspect-btn {
+  padding: 0 22px;
+}
+
+/* Empty Monograph */
+.empty-monograph {
+  text-align: center;
+  padding: 64px 20px;
+  border: 1px dashed var(--sand);
+  border-radius: var(--radius-xs);
+  background: var(--surf);
+}
+
+.empty-monograph h3 {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  margin: 12px 0 8px;
+}
+
+.empty-monograph p {
+  color: var(--muted);
+  max-width: 440px;
+  margin: 0 auto 24px;
+  font-size: 14.5px;
+}
+
+/* Neighborhoods Section */
+.neighborhood-section {
+  padding: 60px 0;
+  border-top: 1px solid var(--sand);
+}
+
+.section-title-wrap {
+  margin-bottom: 32px;
+}
+
+.section-title {
+  font-size: clamp(28px, 4vw, 44px);
+  margin: 6px 0 8px;
+}
+
+.section-subtitle {
+  color: var(--muted);
+  margin: 0;
+  font-size: 15px;
+}
+
+.districts-index-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.district-index-card {
+  background: var(--surf);
+  border: 1px solid var(--sand);
+  border-radius: var(--radius-xs);
+  padding: 20px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 120px;
+}
+
+.district-index-card:hover {
+  border-color: var(--ink);
+  background: var(--sand-light);
+}
+
+.district-index-card.active {
+  border-color: var(--terracotta);
+  background: var(--terracotta-subtle);
+}
+
+.district-top {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+}
+
+.district-code {
+  color: var(--muted);
+}
+
+.district-count {
+  color: var(--terracotta);
+  font-weight: 700;
+}
+
+.district-heading {
+  margin: 12px 0;
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.district-bottom {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted);
+}
+
+/* Philosophy Section */
+.philosophy-section {
+  padding: 72px 0;
+  border-top: 1px solid var(--sand);
+}
+
+.philosophy-masthead {
+  max-width: 760px;
+  margin-bottom: 48px;
+}
+
+.philosophy-heading {
+  font-size: clamp(30px, 4.5vw, 48px);
+  line-height: 1.15;
+  margin-top: 10px;
+}
+
+.philosophy-grid {
+  display: grid;
+  gap: 36px;
+  grid-template-columns: 1fr;
+}
+
+.philosophy-col {
+  display: flex;
+  flex-direction: column;
+  padding-top: 20px;
+  border-top: 1px solid var(--sand);
+}
+
+.col-title {
+  font-family: var(--font-serif);
+  font-size: 21px;
+  font-weight: 600;
+  color: var(--ink);
+  margin: 14px 0 10px;
+}
+
+.col-text {
+  color: var(--muted);
+  font-size: 14.5px;
+  line-height: 1.65;
+  margin: 0;
+}
+
+/* Owner Conversion Section */
+.owner-conversion-section {
+  padding: 40px 0 60px;
+}
+
+.conversion-panel {
+  background: var(--ink);
+  color: var(--ivory);
+  border-radius: var(--radius-xs);
+  padding: 48px 40px;
+  display: grid;
+  gap: 32px;
+  align-items: center;
+}
+
+.conversion-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  color: var(--terracotta);
+}
+
+.conversion-title {
+  color: var(--ivory);
+  font-size: clamp(28px, 4vw, 44px);
+  margin: 12px 0 16px;
+}
+
+.conversion-lead {
+  color: #B5BAB5;
+  font-size: 15.5px;
+  line-height: 1.65;
+  margin: 0;
+  max-width: 640px;
+}
+
+.conversion-btn {
+  background: var(--terracotta) !important;
+  color: #FFFFFF !important;
+  border-color: var(--terracotta) !important;
+  padding: 16px 32px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  width: fit-content;
+}
+
 @media (min-width: 768px) {
-  .trust-grid {
-    grid-template-columns: repeat(2, 1fr);
+  .districts-index-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .philosophy-grid {
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
 @media (min-width: 1024px) {
-  .trust-grid {
-    grid-template-columns: repeat(4, 1fr);
+  .featured-showcase {
+    grid-template-columns: 1.15fr 0.85fr;
+  }
+  .conversion-panel {
+    grid-template-columns: 1fr auto;
   }
 }
 </style>

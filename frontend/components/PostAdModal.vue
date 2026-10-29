@@ -27,7 +27,7 @@ const isSubmitting = ref(false)
 
 const onSubmit = async () => {
   if (!form.value.price || !form.value.district) {
-    emit('toast', 'Iltimos, barcha maydonlarni to‘ldiring.')
+    emit('toast', 'Iltimos, barcha asosiy maydonlarni to‘ldiring.')
     return
   }
 
@@ -46,125 +46,153 @@ const onSubmit = async () => {
 <template>
   <div v-if="show" class="ov show" @click.self="$emit('close')">
     <div class="sheet post-ad-sheet">
-      <!-- Top Bar -->
+      <!-- Header -->
       <div class="top post-ad-header">
-        <div class="header-text">
-          <span class="post-title">E’lon berish (Uy egalari uchun)</span>
-          <span class="post-subtitle">Vositachilarsiz bevosita ijarachilarga yetkazing</span>
+        <div class="header-titles">
+          <span class="editorial-meta">IJARA PUBLIKATSIYASI</span>
+          <span class="post-ad-title">Xonadon e’lonini joylash</span>
         </div>
         <button class="ib" @click="$emit('close')" :aria-label="t('close')">
           <svg class="i" viewBox="0 0 24 24">
-            <path d="M18 6 6 18M6 6l12 12" />
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
           </svg>
         </button>
       </div>
 
       <form class="bd post-ad-body" @submit.prevent="onSubmit">
-        <!-- Trust Banner -->
-        <div class="post-trust-banner">
-          <svg class="i banner-icon" viewBox="0 0 24 24">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-            <path d="m9 12 2 2 4-4" />
-          </svg>
-          <div class="banner-text">
-            <b>100% Maklersiz kafolati:</b> Joyliy faqat uy egalarining e’lonlarini qabul qiladi. E’lon joylash to‘liq bepul.
+        <!-- Trust Statement -->
+        <div class="trust-manifesto-box">
+          <div class="manifesto-left">
+            <span class="manifesto-badge">0% Vositachilik</span>
           </div>
+          <p class="manifesto-text">
+            Joyliy — mustaqil e’lonlar maydoni. Kvartirangizni vositachisiz, to‘g‘ridan-to‘g‘ri munosib ijarachiga topshiring.
+          </p>
         </div>
 
-        <!-- Row 1: District & Rooms -->
-        <div class="form-row">
-          <div class="fi">
-            <label for="pad_district">Tuman</label>
-            <select id="pad_district" v-model="form.district">
+        <!-- Field Rows -->
+        <div class="form-grid">
+          <!-- District -->
+          <div class="field-item">
+            <label class="field-label">01 / Tuman</label>
+            <select v-model="form.district" class="field-control">
               <option v-for="d in availableDistricts" :key="d" :value="d">{{ d }}</option>
             </select>
           </div>
 
-          <div class="fi">
-            <label for="pad_rooms">Xonalar soni</label>
-            <select id="pad_rooms" v-model.number="form.rooms">
+          <!-- Rooms -->
+          <div class="field-item">
+            <label class="field-label">02 / Xonalar soni</label>
+            <select v-model.number="form.rooms" class="field-control">
               <option :value="1">1 xona</option>
               <option :value="2">2 xona</option>
               <option :value="3">3 xona</option>
               <option :value="4">4+ xona</option>
             </select>
           </div>
-        </div>
 
-        <!-- Row 2: Price & Area -->
-        <div class="form-row">
-          <div class="fi">
-            <label for="pad_price">Oylik ijara narxi (so‘m)</label>
-            <input id="pad_price" v-model.number="form.price" type="number" step="100000" placeholder="Masalan: 4000000" required />
+          <!-- Price -->
+          <div class="field-item">
+            <label class="field-label">03 / Oylik ijara narxi (so‘m)</label>
+            <input
+              v-model.number="form.price"
+              type="number"
+              step="100000"
+              class="field-control"
+              placeholder="Masalan: 4000000"
+              required
+            />
           </div>
 
-          <div class="fi">
-            <label for="pad_area">Maydon (m²)</label>
-            <input id="pad_area" v-model.number="form.area" type="number" placeholder="55" required />
+          <!-- Area -->
+          <div class="field-item">
+            <label class="field-label">04 / Maydon (m²)</label>
+            <input
+              v-model.number="form.area"
+              type="number"
+              class="field-control"
+              placeholder="55"
+              required
+            />
           </div>
-        </div>
 
-        <!-- Row 3: Floor & Target Audience -->
-        <div class="form-row">
-          <div class="fi">
-            <label for="pad_floor">Qavat (masalan: 3/9)</label>
-            <input id="pad_floor" v-model="form.floor" placeholder="4/9" />
+          <!-- Floor -->
+          <div class="field-item">
+            <label class="field-label">05 / Qavat</label>
+            <input
+              v-model="form.floor"
+              type="text"
+              class="field-control"
+              placeholder="4/9"
+            />
           </div>
 
-          <div class="fi">
-            <label for="pad_aud">Kimlar uchun mo‘ljallangan?</label>
-            <select id="pad_aud" v-model="form.audience">
-              <option value="all">🌐 Farqi yo‘q (Barchaga)</option>
-              <option value="family">👨‍👩‍👧 Faqat oila uchun</option>
-              <option value="female">👩 Qizlar / Talabalar</option>
-              <option value="male">👨 Yigitlar / Talabalar</option>
+          <!-- Audience -->
+          <div class="field-item">
+            <label class="field-label">06 / Kimlar uchun?</label>
+            <select v-model="form.audience" class="field-control">
+              <option value="all">Farqi yo‘q (Barchaga)</option>
+              <option value="family">Faqat oila uchun</option>
+              <option value="female">Qizlar / Talabalar</option>
+              <option value="male">Yigitlar / Talabalar</option>
             </select>
           </div>
-        </div>
 
-        <!-- Row 4: Contacts -->
-        <div class="form-row">
-          <div class="fi">
-            <label for="pad_phone">Telefon raqam</label>
-            <input id="pad_phone" v-model="form.phone" type="tel" placeholder="+998 90 123 45 67" required />
+          <!-- Phone -->
+          <div class="field-item">
+            <label class="field-label">07 / Telefon raqam</label>
+            <input
+              v-model="form.phone"
+              type="tel"
+              class="field-control"
+              placeholder="+998 90 123 45 67"
+              required
+            />
           </div>
 
-          <div class="fi">
-            <label for="pad_telegram">Telegram username</label>
-            <input id="pad_telegram" v-model="form.telegram" placeholder="@username" />
+          <!-- Telegram -->
+          <div class="field-item">
+            <label class="field-label">08 / Telegram username</label>
+            <input
+              v-model="form.telegram"
+              type="text"
+              class="field-control"
+              placeholder="@username"
+            />
           </div>
         </div>
 
         <!-- Description -->
-        <div class="fi">
-          <label for="pad_desc">Tavsif va shartlar</label>
+        <div class="field-item full-width">
+          <label class="field-label">09 / Tavsif va qo‘shimcha shartlar</label>
           <textarea
-            id="pad_desc"
             v-model="form.description"
             rows="3"
-            placeholder="Kvartira ta’miri, mavjud texnikalar, depozit yoki boshqa shartlar..."
+            class="field-control textarea"
+            placeholder="Kvartira holati, mebel va jihozlar, depozit yoki boshqa talablar..."
           ></textarea>
         </div>
 
-        <!-- Confirmation Checkbox -->
-        <label class="owner-consent-chk">
+        <!-- Declaration Consent -->
+        <label class="owner-declaration-box">
           <input type="checkbox" v-model="form.isOwner" required />
-          <span class="consent-text">
-            <b>Men ushbu mulk egasiman</b> va vositachi (makler/rieltor) emasman. Soxta ma’lumot berilsa e’lon o‘chirilishiga roziman.
+          <span class="declaration-text">
+            <b>Men ushbu mulkning qonuniy egasiman</b> va vositachi (makler/rieltor) emasman. E’londagi ma’lumotlarning haqqoniyligini tasdiqlayman.
           </span>
         </label>
 
-        <!-- Submit Actions -->
-        <div class="post-actions">
+        <!-- Actions -->
+        <div class="post-actions-bar">
           <button class="btn" type="button" @click="$emit('close')">Bekor qilish</button>
           <button class="btn p" type="submit" :disabled="isSubmitting">
-            {{ isSubmitting ? 'Yuborilmoqda...' : 'E’lonni joylashtirish' }}
+            {{ isSubmitting ? 'Yuborilmoqda...' : 'E’lonni chop etish' }}
           </button>
         </div>
 
-        <!-- Telegram Bot Alternative Hint -->
-        <div class="bot-alt-hint">
-          E’loningizni fotosuratlar bilan birga to‘g‘ridan-to‘g‘ri <a href="https://t.me/joyliy_bot" target="_blank" rel="noopener">@joyliy_bot</a> orqali ham tez va oson yuborishingiz mumkin.
+        <!-- Bot Alternate Link -->
+        <div class="bot-reference">
+          Rasmlarni yuklash va e’lonni tezkor yuborish uchun <a href="https://t.me/joyliy_bot" target="_blank" rel="noopener">@joyliy_bot</a> orqali ham topshirishingiz mumkin.
         </div>
       </form>
     </div>
@@ -173,123 +201,163 @@ const onSubmit = async () => {
 
 <style scoped>
 .post-ad-sheet {
-  max-width: 620px;
+  max-width: 640px;
 }
 
 .post-ad-header {
   padding: 18px 24px;
 }
 
-.header-text {
+.header-titles {
   display: flex;
   flex-direction: column;
 }
 
-.post-title {
-  font-size: 17px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-}
-
-.post-subtitle {
-  font-size: 12px;
-  color: var(--tx-muted);
+.post-ad-title {
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ink);
 }
 
 .post-ad-body {
   padding: 24px;
 }
 
-.post-trust-banner {
+.trust-manifesto-box {
   display: flex;
   align-items: center;
-  gap: 12px;
-  background: var(--mint-subtle);
-  border: 1px solid rgba(23, 77, 58, 0.15);
-  border-radius: var(--radius-md);
+  gap: 14px;
   padding: 12px 16px;
-  margin-bottom: 20px;
+  background: var(--sand-light);
+  border: 1px solid var(--sand);
+  border-radius: var(--radius-xs);
+  margin-bottom: 24px;
 }
 
-.banner-icon {
-  width: 22px;
-  height: 22px;
-  color: var(--ac);
-  flex: none;
+.manifesto-badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: var(--terracotta);
+  color: #FFFFFF;
+  padding: 3px 8px;
+  border-radius: var(--radius-xs);
+  font-weight: 700;
+  white-space: nowrap;
 }
 
-.banner-text {
+.manifesto-text {
+  margin: 0;
   font-size: 13px;
-  color: var(--ac-dark);
+  color: var(--muted);
   line-height: 1.45;
 }
 
-.form-row {
+.form-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 14px;
 }
 
-.owner-consent-chk {
+.field-item {
   display: flex;
-  gap: 12px;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field-item.full-width {
+  margin-top: 14px;
+}
+
+.field-label {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.field-control {
+  min-height: 44px;
+  border: 1px solid var(--sand);
+  background: var(--surf);
+  color: var(--ink);
+  border-radius: var(--radius-xs);
+  padding: 0 12px;
+  font-size: 14px;
+  transition: border-color 0.18s ease;
+}
+
+.field-control:focus {
+  border-color: var(--terracotta);
+  outline: none;
+}
+
+.field-control.textarea {
+  min-height: 80px;
+  padding: 10px 12px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.owner-declaration-box {
+  display: flex;
   align-items: flex-start;
+  gap: 12px;
   padding: 14px 16px;
   background: var(--surf);
-  border: 1px solid var(--bd);
-  border-radius: var(--radius-md);
-  margin-top: 10px;
+  border: 1px solid var(--sand);
+  border-radius: var(--radius-xs);
+  margin-top: 18px;
   cursor: pointer;
 }
 
-.owner-consent-chk input {
-  width: 18px;
-  height: 18px;
-  accent-color: var(--ac);
+.owner-declaration-box input {
+  width: 17px;
+  height: 17px;
+  accent-color: var(--terracotta);
   margin-top: 2px;
   flex: none;
 }
 
-.consent-text {
-  font-size: 13px;
-  color: var(--tx);
-  line-height: 1.45;
+.declaration-text {
+  font-size: 12.5px;
+  color: var(--ink);
+  line-height: 1.5;
 }
 
-.post-actions {
+.post-actions-bar {
   display: flex;
   gap: 12px;
   margin-top: 24px;
 }
 
-.post-actions .btn {
+.post-actions-bar .btn {
   flex: 1;
 }
 
-.post-actions .btn.p {
+.post-actions-bar .btn.p {
   flex: 2;
-  background: var(--ac);
-  color: #FFFFFF;
 }
 
-.bot-alt-hint {
+.bot-reference {
+  margin-top: 16px;
   text-align: center;
   font-size: 12px;
-  color: var(--tx-muted);
-  margin-top: 16px;
-  line-height: 1.5;
+  color: var(--muted);
 }
 
-.bot-alt-hint a {
-  color: var(--ac);
+.bot-reference a {
+  color: var(--terracotta);
   font-weight: 700;
   text-decoration: underline;
 }
 
-@media (max-width: 600px) {
-  .form-row {
-    grid-template-columns: 1fr;
-    gap: 0;
+@media (min-width: 600px) {
+  .form-grid {
+    grid-template-columns: 1fr 1fr;
   }
 }
 </style>

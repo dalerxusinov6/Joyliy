@@ -413,20 +413,23 @@ onBeforeUnmount(() => {
   flex-direction: column !important;
   padding: 0 !important;
   overflow: hidden !important;
-  border-radius: 16px !important;
+  border-radius: var(--radius-xs, 2px) !important;
+  border: 1px solid var(--sand, #DDD3C2) !important;
 }
 
 .top {
-  padding: 14px 20px;
-  border-bottom: 1px solid var(--bd, #e2e8f0);
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--sand, #DDD3C2);
+  background: var(--ivory, #F3F0E8);
 }
 
 .count-pill {
-  font-size: 12px;
-  background: var(--bg-soft, #f1f5f9);
-  color: var(--mu, #64748b);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  background: var(--sand-light, #EBE5DB);
+  color: var(--muted, #72746B);
   padding: 3px 8px;
-  border-radius: 12px;
+  border-radius: var(--radius-xs, 2px);
   font-weight: 600;
 }
 
@@ -435,34 +438,34 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 8px;
   padding: 10px 18px;
-  background: var(--bg, #fff);
+  background: var(--surf, #FFFFFF);
   overflow-x: auto;
   white-space: nowrap;
-  border-bottom: 1px solid var(--bd, #e2e8f0);
+  border-bottom: 1px solid var(--sand, #DDD3C2);
   scrollbar-width: thin;
 }
 
 .district-pill {
-  background: var(--bg-soft, #f8fafc);
-  border: 1px solid var(--bd, #e2e8f0);
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--fg, #1e293b);
+  background: var(--ivory, #F3F0E8);
+  border: 1px solid var(--sand, #DDD3C2);
+  padding: 5px 12px;
+  border-radius: var(--radius-xs, 2px);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink, #202620);
   cursor: pointer;
   transition: all 0.2s;
   flex-shrink: 0;
 }
 
 .district-pill:hover {
-  background: var(--bd, #e2e8f0);
+  border-color: var(--ink, #202620);
 }
 
 .district-pill.on {
-  background: var(--ac, #174D3A);
+  background: var(--terracotta, #BC684B);
   color: #fff;
-  border-color: var(--ac, #174D3A);
+  border-color: var(--terracotta, #BC684B);
 }
 
 .owner-toggle-pill {
@@ -470,21 +473,21 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 6px;
   margin-left: auto;
-  background: var(--mint-subtle, #e8f8f0);
-  border: 1px solid var(--mint, #b9f2d0);
-  color: var(--ac, #174D3A);
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 13px;
+  background: var(--terracotta-subtle, #F6EDE8);
+  border: 1px solid var(--terracotta, #BC684B);
+  color: var(--terracotta, #BC684B);
+  padding: 5px 12px;
+  border-radius: var(--radius-xs, 2px);
+  font-size: 12.5px;
   font-weight: 700;
   cursor: pointer;
   flex-shrink: 0;
 }
 
 .owner-toggle-pill.active {
-  background: var(--ac, #174D3A);
+  background: var(--terracotta, #BC684B);
   color: #fff;
-  border-color: var(--ac, #174D3A);
+  border-color: var(--terracotta, #BC684B);
 }
 
 .map-body-wrapper {

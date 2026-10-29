@@ -28,12 +28,12 @@ const onSelectListing = (item: ListingItem) => {
 
 const onFilterMaklersiz = () => {
   filterCategory.value = 'mk'
-  const el = document.getElementById('natija')
+  const el = document.getElementById('katalog')
   if (el) el.scrollIntoView({ behavior: 'smooth' })
 }
 
 const scrollToResults = () => {
-  const el = document.getElementById('natija')
+  const el = document.getElementById('katalog')
   if (el) {
     el.scrollIntoView({ behavior: 'smooth' })
   } else {
@@ -49,6 +49,7 @@ const scrollToResults = () => {
       @openProfile="showProfile = true"
       @openNew="showPostAd = true"
       @filterMaklersiz="onFilterMaklersiz"
+      @openMap="showMap = true"
     />
 
     <main>

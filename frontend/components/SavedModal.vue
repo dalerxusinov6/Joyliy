@@ -23,13 +23,14 @@ const savedListings = computed(() => {
     <div class="sheet saved-sheet">
       <!-- Header -->
       <div class="top saved-header">
-        <div class="header-text">
-          <span class="saved-title">{{ t('saved') }}</span>
-          <span class="saved-count-pill">{{ savedListings.length }} ta e’lon</span>
+        <div class="header-left">
+          <span class="editorial-meta">SHAXSIY KOLLEKSIYA</span>
+          <span class="saved-title">Saqlangan uylar ({{ savedListings.length }})</span>
         </div>
         <button class="ib" @click="$emit('close')" :aria-label="t('close')">
           <svg class="i" viewBox="0 0 24 24">
-            <path d="M18 6 6 18M6 6l12 12" />
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
           </svg>
         </button>
       </div>
@@ -44,19 +45,15 @@ const savedListings = computed(() => {
           />
         </div>
 
-        <!-- Empty State -->
-        <div v-else class="empty saved-empty">
-          <div class="empty-icon-box">
-            <svg class="i empty-heart-icon" viewBox="0 0 24 24">
-              <path d="M12 21s-8-5-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 6-8 11-8 11z" />
-            </svg>
-          </div>
-          <h3>{{ t('no_saved') }}</h3>
-          <p class="empty-sub">
-            O‘zingizga yoqqan kvartiralarni yurakcha belgisini bosib saqlab qo‘ying va keyinroq oson solishtiring.
+        <!-- Empty Monograph State -->
+        <div v-else class="saved-empty-box">
+          <span class="numeral-accent">00</span>
+          <h3 class="empty-title">Kolleksiya hali bo‘sh</h3>
+          <p class="empty-desc">
+            O‘zingizga ma’qul kelgan xonadonlarni belgilab qo‘ying va keyinroq solishtirish uchun shu yerda saqlang.
           </p>
           <button class="btn p" type="button" @click="$emit('close')">
-            E’lonlarni ko‘rish
+            Katalogga qaytish
           </button>
         </div>
       </div>
@@ -73,26 +70,16 @@ const savedListings = computed(() => {
   padding: 18px 24px;
 }
 
-.header-text {
+.header-left {
   display: flex;
-  align-items: center;
-  gap: 10px;
+  flex-direction: column;
 }
 
 .saved-title {
-  font-size: 18px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-}
-
-.saved-count-pill {
-  background: var(--mint-subtle);
-  color: var(--ac);
-  border: 1px solid rgba(23, 77, 58, 0.15);
-  font-size: 12px;
-  font-weight: 700;
-  padding: 2px 8px;
-  border-radius: var(--radius-full);
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ink);
 }
 
 .saved-body {
@@ -104,40 +91,25 @@ const savedListings = computed(() => {
   gap: 20px;
 }
 
-.saved-empty {
-  padding: 56px 24px;
+.saved-empty-box {
+  text-align: center;
+  padding: 64px 20px;
+  border: 1px dashed var(--sand);
+  border-radius: var(--radius-xs);
+  background: var(--surf);
+}
+
+.empty-title {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  margin: 12px 0 8px;
+}
+
+.empty-desc {
+  font-size: 14.5px;
+  color: var(--muted);
   max-width: 440px;
-  margin: 20px auto;
-  border-radius: var(--radius-xl);
-}
-
-.empty-icon-box {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: var(--surf-muted);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 16px;
-}
-
-.empty-heart-icon {
-  width: 28px;
-  height: 28px;
-  color: var(--tx-muted);
-}
-
-.saved-empty h3 {
-  margin: 0 0 8px;
-  font-size: 17px;
-  font-weight: 700;
-}
-
-.empty-sub {
-  font-size: 14px;
-  color: var(--tx-muted);
-  line-height: 1.55;
-  margin: 0 0 20px;
+  margin: 0 auto 24px;
+  line-height: 1.6;
 }
 </style>

@@ -80,7 +80,7 @@ const onLogout = () => {
 
 <template>
   <div v-if="show" class="ov show" @click.self="$emit('close')">
-    <div class="sheet" style="max-width: 480px">
+    <div class="sheet" style="max-width: 480px; border-radius: var(--radius-xs, 2px); border: 1px solid var(--sand, #DDD3C2)">
       <!-- Modal Header -->
       <div class="top">
         <span style="display: flex; align-items: center; gap: 8px">
