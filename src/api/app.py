@@ -49,6 +49,14 @@ def create_app() -> FastAPI:
 
     if static_dir:
         from fastapi.staticfiles import StaticFiles
+
+        @app.get("/favicon.ico", include_in_schema=False)
+        async def favicon():
+            fav_path = os.path.join(static_dir, "favicon.ico")
+            if os.path.exists(fav_path):
+                return FileResponse(fav_path, media_type="image/x-icon")
+            return Response(status_code=404)
+
         app.mount("/", StaticFiles(directory=static_dir, html=True), name="frontend")
     else:
         @app.get("/", response_class=HTMLResponse)
