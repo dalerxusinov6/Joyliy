@@ -33,7 +33,7 @@ onMounted(() => {
     ;(window as any).onTelegramAuth = async (widgetUser: any) => {
       try {
         await loginWithWidget(widgetUser)
-        emit('toast', `Xush kelibsiz, ${widgetUser.first_name || 'foydalanuvchi'}! 🎉`)
+        emit('toast', `Xush kelibsiz, ${widgetUser.first_name || 'foydalanuvchi'}!`)
         emit('close')
       } catch (err: any) {
         emit('toast', err?.message || 'Telegram orqali kirishda xatolik')
@@ -47,7 +47,7 @@ watch(
   () => user.value,
   (newUser) => {
     if (newUser) {
-      emit('toast', `Xush kelibsiz, ${newUser.first_name || 'foydalanuvchi'}! 🎉`)
+      emit('toast', `Xush kelibsiz, ${newUser.first_name || 'foydalanuvchi'}!`)
     }
   }
 )
@@ -193,8 +193,11 @@ const onLogout = () => {
                 Telegram botni ochish
               </a>
 
-              <button class="btn" type="button" @click="onDevConfirm" style="font-size: 13px">
-                ⚡ Tezkor tasdiqlash (Dev rejim)
+              <button class="btn" type="button" @click="onDevConfirm" style="font-size: 13px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+                <svg class="i" viewBox="0 0 24 24" style="width: 14px; height: 14px;">
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                </svg>
+                <span>Tezkor tasdiqlash (Dev rejim)</span>
               </button>
 
               <button

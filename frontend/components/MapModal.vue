@@ -192,7 +192,7 @@ const renderPlacemarks = () => {
         balloonContentFooter: `
           <div style="text-align:right;">
             <button id="balloon-view-btn-${item.id}" style="background:#059669;color:#fff;border:none;padding:6px 14px;border-radius:6px;font-weight:600;cursor:pointer;font-size:12px;">
-              Batafsil ko‘rish ➔
+              Batafsil ko‘rish
             </button>
           </div>
         `,

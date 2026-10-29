@@ -30,78 +30,93 @@ const applyQuick = (type: string, val: string) => {
 <template>
   <section class="editorial-hero">
     <div class="wrap">
-      <!-- Masthead Metadata Bar -->
-      <div class="masthead-bar">
-        <div class="masthead-left">
-          <span class="masthead-issue">MONOGRAFIYA № 01</span>
-          <span class="masthead-dot">·</span>
-          <span class="masthead-city">TOSHKENT IJARA BOZORI</span>
-          <span class="masthead-dot">·</span>
-          <span class="masthead-year">2026</span>
-        </div>
-        <div class="masthead-right">
-          <span class="status-marker"></span>
-          <span>Vositachisiz to‘g‘ridan-to‘g‘ri aloqa</span>
-        </div>
-      </div>
-
-      <!-- Main Asymmetrical Hero Grid -->
-      <div class="hero-composition">
-        <!-- Left Column: Typography & Integrated Search -->
-        <div class="hero-left">
-          <div class="hero-tagline-wrap">
-            <span class="hero-category-label">Turar-joy kolleksiyasi</span>
+      <div class="hero-grid">
+        <!-- Left: Search & Headline -->
+        <div class="hero-content">
+          <!-- Trust Pill -->
+          <div class="hero-badge">
+            <svg class="badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            </svg>
+            <span>Toshkentda maklersiz to‘g‘ridan-to‘g‘ri ijara</span>
           </div>
 
-          <h1 class="hero-title editorial-headline">
-            Uy topishning<br />
-            <em>yangi usuli.</em>
+          <h1 class="hero-title">
+            Yangi uyingizni<br />
+            <span class="hero-title-accent">vositachisiz</span> toping.
           </h1>
 
-          <p class="hero-lead">
-            Ortiqcha vositachilarsiz. Sizga mos xonadon, to‘g‘ridan-to‘g‘ri mulk egasidan. Toshkentning markaziy va qulay tumanlarida shaffof narxlar hamda tekshirilgan e’lonlar.
+          <p class="hero-subtitle">
+            To‘g‘ridan-to‘g‘ri xonadon egalaridan tekshirilgan e’lonlar. 0% rieltorlik komissiyasi va shaffof narxlar.
           </p>
 
-          <!-- Architectural Search Console -->
-          <div class="architectural-console">
-            <div class="console-fields">
+          <!-- Search Console Card -->
+          <div class="search-card">
+            <div class="search-fields">
               <!-- District -->
-              <div class="console-cell">
-                <span class="cell-label">01 / Tuman yoki metro</span>
-                <select v-model="filterDistrict" class="cell-select">
+              <div class="field-box">
+                <div class="field-header">
+                  <svg class="f-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                    <circle cx="12" cy="10" r="3" />
+                  </svg>
+                  <label class="field-title">Tuman</label>
+                </div>
+                <select v-model="filterDistrict" class="field-select">
                   <option value="">Barcha tumanlar</option>
                   <option v-for="d in availableDistricts" :key="d" :value="d">{{ d }}</option>
                 </select>
               </div>
 
               <!-- Rooms -->
-              <div class="console-cell">
-                <span class="cell-label">02 / Xonalar</span>
-                <select v-model="filterRooms" class="cell-select">
+              <div class="field-box">
+                <div class="field-header">
+                  <svg class="f-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                    <polyline points="9 22 9 12 15 12 15 22" />
+                  </svg>
+                  <label class="field-title">Xonalar</label>
+                </div>
+                <select v-model="filterRooms" class="field-select">
                   <option value="">Istalgan</option>
-                  <option value="1">1 xona</option>
-                  <option value="2">2 xona</option>
-                  <option value="3">3 xona</option>
-                  <option value="4">4+ xona</option>
+                  <option value="1">1 xonali</option>
+                  <option value="2">2 xonali</option>
+                  <option value="3">3 xonali</option>
+                  <option value="4">4+ xonali</option>
                 </select>
               </div>
 
               <!-- Budget -->
-              <div class="console-cell">
-                <span class="cell-label">03 / Byudjet</span>
-                <select v-model="filterMaxPrice" class="cell-select">
+              <div class="field-box">
+                <div class="field-header">
+                  <svg class="f-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <rect x="2" y="5" width="20" height="14" rx="2" />
+                    <line x1="2" y1="10" x2="22" y2="10" />
+                  </svg>
+                  <label class="field-title">Maksimal narx</label>
+                </div>
+                <select v-model="filterMaxPrice" class="field-select">
                   <option value="">Istalgan narx</option>
-                  <option value="3000000">3 mln so‘mgacha</option>
-                  <option value="4000000">4 mln so‘mgacha</option>
-                  <option value="6000000">6 mln so‘mgacha</option>
-                  <option value="8000000">8 mln so‘mgacha</option>
+                  <option value="3000000">3 000 000 so‘m</option>
+                  <option value="4000000">4 000 000 so‘m</option>
+                  <option value="6000000">6 000 000 so‘m</option>
+                  <option value="8000000">8 000 000 so‘m</option>
+                  <option value="12000000">12 000 000 so‘m</option>
                 </select>
               </div>
 
               <!-- Audience -->
-              <div class="console-cell">
-                <span class="cell-label">04 / Kimlar uchun</span>
-                <select v-model="filterAudience" class="cell-select">
+              <div class="field-box">
+                <div class="field-header">
+                  <svg class="f-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                  </svg>
+                  <label class="field-title">Kim uchun</label>
+                </div>
+                <select v-model="filterAudience" class="field-select">
                   <option value="all">Barchasi</option>
                   <option value="family">Oila uchun</option>
                   <option value="female">Qizlar uchun</option>
@@ -110,15 +125,15 @@ const applyQuick = (type: string, val: string) => {
               </div>
             </div>
 
-            <!-- Console Actions -->
-            <div class="console-actions">
+            <!-- Action Buttons -->
+            <div class="search-actions">
               <button
                 type="button"
-                class="console-filter-btn"
+                class="btn-filters-toggle"
                 @click="$emit('openFilters')"
                 title="Barcha filtrlarni ochish"
               >
-                <svg class="i" viewBox="0 0 24 24">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                   <line x1="4" y1="21" x2="4" y2="14" />
                   <line x1="4" y1="10" x2="4" y2="3" />
                   <line x1="12" y1="21" x2="12" y2="12" />
@@ -132,54 +147,70 @@ const applyQuick = (type: string, val: string) => {
                 <span>Filtrlar</span>
               </button>
 
-              <button type="button" class="console-submit-btn" @click="onSearch">
-                <span>Izlash</span>
-                <svg class="i" viewBox="0 0 24 24">
-                  <line x1="5" y1="12" x2="19" y2="12" />
-                  <polyline points="12 5 19 12 12 19" />
+              <button type="button" class="btn-search-submit" @click="onSearch">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="11" cy="11" r="8" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
                 </svg>
+                <span>Qidirish</span>
               </button>
             </div>
           </div>
 
-          <!-- Quick Curated Coordinates -->
-          <div class="quick-coordinates">
-            <span class="quick-label">Mashhur koordinatalar:</span>
-            <div class="quick-buttons">
-              <button type="button" class="coord-btn" @click="applyQuick('district', 'Chilonzor')">Chilonzor</button>
-              <button type="button" class="coord-btn" @click="applyQuick('district', 'Yunusobod')">Yunusobod</button>
-              <button type="button" class="coord-btn" @click="applyQuick('district', 'Mirzo Ulug‘bek')">Mirzo Ulug‘bek</button>
-              <button type="button" class="coord-btn" @click="applyQuick('rooms', '1')">1 xonali</button>
-              <button type="button" class="coord-btn" @click="applyQuick('audience', 'family')">Oila uchun</button>
+          <!-- Quick Filter Chips -->
+          <div class="quick-chips">
+            <span class="chips-label">Ommabop:</span>
+            <div class="chips-list">
+              <button type="button" class="chip-btn" @click="applyQuick('district', 'Chilonzor')">Chilonzor</button>
+              <button type="button" class="chip-btn" @click="applyQuick('district', 'Yunusobod')">Yunusobod</button>
+              <button type="button" class="chip-btn" @click="applyQuick('district', 'Mirzo Ulug‘bek')">Mirzo Ulug‘bek</button>
+              <button type="button" class="chip-btn" @click="applyQuick('rooms', '1')">1 xonali</button>
+              <button type="button" class="chip-btn" @click="applyQuick('audience', 'family')">Oila uchun</button>
             </div>
           </div>
         </div>
 
-        <!-- Right Column: Editorial Architecture Visual & Plate -->
-        <div class="hero-right">
-          <div class="architectural-frame">
-            <!-- 3D Scene / Visual Canvas -->
-            <div class="visual-canvas">
-              <ClientOnly>
-                <Hero3DScene />
-                <template #fallback>
-                  <div class="canvas-fallback">
-                    <span class="fallback-spinner"></span>
-                    <span>3D arxitektura yuklanmoqda...</span>
-                  </div>
-                </template>
-              </ClientOnly>
+        <!-- Right: Modern Editorial Photography Showcase -->
+        <div class="hero-visual">
+          <div class="visual-card">
+            <img
+              src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80"
+              alt="Toshkent zamonaviy xonadon interyeri"
+              class="visual-photo"
+              loading="eager"
+            />
+            <div class="visual-gradient-overlay"></div>
+
+            <!-- Floating Pill 1: Verified Owner -->
+            <div class="floating-badge badge-top">
+              <div class="badge-icon-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="check-icon">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              </div>
+              <div class="badge-texts">
+                <span class="badge-h">100% Egasidan</span>
+                <span class="badge-s">0% vositachilik to‘lovi</span>
+              </div>
             </div>
 
-            <!-- Monograph Architectural Caption Plate -->
-            <div class="monograph-plate">
-              <div class="plate-top">
-                <span class="plate-tag">TURAR JOY HUJJATI</span>
-                <span class="plate-geo">41.3110° N, 69.2405° E</span>
+            <!-- Floating Card 2: Featured Apartment Snapshot -->
+            <div class="floating-listing-card">
+              <div class="fl-header">
+                <span class="fl-district">Mirzo Ulug‘bek tumani</span>
+                <span class="fl-status">
+                  <span class="fl-pulse"></span>
+                  Bo‘sh
+                </span>
               </div>
-              <p class="plate-desc">
-                Toshkent zamonaviy me’morchiligi va qulay ijara yechimlari.
-              </p>
+              <div class="fl-price">5 500 000 so‘m<span>/oy</span></div>
+              <div class="fl-meta">
+                <span>3 xonali</span>
+                <span class="dot">·</span>
+                <span>85 m²</span>
+                <span class="dot">·</span>
+                <span>Metroga 4 daqiqa</span>
+              </div>
             </div>
           </div>
         </div>
@@ -190,332 +221,412 @@ const applyQuick = (type: string, val: string) => {
 
 <style scoped>
 .editorial-hero {
-  padding: 32px 0 54px;
+  padding: 56px 0 72px;
   position: relative;
 }
 
-.masthead-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-bottom: 20px;
-  margin-bottom: 36px;
-  border-bottom: 1px solid var(--sand);
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  color: var(--muted);
-}
-
-.masthead-left {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.masthead-dot {
-  color: var(--terracotta);
-}
-
-.masthead-right {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.status-marker {
-  width: 6px;
-  height: 6px;
-  background: var(--terracotta);
-  border-radius: 50%;
-}
-
-.hero-composition {
+.hero-grid {
   display: grid;
+  grid-template-columns: 1fr;
   gap: 48px;
   align-items: center;
 }
 
-.hero-left {
+@media (min-width: 1024px) {
+  .hero-grid {
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 56px;
+  }
+}
+
+/* Left Content */
+.hero-content {
   display: flex;
   flex-direction: column;
+  gap: 20px;
 }
 
-.hero-tagline-wrap {
-  margin-bottom: 12px;
-}
-
-.hero-category-label {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--olive);
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  align-self: flex-start;
+  padding: 6px 14px;
+  background: var(--surf);
+  border: 1px solid var(--sand);
+  border-radius: 999px;
+  font-size: 13px;
   font-weight: 600;
+  color: var(--ink);
+  box-shadow: var(--sh-sm);
+}
+
+.badge-icon {
+  width: 15px;
+  height: 15px;
+  color: var(--terracotta);
 }
 
 .hero-title {
-  font-size: clamp(38px, 6vw, 68px);
-  margin: 0 0 20px;
-  letter-spacing: -0.03em;
-  line-height: 1.04;
+  font-family: var(--font-sans);
+  font-size: clamp(34px, 4.4vw, 54px);
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: -0.035em;
+  color: var(--ink);
+  margin: 0;
 }
 
-.hero-lead {
-  font-size: 16.5px;
-  line-height: 1.65;
+.hero-title-accent {
+  color: var(--terracotta);
+}
+
+.hero-subtitle {
+  font-size: 17px;
+  line-height: 1.6;
   color: var(--muted);
-  max-width: 560px;
-  margin: 0 0 36px;
+  max-width: 540px;
+  margin: 0;
 }
 
-/* Architectural Search Console */
-.architectural-console {
+/* Search Card */
+.search-card {
+  margin-top: 8px;
   background: var(--surf);
   border: 1px solid var(--sand);
-  border-radius: var(--radius-sm);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  box-shadow: var(--sh-card);
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 10px 30px -10px rgba(32, 38, 32, 0.08);
 }
 
-.console-fields {
+.search-fields {
   display: grid;
-  grid-template-columns: 1fr;
-  border-bottom: 1px solid var(--sand);
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
 }
 
-.console-cell {
-  padding: 14px 18px;
+@media (min-width: 640px) {
+  .search-fields {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.field-box {
+  background: var(--bg);
+  border: 1px solid var(--sand);
+  border-radius: 10px;
+  padding: 10px 12px;
   display: flex;
   flex-direction: column;
   gap: 4px;
-  border-bottom: 1px solid var(--sand-light);
-  transition: background 0.15s ease;
+  transition: border-color 0.18s;
 }
 
-.console-cell:last-child {
-  border-bottom: none;
+.field-box:focus-within {
+  border-color: var(--terracotta);
 }
 
-.console-cell:hover {
-  background: var(--ivory);
+.field-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.cell-label {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--muted);
+.f-icon {
+  width: 14px;
+  height: 14px;
+  color: var(--terracotta);
+  flex-shrink: 0;
+}
+
+.field-title {
+  font-size: 11px;
   font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
 }
 
-.cell-select {
-  border: 0;
+.field-select {
+  width: 100%;
+  border: none;
   background: transparent;
-  outline: none;
-  font-size: 14.5px;
+  padding: 2px 0 0;
+  font-size: 14px;
   font-weight: 600;
   color: var(--ink);
+  outline: none;
   cursor: pointer;
-  padding: 2px 0;
-  width: 100%;
 }
 
-.console-actions {
+.search-actions {
   display: flex;
-  align-items: stretch;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
 }
 
-.console-filter-btn {
-  display: flex;
+.btn-filters-toggle {
+  display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 14px 20px;
-  border-right: 1px solid var(--sand);
-  color: var(--ink);
-  font-size: 13.5px;
-  font-weight: 600;
-  background: var(--surf);
-  transition: background 0.18s ease;
-}
-
-.console-filter-btn:hover {
-  background: var(--ivory);
-}
-
-.console-submit-btn {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 14px 24px;
-  background: var(--terracotta);
-  color: #FFFFFF;
+  padding: 0 18px;
+  height: 46px;
+  background: var(--bg);
+  border: 1px solid var(--sand);
+  border-radius: 10px;
   font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  transition: background 0.2s ease;
-}
-
-.console-submit-btn:hover {
-  background: var(--terracotta-hover);
-}
-
-/* Quick Coordinates */
-.quick-coordinates {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 18px;
-  flex-wrap: wrap;
-}
-
-.quick-label {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  color: var(--muted);
-}
-
-.quick-buttons {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
-.coord-btn {
-  font-size: 12px;
   font-weight: 600;
   color: var(--ink);
-  background: var(--surf);
-  border: 1px solid var(--sand);
-  padding: 3px 10px;
-  border-radius: var(--radius-xs);
-  transition: all 0.15s ease;
+  transition: all 0.18s var(--ease);
 }
 
-.coord-btn:hover {
-  border-color: var(--terracotta);
-  color: var(--terracotta);
-  background: var(--terracotta-subtle);
+.btn-filters-toggle:hover {
+  border-color: var(--ink);
 }
 
-/* Right Architectural Frame */
-.hero-right {
-  display: flex;
-  justify-content: center;
-}
-
-.architectural-frame {
-  width: 100%;
-  max-width: 520px;
-  border: 1px solid var(--sand);
-  border-radius: var(--radius-sm);
-  background: var(--surf);
-  overflow: hidden;
-  box-shadow: var(--sh-card);
-}
-
-.visual-canvas {
-  width: 100%;
-  height: 380px;
-  position: relative;
-  background: var(--ivory);
-}
-
-.canvas-fallback {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
+.btn-search-submit {
+  flex: 1;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  color: var(--muted);
-  font-family: var(--font-mono);
-  font-size: 12px;
-}
-
-.fallback-spinner {
-  width: 28px;
-  height: 28px;
-  border: 2px solid var(--sand);
-  border-top-color: var(--terracotta);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.monograph-plate {
-  padding: 16px 20px;
-  border-top: 1px solid var(--sand);
-  background: var(--surf);
-}
-
-.plate-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 6px;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.12em;
-}
-
-.plate-tag {
-  color: var(--terracotta);
+  gap: 8px;
+  height: 46px;
+  background: var(--terracotta);
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
   font-weight: 700;
+  letter-spacing: 0.01em;
+  transition: all 0.18s var(--ease);
+  box-shadow: 0 4px 14px rgba(188, 104, 75, 0.28);
 }
 
-.plate-geo {
-  color: var(--muted);
+.btn-search-submit:hover {
+  background: var(--terracotta-hover);
+  transform: translateY(-1px);
 }
 
-.plate-desc {
-  margin: 0;
+.btn-icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* Quick Chips */
+.quick-chips {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.chips-label {
   font-size: 13px;
   color: var(--muted);
-  line-height: 1.45;
+  font-weight: 500;
 }
 
-@media (min-width: 768px) {
-  .console-fields {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .console-cell:nth-child(1),
-  .console-cell:nth-child(2) {
-    border-bottom: 1px solid var(--sand-light);
-  }
-  .console-cell:nth-child(3),
-  .console-cell:nth-child(4) {
-    border-bottom: none;
-  }
+.chips-list {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
-@media (min-width: 1024px) {
-  .hero-composition {
-    grid-template-columns: 1.15fr 0.85fr;
+.chip-btn {
+  padding: 5px 12px;
+  background: var(--surf);
+  border: 1px solid var(--sand);
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ink);
+  transition: all 0.15s;
+}
+
+.chip-btn:hover {
+  border-color: var(--terracotta);
+  color: var(--terracotta);
+}
+
+/* Right Visual */
+.hero-visual {
+  position: relative;
+}
+
+.visual-card {
+  position: relative;
+  width: 100%;
+  height: 460px;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid var(--sand);
+  box-shadow: 0 20px 40px -15px rgba(32, 38, 32, 0.12);
+}
+
+.visual-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s var(--ease);
+}
+
+.visual-card:hover .visual-photo {
+  transform: scale(1.025);
+}
+
+.visual-gradient-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(32, 38, 32, 0.1) 0%, rgba(32, 38, 32, 0.45) 100%);
+  pointer-events: none;
+}
+
+/* Floating Elements */
+.floating-badge {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 12px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  z-index: 2;
+}
+
+.badge-icon-wrap {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #10b981;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+}
+
+.check-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.badge-texts {
+  display: flex;
+  flex-direction: column;
+}
+
+.badge-h {
+  font-size: 13px;
+  font-weight: 700;
+  color: #17231d;
+  line-height: 1.2;
+}
+
+.badge-s {
+  font-size: 11px;
+  color: #64748b;
+  line-height: 1.2;
+}
+
+.floating-listing-card {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  left: 20px;
+  max-width: 340px;
+  margin-left: auto;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 14px;
+  padding: 14px 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  z-index: 2;
+}
+
+.fl-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.fl-district {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.fl-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #059669;
+  background: #ecfdf5;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.fl-pulse {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+.fl-price {
+  font-size: 18px;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.2;
+}
+
+.fl-price span {
+  font-size: 12px;
+  font-weight: 500;
+  color: #64748b;
+}
+
+.fl-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.dot {
+  color: #cbd5e1;
+}
+
+@media (max-width: 640px) {
+  .visual-card {
+    height: 320px;
   }
-  .console-fields {
-    grid-template-columns: repeat(4, 1fr);
-  }
-  .console-cell {
-    border-bottom: none !important;
-    border-right: 1px solid var(--sand-light);
-  }
-  .console-cell:last-child {
-    border-right: none;
-  }
-  .visual-canvas {
-    height: 440px;
+  .floating-listing-card {
+    max-width: 100%;
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
   }
 }
 </style>

@@ -246,12 +246,19 @@ async def handle_scrape_now(message: Message):
     status_msg = await message.answer("🔄 OLX dan yangi e'lonlar qidirilmoqda...")
     try:
         run_rec = await monitor_worker.run_once()
+        note = ""
+        if run_rec.listings_new == 0 and run_rec.listings_found > 0:
+            note = "\n\nℹ️ <i>Barcha topilgan e'lonlar allaqachon bazaga kiritilgan. Kanalga yuborish uchun <code>/post_latest 1</code> buyrug'idan foydalaning.</i>"
+        elif run_rec.listings_new > 0:
+            note = f"\n\n🚀 <b>{run_rec.listings_new}</b> ta yangi e'lon kanalga yuborildi!"
+
         await status_msg.edit_text(
             f"✅ <b>Monitoring sikli yakunlandi!</b>\n\n"
             f"• Topilgan e'lonlar: <b>{run_rec.listings_found}</b>\n"
             f"• Yangi e'lonlar: <b>{run_rec.listings_new}</b>\n"
             f"• Status: <b>{run_rec.status}</b>\n"
-            f"• Kanal: <code>{settings.CHANNEL_ID or 'Sozlanmagan'}</code>",
+            f"• Kanal: <code>{settings.CHANNEL_ID or 'Sozlanmagan'}</code>"
+            f"{note}",
             parse_mode="HTML",
         )
     except Exception as e:

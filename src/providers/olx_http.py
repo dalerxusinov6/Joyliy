@@ -175,15 +175,26 @@ class OLXHttpListingProvider(BaseListingProvider):
         import json
         import os
         base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-        seed_file = os.path.join(base_dir, "src", "data", "initial_listings.json")
-        if not os.path.exists(seed_file):
+        candidate_paths = [
+            os.path.join(base_dir, "src", "data", "initial_listings.json"),
+            os.path.join(os.getcwd(), "src", "data", "initial_listings.json"),
+            "/app/src/data/initial_listings.json",
+        ]
+        seed_file = None
+        for p in candidate_paths:
+            if os.path.exists(p):
+                seed_file = p
+                break
+
+        if not seed_file:
+            logger.warning("No initial_listings.json found for fallback.")
             return []
         try:
             with open(seed_file, "r", encoding="utf-8") as f:
                 items = json.load(f)
             from src.providers.parser import parse_publication_date
             res = []
-            for r in items[:50]:
+            for r in items[:60]:
                 img_urls = (
                     json.loads(r["image_urls"])
                     if isinstance(r.get("image_urls"), str)
@@ -211,7 +222,8 @@ class OLXHttpListingProvider(BaseListingProvider):
                     )
                 )
             return res
-        except Exception:
+        except Exception as exc:
+            logger.error("Error reading fallback listings: %s", exc)
             return []
 
     async def check_health(self) -> ProviderHealth:

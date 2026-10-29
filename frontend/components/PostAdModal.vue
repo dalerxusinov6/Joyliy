@@ -49,7 +49,6 @@ const onSubmit = async () => {
       <!-- Header -->
       <div class="top post-ad-header">
         <div class="header-titles">
-          <span class="editorial-meta">IJARA PUBLIKATSIYASI</span>
           <span class="post-ad-title">Xonadon e’lonini joylash</span>
         </div>
         <button class="ib" @click="$emit('close')" :aria-label="t('close')">

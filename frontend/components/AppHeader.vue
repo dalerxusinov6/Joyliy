@@ -36,33 +36,23 @@ const onLangChange = (lang: string) => {
     <div class="wrap hd">
       <!-- Left: Architectural Brand Wordmark -->
       <NuxtLink to="/" class="brand-link">
-        <div class="brand-badge-box">
-          <span class="brand-num">№</span>
+        <div class="brand-logo-mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="logo-icon">
+            <path d="M3 10.5 12 3l9 7.5V20a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 20v-9.5z" />
+            <circle cx="12" cy="13" r="2" fill="currentColor" />
+          </svg>
         </div>
         <div class="brand-identity">
-          <span class="brand-name">JOYLIY</span>
-          <span class="brand-issue">Toshkent · Maklersiz Ijara</span>
+          <span class="brand-name">Joyliy</span>
         </div>
       </NuxtLink>
 
-      <!-- Center: Numbered Editorial Directory -->
+      <!-- Center: Clean Navigation -->
       <nav class="d editorial-nav">
-        <a href="#katalog" class="nav-item">
-          <span class="nav-idx">01</span>
-          <span class="nav-label">Katalog</span>
-        </a>
-        <a href="#katalog" class="nav-item" @click.prevent="$emit('filterMaklersiz')">
-          <span class="nav-idx">02</span>
-          <span class="nav-label">Maklersiz</span>
-        </a>
-        <a href="#xarita" class="nav-item" @click.prevent="$emit('openMap')">
-          <span class="nav-idx">03</span>
-          <span class="nav-label">Xarita</span>
-        </a>
-        <a href="#falsafa" class="nav-item">
-          <span class="nav-idx">04</span>
-          <span class="nav-label">Falsafa</span>
-        </a>
+        <a href="#katalog" class="nav-item">Katalog</a>
+        <a href="#katalog" class="nav-item" @click.prevent="$emit('filterMaklersiz')">Maklersiz</a>
+        <a href="#xarita" class="nav-item" @click.prevent="$emit('openMap')">Xarita</a>
+        <a href="#falsafa" class="nav-item">Falsafa</a>
       </nav>
 
       <span class="sp"></span>
@@ -158,47 +148,37 @@ const onLangChange = (lang: string) => {
 .brand-link {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
-.brand-badge-box {
+.brand-logo-mark {
   width: 32px;
   height: 32px;
   background: var(--ink);
-  color: var(--ivory);
+  color: #ffffff;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-xs);
 }
 
-.brand-num {
-  font-family: var(--font-serif);
-  font-style: italic;
-  font-size: 15px;
+.logo-icon {
+  width: 18px;
+  height: 18px;
 }
 
 .brand-identity {
   display: flex;
-  flex-direction: column;
+  align-items: center;
 }
 
 .brand-name {
-  font-family: var(--font-serif);
-  font-size: 21px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
+  font-family: var(--font-sans);
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
   color: var(--ink);
   line-height: 1;
-}
-
-.brand-issue {
-  font-family: var(--font-mono);
-  font-size: 9.5px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-top: 3px;
 }
 
 .editorial-nav {
@@ -208,25 +188,16 @@ const onLangChange = (lang: string) => {
 }
 
 .nav-item {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 6px;
   color: var(--ink);
-  font-size: 13.5px;
-  font-weight: 500;
+  font-size: 14px;
+  font-weight: 600;
   position: relative;
   padding: 6px 0;
+  transition: color 0.18s;
 }
 
-.nav-idx {
-  font-family: var(--font-mono);
-  font-size: 10px;
+.nav-item:hover {
   color: var(--terracotta);
-  font-weight: 600;
-}
-
-.nav-label {
-  letter-spacing: 0.02em;
 }
 
 .nav-item::after {

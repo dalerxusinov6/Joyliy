@@ -24,7 +24,6 @@ const savedListings = computed(() => {
       <!-- Header -->
       <div class="top saved-header">
         <div class="header-left">
-          <span class="editorial-meta">SHAXSIY KOLLEKSIYA</span>
           <span class="saved-title">Saqlangan uylar ({{ savedListings.length }})</span>
         </div>
         <button class="ib" @click="$emit('close')" :aria-label="t('close')">

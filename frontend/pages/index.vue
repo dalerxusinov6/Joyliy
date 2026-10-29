@@ -32,21 +32,21 @@ await useAsyncData('listings_ssr', async () => {
 
 // Editorial categories
 const categories = [
-  { key: '', title: 'Barcha takliflar', code: '00' },
-  { key: 'mk', title: 'Maklersiz e’lonlar', code: '01' },
-  { key: '3days', title: 'Oxirgi 3 kun', code: '02' },
-  { key: '1', title: '1 xonali', code: '03' },
-  { key: '2', title: '2 xonali', code: '04' },
-  { key: '3', title: '3 xonali', code: '05' },
-  { key: 'room', title: 'Sheriklik uchun', code: '06' },
+  { key: '', title: 'Barcha takliflar' },
+  { key: 'mk', title: 'Maklersiz e’lonlar' },
+  { key: '3days', title: 'Oxirgi 3 kun' },
+  { key: '1', title: '1 xonali' },
+  { key: '2', title: '2 xonali' },
+  { key: '3', title: '3 xonali' },
+  { key: 'room', title: 'Sheriklik uchun' },
 ]
 
 // Audience options
 const audienceOptions = [
-  { key: 'all', title: 'Barchasi', icon: '🌐' },
-  { key: 'family', title: 'Oila uchun', icon: '👨‍👩‍👧' },
-  { key: 'female', title: 'Qizlar uchun', icon: '👩' },
-  { key: 'male', title: 'Yigitlar uchun', icon: '👨' },
+  { key: 'all', title: 'Barchasi', type: 'all' },
+  { key: 'family', title: 'Oila uchun', type: 'family' },
+  { key: 'female', title: 'Qizlar uchun', type: 'female' },
+  { key: 'male', title: 'Yigitlar uchun', type: 'male' },
 ]
 
 const getAudienceCount = (key: string) => {
@@ -129,7 +129,6 @@ const formatPrice = (val: number) => {
             :class="{ active: filterCategory === cat.key }"
             @click="selectCategory(cat.key)"
           >
-            <span class="cat-code">{{ cat.code }}</span>
             <span class="cat-name">{{ cat.title }}</span>
           </button>
         </div>
@@ -142,12 +141,11 @@ const formatPrice = (val: number) => {
         <!-- Catalog Header -->
         <div class="catalog-header">
           <div class="header-left">
-            <span class="editorial-meta">TOSHKENT IJARA ARXIVI</span>
-            <h2 class="editorial-headline catalog-title">
-              Saralangan <em>xonadonlar.</em>
+            <h2 class="catalog-title">
+              Saralangan xonadonlar
             </h2>
             <p class="catalog-count-note">
-              {{ isLoading ? 'Yuklanmoqda...' : `${filteredListings.length} ta tekshirilgan e’lon topildi` }}
+              {{ isLoading ? 'Yuklanmoqda...' : `${filteredListings.length} ta tekshirilgan e’lon mavjud` }}
             </p>
           </div>
 
@@ -180,7 +178,27 @@ const formatPrice = (val: number) => {
               :class="{ active: filterAudience === aud.key }"
               @click="filterAudience = aud.key"
             >
-              <span class="aud-icon">{{ aud.icon }}</span>
+              <span class="aud-icon">
+                <svg v-if="aud.type === 'all'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="svg-i">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="2" y1="12" x2="22" y2="12" />
+                  <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                </svg>
+                <svg v-else-if="aud.type === 'family'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="svg-i">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg>
+                <svg v-else-if="aud.type === 'female'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="svg-i">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                </svg>
+                <svg v-else-if="aud.type === 'male'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="svg-i">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                </svg>
+              </span>
               <span class="aud-name">{{ aud.title }}</span>
               <span class="aud-count" v-if="getAudienceCount(aud.key) > 0">
                 {{ getAudienceCount(aud.key) }}
@@ -209,8 +227,13 @@ const formatPrice = (val: number) => {
 
           <div class="featured-info">
             <div class="featured-top-meta">
-              <span class="editorial-meta">{{ dominantFeatured.district }} · METROGA {{ dominantFeatured.metro_minutes || 5 }} DAQIQA</span>
-              <span class="featured-index-num">№ 01</span>
+              <span class="featured-location-tag">
+                <svg class="i" viewBox="0 0 24 24" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle;">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                  <circle cx="12" cy="10" r="3" />
+                </svg>
+                <span>{{ dominantFeatured.district }} · Metroga {{ dominantFeatured.metro_minutes || 5 }} daqiqa</span>
+              </span>
             </div>
 
             <h3 class="featured-title">
@@ -271,12 +294,11 @@ const formatPrice = (val: number) => {
       <!-- Neighborhood Exploration Section (District Index) -->
       <section class="neighborhood-section">
         <div class="section-title-wrap">
-          <span class="editorial-meta">HUDUDLAR REESTRI</span>
-          <h2 class="editorial-headline section-title">
-            Toshkent <em>tumanlari.</em>
+          <h2 class="section-title">
+            Toshkent tumanlari
           </h2>
           <p class="section-subtitle">
-            O‘zingizga ma’qul hududni tanlang va bevosita ushbu koordinatadagi uylarni o‘rganing.
+            O‘zingizga ma’qul hududdagi xonadonlarni o‘rganing.
           </p>
         </div>
 
@@ -290,7 +312,6 @@ const formatPrice = (val: number) => {
             @click="filterDistrict = filterDistrict === d ? '' : d"
           >
             <div class="district-top">
-              <span class="district-code">TASHKENT</span>
               <span class="district-count">{{ getDistrictCount(d) }} ta e’lon</span>
             </div>
             <h4 class="district-heading">{{ d }}</h4>
@@ -304,16 +325,19 @@ const formatPrice = (val: number) => {
       <!-- Brand Story / Philosophy Section (Falsafa) -->
       <section id="falsafa" class="philosophy-section">
         <div class="philosophy-masthead">
-          <span class="editorial-meta">JOYLIY FALSAFASI</span>
-          <h2 class="editorial-headline philosophy-heading">
-            Uy ijarasi sokin, shaffof va <em>vositachilarsiz</em> bo‘lishi lozim.
+          <h2 class="philosophy-heading">
+            Uy ijarasi sokin, shaffof va vositachisiz bo‘lishi lozim.
           </h2>
         </div>
 
         <div class="philosophy-grid">
           <!-- Pillar 1 -->
           <div class="philosophy-col">
-            <span class="numeral-accent">01</span>
+            <div class="col-icon-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="p-icon">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              </svg>
+            </div>
             <h3 class="col-title">To‘g‘ridan-to‘g‘ri aloqa</h3>
             <p class="col-text">
               Hech qanday makler va keraksiz 50% vositachilik to‘lovisiz. Ijarachi va mulk egasi o‘rtasida shaffof, qulay muloqot o‘rnatiladi.
@@ -322,7 +346,11 @@ const formatPrice = (val: number) => {
 
           <!-- Pillar 2 -->
           <div class="philosophy-col">
-            <span class="numeral-accent">02</span>
+            <div class="col-icon-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="p-icon">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            </div>
             <h3 class="col-title">Saralangan tozalik</h3>
             <p class="col-text">
               Dublikatlar va soxta fotosuratlar doimiy filtrlanadi. Har bir e’londa asl manba, haqiqiy narx va maydon ochiq ko‘rsatiladi.
@@ -331,7 +359,14 @@ const formatPrice = (val: number) => {
 
           <!-- Pillar 3 -->
           <div class="philosophy-col">
-            <span class="numeral-accent">03</span>
+            <div class="col-icon-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="p-icon">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+              </svg>
+            </div>
             <h3 class="col-title">Maqsadli qulaylik</h3>
             <p class="col-text">
               Oila uchun alohida, talabalar, xonadoshlar va qizlar uchun moslashtirilgan aqlli tahlil yordamida o‘z uyingizni tezroq topasiz.
@@ -344,9 +379,8 @@ const formatPrice = (val: number) => {
       <section class="owner-conversion-section">
         <div class="conversion-panel">
           <div class="conversion-left">
-            <span class="conversion-eyebrow">UY EGALARI UCHUN TAKLIF</span>
-            <h2 class="editorial-headline conversion-title">
-              Kvartirangizni vositachisiz <em>ijaraga bering.</em>
+            <h2 class="conversion-title">
+              Kvartirangizni vositachisiz ijaraga bering.
             </h2>
             <p class="conversion-lead">
               E’loningizni Joyliy platformasida bepul chop eting. Munosib ijarachilar bilan to‘g‘ridan-to‘g‘ri bog‘lanib, vaqtingizni va vositachilik xarajatlarini tejang.
@@ -832,8 +866,32 @@ const formatPrice = (val: number) => {
 .philosophy-col {
   display: flex;
   flex-direction: column;
-  padding-top: 20px;
+  padding-top: 24px;
   border-top: 1px solid var(--sand);
+}
+
+.col-icon-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--terracotta-subtle);
+  color: var(--terracotta);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.p-icon {
+  width: 22px;
+  height: 22px;
+}
+
+.svg-i {
+  width: 14px;
+  height: 14px;
+  display: inline-block;
+  vertical-align: middle;
 }
 
 .col-title {

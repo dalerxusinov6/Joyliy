@@ -82,15 +82,23 @@ async def run_application(mode: str = "all"):
 
     # 5. Start Telegram Bot (Webhook on Render/Cloud, Long-Polling locally)
     if mode in ("all", "bot") and dp and bot:
+        # Detect cloud hosting (Render sets RENDER, RENDER_SERVICE_ID, RENDER_EXTERNAL_URL, etc.)
+        render_external_url = (
+            os.getenv("RENDER_EXTERNAL_URL")
+            or (settings.WEBSITE_URL if "onrender.com" in settings.WEBSITE_URL else None)
+        )
         is_cloud_render = bool(
             os.getenv("RENDER")
-            or os.getenv("RENDER_EXTERNAL_URL")
+            or os.getenv("RENDER_SERVICE_ID")
+            or os.getenv("RENDER_INSTANCE_ID")
+            or render_external_url
             or (settings.WEBSITE_URL and "onrender.com" in settings.WEBSITE_URL)
         )
 
         if is_cloud_render:
             register_bot_webhook(bot, dp)
-            webhook_url = f"{settings.WEBSITE_URL.rstrip('/')}/api/telegram-webhook"
+            webhook_base = render_external_url or "https://joyliy.onrender.com"
+            webhook_url = f"{webhook_base.rstrip('/')}/api/telegram-webhook"
             try:
                 await bot.set_webhook(
                     url=webhook_url,
@@ -115,7 +123,8 @@ async def run_application(mode: str = "all"):
                         logger.info("Starting aiogram dispatcher polling...")
                         await dp.start_polling(bot, handle_signals=False)
                     except Exception as exc:
-                        logger.error("Telegram bot polling error: %s. Retrying in 5s...", exc)
+                        # Handle potential duplicate instance or network interruption gracefully
+                        logger.warning("Telegram bot polling error (%s). Re-checking in 5s...", exc)
                         try:
                             await asyncio.wait_for(stop_event.wait(), timeout=5.0)
                         except asyncio.TimeoutError:

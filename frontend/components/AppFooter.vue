@@ -10,10 +10,10 @@ const { t } = useI18n()
       <div class="footer-top-bar">
         <div class="footer-brand">
           <span class="footer-brand-title">JOYLIY</span>
-          <span class="footer-brand-sub">Toshkent Arxitektura va Ijara Monografiyasi</span>
+          <span class="footer-brand-sub">Toshkentda maklersiz ijara platformasi</span>
         </div>
         <div class="footer-edition">
-          <span>Nashr № 01 · 2026</span>
+          <span>2026 · Toshkent</span>
         </div>
       </div>
 
@@ -33,7 +33,7 @@ const { t } = useI18n()
 
         <!-- Col 2: Directory -->
         <div class="footer-col">
-          <h4 class="col-heading">01 / Katalog</h4>
+          <h4 class="col-heading">Katalog</h4>
           <a href="#katalog" class="footer-link">Barcha xonadonlar</a>
           <a href="#katalog" class="footer-link">Maklersiz uylar</a>
           <a href="#katalog" class="footer-link">Oxirgi 3 kunlik</a>
@@ -42,7 +42,7 @@ const { t } = useI18n()
 
         <!-- Col 3: Districts -->
         <div class="footer-col">
-          <h4 class="col-heading">02 / Koordinatalar</h4>
+          <h4 class="col-heading">Tumanlar</h4>
           <a href="#katalog" class="footer-link">Chilonzor tumani</a>
           <a href="#katalog" class="footer-link">Yunusobod tumani</a>
           <a href="#katalog" class="footer-link">Mirzo Ulug‘bek tumani</a>
@@ -52,15 +52,26 @@ const { t } = useI18n()
 
         <!-- Col 4: Telegram & Contacts -->
         <div class="footer-col">
-          <h4 class="col-heading">03 / Aloqa va Bot</h4>
+          <h4 class="col-heading">Aloqa va Bot</h4>
           <a href="https://t.me/joyliy_bot" target="_blank" rel="noopener" class="footer-link special">
-            🤖 Telegram Bot: @joyliy_bot
+            <svg class="foot-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="m22 2-11 11M22 2l-7 20-4-9-9-4z" />
+            </svg>
+            <span>Telegram Bot: @joyliy_bot</span>
           </a>
           <a href="https://t.me/joyliy_uz" target="_blank" rel="noopener" class="footer-link special">
-            📢 Telegram Kanal: @joyliy_uz
+            <svg class="foot-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="m3 11 18-5v12L3 14v-3z" />
+              <path d="M11.6 16.8a3 3 0 1 1-5.8-1.6" />
+            </svg>
+            <span>Telegram Kanal: @joyliy_uz</span>
           </a>
           <a href="mailto:salom@joyliy.uz" class="footer-link">
-            ✉️ salom@joyliy.uz
+            <svg class="foot-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+              <polyline points="22,6 12,13 2,6" />
+            </svg>
+            <span>salom@joyliy.uz</span>
           </a>
           <span class="city-location">Toshkent, O‘zbekiston</span>
         </div>
@@ -169,7 +180,9 @@ const { t } = useI18n()
 }
 
 .footer-link {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 13.5px;
   color: var(--muted);
   padding: 5px 0;
@@ -183,6 +196,13 @@ const { t } = useI18n()
 .footer-link.special {
   color: var(--ink);
   font-weight: 600;
+}
+
+.foot-icon {
+  width: 14px;
+  height: 14px;
+  color: var(--terracotta);
+  flex-shrink: 0;
 }
 
 .city-location {

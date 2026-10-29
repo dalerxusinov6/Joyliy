@@ -123,9 +123,20 @@ const sourceViewLabel = computed(() => {
         <div v-if="listing.target_audience && listing.target_audience !== 'any'" class="target-audience-card">
           <div class="target-left">
             <span class="target-icon">
-              <template v-if="listing.target_audience === 'family'">👨‍👩‍👧</template>
-              <template v-else-if="listing.target_audience === 'female'">👩</template>
-              <template v-else-if="listing.target_audience === 'male'">👨</template>
+              <svg v-if="listing.target_audience === 'family'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="detail-svg">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+              </svg>
+              <svg v-else-if="listing.target_audience === 'female'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="detail-svg">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+              <svg v-else-if="listing.target_audience === 'male'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="detail-svg">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
             </span>
           </div>
           <div class="target-right">
@@ -140,7 +151,7 @@ const sourceViewLabel = computed(() => {
 
         <!-- Description Text -->
         <div v-if="listing.description" class="exhibition-description-block">
-          <span class="editorial-meta">TAVSIF VA SHARTLAR</span>
+          <h4 class="description-heading">Tavsif va shartlar</h4>
           <p class="description-body">
             {{ listing.description }}
           </p>
@@ -149,8 +160,7 @@ const sourceViewLabel = computed(() => {
         <!-- Provenance & Disclaimer -->
         <div class="provenance-block">
           <div class="prov-top">
-            <span class="prov-label">E’LON METADATASI</span>
-            <span class="prov-source">Manba: {{ listing.source_attribution || 'OLX.uz' }}</span>
+            <span class="prov-label">Manba: {{ listing.source_attribution || 'OLX.uz' }}</span>
           </div>
           <p class="prov-text">
             {{ listing.disclaimer || 'Ushbu e’lon ommaviy platformadan to‘g‘ridan-to‘g‘ri olingan. To‘lovdan avval xonadonni o‘z ko‘zingiz bilan ko‘rib, hujjatlarni tekshirib olishingizni tavsiya qilamiz.' }}
@@ -176,7 +186,10 @@ const sourceViewLabel = computed(() => {
           class="btn p call-btn"
           :href="`tel:${listing.contact_phone}`"
         >
-          📞 Qo‘ng‘iroq qilish
+          <svg class="btn-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+          </svg>
+          <span>Qo‘ng‘iroq qilish</span>
         </a>
         <a
           v-if="listing.contact_telegram"
@@ -185,7 +198,10 @@ const sourceViewLabel = computed(() => {
           target="_blank"
           rel="noopener"
         >
-          💬 Telegram orqali yozish
+          <svg class="btn-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="m22 2-11 11M22 2l-7 20-4-9-9-4z" />
+          </svg>
+          <span>Telegram orqali yozish</span>
         </a>
         <a
           v-if="listing.canonical_url"
@@ -209,7 +225,10 @@ const sourceViewLabel = computed(() => {
           target="_blank"
           rel="noopener"
         >
-          🤖 Telegram Bot
+          <svg class="btn-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="m22 2-11 11M22 2l-7 20-4-9-9-4z" />
+          </svg>
+          <span>Telegram Bot</span>
         </a>
       </div>
     </div>
@@ -439,8 +458,25 @@ const sourceViewLabel = computed(() => {
 }
 
 .target-icon {
-  font-size: 24px;
-  line-height: 1;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: var(--terracotta-subtle);
+  color: var(--terracotta);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.detail-svg {
+  width: 20px;
+  height: 20px;
+}
+
+.btn-action-icon {
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
 }
 
 .target-headline {

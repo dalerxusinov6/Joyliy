@@ -17,10 +17,10 @@ const sortOptions = [
 ]
 
 const audienceList = [
-  { value: 'all', label: 'Barchasi', icon: '🌐' },
-  { value: 'family', label: 'Oila uchun', icon: '👨‍👩‍👧' },
-  { value: 'female', label: 'Qizlar uchun', icon: '👩' },
-  { value: 'male', label: 'Yigitlar uchun', icon: '👨' },
+  { value: 'all', label: 'Barchasi' },
+  { value: 'family', label: 'Oila uchun' },
+  { value: 'female', label: 'Qizlar uchun' },
+  { value: 'male', label: 'Yigitlar uchun' },
 ]
 
 const onReset = () => {
@@ -44,7 +44,6 @@ const onApply = () => {
       <!-- Header -->
       <div class="top filter-header">
         <div class="filter-header-left">
-          <span class="editorial-meta">PARAMETRLAR</span>
           <span class="filter-heading-text">Kengaytirilgan filtrlar</span>
         </div>
         <button class="ib" @click="$emit('close')" :aria-label="t('close')">
@@ -58,7 +57,7 @@ const onApply = () => {
       <div class="bd filter-body">
         <!-- Sort Segment -->
         <div class="filter-section">
-          <span class="editorial-meta">01 / SARALASH TARTIBI</span>
+          <span class="editorial-meta">Saralash tartibi</span>
           <div class="sort-segmented">
             <button
               v-for="opt in sortOptions"
@@ -75,7 +74,7 @@ const onApply = () => {
 
         <!-- Audience Grid -->
         <div class="filter-section">
-          <span class="editorial-meta">02 / IJARACHI TOIFASI</span>
+          <span class="editorial-meta">Ijarachi toifasi</span>
           <div class="audience-select-grid">
             <button
               v-for="aud in audienceList"
@@ -85,7 +84,27 @@ const onApply = () => {
               :class="{ active: filterAudience === aud.value }"
               @click="filterAudience = aud.value"
             >
-              <span class="aud-icon">{{ aud.icon }}</span>
+              <span class="aud-icon">
+                <svg v-if="aud.value === 'all'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="f-svg">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="2" y1="12" x2="22" y2="12" />
+                  <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                </svg>
+                <svg v-else-if="aud.value === 'family'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="f-svg">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg>
+                <svg v-else-if="aud.value === 'female'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="f-svg">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                </svg>
+                <svg v-else-if="aud.value === 'male'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="f-svg">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                </svg>
+              </span>
               <span class="aud-text">{{ aud.label }}</span>
             </button>
           </div>
@@ -93,7 +112,7 @@ const onApply = () => {
 
         <!-- Amenities Checklist -->
         <div class="filter-section">
-          <span class="editorial-meta">03 / QULAYLIKLAR VA MEZONLAR</span>
+          <span class="editorial-meta">Qulayliklar va mezonlar</span>
           <div class="amenities-container">
             <!-- Owner Only -->
             <label class="amenity-row owner-highlight">
@@ -240,7 +259,14 @@ const onApply = () => {
 }
 
 .aud-icon {
-  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.f-svg {
+  width: 16px;
+  height: 16px;
 }
 
 .aud-text {

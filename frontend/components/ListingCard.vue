@@ -59,9 +59,29 @@ const onBookmarkClick = (e: MouseEvent) => {
           class="editorial-badge audience"
           :class="`aud-${listing.target_audience}`"
         >
-          <template v-if="listing.target_audience === 'family'">👨‍👩‍👧 Oila</template>
-          <template v-else-if="listing.target_audience === 'female'">👩 Qizlar</template>
-          <template v-else-if="listing.target_audience === 'male'">👨 Yigitlar</template>
+          <template v-if="listing.target_audience === 'family'">
+            <svg class="badge-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+            </svg>
+            <span>Oila uchun</span>
+          </template>
+          <template v-else-if="listing.target_audience === 'female'">
+            <svg class="badge-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+            <span>Qizlar uchun</span>
+          </template>
+          <template v-else-if="listing.target_audience === 'male'">
+            <svg class="badge-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+            <span>Yigitlar uchun</span>
+          </template>
         </span>
       </div>
 
@@ -211,6 +231,14 @@ const onBookmarkClick = (e: MouseEvent) => {
   background: var(--surf);
   color: var(--ink);
   border: 1px solid var(--sand);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.badge-svg {
+  width: 12px;
+  height: 12px;
 }
 
 .editorial-badge.aud-family {
