@@ -42,7 +42,7 @@ class Settings(BaseSettings):
 
     # Database
     DATABASE_URL: str = Field(
-        default="postgresql+asyncpg://postgres:postgres@localhost:5432/uyda",
+        default="sqlite+aiosqlite:///./uyda.db",
         description="Async SQLAlchemy database URL (e.g. postgresql+asyncpg://... or sqlite+aiosqlite://...)",
     )
     DB_ECHO: bool = Field(default=False, description="Enable SQLAlchemy engine query logging")

@@ -1,5 +1,7 @@
 """REST API routes for website integration and monitoring."""
 
+from __future__ import annotations
+
 from datetime import datetime, timezone
 from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -8,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database import get_db_session
 from src.models.user import User
+from src.models.listing import Listing
 from src.services.listing_service import listing_service
 from src.services.monitor_worker import monitor_worker
 from src.services.auth_service import auth_service

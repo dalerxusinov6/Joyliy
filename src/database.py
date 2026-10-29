@@ -22,6 +22,12 @@ def create_engine_and_session(db_url: str | None = None):
     """Factory to create an async engine and sessionmaker."""
     url = db_url or settings.DATABASE_URL
 
+    # Normalize Render and Cloud provider PostgreSQL URLs to use asyncpg driver
+    if url.startswith("postgres://"):
+        url = url.replace("postgres://", "postgresql+asyncpg://", 1)
+    elif url.startswith("postgresql://") and not url.startswith("postgresql+asyncpg://"):
+        url = url.replace("postgresql://", "postgresql+asyncpg://", 1)
+
     connect_args = {}
     if url.startswith("sqlite"):
         connect_args["check_same_thread"] = False
