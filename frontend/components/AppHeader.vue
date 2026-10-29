@@ -159,17 +159,25 @@ const onLangChange = (lang: string) => {
 .brand-logo-mark {
   width: 32px;
   height: 32px;
-  background: var(--ink);
+  background: var(--terracotta);
   color: #ffffff;
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 2px 8px rgba(188, 104, 75, 0.25);
+  transition: all 0.18s var(--ease);
+}
+
+.brand-link:hover .brand-logo-mark {
+  background: var(--terracotta-hover);
+  transform: scale(1.05);
 }
 
 .logo-icon {
   width: 18px;
   height: 18px;
+  color: #ffffff;
 }
 
 .brand-identity {
