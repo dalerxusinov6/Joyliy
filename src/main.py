@@ -39,8 +39,11 @@ async def run_application(mode: str = "all"):
     # 2. Setup Bot & Dispatcher if requested
     if mode in ("all", "bot"):
         bot, dp = create_bot_and_dispatcher()
-        monitor_worker.set_bot(bot)
-        logger.info("Telegram Bot and Dispatcher configured.")
+        if bot and dp:
+            monitor_worker.set_bot(bot)
+            logger.info("Telegram Bot and Dispatcher configured.")
+        else:
+            logger.warning("Telegram Bot is disabled (valid BOT_TOKEN not configured).")
 
     # 3. Setup Monitor Worker if requested
     if mode in ("all", "worker"):
@@ -48,6 +51,7 @@ async def run_application(mode: str = "all"):
         logger.info("Background Monitor Worker started.")
 
     # 4. Setup FastAPI Server if requested
+    server_task = None
     if mode in ("all", "api"):
         app = create_app()
         config = uvicorn.Config(
@@ -57,13 +61,8 @@ async def run_application(mode: str = "all"):
             log_level=settings.LOG_LEVEL.lower(),
         )
         server = uvicorn.Server(config)
-        tasks.append(asyncio.create_task(server.serve()))
+        server_task = asyncio.create_task(server.serve())
         logger.info("FastAPI web server bound to %s:%d", settings.HOST, settings.PORT)
-
-    # 5. Start Telegram Polling if bot is active
-    if mode in ("all", "bot") and dp and bot:
-        logger.info("Starting Telegram Bot long-polling...")
-        tasks.append(asyncio.create_task(dp.start_polling(bot)))
 
     # Graceful shutdown handler
     stop_event = asyncio.Event()
@@ -77,13 +76,33 @@ async def run_application(mode: str = "all"):
         try:
             loop.add_signal_handler(sig, handle_signal)
         except NotImplementedError:
-            # Signal handling on non-POSIX platforms
             pass
 
+    # 5. Start Telegram Polling if bot is active
+    if mode in ("all", "bot") and dp and bot:
+        logger.info("Starting Telegram Bot long-polling...")
+        async def run_bot_polling():
+            while not stop_event.is_set():
+                try:
+                    await dp.start_polling(bot)
+                except Exception as exc:
+                    logger.error("Telegram bot polling error: %s. Retrying in 10s...", exc)
+                    try:
+                        await asyncio.wait_for(stop_event.wait(), timeout=10.0)
+                    except asyncio.TimeoutError:
+                        pass
+        tasks.append(asyncio.create_task(run_bot_polling()))
+
     try:
-        # Wait until stopped or tasks finish
-        if tasks:
-            await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
+        # Wait until stopped or primary task finishes
+        if server_task:
+            stop_task = asyncio.create_task(stop_event.wait())
+            await asyncio.wait([server_task, stop_task], return_when=asyncio.FIRST_COMPLETED)
+        elif tasks:
+            stop_task = asyncio.create_task(stop_event.wait())
+            await asyncio.wait(tasks + [stop_task], return_when=asyncio.FIRST_COMPLETED)
+        else:
+            await stop_event.wait()
     except asyncio.CancelledError:
         pass
     finally:
