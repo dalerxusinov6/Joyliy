@@ -298,6 +298,88 @@ class NotificationService:
             "tashkent_time": now_tashkent.strftime("%H:%M"),
         }
 
+    @staticmethod
+    def normalize_text_key(text: Optional[str]) -> str:
+        """Normalize text by removing punctuation, converting to lowercase, and collapsing whitespace."""
+        import re
+        if not text:
+            return ""
+        cleaned = re.sub(r"[^\w\s]", " ", text.lower())
+        return " ".join(cleaned.split())
+
+    async def is_channel_duplicate(self, session: AsyncSession, candidate: Listing) -> bool:
+        """
+        Intelligently detect whether an identical or near-duplicate listing was ever posted to the channel.
+        Matches by:
+        1. Exact canonical URL
+        2. Exact or normalized title within same district
+        3. Same contact phone + district + rooms
+        4. Same district + rooms + exact price + high title similarity (>= 65%)
+        """
+        if candidate.posted_to_channel_at is not None:
+            return True
+
+        norm_title = self.normalize_text_key(candidate.title)
+        cand_phone = (candidate.contact_phone or "").strip()
+
+        # Query all listings that have already been posted to the channel
+        stmt = (
+            select(
+                Listing.id,
+                Listing.canonical_url,
+                Listing.title,
+                Listing.district,
+                Listing.rooms,
+                Listing.price_uzs,
+                Listing.contact_phone,
+            )
+            .where(
+                Listing.posted_to_channel_at.is_not(None),
+                Listing.id != candidate.id,
+            )
+        )
+        res = await session.execute(stmt)
+        posted_rows = res.fetchall()
+
+        cand_words = set(norm_title.split())
+
+        for p_id, p_url, p_title, p_dist, p_rooms, p_price, p_phone in posted_rows:
+            # 1. Canonical URL match
+            if p_url and candidate.canonical_url and p_url.strip() == candidate.canonical_url.strip():
+                logger.info("Channel duplicate by URL: #%d matches posted #%d", candidate.id, p_id)
+                return True
+
+            # 2. Normalized title match
+            p_norm = self.normalize_text_key(p_title)
+            if norm_title and p_norm and norm_title == p_norm:
+                if not candidate.district or not p_dist or candidate.district == p_dist:
+                    logger.info("Channel duplicate by title: #%d ('%s') matches posted #%d", candidate.id, candidate.title, p_id)
+                    return True
+
+            # 3. Same contact phone + same district + same room count
+            p_phone_str = (p_phone or "").strip()
+            if cand_phone and p_phone_str and cand_phone == p_phone_str:
+                if candidate.district and p_dist and candidate.district == p_dist:
+                    if candidate.rooms and p_rooms and candidate.rooms == p_rooms:
+                        logger.info("Channel duplicate by phone: #%d phone '%s' matches posted #%d", candidate.id, cand_phone, p_id)
+                        return True
+
+            # 4. Same district + rooms + price + high word overlap
+            if candidate.district and p_dist and candidate.district == p_dist:
+                if candidate.rooms and p_rooms and candidate.rooms == p_rooms:
+                    if candidate.price_uzs and p_price and abs(candidate.price_uzs - p_price) < (0.05 * candidate.price_uzs):
+                        p_words = set(p_norm.split())
+                        if cand_words and p_words:
+                            overlap = len(cand_words & p_words) / max(len(cand_words), len(p_words))
+                            if overlap >= 0.65:
+                                logger.info(
+                                    "Channel duplicate by similarity (%.2f): #%d matches posted #%d",
+                                    overlap, candidate.id, p_id
+                                )
+                                return True
+
+        return False
+
     async def broadcast_channel_batch(
         self,
         session: AsyncSession,
@@ -308,6 +390,7 @@ class NotificationService:
         """
         Broadcast up to 100 listings per day in smooth, distributed batches.
         Prioritizes newly discovered items; fills remaining batch slots from unposted active listings.
+        Strictly guarantees: NEVER sends duplicates, NEVER repeats an already posted listing.
         """
         if not settings.CHANNEL_ID or not self.bot:
             return 0
@@ -344,8 +427,13 @@ class NotificationService:
         if new_listings:
             for it in new_listings:
                 if it.id not in seen_ids and getattr(it, "posted_to_channel_at", None) is None:
-                    candidates.append(it)
-                    seen_ids.add(it.id)
+                    if not await self.is_channel_duplicate(session, it):
+                        candidates.append(it)
+                        seen_ids.add(it.id)
+                    else:
+                        it.posted_to_channel_at = datetime.now(timezone.utc)
+                        session.add(it)
+                        await session.commit()
                     if len(candidates) >= max_to_post:
                         break
 
@@ -363,37 +451,34 @@ class NotificationService:
             if seen_ids:
                 stmt = stmt.where(Listing.id.not_in(seen_ids))
 
+            # Fetch a wider batch so we can skip duplicates and still fulfill needed count
             stmt = stmt.order_by(
                 Listing.publication_date.desc().nullslast(),
                 Listing.id.desc(),
-            ).limit(needed)
+            ).limit(max(20, needed * 5))
 
             res = await session.execute(stmt)
             unposted_db = res.scalars().all()
             for it in unposted_db:
+                if len(candidates) >= max_to_post:
+                    break
+                if it.id in seen_ids:
+                    continue
+                # Strictly filter out duplicates against channel history
+                if await self.is_channel_duplicate(session, it):
+                    # Mark retired so we don't query it repeatedly
+                    it.posted_to_channel_at = datetime.now(timezone.utc)
+                    session.add(it)
+                    await session.commit()
+                    continue
+
                 candidates.append(it)
                 seen_ids.add(it.id)
 
-        # 3. Third priority (fallback): If all listings in DB have been posted at least once, recycle older items (> 7 days)
-        if len(candidates) < max_to_post:
-            needed = max_to_post - len(candidates)
-            week_ago = datetime.now(timezone.utc) - timedelta(days=7)
-            stmt = (
-                select(Listing)
-                .options(selectinload(Listing.classification))
-                .where(
-                    Listing.is_active == True,
-                    Listing.posted_to_channel_at < week_ago,
-                )
-            )
-            if seen_ids:
-                stmt = stmt.where(Listing.id.not_in(seen_ids))
-            stmt = stmt.order_by(Listing.posted_to_channel_at.asc()).limit(needed)
-            res = await session.execute(stmt)
-            recycled = res.scalars().all()
-            for it in recycled:
-                candidates.append(it)
-                seen_ids.add(it.id)
+        # STRICT GUARANTEE: NEVER REPOST ALREADY POSTED LISTINGS.
+        if not candidates:
+            logger.info("No unposted unique listings available for channel broadcast. Waiting for fresh scrape.")
+            return 0
 
         # 4. Dispatch each candidate to the channel
         posted_count = 0

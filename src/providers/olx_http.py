@@ -79,32 +79,44 @@ class OLXHttpListingProvider(BaseListingProvider):
         return "olx_uz_http"
 
     async def _fetch_api_listings(self, client: httpx.AsyncClient) -> List[RawListingItem]:
-        """Fetch newly published listings from OLX official offers API."""
-        api_url = "https://www.olx.uz/api/v1/offers/?category_id=1147&city_id=4&limit=40"
-        try:
-            resp = await client.get(api_url, headers=self.api_headers, timeout=12.0)
-            if resp.status_code == 200:
-                data = resp.json()
-                raw_offers = data.get("data", [])
-                items = []
-                for off in raw_offers:
-                    try:
-                        parsed = parse_olx_api_offer(off)
-                        items.append(parsed)
-                    except Exception as err:
-                        logger.warning("Error parsing OLX API item %s: %s", off.get("id"), err)
-                if items:
-                    self._last_status = ProviderStatus.HEALTHY
-                    self._last_message = f"Retrieved {len(items)} listings via OLX API."
-                    logger.info("Successfully fetched %d listings from OLX API.", len(items))
-                return items
-            elif resp.status_code in (401, 403):
-                logger.warning("OLX API restricted (HTTP %d).", resp.status_code)
-            else:
-                logger.warning("OLX API returned HTTP %d", resp.status_code)
-        except Exception as exc:
-            logger.warning("OLX API request failed: %s", exc)
-        return []
+        """Fetch newly published listings from OLX official offers API, sorted by newest first."""
+        api_endpoints = [
+            "https://www.olx.uz/api/v1/offers/?category_id=1147&city_id=4&offset=0&limit=40&sort_by=created_at:desc",
+            "https://www.olx.uz/api/v1/offers/?category_id=1147&city_id=4&offset=40&limit=40&sort_by=created_at:desc",
+        ]
+        items = []
+        seen_ids = set()
+
+        for api_url in api_endpoints:
+            try:
+                resp = await client.get(api_url, headers=self.api_headers, timeout=12.0)
+                if resp.status_code == 200:
+                    data = resp.json()
+                    raw_offers = data.get("data", [])
+                    for off in raw_offers:
+                        off_id = str(off.get("id"))
+                        if off_id in seen_ids:
+                            continue
+                        seen_ids.add(off_id)
+                        try:
+                            parsed = parse_olx_api_offer(off)
+                            items.append(parsed)
+                        except Exception as err:
+                            logger.warning("Error parsing OLX API item %s: %s", off_id, err)
+                elif resp.status_code in (401, 403):
+                    logger.warning("OLX API restricted (HTTP %d).", resp.status_code)
+                else:
+                    logger.warning("OLX API returned HTTP %d", resp.status_code)
+            except Exception as exc:
+                logger.warning("OLX API request failed for %s: %s", api_url, exc)
+            await asyncio.sleep(0.5)
+
+        if items:
+            self._last_status = ProviderStatus.HEALTHY
+            self._last_message = f"Retrieved {len(items)} fresh listings via OLX API."
+            logger.info("Successfully fetched %d listings from OLX API.", len(items))
+
+        return items
 
     async def _fetch_with_backoff(self, client: httpx.AsyncClient, url: str) -> Optional[str]:
         """Fetch URL with exponential backoff on transient errors."""

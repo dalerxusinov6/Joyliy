@@ -308,7 +308,7 @@ async def handle_channel_status(message: Message):
 
 @admin_router.message(Command("post_latest"))
 async def handle_post_latest(message: Message):
-    """Post N most recent listings to configured channel."""
+    """Post N most recent unposted, unique listings to configured channel."""
     if not is_admin(message.from_user.id):
         return
     channel = settings.CHANNEL_ID
@@ -321,22 +321,39 @@ async def handle_post_latest(message: Message):
     if len(parts) > 1 and parts[1].isdigit():
         count = min(10, max(1, int(parts[1])))
 
-    status_msg = await message.answer(f"📤 So‘nggi {count} ta e'lon <code>{channel}</code> kanaliga yuklanmoqda...", parse_mode="HTML")
+    status_msg = await message.answer(f"📤 So‘nggi {count} ta yangi e'lon <code>{channel}</code> kanaliga tayyorlanmoqda...", parse_mode="HTML")
 
     from sqlalchemy.orm import selectinload
     import asyncio
     async with AsyncSessionLocal() as session:
+        # Strictly select ONLY listings that have NEVER been posted to the channel
         stmt = (
             select(Listing)
             .options(selectinload(Listing.classification))
-            .order_by(Listing.id.desc())
-            .limit(count)
+            .where(
+                Listing.is_active == True,
+                Listing.posted_to_channel_at.is_(None),
+            )
+            .order_by(
+                Listing.publication_date.desc().nullslast(),
+                Listing.id.desc(),
+            )
+            .limit(count * 5)
         )
         res = await session.execute(stmt)
-        listings = res.scalars().all()
+        candidates = res.scalars().all()
 
         success_cnt = 0
-        for listing in reversed(listings):
+        for listing in candidates:
+            if success_cnt >= count:
+                break
+            # Skip any duplicate match
+            if await notification_service.is_channel_duplicate(session, listing):
+                listing.posted_to_channel_at = datetime.now(timezone.utc)
+                session.add(listing)
+                await session.commit()
+                continue
+
             try:
                 ok = await notification_service.send_to_channel(listing, channel_id=channel, session=session)
                 if ok:
@@ -345,8 +362,15 @@ async def handle_post_latest(message: Message):
             except Exception as e:
                 logger.error("Error posting listing %d to channel: %s", listing.id, e)
 
-    await status_msg.edit_text(
-        f"✅ <b>{success_cnt}/{len(listings)} ta e'lon {channel} kanaliga muvaffaqiyatli yuklandi!</b>",
-        parse_mode="HTML"
-    )
+    if success_cnt > 0:
+        await status_msg.edit_text(
+            f"✅ <b>{success_cnt} ta mutlaqo yangi e'lon {channel} kanaliga muvaffaqiyatli yuklandi!</b>",
+            parse_mode="HTML"
+        )
+    else:
+        await status_msg.edit_text(
+            f"ℹ️ <b>Bazada kanalga yuborilmagan yangi e'lon qolmadi.</b>\n\n"
+            f"Barcha e'lonlar allaqachon kanalga chiqqan. Yangi e'lonlarni internetdan (OLX) yuklab olish uchun <code>/scrape_now</code> buyrug‘ini bosing.",
+            parse_mode="HTML"
+        )
 

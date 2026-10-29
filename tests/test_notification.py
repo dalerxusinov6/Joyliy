@@ -188,3 +188,67 @@ async def test_channel_batch_broadcast_and_stats(test_session: AsyncSession, moc
     assert stats_after["posted_today"] == 2
     assert stats_after["remaining_today"] == 98
 
+
+@pytest.mark.asyncio
+async def test_channel_duplicate_detection(test_session: AsyncSession, mock_bot):
+    """
+    Ensure identical titles, phone numbers, and URLs are never posted twice.
+    """
+    service = NotificationService(bot=mock_bot)
+
+    # 1. First listing posted
+    l1 = Listing(
+        source="olx_uz",
+        canonical_url="https://olx.uz/ch-original",
+        title="Chilonzor 9-kvartal 2 xonali kvartira",
+        district="Chilonzor",
+        rooms=2,
+        price_uzs=4000000,
+        contact_phone="+998901234567",
+        posted_to_channel_at=datetime.now(timezone.utc),
+        is_active=True,
+    )
+    test_session.add(l1)
+    await test_session.commit()
+
+    # 2. Duplicate with exact same title in same district
+    l2 = Listing(
+        source="olx_uz",
+        canonical_url="https://olx.uz/ch-dup-title",
+        title="Chilonzor 9-kvartal 2 xonali kvartira",
+        district="Chilonzor",
+        is_active=True,
+    )
+    test_session.add(l2)
+    await test_session.commit()
+    assert await service.is_channel_duplicate(test_session, l2) is True
+
+    # 3. Duplicate with same phone, district, and room count
+    l3 = Listing(
+        source="olx_uz",
+        canonical_url="https://olx.uz/ch-dup-phone",
+        title="Срочно сдам 2 комнатную на Чиланзаре",
+        district="Chilonzor",
+        rooms=2,
+        contact_phone="+998901234567",
+        is_active=True,
+    )
+    test_session.add(l3)
+    await test_session.commit()
+    assert await service.is_channel_duplicate(test_session, l3) is True
+
+    # 4. Genuinely different listing -> not a duplicate
+    l4 = Listing(
+        source="olx_uz",
+        canonical_url="https://olx.uz/ch-fresh",
+        title="Yunusobod 12-kvartal 3 xonali yangi remont",
+        district="Yunusobod",
+        rooms=3,
+        contact_phone="+998939998877",
+        is_active=True,
+    )
+    test_session.add(l4)
+    await test_session.commit()
+    assert await service.is_channel_duplicate(test_session, l4) is False
+
+
