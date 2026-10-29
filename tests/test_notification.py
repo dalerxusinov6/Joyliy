@@ -251,4 +251,33 @@ async def test_channel_duplicate_detection(test_session: AsyncSession, mock_bot)
     await test_session.commit()
     assert await service.is_channel_duplicate(test_session, l4) is False
 
+    # 5. In-batch candidate duplicate detection
+    l5 = Listing(
+        source="olx_uz",
+        canonical_url="https://olx.uz/ch-batch-dup",
+        title="Yunusobod 12-kvartal 3 xonali yangi remont",
+        district="Yunusobod",
+        rooms=3,
+        contact_phone="+998939998877",
+        is_active=True,
+    )
+    test_session.add(l5)
+    await test_session.commit()
+    # When l4 is unposted but present in in_batch_candidates, l5 must be recognized as duplicate!
+    assert await service.is_channel_duplicate(test_session, l5, in_batch_candidates=[l4]) is True
+
+    # 6. Genuinely different listing -> not a duplicate
+    l4_diff = Listing(
+        source="olx_uz",
+        canonical_url="https://olx.uz/ch-fresh-different",
+        title="Mirzo Ulugbek 1-xona shinam",
+        district="Mirzo Ulugbek",
+        rooms=1,
+        contact_phone="+998991112233",
+        is_active=True,
+    )
+    test_session.add(l4_diff)
+    await test_session.commit()
+    assert await service.is_channel_duplicate(test_session, l4_diff, in_batch_candidates=[l4]) is False
+
 

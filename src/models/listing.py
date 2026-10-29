@@ -168,3 +168,23 @@ class NotificationHistory(Base):
     __table_args__ = (
         UniqueConstraint("user_id", "listing_id", name="uq_user_listing_notification"),
     )
+
+
+class ChannelPostHistory(Base):
+    """Tracks all listings broadcast to Telegram channel to strictly prevent duplicates."""
+
+    __tablename__ = "channel_posts"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    listing_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True, index=True)
+    canonical_url: Mapped[Optional[str]] = mapped_column(String(1024), nullable=True, index=True)
+    title: Mapped[str] = mapped_column(String(512), nullable=False)
+    normalized_title: Mapped[str] = mapped_column(String(512), nullable=False, index=True)
+    district: Mapped[Optional[str]] = mapped_column(String(128), nullable=True, index=True)
+    rooms: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    price_uzs: Mapped[Optional[int]] = mapped_column(BigInteger, nullable=True)
+    contact_phone: Mapped[Optional[str]] = mapped_column(String(128), nullable=True, index=True)
+    posted_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=utc_now, index=True, nullable=False
+    )
+    channel_id: Mapped[str] = mapped_column(String(128), default="@joyliy_uz", nullable=False)

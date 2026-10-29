@@ -18,7 +18,12 @@ from sqlalchemy.orm import selectinload
 
 from src.config import settings
 from src.models.user import User, UserSearchPreference
-from src.models.listing import Listing, NotificationHistory, ListingClassification
+from src.models.listing import (
+    Listing,
+    NotificationHistory,
+    ListingClassification,
+    ChannelPostHistory,
+)
 from src.classification.types import ClassificationLabel
 from src.bot.formatter import (
     format_listing_message,
@@ -245,11 +250,40 @@ class NotificationService:
 
         if success and session:
             try:
-                listing.posted_to_channel_at = datetime.now(timezone.utc)
+                now_utc = datetime.now(timezone.utc)
+                listing.posted_to_channel_at = now_utc
                 session.add(listing)
+
+                # Persist to ChannelPostHistory for permanent historical deduplication
+                norm_t = self.normalize_text_key(listing.title)
+                c_post = ChannelPostHistory(
+                    listing_id=listing.id,
+                    canonical_url=listing.canonical_url,
+                    title=listing.title,
+                    normalized_title=norm_t,
+                    district=listing.district,
+                    rooms=listing.rooms,
+                    price_uzs=listing.price_uzs,
+                    contact_phone=listing.contact_phone,
+                    posted_at=now_utc,
+                    channel_id=str(target),
+                )
+                session.add(c_post)
+
+                # Atomically retire any unposted duplicates with same title or URL
+                from sqlalchemy import update
+                retire_stmt = (
+                    update(Listing)
+                    .where(
+                        Listing.posted_to_channel_at.is_(None),
+                        (Listing.title == listing.title) | (Listing.canonical_url == listing.canonical_url),
+                    )
+                    .values(posted_to_channel_at=now_utc, is_active=False)
+                )
+                await session.execute(retire_stmt)
                 await session.commit()
             except Exception as db_err:
-                logger.warning("Could not persist posted_to_channel_at for listing %d: %s", listing.id, db_err)
+                logger.warning("Could not persist channel post record for listing %d: %s", listing.id, db_err)
 
         return success
 
@@ -258,9 +292,13 @@ class NotificationService:
         now_tashkent = datetime.now(timezone.utc).astimezone(TASHKENT_TZ)
         today_midnight = now_tashkent.replace(hour=0, minute=0, second=0, microsecond=0).astimezone(timezone.utc)
 
-        # Count listings posted today
-        stmt_today = select(func.count(Listing.id)).where(Listing.posted_to_channel_at >= today_midnight)
-        posted_today = (await session.execute(stmt_today)).scalar() or 0
+        # Count listings posted to channel today
+        try:
+            stmt_ch = select(func.count(ChannelPostHistory.id)).where(ChannelPostHistory.posted_at >= today_midnight)
+            posted_today = (await session.execute(stmt_ch)).scalar() or 0
+        except Exception:
+            stmt_today = select(func.count(Listing.id)).where(Listing.posted_to_channel_at >= today_midnight)
+            posted_today = (await session.execute(stmt_today)).scalar() or 0
 
         # Count unposted active listings in database
         stmt_unposted = select(func.count(Listing.id)).where(
@@ -307,22 +345,99 @@ class NotificationService:
         cleaned = re.sub(r"[^\w\s]", " ", text.lower())
         return " ".join(cleaned.split())
 
-    async def is_channel_duplicate(self, session: AsyncSession, candidate: Listing) -> bool:
+    async def is_channel_duplicate(
+        self,
+        session: AsyncSession,
+        candidate: Listing,
+        in_batch_candidates: Optional[List[Listing]] = None,
+    ) -> bool:
         """
-        Intelligently detect whether an identical or near-duplicate listing was ever posted to the channel.
+        Intelligently detect whether an identical or near-duplicate listing was ever posted to the channel,
+        or is already selected in the current batch.
         Matches by:
+        0. In-batch candidates check (prevents duplicate listings being queued together)
         1. Exact canonical URL
         2. Exact or normalized title within same district
         3. Same contact phone + district + rooms
-        4. Same district + rooms + exact price + high title similarity (>= 65%)
+        4. Same district + rooms + exact/similar price + high title similarity (>= 60%)
         """
         if candidate.posted_to_channel_at is not None:
             return True
 
         norm_title = self.normalize_text_key(candidate.title)
         cand_phone = (candidate.contact_phone or "").strip()
+        cand_words = set(norm_title.split())
 
-        # Query all listings that have already been posted to the channel
+        # 0. Check against in-batch candidates FIRST
+        if in_batch_candidates:
+            for b in in_batch_candidates:
+                if b.id == candidate.id:
+                    return True
+                if b.canonical_url and candidate.canonical_url and b.canonical_url.strip() == candidate.canonical_url.strip():
+                    logger.info("In-batch duplicate by URL: #%d matches #%d", candidate.id, b.id)
+                    return True
+                b_norm = self.normalize_text_key(b.title)
+                if norm_title and b_norm and norm_title == b_norm:
+                    logger.info("In-batch duplicate by title: #%d ('%s') matches #%d", candidate.id, candidate.title, b.id)
+                    return True
+                b_phone = (b.contact_phone or "").strip()
+                if cand_phone and b_phone and cand_phone == b_phone:
+                    if candidate.district and b.district and candidate.district == b.district:
+                        if candidate.rooms and b.rooms and candidate.rooms == b.rooms:
+                            logger.info("In-batch duplicate by phone: #%d matches #%d", candidate.id, b.id)
+                            return True
+                if candidate.district and b.district and candidate.district == b.district:
+                    if candidate.rooms and b.rooms and candidate.rooms == b.rooms:
+                        b_words = set(b_norm.split()) if b_norm else set()
+                        if cand_words and b_words:
+                            overlap = len(cand_words & b_words) / max(len(cand_words), len(b_words))
+                            if overlap >= 0.60:
+                                logger.info("In-batch duplicate by similarity (%.2f): #%d matches #%d", overlap, candidate.id, b.id)
+                                return True
+
+        # 1. Check against persistent ChannelPostHistory table
+        try:
+            stmt_hist = select(
+                ChannelPostHistory.listing_id,
+                ChannelPostHistory.canonical_url,
+                ChannelPostHistory.title,
+                ChannelPostHistory.normalized_title,
+                ChannelPostHistory.district,
+                ChannelPostHistory.rooms,
+                ChannelPostHistory.price_uzs,
+                ChannelPostHistory.contact_phone,
+            )
+            res_hist = await session.execute(stmt_hist)
+            hist_rows = res_hist.fetchall()
+            for h_lid, h_url, h_title, h_norm, h_dist, h_rooms, h_price, h_phone in hist_rows:
+                if h_url and candidate.canonical_url and h_url.strip() == candidate.canonical_url.strip():
+                    logger.info("Channel duplicate by URL in history: #%d matches post #%s", candidate.id, h_lid)
+                    return True
+                if norm_title and h_norm and norm_title == h_norm:
+                    if not candidate.district or not h_dist or candidate.district == h_dist:
+                        logger.info("Channel duplicate by title in history: #%d matches post #%s", candidate.id, h_lid)
+                        return True
+                h_phone_str = (h_phone or "").strip()
+                if cand_phone and h_phone_str and cand_phone == h_phone_str:
+                    if candidate.district and h_dist and candidate.district == h_dist:
+                        if candidate.rooms and h_rooms and candidate.rooms == h_rooms:
+                            logger.info("Channel duplicate by phone in history: #%d matches post #%s", candidate.id, h_lid)
+                            return True
+                if candidate.district and h_dist and candidate.district == h_dist:
+                    if candidate.rooms and h_rooms and candidate.rooms == h_rooms:
+                        h_words = set(h_norm.split()) if h_norm else set()
+                        if cand_words and h_words:
+                            overlap = len(cand_words & h_words) / max(len(cand_words), len(h_words))
+                            if overlap >= 0.60:
+                                logger.info(
+                                    "Channel duplicate by similarity (%.2f) in history: #%d matches post #%s",
+                                    overlap, candidate.id, h_lid
+                                )
+                                return True
+        except Exception as e:
+            logger.debug("ChannelPostHistory check skipped: %s", e)
+
+        # 2. Query all listings that have already been posted to the channel
         stmt = (
             select(
                 Listing.id,
@@ -340,8 +455,6 @@ class NotificationService:
         )
         res = await session.execute(stmt)
         posted_rows = res.fetchall()
-
-        cand_words = set(norm_title.split())
 
         for p_id, p_url, p_title, p_dist, p_rooms, p_price, p_phone in posted_rows:
             # 1. Canonical URL match
@@ -367,16 +480,15 @@ class NotificationService:
             # 4. Same district + rooms + price + high word overlap
             if candidate.district and p_dist and candidate.district == p_dist:
                 if candidate.rooms and p_rooms and candidate.rooms == p_rooms:
-                    if candidate.price_uzs and p_price and abs(candidate.price_uzs - p_price) < (0.05 * candidate.price_uzs):
-                        p_words = set(p_norm.split())
-                        if cand_words and p_words:
-                            overlap = len(cand_words & p_words) / max(len(cand_words), len(p_words))
-                            if overlap >= 0.65:
-                                logger.info(
-                                    "Channel duplicate by similarity (%.2f): #%d matches posted #%d",
-                                    overlap, candidate.id, p_id
-                                )
-                                return True
+                    p_words = set(p_norm.split())
+                    if cand_words and p_words:
+                        overlap = len(cand_words & p_words) / max(len(cand_words), len(p_words))
+                        if overlap >= 0.60:
+                            logger.info(
+                                "Channel duplicate by similarity (%.2f): #%d matches posted #%d",
+                                overlap, candidate.id, p_id
+                            )
+                            return True
 
         return False
 
@@ -427,11 +539,12 @@ class NotificationService:
         if new_listings:
             for it in new_listings:
                 if it.id not in seen_ids and getattr(it, "posted_to_channel_at", None) is None:
-                    if not await self.is_channel_duplicate(session, it):
+                    if not await self.is_channel_duplicate(session, it, in_batch_candidates=candidates):
                         candidates.append(it)
                         seen_ids.add(it.id)
                     else:
                         it.posted_to_channel_at = datetime.now(timezone.utc)
+                        it.is_active = False
                         session.add(it)
                         await session.commit()
                     if len(candidates) >= max_to_post:
@@ -455,7 +568,7 @@ class NotificationService:
             stmt = stmt.order_by(
                 Listing.publication_date.desc().nullslast(),
                 Listing.id.desc(),
-            ).limit(max(20, needed * 5))
+            ).limit(max(30, needed * 10))
 
             res = await session.execute(stmt)
             unposted_db = res.scalars().all()
@@ -464,10 +577,11 @@ class NotificationService:
                     break
                 if it.id in seen_ids:
                     continue
-                # Strictly filter out duplicates against channel history
-                if await self.is_channel_duplicate(session, it):
+                # Strictly filter out duplicates against channel history AND current batch
+                if await self.is_channel_duplicate(session, it, in_batch_candidates=candidates):
                     # Mark retired so we don't query it repeatedly
                     it.posted_to_channel_at = datetime.now(timezone.utc)
+                    it.is_active = False
                     session.add(it)
                     await session.commit()
                     continue

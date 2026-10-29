@@ -7,6 +7,7 @@ from src.models.listing import (
     ListingClassification,
     Favorite,
     NotificationHistory,
+    ChannelPostHistory,
 )
 from src.models.system import SourceMonitorRun, AdminAuditLog
 
@@ -19,6 +20,7 @@ __all__ = [
     "ListingClassification",
     "Favorite",
     "NotificationHistory",
+    "ChannelPostHistory",
     "SourceMonitorRun",
     "AdminAuditLog",
 ]

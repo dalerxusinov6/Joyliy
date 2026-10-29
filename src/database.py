@@ -99,6 +99,24 @@ async def init_db() -> None:
             except Exception:
                 pass
             try:
+                await conn.execute(text("""
+                    CREATE TABLE IF NOT EXISTS channel_posts (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        listing_id INTEGER,
+                        canonical_url VARCHAR(1024),
+                        title VARCHAR(512) NOT NULL,
+                        normalized_title VARCHAR(512) NOT NULL,
+                        district VARCHAR(128),
+                        rooms INTEGER,
+                        price_uzs BIGINT,
+                        contact_phone VARCHAR(128),
+                        posted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        channel_id VARCHAR(128) DEFAULT '@joyliy_uz'
+                    )
+                """))
+            except Exception:
+                pass
+            try:
                 await conn.execute(text("ALTER TABLE users ADD COLUMN photo_url VARCHAR(512)"))
             except Exception:
                 pass
@@ -125,6 +143,24 @@ async def init_db() -> None:
                     pass
                 try:
                     await conn.execute(text("ALTER TABLE listings ADD COLUMN posted_to_channel_at TIMESTAMP"))
+                except Exception:
+                    pass
+                try:
+                    await conn.execute(text("""
+                        CREATE TABLE IF NOT EXISTS channel_posts (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            listing_id INTEGER,
+                            canonical_url VARCHAR(1024),
+                            title VARCHAR(512) NOT NULL,
+                            normalized_title VARCHAR(512) NOT NULL,
+                            district VARCHAR(128),
+                            rooms INTEGER,
+                            price_uzs BIGINT,
+                            contact_phone VARCHAR(128),
+                            posted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                            channel_id VARCHAR(128) DEFAULT '@joyliy_uz'
+                        )
+                    """))
                 except Exception:
                     pass
                 try:

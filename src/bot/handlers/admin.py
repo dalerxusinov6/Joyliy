@@ -343,22 +343,26 @@ async def handle_post_latest(message: Message):
         res = await session.execute(stmt)
         candidates = res.scalars().all()
 
-        success_cnt = 0
+        chosen_candidates = []
         for listing in candidates:
-            if success_cnt >= count:
+            if len(chosen_candidates) >= count:
                 break
-            # Skip any duplicate match
-            if await notification_service.is_channel_duplicate(session, listing):
+            # Skip any duplicate match against history and already chosen items
+            if await notification_service.is_channel_duplicate(session, listing, in_batch_candidates=chosen_candidates):
                 listing.posted_to_channel_at = datetime.now(timezone.utc)
+                listing.is_active = False
                 session.add(listing)
                 await session.commit()
                 continue
+            chosen_candidates.append(listing)
 
+        success_cnt = 0
+        for listing in chosen_candidates:
             try:
                 ok = await notification_service.send_to_channel(listing, channel_id=channel, session=session)
                 if ok:
                     success_cnt += 1
-                await asyncio.sleep(1.5)  # Telegram pace
+                await asyncio.sleep(2.0)  # Telegram pace
             except Exception as e:
                 logger.error("Error posting listing %d to channel: %s", listing.id, e)
 

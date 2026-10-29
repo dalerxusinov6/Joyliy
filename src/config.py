@@ -36,7 +36,7 @@ class Settings(BaseSettings):
         description="Maximum listings to post to Telegram channel per day",
     )
     CHANNEL_BATCH_SIZE: int = Field(
-        default=2,
+        default=1,
         description="Number of listings to post to channel per monitoring cycle",
     )
     CHANNEL_POSTING_ENABLED: bool = Field(
