@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
+import asyncio
 from datetime import datetime, timezone
 from typing import Optional, List
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -299,5 +300,32 @@ async def mock_confirm_session(
             is_admin=user.is_admin,
         ),
     )
+
+
+# --- Telegram Webhook Integration (Eliminates Render Rolling Deploy Conflicts) ---
+
+_telegram_bot = None
+_telegram_dp = None
+
+
+def register_bot_webhook(bot, dp):
+    """Register active Bot and Dispatcher references for webhook handling."""
+    global _telegram_bot, _telegram_dp
+    _telegram_bot = bot
+    _telegram_dp = dp
+
+
+@api_router.post("/telegram-webhook", include_in_schema=False)
+async def handle_telegram_webhook(request: Request):
+    """Receive Telegram webhook updates and process them with aiogram dispatcher."""
+    if _telegram_bot and _telegram_dp:
+        try:
+            payload = await request.json()
+            asyncio.create_task(_telegram_dp.feed_raw_update(bot=_telegram_bot, update=payload))
+        except Exception as exc:
+            import logging
+            logging.getLogger("joyliy.webhook").warning("Error processing telegram webhook payload: %s", exc)
+    return {"ok": True}
+
 
 

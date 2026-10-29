@@ -3,6 +3,7 @@
 import argparse
 import asyncio
 import logging
+import os
 import signal
 import sys
 import uvicorn
@@ -12,6 +13,7 @@ from src.database import init_db
 from src.bot.bot_instance import create_bot_and_dispatcher
 from src.services.monitor_worker import monitor_worker
 from src.api.app import create_app
+from src.api.routes import register_bot_webhook
 
 # Configure structured logging
 logging.basicConfig(
@@ -78,28 +80,47 @@ async def run_application(mode: str = "all"):
         except NotImplementedError:
             pass
 
-    # 5. Start Telegram Polling if bot is active
+    # 5. Start Telegram Bot (Webhook on Render/Cloud, Long-Polling locally)
     if mode in ("all", "bot") and dp and bot:
-        logger.info("Starting Telegram Bot long-polling...")
-        async def run_bot_polling():
-            # Reset webhook and drop backlog to ensure clean polling state
-            try:
-                await bot.delete_webhook(drop_pending_updates=True)
-                logger.info("Telegram webhook deleted and pending updates cleared.")
-            except Exception as e:
-                logger.warning("Could not delete webhook: %s", e)
+        is_cloud_render = bool(
+            os.getenv("RENDER")
+            or os.getenv("RENDER_EXTERNAL_URL")
+            or (settings.WEBSITE_URL and "onrender.com" in settings.WEBSITE_URL)
+        )
 
-            while not stop_event.is_set():
+        if is_cloud_render:
+            register_bot_webhook(bot, dp)
+            webhook_url = f"{settings.WEBSITE_URL.rstrip('/')}/api/telegram-webhook"
+            try:
+                await bot.set_webhook(
+                    url=webhook_url,
+                    drop_pending_updates=True,
+                    allowed_updates=["message", "callback_query"],
+                )
+                logger.info("Telegram Bot Webhook configured successfully: %s", webhook_url)
+            except Exception as err:
+                logger.error("Failed to set Telegram webhook: %s", err)
+        else:
+            logger.info("Starting Telegram Bot long-polling (local mode)...")
+            async def run_bot_polling():
+                # Reset webhook and drop backlog to ensure clean polling state
                 try:
-                    logger.info("Starting aiogram dispatcher polling...")
-                    await dp.start_polling(bot, handle_signals=False)
-                except Exception as exc:
-                    logger.error("Telegram bot polling error: %s. Retrying in 5s...", exc)
+                    await bot.delete_webhook(drop_pending_updates=True)
+                    logger.info("Telegram webhook deleted and pending updates cleared.")
+                except Exception as e:
+                    logger.warning("Could not delete webhook: %s", e)
+
+                while not stop_event.is_set():
                     try:
-                        await asyncio.wait_for(stop_event.wait(), timeout=5.0)
-                    except asyncio.TimeoutError:
-                        pass
-        tasks.append(asyncio.create_task(run_bot_polling()))
+                        logger.info("Starting aiogram dispatcher polling...")
+                        await dp.start_polling(bot, handle_signals=False)
+                    except Exception as exc:
+                        logger.error("Telegram bot polling error: %s. Retrying in 5s...", exc)
+                        try:
+                            await asyncio.wait_for(stop_event.wait(), timeout=5.0)
+                        except asyncio.TimeoutError:
+                            pass
+            tasks.append(asyncio.create_task(run_bot_polling()))
 
     try:
         # Wait until stopped or primary task finishes

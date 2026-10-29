@@ -119,3 +119,69 @@ async def init_db() -> None:
         else:
             raise
 
+    # Seed initial authentic listings if database is newly initialized
+    await seed_initial_listings_if_empty()
+
+
+async def seed_initial_listings_if_empty() -> None:
+    """Pre-populate database with authentic OLX listings on first run (especially in cloud containers)."""
+    import json
+    import os
+    from sqlalchemy import select, func
+    from src.models.listing import Listing, ListingClassification
+
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    seed_file = os.path.join(base_dir, "src", "data", "initial_listings.json")
+    if not os.path.exists(seed_file):
+        return
+
+    try:
+        async with AsyncSessionLocal() as session:
+            count = (await session.execute(select(func.count(Listing.id)))).scalar() or 0
+            if count > 0:
+                return
+
+            logger.info("Database is empty. Seeding initial OLX listings from %s...", seed_file)
+            with open(seed_file, "r", encoding="utf-8") as f:
+                items = json.load(f)
+
+            for row in items:
+                img_urls = (
+                    json.loads(row["image_urls"])
+                    if isinstance(row.get("image_urls"), str)
+                    else (row.get("image_urls") or [])
+                )
+                listing = Listing(
+                    source=row.get("source", "olx_uz"),
+                    source_id=str(row.get("source_id")),
+                    canonical_url=row.get("canonical_url"),
+                    title=row.get("title", ""),
+                    price_raw=row.get("price_raw"),
+                    price_uzs=row.get("price_uzs"),
+                    currency=row.get("currency", "UZS"),
+                    district=row.get("district"),
+                    rooms=row.get("rooms"),
+                    area=row.get("area"),
+                    floor=row.get("floor"),
+                    description=row.get("description"),
+                    contact_phone=row.get("contact_phone"),
+                    contact_telegram=row.get("contact_telegram"),
+                    image_urls=img_urls,
+                    is_active=True,
+                )
+                session.add(listing)
+                await session.flush()
+
+                cls = ListingClassification(
+                    listing_id=listing.id,
+                    label=row.get("cls_label") or "NEEDS_REVIEW",
+                    confidence_score=row.get("cls_score") or 0.5,
+                    reasons=[],
+                )
+                session.add(cls)
+
+            await session.commit()
+            logger.info("Successfully seeded %d initial OLX listings into database.", len(items))
+    except Exception as e:
+        logger.warning("Could not seed initial listings: %s", e)
+

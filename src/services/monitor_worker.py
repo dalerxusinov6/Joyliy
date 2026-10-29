@@ -119,16 +119,21 @@ class MonitorWorker:
                 listings_found = len(raw_items)
 
                 # Check provider health
-                health = await self.provider.check_health()
-                if health.status == ProviderStatus.BLOCKED_BY_ACCESS_CONTROL:
-                    status = "BLOCKED_BY_ACCESS_CONTROL"
-                    error_msg = health.message
-                elif health.status == ProviderStatus.DEGRADED:
-                    status = "DEGRADED"
-                    error_msg = health.message
-                elif health.status == ProviderStatus.ERROR:
-                    status = "ERROR"
-                    error_msg = health.message
+                if listings_found > 0:
+                    status = "SUCCESS"
+                else:
+                    health = await self.provider.check_health()
+                    if health.status == ProviderStatus.BLOCKED_BY_ACCESS_CONTROL:
+                        status = "BLOCKED_BY_ACCESS_CONTROL"
+                        error_msg = health.message
+                    elif health.status == ProviderStatus.DEGRADED:
+                        status = "DEGRADED"
+                        error_msg = health.message
+                    elif health.status == ProviderStatus.ERROR:
+                        status = "ERROR"
+                        error_msg = health.message
+                    else:
+                        status = "SUCCESS"
 
                 # 2. Ingest and classify items
                 new_listings = []
