@@ -4,7 +4,7 @@ import { useListings } from '~/composables/useListings'
 
 const emit = defineEmits(['openFilters'])
 const { t } = useI18n()
-const { filterDistrict, filterRooms, filterMaxPrice, availableDistricts } = useListings()
+const { filterDistrict, filterRooms, filterMaxPrice, filterAudience, availableDistricts } = useListings()
 
 const onSearch = () => {
   const el = document.getElementById('natija')
@@ -17,6 +17,7 @@ const onClear = () => {
   filterDistrict.value = ''
   filterRooms.value = ''
   filterMaxPrice.value = ''
+  filterAudience.value = 'all'
 }
 </script>
 
@@ -55,6 +56,16 @@ const onClear = () => {
               <option value="3000000">3 mln so‘mgacha</option>
               <option value="4000000">4 mln so‘mgacha</option>
               <option value="6000000">6 mln so‘mgacha</option>
+            </select>
+          </div>
+
+          <div class="fld">
+            <label for="qa">Kimlar uchun</label>
+            <select id="qa" v-model="filterAudience">
+              <option value="all">Barchasi</option>
+              <option value="family">👨‍👩‍👧 Oila uchun</option>
+              <option value="female">👩 Qizlar uchun</option>
+              <option value="male">👨 Yigitlar uchun</option>
             </select>
           </div>
 

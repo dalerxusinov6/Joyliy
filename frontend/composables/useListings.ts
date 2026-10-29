@@ -16,6 +16,7 @@ export interface ListingItem {
   description?: string
   contact_phone?: string
   contact_telegram?: string
+  target_audience?: string // 'family' | 'female' | 'male' | 'any'
   image_urls: string[]
   is_owner: boolean
   confidence_score?: number
@@ -38,6 +39,7 @@ export function useListings() {
   const filterRooms = useState<string>('filter_rooms', () => '')
   const filterMaxPrice = useState<string>('filter_max_price', () => '')
   const filterCategory = useState<string>('filter_category', () => '')
+  const filterAudience = useState<string>('filter_audience', () => 'all') // 'all' | 'family' | 'female' | 'male'
   const filterSort = useState<'new' | 'lo' | 'hi'>('filter_sort', () => 'new')
   const filterAmenities = useState<Record<string, boolean>>('filter_amenities', () => ({
     mebel: false,
@@ -90,6 +92,7 @@ export function useListings() {
             description: item.description || '',
             contact_phone: item.contact_phone || undefined,
             contact_telegram: item.contact_telegram || undefined,
+            target_audience: item.target_audience || 'any',
             image_urls: item.image_urls || [],
             is_owner: isOwner,
             confidence_score: item.classification?.confidence_score || 0.85,
@@ -182,6 +185,11 @@ export function useListings() {
     if (filterCategory.value === '3days') result = result.filter((item) => (item.days_ago || 0) <= 3)
     if (filterCategory.value === 'today') result = result.filter((item) => (item.days_ago || 0) === 0)
 
+    // Target Audience filter ('family', 'female', 'male')
+    if (filterAudience.value && filterAudience.value !== 'all') {
+      result = result.filter((item) => item.target_audience === filterAudience.value)
+    }
+
     // Owner only amenity toggle
     if (filterAmenities.value.owner_only) {
       result = result.filter((item) => item.is_owner)
@@ -226,6 +234,7 @@ export function useListings() {
     filterRooms,
     filterMaxPrice,
     filterCategory,
+    filterAudience,
     filterSort,
     filterAmenities,
     availableDistricts,

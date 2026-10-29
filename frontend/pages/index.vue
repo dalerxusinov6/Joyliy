@@ -15,6 +15,7 @@ const {
   filterRooms,
   filterMaxPrice,
   filterCategory,
+  filterAudience,
   filterAmenities,
   filterSort,
   fetchListings,
@@ -39,6 +40,19 @@ const categories = [
   { key: 'stu', title: 'Talabalar uchun', icon: 'cap' },
 ]
 
+// Audience options (family, female, male, all)
+const audienceOptions = [
+  { key: 'all', title: 'Barchasi', icon: '🌐' },
+  { key: 'family', title: 'Oila uchun', icon: '👨‍👩‍👧' },
+  { key: 'female', title: 'Qizlar uchun', icon: '👩' },
+  { key: 'male', title: 'Yigitlar uchun', icon: '👨' },
+]
+
+const getAudienceCount = (key: string) => {
+  if (key === 'all') return listings.value.length
+  return listings.value.filter((x) => x.target_audience === key).length
+}
+
 const toggleCategory = (catKey: string) => {
   if (filterCategory.value === catKey) {
     filterCategory.value = ''
@@ -56,6 +70,7 @@ const clearFilters = () => {
   filterRooms.value = ''
   filterMaxPrice.value = ''
   filterCategory.value = ''
+  filterAudience.value = 'all'
   filterAmenities.value.owner_only = false
   filterAmenities.value.mebel = false
   filterAmenities.value.kond = false
@@ -70,6 +85,7 @@ const hasActiveFilters = computed(() => {
     !!filterRooms.value ||
     !!filterMaxPrice.value ||
     !!filterCategory.value ||
+    filterAudience.value !== 'all' ||
     filterAmenities.value.owner_only ||
     filterAmenities.value.mebel ||
     filterAmenities.value.kond ||
@@ -172,6 +188,26 @@ const roomListings = computed(() => {
 
             <button v-if="hasActiveFilters" class="btn" type="button" id="clr" @click="clearFilters">
               {{ t('clear') }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Audience Filter Bar (Kimlar uchun: Oila / Qizlar / Yigitlar / Barchasi) -->
+        <div class="aud-filter-wrap">
+          <div class="aud-pills-row">
+            <button
+              v-for="aud in audienceOptions"
+              :key="aud.key"
+              type="button"
+              class="aud-pill"
+              :class="{ active: filterAudience === aud.key }"
+              @click="filterAudience = aud.key"
+            >
+              <span class="aud-icon">{{ aud.icon }}</span>
+              <span class="aud-text">{{ aud.title }}</span>
+              <span class="aud-num" v-if="getAudienceCount(aud.key) > 0">
+                {{ getAudienceCount(aud.key) }}
+              </span>
             </button>
           </div>
         </div>
@@ -295,4 +331,60 @@ const roomListings = computed(() => {
     </div>
   </div>
 </template>
+
+<style scoped>
+.aud-filter-wrap {
+  margin: 12px 0 20px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+.aud-pills-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: nowrap;
+}
+.aud-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surf, #f8fafc);
+  border: 1.5px solid var(--bd, #e2e8f0);
+  border-radius: 9999px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--tx, #1e293b);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+  user-select: none;
+}
+.aud-pill:hover {
+  border-color: #cbd5e1;
+  background: #f1f5f9;
+}
+.aud-pill.active {
+  background: var(--ac, #059669);
+  color: #ffffff;
+  border-color: var(--ac, #059669);
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);
+}
+.aud-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+.aud-num {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.08);
+  color: inherit;
+}
+.aud-pill.active .aud-num {
+  background: rgba(255, 255, 255, 0.28);
+  color: #fff;
+}
+</style>
 

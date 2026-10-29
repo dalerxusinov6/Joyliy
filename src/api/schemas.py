@@ -27,6 +27,7 @@ class ListingResponse(BaseModel):
     description: Optional[str]
     contact_phone: Optional[str] = None
     contact_telegram: Optional[str] = None
+    target_audience: str = "any"
     image_urls: List[str]
     publication_date: Optional[datetime]
     first_seen_at: datetime

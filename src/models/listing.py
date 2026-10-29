@@ -45,6 +45,9 @@ class Listing(Base):
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     contact_phone: Mapped[Optional[str]] = mapped_column(String(128), nullable=True)
     contact_telegram: Mapped[Optional[str]] = mapped_column(String(128), nullable=True)
+    target_audience: Mapped[str] = mapped_column(
+        String(32), default="any", index=True, nullable=False
+    )  # 'family', 'female', 'male', 'any'
     image_urls: Mapped[list] = mapped_column(JSON, default=list, nullable=False)
 
     # Dates: publication_date is recorded only when reliably present; never fabricated

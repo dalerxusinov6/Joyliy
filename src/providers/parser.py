@@ -8,6 +8,7 @@ from typing import Optional, List, Dict, Any, Tuple
 from bs4 import BeautifulSoup
 from src.config import settings
 from src.providers.base import RawListingItem
+from src.classification.audience import detect_target_audience
 
 # Standard Tashkent districts mapping (Uzbek Latin canonical name -> regex pattern)
 DISTRICT_PATTERNS: List[Tuple[str, re.Pattern]] = [
@@ -338,6 +339,7 @@ def _parse_prerendered_state(html_content: str, base_url: str = "https://www.olx
                 description=description,
                 contact_phone=phone,
                 contact_telegram=tg_user,
+                target_audience=detect_target_audience(title, description),
                 image_urls=image_urls,
                 publication_date=pub_date,
             )
@@ -449,6 +451,7 @@ def parse_olx_html_list(html_content: str, base_url: str = "https://www.olx.uz")
                 description=None,
                 contact_phone=phone,
                 contact_telegram=tg_user,
+                target_audience=detect_target_audience(title, None),
                 image_urls=img_urls,
                 publication_date=pub_date,
             )
@@ -552,6 +555,7 @@ def parse_olx_api_offer(offer: Dict[str, Any]) -> RawListingItem:
         description=desc_extra,
         contact_phone=normalize_uz_phone(extract_phone(desc)),
         contact_telegram=extract_telegram_user(desc),
+        target_audience=detect_target_audience(title, desc_extra),
         image_urls=images,
         publication_date=pub_date,
         raw_metadata=raw_meta,

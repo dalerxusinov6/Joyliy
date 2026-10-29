@@ -9,7 +9,7 @@ const props = defineProps<{
 
 const emit = defineEmits(['close', 'select'])
 const { t } = useI18n()
-const { listings } = useListings()
+const { listings, filterAudience } = useListings()
 
 const mapContainer = ref<HTMLElement | null>(null)
 const isLoadingMap = ref(true)
@@ -163,6 +163,9 @@ const renderPlacemarks = () => {
   if (ownerOnly.value) {
     filtered = filtered.filter((x) => x.is_owner)
   }
+  if (filterAudience.value && filterAudience.value !== 'all') {
+    filtered = filtered.filter((x) => x.target_audience === filterAudience.value)
+  }
 
   const placemarks: any[] = []
 
@@ -269,6 +272,12 @@ watch(
     }
   }
 )
+
+watch(filterAudience, () => {
+  if (mapObject) {
+    renderPlacemarks()
+  }
+})
 
 onBeforeUnmount(() => {
   if (mapObject) {

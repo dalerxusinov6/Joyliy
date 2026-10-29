@@ -47,14 +47,28 @@ const sourceClass = computed(() => 'src-olx')
         </svg>
       </div>
 
-      <!-- Maklersiz Badge -->
-      <span v-if="listing.is_owner" class="tag">
-        <svg class="i" style="width: 14px; height: 14px; color: #047857" viewBox="0 0 24 24">
-          <path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z" />
-          <path d="m9 12 2 2 4-4" />
-        </svg>
-        Maklersiz
-      </span>
+      <!-- Badges Row (Maklersiz + Audience) -->
+      <div class="tags-row">
+        <!-- Maklersiz Badge -->
+        <span v-if="listing.is_owner" class="tag">
+          <svg class="i" style="width: 14px; height: 14px; color: #047857" viewBox="0 0 24 24">
+            <path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z" />
+            <path d="m9 12 2 2 4-4" />
+          </svg>
+          Maklersiz
+        </span>
+
+        <!-- Audience Badge -->
+        <span
+          v-if="listing.target_audience && listing.target_audience !== 'any'"
+          class="aud-tag"
+          :class="`aud-${listing.target_audience}`"
+        >
+          <template v-if="listing.target_audience === 'family'">👨‍👩‍👧 Oila</template>
+          <template v-else-if="listing.target_audience === 'female'">👩 Qizlar</template>
+          <template v-else-if="listing.target_audience === 'male'">👨 Yigitlar</template>
+        </span>
+      </div>
 
       <!-- Platform Source Badge -->
       <span class="source-tag" :class="sourceClass">
@@ -135,6 +149,47 @@ const sourceClass = computed(() => 'src-olx')
 }
 .source-tag.src-olx {
   background: linear-gradient(135deg, #002f34 0%, #00464f 100%);
+}
+
+.tags-row {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+  z-index: 3;
+}
+.tags-row .tag {
+  position: static;
+}
+.aud-tag {
+  background: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 99px;
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  white-space: nowrap;
+}
+.aud-tag.aud-family {
+  background: #eef2ff;
+  color: #4338ca;
+  border: 1px solid #c7d2fe;
+}
+.aud-tag.aud-female {
+  background: #fdf2f8;
+  color: #be185d;
+  border: 1px solid #fbcfe8;
+}
+.aud-tag.aud-male {
+  background: #f0f9ff;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
 }
 </style>
 

@@ -15,6 +15,7 @@ from src.models.listing import (
 from src.models.user import User, UserSearchPreference
 from src.classification.engine import ClassificationEngine, default_classifier
 from src.classification.types import ClassificationLabel
+from src.classification.audience import detect_target_audience
 from src.providers.base import RawListingItem
 
 
@@ -69,6 +70,7 @@ class ListingService:
             description=item.description,
             contact_phone=getattr(item, "contact_phone", None),
             contact_telegram=getattr(item, "contact_telegram", None),
+            target_audience=item.target_audience or detect_target_audience(item.title, item.description),
             image_urls=item.image_urls,
             publication_date=item.publication_date,
             first_seen_at=now,
@@ -118,6 +120,7 @@ class ListingService:
         rooms: Optional[List[int]] = None,
         min_area: Optional[float] = None,
         max_area: Optional[float] = None,
+        target_audience: Optional[str] = None,
         owner_only: bool = False,
         include_agency: bool = True,
         max_age_hours: Optional[int] = None,
@@ -145,6 +148,8 @@ class ListingService:
             conditions.append(Listing.area >= min_area)
         if max_area is not None:
             conditions.append(Listing.area <= max_area)
+        if target_audience and target_audience != "all":
+            conditions.append(Listing.target_audience == target_audience)
 
         if owner_only:
             conditions.append(

@@ -91,6 +91,10 @@ async def init_db() -> None:
                 except Exception:
                     pass
             try:
+                await conn.execute(text("ALTER TABLE listings ADD COLUMN target_audience VARCHAR(32) DEFAULT 'any'"))
+            except Exception:
+                pass
+            try:
                 await conn.execute(text("ALTER TABLE users ADD COLUMN photo_url VARCHAR(512)"))
             except Exception:
                 pass
@@ -111,6 +115,10 @@ async def init_db() -> None:
                         await conn.execute(text(f"ALTER TABLE listings ADD COLUMN {col} VARCHAR(128)"))
                     except Exception:
                         pass
+                try:
+                    await conn.execute(text("ALTER TABLE listings ADD COLUMN target_audience VARCHAR(32) DEFAULT 'any'"))
+                except Exception:
+                    pass
                 try:
                     await conn.execute(text("ALTER TABLE users ADD COLUMN photo_url VARCHAR(512)"))
                 except Exception:
@@ -151,6 +159,9 @@ async def seed_initial_listings_if_empty() -> None:
                     if isinstance(row.get("image_urls"), str)
                     else (row.get("image_urls") or [])
                 )
+                from src.classification.audience import detect_target_audience
+                aud = row.get("target_audience") or detect_target_audience(row.get("title", ""), row.get("description"))
+
                 listing = Listing(
                     source=row.get("source", "olx_uz"),
                     source_id=str(row.get("source_id")),
@@ -166,6 +177,7 @@ async def seed_initial_listings_if_empty() -> None:
                     description=row.get("description"),
                     contact_phone=row.get("contact_phone"),
                     contact_telegram=row.get("contact_telegram"),
+                    target_audience=aud,
                     image_urls=img_urls,
                     is_active=True,
                 )

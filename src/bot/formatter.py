@@ -82,6 +82,15 @@ def format_listing_message(listing: Listing) -> str:
 
     lines.append(f"👤 Manba: {source_text}")
 
+    # 6b. Target Audience (Family, Female, Male)
+    aud = getattr(listing, "target_audience", "any")
+    if aud == "family":
+        lines.append("👨‍👩‍👧 Mos keladi: <b>Oila uchun</b>")
+    elif aud == "female":
+        lines.append("👩 Mos keladi: <b>Qizlar / Ayollar uchun</b>")
+    elif aud == "male":
+        lines.append("👨 Mos keladi: <b>Yigitlar / Talabalar uchun</b>")
+
     # 7. Discovered time in Tashkent local time (UTC+5)
     discovered_dt = listing.first_seen_at or datetime.now(timezone.utc)
     tashkent_time = discovered_dt.astimezone(TASHKENT_TZ)

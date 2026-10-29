@@ -21,6 +21,17 @@ const onReport = () => {
 const sourceViewLabel = computed(() => {
   return t('view_on_olx')
 })
+
+const audienceBoxStyle = computed(() => {
+  if (props.listing?.target_audience === 'family') {
+    return 'background: #eef2ff; color: #3730a3; border: 1px solid #c7d2fe;'
+  } else if (props.listing?.target_audience === 'female') {
+    return 'background: #fdf2f8; color: #9d174d; border: 1px solid #fbcfe8;'
+  } else if (props.listing?.target_audience === 'male') {
+    return 'background: #f0f9ff; color: #075985; border: 1px solid #bae6fd;'
+  }
+  return ''
+})
 </script>
 
 <template>
@@ -85,6 +96,27 @@ const sourceViewLabel = computed(() => {
           <div>
             <span class="mu">E’lon sanasi</span>
             <b>{{ t('today') }}</b>
+          </div>
+        </div>
+
+        <!-- Audience Tag Info -->
+        <div
+          v-if="listing.target_audience && listing.target_audience !== 'any'"
+          style="margin: 14px 0 6px; padding: 10px 14px; border-radius: 10px; display: flex; align-items: center; gap: 10px"
+          :style="audienceBoxStyle"
+        >
+          <span style="font-size: 22px; line-height: 1">
+            <template v-if="listing.target_audience === 'family'">👨‍👩‍👧</template>
+            <template v-else-if="listing.target_audience === 'female'">👩</template>
+            <template v-else-if="listing.target_audience === 'male'">👨</template>
+          </span>
+          <div>
+            <div style="font-size: 14px; font-weight: 700">
+              <template v-if="listing.target_audience === 'family'">Faqat oila uchun</template>
+              <template v-else-if="listing.target_audience === 'female'">Qizlar / Ayollar uchun</template>
+              <template v-else-if="listing.target_audience === 'male'">Yigitlar / Talabalar uchun</template>
+            </div>
+            <div style="font-size: 12px; opacity: 0.85">E'londa ijarachi toifasi alohida belgilangan</div>
           </div>
         </div>
 

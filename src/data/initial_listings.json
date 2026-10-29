@@ -22,7 +22,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_OWNER",
     "cls_score": 1.0,
-    "cls_reasons": "[{\"type\": \"contextual_owner\", \"text\": \"Maklerlar bezovta qilmasin\", \"weight\": 0.4, \"desc\": \"Contextual: Brokers do not disturb (Uzbek)\"}, {\"type\": \"contextual_owner\", \"text\": \"maklersiz\", \"weight\": 0.35, \"desc\": \"Contextual: 0% commission / no broker fee (Uzbek)\"}, {\"type\": \"contextual_owner\", \"text\": \"Maklersiz\", \"weight\": 0.35, \"desc\": \"Contextual: 0% commission / no broker fee (Uzbek)\"}, {\"type\": \"positive\", \"text\": \"bevosita egasidan\", \"weight\": 0.4, \"desc\": \"bevosita egasidan (UZ)\"}, {\"type\": \"positive\", \"text\": \"o'zimning uyim\", \"weight\": 0.35, \"desc\": \"ozimning uyim (UZ)\"}]"
+    "cls_reasons": "[{\"type\": \"contextual_owner\", \"text\": \"Maklerlar bezovta qilmasin\", \"weight\": 0.4, \"desc\": \"Contextual: Brokers do not disturb (Uzbek)\"}, {\"type\": \"contextual_owner\", \"text\": \"maklersiz\", \"weight\": 0.35, \"desc\": \"Contextual: 0% commission / no broker fee (Uzbek)\"}, {\"type\": \"contextual_owner\", \"text\": \"Maklersiz\", \"weight\": 0.35, \"desc\": \"Contextual: 0% commission / no broker fee (Uzbek)\"}, {\"type\": \"positive\", \"text\": \"bevosita egasidan\", \"weight\": 0.4, \"desc\": \"bevosita egasidan (UZ)\"}, {\"type\": \"positive\", \"text\": \"o'zimning uyim\", \"weight\": 0.35, \"desc\": \"ozimning uyim (UZ)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 2,
@@ -47,7 +48,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_OWNER",
     "cls_score": 1.0,
-    "cls_reasons": "[{\"type\": \"positive\", \"text\": \"kvartira egasidan\", \"weight\": 0.35, \"desc\": \"egasidan (UZ)\"}, {\"type\": \"positive\", \"text\": \"Uy egasidan\", \"weight\": 0.35, \"desc\": \"egasidan (UZ)\"}, {\"type\": \"positive\", \"text\": \"vositachilarsiz\", \"weight\": 0.35, \"desc\": \"vositachilarsiz (UZ)\"}]"
+    "cls_reasons": "[{\"type\": \"positive\", \"text\": \"kvartira egasidan\", \"weight\": 0.35, \"desc\": \"egasidan (UZ)\"}, {\"type\": \"positive\", \"text\": \"Uy egasidan\", \"weight\": 0.35, \"desc\": \"egasidan (UZ)\"}, {\"type\": \"positive\", \"text\": \"vositachilarsiz\", \"weight\": 0.35, \"desc\": \"vositachilarsiz (UZ)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 3,
@@ -72,7 +74,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.05,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"50% komissiya\", \"weight\": 0.45, \"desc\": \"Explicit commission % mentioned\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"50% komissiya\", \"weight\": 0.45, \"desc\": \"Explicit commission % mentioned\"}]",
+    "target_audience": "any"
   },
   {
     "id": 4,
@@ -97,7 +100,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_OWNER",
     "cls_score": 1.0,
-    "cls_reasons": "[{\"type\": \"contextual_owner\", \"text\": \"\\u0420\\u0438\\u0435\\u043b\\u0442\\u043e\\u0440\\u0430\\u043c \\u043d\\u0435 \\u0431\\u0435\\u0441\\u043f\\u043e\\u043a\\u043e\\u0438\\u0442\\u044c\", \"weight\": 0.4, \"desc\": \"Contextual: Agents do not disturb (Russian)\"}, {\"type\": \"contextual_owner\", \"text\": \"\\u0431\\u0435\\u0437 \\u043f\\u043e\\u0441\\u0440\\u0435\\u0434\\u043d\\u0438\\u043a\\u043e\\u0432\", \"weight\": 0.35, \"desc\": \"Contextual: No commission / no agents (Russian)\"}, {\"type\": \"positive\", \"text\": \"\\u043e\\u0442 \\u0441\\u043e\\u0431\\u0441\\u0442\\u0432\\u0435\\u043d\\u043d\\u0438\\u043a\\u0430\", \"weight\": 0.4, \"desc\": \"\\u043e\\u0442 \\u0441\\u043e\\u0431\\u0441\\u0442\\u0432\\u0435\\u043d\\u043d\\u0438\\u043a\\u0430 (RU)\"}, {\"type\": \"positive\", \"text\": \"\\u0421\\u0434\\u0430\\u044e \\u0441\\u0432\\u043e\\u044e\", \"weight\": 0.3, \"desc\": \"\\u0441\\u0434\\u0430\\u044e \\u0441\\u0432\\u043e\\u044e (RU)\"}, {\"type\": \"positive\", \"text\": \"\\u044f \\u0445\\u043e\\u0437\\u044f\\u0438\\u043d\", \"weight\": 0.35, \"desc\": \"\\u044f \\u0445\\u043e\\u0437\\u044f\\u0438\\u043d (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"contextual_owner\", \"text\": \"\\u0420\\u0438\\u0435\\u043b\\u0442\\u043e\\u0440\\u0430\\u043c \\u043d\\u0435 \\u0431\\u0435\\u0441\\u043f\\u043e\\u043a\\u043e\\u0438\\u0442\\u044c\", \"weight\": 0.4, \"desc\": \"Contextual: Agents do not disturb (Russian)\"}, {\"type\": \"contextual_owner\", \"text\": \"\\u0431\\u0435\\u0437 \\u043f\\u043e\\u0441\\u0440\\u0435\\u0434\\u043d\\u0438\\u043a\\u043e\\u0432\", \"weight\": 0.35, \"desc\": \"Contextual: No commission / no agents (Russian)\"}, {\"type\": \"positive\", \"text\": \"\\u043e\\u0442 \\u0441\\u043e\\u0431\\u0441\\u0442\\u0432\\u0435\\u043d\\u043d\\u0438\\u043a\\u0430\", \"weight\": 0.4, \"desc\": \"\\u043e\\u0442 \\u0441\\u043e\\u0431\\u0441\\u0442\\u0432\\u0435\\u043d\\u043d\\u0438\\u043a\\u0430 (RU)\"}, {\"type\": \"positive\", \"text\": \"\\u0421\\u0434\\u0430\\u044e \\u0441\\u0432\\u043e\\u044e\", \"weight\": 0.3, \"desc\": \"\\u0441\\u0434\\u0430\\u044e \\u0441\\u0432\\u043e\\u044e (RU)\"}, {\"type\": \"positive\", \"text\": \"\\u044f \\u0445\\u043e\\u0437\\u044f\\u0438\\u043d\", \"weight\": 0.35, \"desc\": \"\\u044f \\u0445\\u043e\\u0437\\u044f\\u0438\\u043d (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 5,
@@ -122,7 +126,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_OWNER",
     "cls_score": 0.85,
-    "cls_reasons": "[{\"type\": \"positive\", \"text\": \"uy egasidan\", \"weight\": 0.35, \"desc\": \"egasidan (UZ)\"}]"
+    "cls_reasons": "[{\"type\": \"positive\", \"text\": \"uy egasidan\", \"weight\": 0.35, \"desc\": \"egasidan (UZ)\"}]",
+    "target_audience": "family"
   },
   {
     "id": 6,
@@ -147,7 +152,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_OWNER",
     "cls_score": 1.0,
-    "cls_reasons": "[{\"type\": \"contextual_owner\", \"text\": \"Maklersiz\", \"weight\": 0.35, \"desc\": \"Contextual: 0% commission / no broker fee (Uzbek)\"}, {\"type\": \"contextual_owner\", \"text\": \"0% komissiya\", \"weight\": 0.35, \"desc\": \"Contextual: 0% commission / no broker fee (Uzbek)\"}, {\"type\": \"positive\", \"text\": \"bevosita egasidan\", \"weight\": 0.4, \"desc\": \"bevosita egasidan (UZ)\"}]"
+    "cls_reasons": "[{\"type\": \"contextual_owner\", \"text\": \"Maklersiz\", \"weight\": 0.35, \"desc\": \"Contextual: 0% commission / no broker fee (Uzbek)\"}, {\"type\": \"contextual_owner\", \"text\": \"0% komissiya\", \"weight\": 0.35, \"desc\": \"Contextual: 0% commission / no broker fee (Uzbek)\"}, {\"type\": \"positive\", \"text\": \"bevosita egasidan\", \"weight\": 0.4, \"desc\": \"bevosita egasidan (UZ)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 7,
@@ -172,7 +178,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_OWNER",
     "cls_score": 1.0,
-    "cls_reasons": "[{\"type\": \"positive\", \"text\": \"vositachilarsiz\", \"weight\": 0.35, \"desc\": \"vositachilarsiz (UZ)\"}, {\"type\": \"positive\", \"text\": \"O'zimning uyim\", \"weight\": 0.35, \"desc\": \"ozimning uyim (UZ)\"}]"
+    "cls_reasons": "[{\"type\": \"positive\", \"text\": \"vositachilarsiz\", \"weight\": 0.35, \"desc\": \"vositachilarsiz (UZ)\"}, {\"type\": \"positive\", \"text\": \"O'zimning uyim\", \"weight\": 0.35, \"desc\": \"ozimning uyim (UZ)\"}]",
+    "target_audience": "family"
   },
   {
     "id": 8,
@@ -197,7 +204,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.0,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"50% komissiya\", \"weight\": 0.45, \"desc\": \"Explicit commission % mentioned\"}, {\"type\": \"negative\", \"text\": \"agentligi\", \"weight\": 0.4, \"desc\": \"Real estate agency (UZ)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"50% komissiya\", \"weight\": 0.45, \"desc\": \"Explicit commission % mentioned\"}, {\"type\": \"negative\", \"text\": \"agentligi\", \"weight\": 0.4, \"desc\": \"Real estate agency (UZ)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 9,
@@ -222,7 +230,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_OWNER",
     "cls_score": 1.0,
-    "cls_reasons": "[{\"type\": \"contextual_owner\", \"text\": \"Maklersiz\", \"weight\": 0.35, \"desc\": \"Contextual: 0% commission / no broker fee (Uzbek)\"}, {\"type\": \"positive\", \"text\": \"egasiman\", \"weight\": 0.35, \"desc\": \"egasiman (UZ)\"}, {\"type\": \"positive\", \"text\": \"uy egasiman\", \"weight\": 0.35, \"desc\": \"egasiman (UZ)\"}]"
+    "cls_reasons": "[{\"type\": \"contextual_owner\", \"text\": \"Maklersiz\", \"weight\": 0.35, \"desc\": \"Contextual: 0% commission / no broker fee (Uzbek)\"}, {\"type\": \"positive\", \"text\": \"egasiman\", \"weight\": 0.35, \"desc\": \"egasiman (UZ)\"}, {\"type\": \"positive\", \"text\": \"uy egasiman\", \"weight\": 0.35, \"desc\": \"egasiman (UZ)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 10,
@@ -247,7 +256,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_OWNER",
     "cls_score": 1.0,
-    "cls_reasons": "[{\"type\": \"contextual_owner\", \"text\": \"0% komissiya\", \"weight\": 0.35, \"desc\": \"Contextual: 0% commission / no broker fee (Uzbek)\"}, {\"type\": \"contextual_owner\", \"text\": \"maklersiz\", \"weight\": 0.35, \"desc\": \"Contextual: 0% commission / no broker fee (Uzbek)\"}, {\"type\": \"positive\", \"text\": \"bevosita egasidan\", \"weight\": 0.4, \"desc\": \"bevosita egasidan (UZ)\"}]"
+    "cls_reasons": "[{\"type\": \"contextual_owner\", \"text\": \"0% komissiya\", \"weight\": 0.35, \"desc\": \"Contextual: 0% commission / no broker fee (Uzbek)\"}, {\"type\": \"contextual_owner\", \"text\": \"maklersiz\", \"weight\": 0.35, \"desc\": \"Contextual: 0% commission / no broker fee (Uzbek)\"}, {\"type\": \"positive\", \"text\": \"bevosita egasidan\", \"weight\": 0.4, \"desc\": \"bevosita egasidan (UZ)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 11,
@@ -272,7 +282,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_OWNER",
     "cls_score": 1.0,
-    "cls_reasons": "[{\"type\": \"contextual_owner\", \"text\": \"Maklersiz\", \"weight\": 0.35, \"desc\": \"Contextual: 0% commission / no broker fee (Uzbek)\"}, {\"type\": \"positive\", \"text\": \"egasidan\", \"weight\": 0.35, \"desc\": \"egasidan (UZ)\"}]"
+    "cls_reasons": "[{\"type\": \"contextual_owner\", \"text\": \"Maklersiz\", \"weight\": 0.35, \"desc\": \"Contextual: 0% commission / no broker fee (Uzbek)\"}, {\"type\": \"positive\", \"text\": \"egasidan\", \"weight\": 0.35, \"desc\": \"egasidan (UZ)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 12,
@@ -297,7 +308,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_OWNER",
     "cls_score": 1.0,
-    "cls_reasons": "[{\"type\": \"positive\", \"text\": \"Kvartira egasidan\", \"weight\": 0.35, \"desc\": \"egasidan (UZ)\"}, {\"type\": \"positive\", \"text\": \"o'zimning uyim\", \"weight\": 0.35, \"desc\": \"ozimning uyim (UZ)\"}]"
+    "cls_reasons": "[{\"type\": \"positive\", \"text\": \"Kvartira egasidan\", \"weight\": 0.35, \"desc\": \"egasidan (UZ)\"}, {\"type\": \"positive\", \"text\": \"o'zimning uyim\", \"weight\": 0.35, \"desc\": \"ozimning uyim (UZ)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 13,
@@ -322,7 +334,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_OWNER",
     "cls_score": 1.0,
-    "cls_reasons": "[{\"type\": \"contextual_owner\", \"text\": \"Maklerlar bezovta qilmasin\", \"weight\": 0.4, \"desc\": \"Contextual: Brokers do not disturb (Uzbek)\"}, {\"type\": \"contextual_owner\", \"text\": \"maklersiz\", \"weight\": 0.35, \"desc\": \"Contextual: 0% commission / no broker fee (Uzbek)\"}, {\"type\": \"contextual_owner\", \"text\": \"Maklersiz\", \"weight\": 0.35, \"desc\": \"Contextual: 0% commission / no broker fee (Uzbek)\"}, {\"type\": \"positive\", \"text\": \"o'zimning uyim\", \"weight\": 0.35, \"desc\": \"ozimning uyim (UZ)\"}]"
+    "cls_reasons": "[{\"type\": \"contextual_owner\", \"text\": \"Maklerlar bezovta qilmasin\", \"weight\": 0.4, \"desc\": \"Contextual: Brokers do not disturb (Uzbek)\"}, {\"type\": \"contextual_owner\", \"text\": \"maklersiz\", \"weight\": 0.35, \"desc\": \"Contextual: 0% commission / no broker fee (Uzbek)\"}, {\"type\": \"contextual_owner\", \"text\": \"Maklersiz\", \"weight\": 0.35, \"desc\": \"Contextual: 0% commission / no broker fee (Uzbek)\"}, {\"type\": \"positive\", \"text\": \"o'zimning uyim\", \"weight\": 0.35, \"desc\": \"ozimning uyim (UZ)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 14,
@@ -347,7 +360,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_OWNER",
     "cls_score": 1.0,
-    "cls_reasons": "[{\"type\": \"positive\", \"text\": \"kvartira egasidan\", \"weight\": 0.35, \"desc\": \"egasidan (UZ)\"}, {\"type\": \"positive\", \"text\": \"Uy egasidan\", \"weight\": 0.35, \"desc\": \"egasidan (UZ)\"}, {\"type\": \"positive\", \"text\": \"vositachilarsiz\", \"weight\": 0.35, \"desc\": \"vositachilarsiz (UZ)\"}]"
+    "cls_reasons": "[{\"type\": \"positive\", \"text\": \"kvartira egasidan\", \"weight\": 0.35, \"desc\": \"egasidan (UZ)\"}, {\"type\": \"positive\", \"text\": \"Uy egasidan\", \"weight\": 0.35, \"desc\": \"egasidan (UZ)\"}, {\"type\": \"positive\", \"text\": \"vositachilarsiz\", \"weight\": 0.35, \"desc\": \"vositachilarsiz (UZ)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 15,
@@ -372,7 +386,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.1,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"Komissiya mavjud\", \"weight\": 0.4, \"desc\": \"Agent fee required (UZ)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"Komissiya mavjud\", \"weight\": 0.4, \"desc\": \"Agent fee required (UZ)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 16,
@@ -397,7 +412,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_OWNER",
     "cls_score": 1.0,
-    "cls_reasons": "[{\"type\": \"contextual_owner\", \"text\": \"\\u0420\\u0438\\u0435\\u043b\\u0442\\u043e\\u0440\\u0430\\u043c \\u043d\\u0435 \\u0431\\u0435\\u0441\\u043f\\u043e\\u043a\\u043e\\u0438\\u0442\\u044c\", \"weight\": 0.4, \"desc\": \"Contextual: Agents do not disturb (Russian)\"}, {\"type\": \"contextual_owner\", \"text\": \"\\u0431\\u0435\\u0437 \\u043f\\u043e\\u0441\\u0440\\u0435\\u0434\\u043d\\u0438\\u043a\\u043e\\u0432\", \"weight\": 0.35, \"desc\": \"Contextual: No commission / no agents (Russian)\"}, {\"type\": \"positive\", \"text\": \"\\u043d\\u0430\\u043f\\u0440\\u044f\\u043c\\u0443\\u044e \\u043e\\u0442 \\u0432\\u043b\\u0430\\u0434\\u0435\\u043b\\u044c\\u0446\\u0430\", \"weight\": 0.4, \"desc\": \"\\u043d\\u0430\\u043f\\u0440\\u044f\\u043c\\u0443\\u044e \\u043e\\u0442 \\u0432\\u043b\\u0430\\u0434\\u0435\\u043b\\u044c\\u0446\\u0430 (RU)\"}, {\"type\": \"positive\", \"text\": \"\\u0421\\u0434\\u0430\\u044e \\u0441\\u0432\\u043e\\u044e\", \"weight\": 0.3, \"desc\": \"\\u0441\\u0434\\u0430\\u044e \\u0441\\u0432\\u043e\\u044e (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"contextual_owner\", \"text\": \"\\u0420\\u0438\\u0435\\u043b\\u0442\\u043e\\u0440\\u0430\\u043c \\u043d\\u0435 \\u0431\\u0435\\u0441\\u043f\\u043e\\u043a\\u043e\\u0438\\u0442\\u044c\", \"weight\": 0.4, \"desc\": \"Contextual: Agents do not disturb (Russian)\"}, {\"type\": \"contextual_owner\", \"text\": \"\\u0431\\u0435\\u0437 \\u043f\\u043e\\u0441\\u0440\\u0435\\u0434\\u043d\\u0438\\u043a\\u043e\\u0432\", \"weight\": 0.35, \"desc\": \"Contextual: No commission / no agents (Russian)\"}, {\"type\": \"positive\", \"text\": \"\\u043d\\u0430\\u043f\\u0440\\u044f\\u043c\\u0443\\u044e \\u043e\\u0442 \\u0432\\u043b\\u0430\\u0434\\u0435\\u043b\\u044c\\u0446\\u0430\", \"weight\": 0.4, \"desc\": \"\\u043d\\u0430\\u043f\\u0440\\u044f\\u043c\\u0443\\u044e \\u043e\\u0442 \\u0432\\u043b\\u0430\\u0434\\u0435\\u043b\\u044c\\u0446\\u0430 (RU)\"}, {\"type\": \"positive\", \"text\": \"\\u0421\\u0434\\u0430\\u044e \\u0441\\u0432\\u043e\\u044e\", \"weight\": 0.3, \"desc\": \"\\u0441\\u0434\\u0430\\u044e \\u0441\\u0432\\u043e\\u044e (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 17,
@@ -422,7 +438,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_OWNER",
     "cls_score": 0.9,
-    "cls_reasons": "[{\"type\": \"positive\", \"text\": \"Bevosita egasidan\", \"weight\": 0.4, \"desc\": \"bevosita egasidan (UZ)\"}]"
+    "cls_reasons": "[{\"type\": \"positive\", \"text\": \"Bevosita egasidan\", \"weight\": 0.4, \"desc\": \"bevosita egasidan (UZ)\"}]",
+    "target_audience": "family"
   },
   {
     "id": 18,
@@ -447,7 +464,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_OWNER",
     "cls_score": 1.0,
-    "cls_reasons": "[{\"type\": \"positive\", \"text\": \"kvartira egasidan\", \"weight\": 0.35, \"desc\": \"egasidan (UZ)\"}, {\"type\": \"positive\", \"text\": \"Egasidan\", \"weight\": 0.35, \"desc\": \"egasidan (UZ)\"}, {\"type\": \"positive\", \"text\": \"vositachilarsiz\", \"weight\": 0.35, \"desc\": \"vositachilarsiz (UZ)\"}]"
+    "cls_reasons": "[{\"type\": \"positive\", \"text\": \"kvartira egasidan\", \"weight\": 0.35, \"desc\": \"egasidan (UZ)\"}, {\"type\": \"positive\", \"text\": \"Egasidan\", \"weight\": 0.35, \"desc\": \"egasidan (UZ)\"}, {\"type\": \"positive\", \"text\": \"vositachilarsiz\", \"weight\": 0.35, \"desc\": \"vositachilarsiz (UZ)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 19,
@@ -472,7 +490,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_OWNER",
     "cls_score": 1.0,
-    "cls_reasons": "[{\"type\": \"positive\", \"text\": \"kvartira egasidan\", \"weight\": 0.35, \"desc\": \"egasidan (UZ)\"}, {\"type\": \"positive\", \"text\": \"Egasidan\", \"weight\": 0.35, \"desc\": \"egasidan (UZ)\"}, {\"type\": \"positive\", \"text\": \"vositachilarsiz\", \"weight\": 0.35, \"desc\": \"vositachilarsiz (UZ)\"}]"
+    "cls_reasons": "[{\"type\": \"positive\", \"text\": \"kvartira egasidan\", \"weight\": 0.35, \"desc\": \"egasidan (UZ)\"}, {\"type\": \"positive\", \"text\": \"Egasidan\", \"weight\": 0.35, \"desc\": \"egasidan (UZ)\"}, {\"type\": \"positive\", \"text\": \"vositachilarsiz\", \"weight\": 0.35, \"desc\": \"vositachilarsiz (UZ)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 20,
@@ -497,7 +516,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 21,
@@ -522,7 +542,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 22,
@@ -547,7 +568,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 23,
@@ -572,7 +594,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 24,
@@ -597,7 +620,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 25,
@@ -622,7 +646,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.2,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"Makler\", \"weight\": 0.3, \"desc\": \"makler (UZ)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"Makler\", \"weight\": 0.3, \"desc\": \"makler (UZ)\"}]",
+    "target_audience": "family"
   },
   {
     "id": 26,
@@ -647,7 +672,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 27,
@@ -672,7 +698,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "female"
   },
   {
     "id": 28,
@@ -697,7 +724,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 29,
@@ -722,7 +750,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 30,
@@ -747,7 +776,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 31,
@@ -772,7 +802,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "family"
   },
   {
     "id": 32,
@@ -797,7 +828,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 33,
@@ -822,7 +854,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "family"
   },
   {
     "id": 34,
@@ -847,7 +880,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 35,
@@ -872,7 +906,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 36,
@@ -897,7 +932,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 37,
@@ -922,7 +958,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 38,
@@ -947,7 +984,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 39,
@@ -972,7 +1010,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 40,
@@ -997,7 +1036,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 41,
@@ -1022,7 +1062,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.15,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0420\\u0438\\u044d\\u043b\\u0442\\u043e\\u0440\", \"weight\": 0.35, \"desc\": \"\\u0440\\u0438\\u044d\\u043b\\u0442\\u043e\\u0440 (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0420\\u0438\\u044d\\u043b\\u0442\\u043e\\u0440\", \"weight\": 0.35, \"desc\": \"\\u0440\\u0438\\u044d\\u043b\\u0442\\u043e\\u0440 (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 42,
@@ -1047,7 +1088,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "male"
   },
   {
     "id": 43,
@@ -1072,7 +1114,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.1,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0430\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0430\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 44,
@@ -1097,7 +1140,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_OWNER",
     "cls_score": 0.85,
-    "cls_reasons": "[{\"type\": \"contextual_owner\", \"text\": \"\\u0431\\u0435\\u0437 \\u043f\\u043e\\u0441\\u0440\\u0435\\u0434\\u043d\\u0438\\u043a\\u043e\\u0432\", \"weight\": 0.35, \"desc\": \"Contextual: No commission / no agents (Russian)\"}]"
+    "cls_reasons": "[{\"type\": \"contextual_owner\", \"text\": \"\\u0431\\u0435\\u0437 \\u043f\\u043e\\u0441\\u0440\\u0435\\u0434\\u043d\\u0438\\u043a\\u043e\\u0432\", \"weight\": 0.35, \"desc\": \"Contextual: No commission / no agents (Russian)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 45,
@@ -1122,7 +1166,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "male"
   },
   {
     "id": 46,
@@ -1147,7 +1192,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "family"
   },
   {
     "id": 47,
@@ -1172,7 +1218,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_OWNER",
     "cls_score": 0.85,
-    "cls_reasons": "[{\"type\": \"contextual_owner\", \"text\": \"\\u0411\\u0435\\u0437 \\u043a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u0438\", \"weight\": 0.35, \"desc\": \"Contextual: No commission / no agents (Russian)\"}]"
+    "cls_reasons": "[{\"type\": \"contextual_owner\", \"text\": \"\\u0411\\u0435\\u0437 \\u043a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u0438\", \"weight\": 0.35, \"desc\": \"Contextual: No commission / no agents (Russian)\"}]",
+    "target_audience": "female"
   },
   {
     "id": 48,
@@ -1197,7 +1244,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 49,
@@ -1222,7 +1270,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "male"
   },
   {
     "id": 50,
@@ -1247,7 +1296,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.2,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"Makler\", \"weight\": 0.3, \"desc\": \"makler (UZ)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"Makler\", \"weight\": 0.3, \"desc\": \"makler (UZ)\"}]",
+    "target_audience": "family"
   },
   {
     "id": 51,
@@ -1272,7 +1322,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 52,
@@ -1297,7 +1348,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 53,
@@ -1322,7 +1374,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "family"
   },
   {
     "id": 54,
@@ -1347,7 +1400,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 55,
@@ -1372,7 +1426,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 56,
@@ -1397,7 +1452,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "family"
   },
   {
     "id": 57,
@@ -1422,7 +1478,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "female"
   },
   {
     "id": 58,
@@ -1447,7 +1504,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 59,
@@ -1472,7 +1530,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "family"
   },
   {
     "id": 60,
@@ -1497,7 +1556,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "male"
   },
   {
     "id": 61,
@@ -1522,7 +1582,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.1,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 62,
@@ -1547,7 +1608,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_OWNER",
     "cls_score": 1.0,
-    "cls_reasons": "[{\"type\": \"positive\", \"text\": \"\\u0441\\u043e\\u0431\\u0441\\u0442\\u0432\\u0435\\u043d\\u043d\\u0438\\u043a\", \"weight\": 0.3, \"desc\": \"\\u0441\\u043e\\u0431\\u0441\\u0442\\u0432\\u0435\\u043d\\u043d\\u0438\\u043a (RU)\"}, {\"type\": \"positive\", \"text\": \"\\u0421\\u0434\\u0430\\u044e \\u0441\\u0432\\u043e\\u044e\", \"weight\": 0.3, \"desc\": \"\\u0441\\u0434\\u0430\\u044e \\u0441\\u0432\\u043e\\u044e (RU)\"}, {\"type\": \"positive\", \"text\": \"\\u0441\\u0434\\u0430\\u044e \\u0441\\u0432\\u043e\\u044e\", \"weight\": 0.3, \"desc\": \"\\u0441\\u0434\\u0430\\u044e \\u0441\\u0432\\u043e\\u044e (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"positive\", \"text\": \"\\u0441\\u043e\\u0431\\u0441\\u0442\\u0432\\u0435\\u043d\\u043d\\u0438\\u043a\", \"weight\": 0.3, \"desc\": \"\\u0441\\u043e\\u0431\\u0441\\u0442\\u0432\\u0435\\u043d\\u043d\\u0438\\u043a (RU)\"}, {\"type\": \"positive\", \"text\": \"\\u0421\\u0434\\u0430\\u044e \\u0441\\u0432\\u043e\\u044e\", \"weight\": 0.3, \"desc\": \"\\u0441\\u0434\\u0430\\u044e \\u0441\\u0432\\u043e\\u044e (RU)\"}, {\"type\": \"positive\", \"text\": \"\\u0441\\u0434\\u0430\\u044e \\u0441\\u0432\\u043e\\u044e\", \"weight\": 0.3, \"desc\": \"\\u0441\\u0434\\u0430\\u044e \\u0441\\u0432\\u043e\\u044e (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 63,
@@ -1572,7 +1634,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 64,
@@ -1597,7 +1660,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.2,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f\", \"weight\": 0.3, \"desc\": \"\\u043a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f\", \"weight\": 0.3, \"desc\": \"\\u043a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 65,
@@ -1622,7 +1686,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 66,
@@ -1647,7 +1712,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "male"
   },
   {
     "id": 67,
@@ -1672,7 +1738,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 68,
@@ -1697,7 +1764,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 69,
@@ -1722,7 +1790,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "family"
   },
   {
     "id": 70,
@@ -1747,7 +1816,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 71,
@@ -1772,7 +1842,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 72,
@@ -1797,7 +1868,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "female"
   },
   {
     "id": 73,
@@ -1822,7 +1894,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 74,
@@ -1847,7 +1920,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 75,
@@ -1872,7 +1946,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "family"
   },
   {
     "id": 76,
@@ -1897,7 +1972,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "family"
   },
   {
     "id": 77,
@@ -1922,7 +1998,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 78,
@@ -1947,7 +2024,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 79,
@@ -1972,7 +2050,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 80,
@@ -1997,7 +2076,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 81,
@@ -2022,7 +2102,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 82,
@@ -2047,7 +2128,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 132,
@@ -2072,7 +2154,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 133,
@@ -2097,7 +2180,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 134,
@@ -2122,7 +2206,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "female"
   },
   {
     "id": 135,
@@ -2147,7 +2232,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 136,
@@ -2172,7 +2258,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.1,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f \\u0430\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u0430\", \"weight\": 0.4, \"desc\": \"Agent fee required (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f \\u0430\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u0430\", \"weight\": 0.4, \"desc\": \"Agent fee required (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 137,
@@ -2197,7 +2284,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 138,
@@ -2222,7 +2310,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "female"
   },
   {
     "id": 139,
@@ -2247,7 +2336,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 140,
@@ -2272,7 +2362,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 141,
@@ -2297,7 +2388,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "family"
   },
   {
     "id": 142,
@@ -2322,7 +2414,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 143,
@@ -2347,7 +2440,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.2,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"makler\", \"weight\": 0.3, \"desc\": \"makler (UZ)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"makler\", \"weight\": 0.3, \"desc\": \"makler (UZ)\"}]",
+    "target_audience": "female"
   },
   {
     "id": 144,
@@ -2372,7 +2466,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 145,
@@ -2397,7 +2492,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 146,
@@ -2422,7 +2518,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_OWNER",
     "cls_score": 0.8,
-    "cls_reasons": "[{\"type\": \"positive\", \"text\": \"\\u0441\\u043e\\u0431\\u0441\\u0442\\u0432\\u0435\\u043d\\u043d\\u0438\\u043a\", \"weight\": 0.3, \"desc\": \"\\u0441\\u043e\\u0431\\u0441\\u0442\\u0432\\u0435\\u043d\\u043d\\u0438\\u043a (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"positive\", \"text\": \"\\u0441\\u043e\\u0431\\u0441\\u0442\\u0432\\u0435\\u043d\\u043d\\u0438\\u043a\", \"weight\": 0.3, \"desc\": \"\\u0441\\u043e\\u0431\\u0441\\u0442\\u0432\\u0435\\u043d\\u043d\\u0438\\u043a (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 147,
@@ -2447,7 +2544,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 148,
@@ -2472,7 +2570,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.0,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}, {\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f\", \"weight\": 0.3, \"desc\": \"\\u043a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}, {\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f\", \"weight\": 0.3, \"desc\": \"\\u043a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 149,
@@ -2497,7 +2596,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 150,
@@ -2522,7 +2622,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 151,
@@ -2547,7 +2648,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 152,
@@ -2572,7 +2674,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 153,
@@ -2597,7 +2700,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 154,
@@ -2622,7 +2726,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 155,
@@ -2647,7 +2752,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 156,
@@ -2672,7 +2778,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 157,
@@ -2697,7 +2804,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 158,
@@ -2722,7 +2830,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 159,
@@ -2747,7 +2856,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_OWNER",
     "cls_score": 0.85,
-    "cls_reasons": "[{\"type\": \"contextual_owner\", \"text\": \"maklersiz\", \"weight\": 0.35, \"desc\": \"Contextual: 0% commission / no broker fee (Uzbek)\"}]"
+    "cls_reasons": "[{\"type\": \"contextual_owner\", \"text\": \"maklersiz\", \"weight\": 0.35, \"desc\": \"Contextual: 0% commission / no broker fee (Uzbek)\"}]",
+    "target_audience": "family"
   },
   {
     "id": 160,
@@ -2772,7 +2882,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 161,
@@ -2797,7 +2908,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 162,
@@ -2822,7 +2934,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 163,
@@ -2847,7 +2960,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 164,
@@ -2872,7 +2986,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 165,
@@ -2897,7 +3012,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 166,
@@ -2922,7 +3038,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 167,
@@ -2947,7 +3064,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 168,
@@ -2972,7 +3090,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 169,
@@ -2997,7 +3116,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 170,
@@ -3022,7 +3142,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "family"
   },
   {
     "id": 171,
@@ -3047,7 +3168,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 172,
@@ -3072,7 +3194,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "male"
   },
   {
     "id": 173,
@@ -3097,7 +3220,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.0,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}, {\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f\", \"weight\": 0.3, \"desc\": \"\\u043a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}, {\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f\", \"weight\": 0.3, \"desc\": \"\\u043a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 174,
@@ -3122,7 +3246,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.0,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}, {\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f\", \"weight\": 0.3, \"desc\": \"\\u043a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}, {\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f\", \"weight\": 0.3, \"desc\": \"\\u043a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 175,
@@ -3147,7 +3272,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.0,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f \\u0430\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u0430\", \"weight\": 0.4, \"desc\": \"Agent fee required (RU)\"}, {\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f \\u0430\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u0430\", \"weight\": 0.4, \"desc\": \"Agent fee required (RU)\"}, {\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 176,
@@ -3172,7 +3298,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 177,
@@ -3197,7 +3324,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 178,
@@ -3222,7 +3350,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 179,
@@ -3247,7 +3376,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 180,
@@ -3272,7 +3402,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.0,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f \\u0430\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u0430\", \"weight\": 0.4, \"desc\": \"Agent fee required (RU)\"}, {\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f \\u0430\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u0430\", \"weight\": 0.4, \"desc\": \"Agent fee required (RU)\"}, {\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 181,
@@ -3297,7 +3428,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.0,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}, {\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f\", \"weight\": 0.3, \"desc\": \"\\u043a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}, {\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f\", \"weight\": 0.3, \"desc\": \"\\u043a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 192,
@@ -3322,7 +3454,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 193,
@@ -3347,7 +3480,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 194,
@@ -3372,7 +3506,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "family"
   },
   {
     "id": 195,
@@ -3397,7 +3532,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "family"
   },
   {
     "id": 196,
@@ -3422,7 +3558,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 197,
@@ -3447,7 +3584,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 198,
@@ -3472,7 +3610,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.1,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f \\u0430\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u0430\", \"weight\": 0.4, \"desc\": \"Agent fee required (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f \\u0430\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u0430\", \"weight\": 0.4, \"desc\": \"Agent fee required (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 199,
@@ -3497,7 +3636,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.1,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 200,
@@ -3522,7 +3662,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 201,
@@ -3547,7 +3688,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.1,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 202,
@@ -3572,7 +3714,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 203,
@@ -3597,7 +3740,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 204,
@@ -3622,7 +3766,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.1,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 205,
@@ -3647,7 +3792,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 206,
@@ -3672,7 +3818,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 207,
@@ -3697,7 +3844,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.1,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"usluga bor\", \"weight\": 0.4, \"desc\": \"Agent fee required (UZ)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"usluga bor\", \"weight\": 0.4, \"desc\": \"Agent fee required (UZ)\"}]",
+    "target_audience": "family"
   },
   {
     "id": 208,
@@ -3722,7 +3870,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.0,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f \\u0430\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u0430\", \"weight\": 0.4, \"desc\": \"Agent fee required (RU)\"}, {\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f \\u0430\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u0430\", \"weight\": 0.4, \"desc\": \"Agent fee required (RU)\"}, {\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 209,
@@ -3747,7 +3896,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "family"
   },
   {
     "id": 210,
@@ -3772,7 +3922,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "family"
   },
   {
     "id": 211,
@@ -3797,7 +3948,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 212,
@@ -3822,7 +3974,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.1,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 213,
@@ -3847,7 +4000,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 214,
@@ -3872,7 +4026,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 215,
@@ -3897,7 +4052,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 216,
@@ -3922,7 +4078,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 217,
@@ -3947,7 +4104,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 218,
@@ -3972,7 +4130,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 219,
@@ -3997,7 +4156,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "male"
   },
   {
     "id": 220,
@@ -4022,7 +4182,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 221,
@@ -4047,7 +4208,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 222,
@@ -4072,7 +4234,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 223,
@@ -4097,7 +4260,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 224,
@@ -4122,7 +4286,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 225,
@@ -4147,7 +4312,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 226,
@@ -4172,7 +4338,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 227,
@@ -4197,7 +4364,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 228,
@@ -4222,7 +4390,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 229,
@@ -4247,7 +4416,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "male"
   },
   {
     "id": 230,
@@ -4272,7 +4442,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 231,
@@ -4297,7 +4468,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 232,
@@ -4322,7 +4494,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 233,
@@ -4347,7 +4520,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.1,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 234,
@@ -4372,7 +4546,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "female"
   },
   {
     "id": 235,
@@ -4397,7 +4572,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 236,
@@ -4422,7 +4598,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.1,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 237,
@@ -4447,7 +4624,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 238,
@@ -4472,7 +4650,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 239,
@@ -4497,7 +4676,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.1,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 240,
@@ -4522,7 +4702,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.1,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 241,
@@ -4547,7 +4728,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.0,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}, {\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f\", \"weight\": 0.3, \"desc\": \"\\u043a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}, {\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f\", \"weight\": 0.3, \"desc\": \"\\u043a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 242,
@@ -4572,7 +4754,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 254,
@@ -4597,7 +4780,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 255,
@@ -4622,7 +4806,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 256,
@@ -4647,7 +4832,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 257,
@@ -4672,7 +4858,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 258,
@@ -4697,7 +4884,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 259,
@@ -4722,7 +4910,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 260,
@@ -4747,7 +4936,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.1,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 261,
@@ -4772,7 +4962,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 262,
@@ -4797,7 +4988,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 263,
@@ -4822,7 +5014,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 264,
@@ -4847,7 +5040,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.1,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 265,
@@ -4872,7 +5066,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 266,
@@ -4897,7 +5092,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 267,
@@ -4922,7 +5118,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.0,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"Makler\", \"weight\": 0.3, \"desc\": \"makler (UZ)\"}, {\"type\": \"negative\", \"text\": \"Makler\", \"weight\": 0.3, \"desc\": \"makler (UZ)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"Makler\", \"weight\": 0.3, \"desc\": \"makler (UZ)\"}, {\"type\": \"negative\", \"text\": \"Makler\", \"weight\": 0.3, \"desc\": \"makler (UZ)\"}]",
+    "target_audience": "family"
   },
   {
     "id": 268,
@@ -4947,7 +5144,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "family"
   },
   {
     "id": 269,
@@ -4972,7 +5170,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.1,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 270,
@@ -4997,7 +5196,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 271,
@@ -5022,7 +5222,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 272,
@@ -5047,7 +5248,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 273,
@@ -5072,7 +5274,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 274,
@@ -5097,7 +5300,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 275,
@@ -5122,7 +5326,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 276,
@@ -5147,7 +5352,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 277,
@@ -5172,7 +5378,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 278,
@@ -5197,7 +5404,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 279,
@@ -5222,7 +5430,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 280,
@@ -5247,7 +5456,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 281,
@@ -5272,7 +5482,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 282,
@@ -5297,7 +5508,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 283,
@@ -5322,7 +5534,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 284,
@@ -5347,7 +5560,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 285,
@@ -5372,7 +5586,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 286,
@@ -5397,7 +5612,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 287,
@@ -5422,7 +5638,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 288,
@@ -5447,7 +5664,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 289,
@@ -5472,7 +5690,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.1,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 290,
@@ -5497,7 +5716,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 291,
@@ -5522,7 +5742,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 292,
@@ -5547,7 +5768,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_OWNER",
     "cls_score": 0.85,
-    "cls_reasons": "[{\"type\": \"contextual_owner\", \"text\": \"\\u0431\\u0435\\u0437 \\u043f\\u043e\\u0441\\u0440\\u0435\\u0434\\u043d\\u0438\\u043a\\u043e\\u0432\", \"weight\": 0.35, \"desc\": \"Contextual: No commission / no agents (Russian)\"}]"
+    "cls_reasons": "[{\"type\": \"contextual_owner\", \"text\": \"\\u0431\\u0435\\u0437 \\u043f\\u043e\\u0441\\u0440\\u0435\\u0434\\u043d\\u0438\\u043a\\u043e\\u0432\", \"weight\": 0.35, \"desc\": \"Contextual: No commission / no agents (Russian)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 293,
@@ -5572,7 +5794,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 294,
@@ -5597,7 +5820,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.1,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 295,
@@ -5622,7 +5846,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 296,
@@ -5647,7 +5872,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 297,
@@ -5672,7 +5898,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 298,
@@ -5697,7 +5924,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.1,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 299,
@@ -5722,7 +5950,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 300,
@@ -5747,7 +5976,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.0,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}, {\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f\", \"weight\": 0.3, \"desc\": \"\\u043a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}, {\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f\", \"weight\": 0.3, \"desc\": \"\\u043a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 301,
@@ -5772,7 +6002,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "family"
   },
   {
     "id": 302,
@@ -5797,7 +6028,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 311,
@@ -5822,7 +6054,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "family"
   },
   {
     "id": 312,
@@ -5847,7 +6080,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 313,
@@ -5872,7 +6106,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.1,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 314,
@@ -5897,7 +6132,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 315,
@@ -5922,7 +6158,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 316,
@@ -5947,7 +6184,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 317,
@@ -5972,7 +6210,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 318,
@@ -5997,7 +6236,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.1,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f \\u0430\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u0430\", \"weight\": 0.4, \"desc\": \"Agent fee required (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f \\u0430\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u0430\", \"weight\": 0.4, \"desc\": \"Agent fee required (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 319,
@@ -6022,7 +6262,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 320,
@@ -6047,7 +6288,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_OWNER",
     "cls_score": 1.0,
-    "cls_reasons": "[{\"type\": \"contextual_owner\", \"text\": \"\\u0411\\u0415\\u0417 \\u041f\\u041e\\u0421\\u0420\\u0415\\u0414\\u041d\\u0418\\u041a\\u041e\\u0412\", \"weight\": 0.35, \"desc\": \"Contextual: No commission / no agents (Russian)\"}, {\"type\": \"contextual_owner\", \"text\": \"\\u0411\\u0415\\u0417 \\u041f\\u041e\\u0421\\u0420\\u0415\\u0414\\u041d\\u0418\\u041a\\u041e\\u0412\", \"weight\": 0.35, \"desc\": \"Contextual: No commission / no agents (Russian)\"}, {\"type\": \"contextual_owner\", \"text\": \"MAKLERSIZ\", \"weight\": 0.35, \"desc\": \"Contextual: 0% commission / no broker fee (Uzbek)\"}, {\"type\": \"contextual_owner\", \"text\": \"MAKLERSIZ\", \"weight\": 0.35, \"desc\": \"Contextual: 0% commission / no broker fee (Uzbek)\"}]"
+    "cls_reasons": "[{\"type\": \"contextual_owner\", \"text\": \"\\u0411\\u0415\\u0417 \\u041f\\u041e\\u0421\\u0420\\u0415\\u0414\\u041d\\u0418\\u041a\\u041e\\u0412\", \"weight\": 0.35, \"desc\": \"Contextual: No commission / no agents (Russian)\"}, {\"type\": \"contextual_owner\", \"text\": \"\\u0411\\u0415\\u0417 \\u041f\\u041e\\u0421\\u0420\\u0415\\u0414\\u041d\\u0418\\u041a\\u041e\\u0412\", \"weight\": 0.35, \"desc\": \"Contextual: No commission / no agents (Russian)\"}, {\"type\": \"contextual_owner\", \"text\": \"MAKLERSIZ\", \"weight\": 0.35, \"desc\": \"Contextual: 0% commission / no broker fee (Uzbek)\"}, {\"type\": \"contextual_owner\", \"text\": \"MAKLERSIZ\", \"weight\": 0.35, \"desc\": \"Contextual: 0% commission / no broker fee (Uzbek)\"}]",
+    "target_audience": "female"
   },
   {
     "id": 321,
@@ -6072,7 +6314,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 322,
@@ -6097,7 +6340,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 323,
@@ -6122,7 +6366,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 324,
@@ -6147,7 +6392,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_OWNER",
     "cls_score": 0.85,
-    "cls_reasons": "[{\"type\": \"contextual_owner\", \"text\": \"\\u0431\\u0435\\u0437 \\u043f\\u043e\\u0441\\u0440\\u0435\\u0434\\u043d\\u0438\\u043a\\u043e\\u0432\", \"weight\": 0.35, \"desc\": \"Contextual: No commission / no agents (Russian)\"}]"
+    "cls_reasons": "[{\"type\": \"contextual_owner\", \"text\": \"\\u0431\\u0435\\u0437 \\u043f\\u043e\\u0441\\u0440\\u0435\\u0434\\u043d\\u0438\\u043a\\u043e\\u0432\", \"weight\": 0.35, \"desc\": \"Contextual: No commission / no agents (Russian)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 325,
@@ -6172,7 +6418,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.1,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 326,
@@ -6197,7 +6444,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.2,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u043a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f\", \"weight\": 0.3, \"desc\": \"\\u043a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u043a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f\", \"weight\": 0.3, \"desc\": \"\\u043a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f (RU)\"}]",
+    "target_audience": "family"
   },
   {
     "id": 327,
@@ -6222,7 +6470,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_OWNER",
     "cls_score": 1.0,
-    "cls_reasons": "[{\"type\": \"positive\", \"text\": \"\\u043e\\u0442 \\u0441\\u043e\\u0431\\u0441\\u0442\\u0432\\u0435\\u043d\\u043d\\u0438\\u043a\\u0430\", \"weight\": 0.4, \"desc\": \"\\u043e\\u0442 \\u0441\\u043e\\u0431\\u0441\\u0442\\u0432\\u0435\\u043d\\u043d\\u0438\\u043a\\u0430 (RU)\"}, {\"type\": \"positive\", \"text\": \"\\u043e\\u0442 \\u0441\\u043e\\u0431\\u0441\\u0442\\u0432\\u0435\\u043d\\u043d\\u0438\\u043a\\u0430\", \"weight\": 0.4, \"desc\": \"\\u043e\\u0442 \\u0441\\u043e\\u0431\\u0441\\u0442\\u0432\\u0435\\u043d\\u043d\\u0438\\u043a\\u0430 (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"positive\", \"text\": \"\\u043e\\u0442 \\u0441\\u043e\\u0431\\u0441\\u0442\\u0432\\u0435\\u043d\\u043d\\u0438\\u043a\\u0430\", \"weight\": 0.4, \"desc\": \"\\u043e\\u0442 \\u0441\\u043e\\u0431\\u0441\\u0442\\u0432\\u0435\\u043d\\u043d\\u0438\\u043a\\u0430 (RU)\"}, {\"type\": \"positive\", \"text\": \"\\u043e\\u0442 \\u0441\\u043e\\u0431\\u0441\\u0442\\u0432\\u0435\\u043d\\u043d\\u0438\\u043a\\u0430\", \"weight\": 0.4, \"desc\": \"\\u043e\\u0442 \\u0441\\u043e\\u0431\\u0441\\u0442\\u0432\\u0435\\u043d\\u043d\\u0438\\u043a\\u0430 (RU)\"}]",
+    "target_audience": "family"
   },
   {
     "id": 328,
@@ -6247,7 +6496,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 329,
@@ -6272,7 +6522,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.2,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f\", \"weight\": 0.3, \"desc\": \"\\u043a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f\", \"weight\": 0.3, \"desc\": \"\\u043a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 330,
@@ -6297,7 +6548,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_OWNER",
     "cls_score": 0.85,
-    "cls_reasons": "[{\"type\": \"positive\", \"text\": \"\\u0421\\u043e\\u0431\\u0441\\u0442\\u0432\\u0435\\u043d\\u043d\\u0430\\u044f \", \"weight\": 0.35, \"desc\": \"\\u0441\\u043e\\u0431\\u0441\\u0442\\u0432\\u0435\\u043d\\u043d\\u0430\\u044f \\u043a\\u0432\\u0430\\u0440\\u0442\\u0438\\u0440\\u0430 (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"positive\", \"text\": \"\\u0421\\u043e\\u0431\\u0441\\u0442\\u0432\\u0435\\u043d\\u043d\\u0430\\u044f \", \"weight\": 0.35, \"desc\": \"\\u0441\\u043e\\u0431\\u0441\\u0442\\u0432\\u0435\\u043d\\u043d\\u0430\\u044f \\u043a\\u0432\\u0430\\u0440\\u0442\\u0438\\u0440\\u0430 (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 331,
@@ -6322,7 +6574,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 332,
@@ -6347,7 +6600,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 333,
@@ -6372,7 +6626,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.1,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 334,
@@ -6397,7 +6652,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 335,
@@ -6422,7 +6678,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "male"
   },
   {
     "id": 336,
@@ -6447,7 +6704,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 337,
@@ -6472,7 +6730,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 338,
@@ -6497,7 +6756,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 339,
@@ -6522,7 +6782,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.15,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0420\\u0438\\u044d\\u043b\\u0442\\u043e\\u0440\", \"weight\": 0.35, \"desc\": \"\\u0440\\u0438\\u044d\\u043b\\u0442\\u043e\\u0440 (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0420\\u0438\\u044d\\u043b\\u0442\\u043e\\u0440\", \"weight\": 0.35, \"desc\": \"\\u0440\\u0438\\u044d\\u043b\\u0442\\u043e\\u0440 (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 340,
@@ -6547,7 +6808,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 341,
@@ -6572,7 +6834,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 342,
@@ -6597,7 +6860,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.15,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0420\\u0438\\u044d\\u043b\\u0442\\u043e\\u0440\", \"weight\": 0.35, \"desc\": \"\\u0440\\u0438\\u044d\\u043b\\u0442\\u043e\\u0440 (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0420\\u0438\\u044d\\u043b\\u0442\\u043e\\u0440\", \"weight\": 0.35, \"desc\": \"\\u0440\\u0438\\u044d\\u043b\\u0442\\u043e\\u0440 (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 343,
@@ -6622,7 +6886,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 344,
@@ -6647,7 +6912,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 345,
@@ -6672,7 +6938,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 346,
@@ -6697,7 +6964,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 347,
@@ -6722,7 +6990,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 348,
@@ -6747,7 +7016,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.15,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0420\\u0438\\u044d\\u043b\\u0442\\u043e\\u0440\", \"weight\": 0.35, \"desc\": \"\\u0440\\u0438\\u044d\\u043b\\u0442\\u043e\\u0440 (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0420\\u0438\\u044d\\u043b\\u0442\\u043e\\u0440\", \"weight\": 0.35, \"desc\": \"\\u0440\\u0438\\u044d\\u043b\\u0442\\u043e\\u0440 (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 349,
@@ -6772,7 +7042,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "male"
   },
   {
     "id": 350,
@@ -6797,7 +7068,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 351,
@@ -6822,7 +7094,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 352,
@@ -6847,7 +7120,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 353,
@@ -6872,7 +7146,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 354,
@@ -6897,7 +7172,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.1,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 355,
@@ -6922,7 +7198,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 356,
@@ -6947,7 +7224,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 357,
@@ -6972,7 +7250,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 358,
@@ -6997,7 +7276,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.1,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 359,
@@ -7022,7 +7302,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 360,
@@ -7047,7 +7328,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 361,
@@ -7072,7 +7354,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 362,
@@ -7097,7 +7380,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 363,
@@ -7122,7 +7406,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "family"
   },
   {
     "id": 364,
@@ -7147,7 +7432,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 365,
@@ -7172,7 +7458,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 366,
@@ -7197,7 +7484,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 367,
@@ -7222,7 +7510,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 368,
@@ -7247,7 +7536,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 369,
@@ -7272,7 +7562,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 370,
@@ -7297,7 +7588,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 371,
@@ -7322,7 +7614,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 372,
@@ -7347,7 +7640,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 373,
@@ -7372,7 +7666,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 374,
@@ -7397,7 +7692,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 375,
@@ -7422,7 +7718,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 376,
@@ -7447,7 +7744,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 377,
@@ -7472,7 +7770,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.15,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0420\\u0438\\u044d\\u043b\\u0442\\u043e\\u0440\", \"weight\": 0.35, \"desc\": \"\\u0440\\u0438\\u044d\\u043b\\u0442\\u043e\\u0440 (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0420\\u0438\\u044d\\u043b\\u0442\\u043e\\u0440\", \"weight\": 0.35, \"desc\": \"\\u0440\\u0438\\u044d\\u043b\\u0442\\u043e\\u0440 (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 378,
@@ -7497,7 +7796,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 379,
@@ -7522,7 +7822,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "family"
   },
   {
     "id": 380,
@@ -7547,7 +7848,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "family"
   },
   {
     "id": 381,
@@ -7572,7 +7874,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_OWNER",
     "cls_score": 0.85,
-    "cls_reasons": "[{\"type\": \"positive\", \"text\": \"\\u042f \\u0445\\u043e\\u0437\\u044f\\u0438\\u043d\", \"weight\": 0.35, \"desc\": \"\\u044f \\u0445\\u043e\\u0437\\u044f\\u0438\\u043d (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"positive\", \"text\": \"\\u042f \\u0445\\u043e\\u0437\\u044f\\u0438\\u043d\", \"weight\": 0.35, \"desc\": \"\\u044f \\u0445\\u043e\\u0437\\u044f\\u0438\\u043d (RU)\"}]",
+    "target_audience": "female"
   },
   {
     "id": 382,
@@ -7597,7 +7900,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 383,
@@ -7622,7 +7926,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 384,
@@ -7647,7 +7952,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.2,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f\", \"weight\": 0.3, \"desc\": \"\\u043a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f\", \"weight\": 0.3, \"desc\": \"\\u043a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 385,
@@ -7672,7 +7978,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 386,
@@ -7697,7 +8004,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "family"
   },
   {
     "id": 387,
@@ -7722,7 +8030,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 388,
@@ -7747,7 +8056,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 389,
@@ -7772,7 +8082,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 390,
@@ -7797,7 +8108,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 391,
@@ -7822,7 +8134,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 392,
@@ -7847,7 +8160,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 393,
@@ -7872,7 +8186,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 394,
@@ -7897,7 +8212,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 395,
@@ -7922,7 +8238,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 396,
@@ -7947,7 +8264,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 397,
@@ -7972,7 +8290,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 398,
@@ -7997,7 +8316,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 399,
@@ -8022,7 +8342,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 400,
@@ -8047,7 +8368,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 401,
@@ -8072,7 +8394,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "family"
   },
   {
     "id": 402,
@@ -8097,7 +8420,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 403,
@@ -8122,7 +8446,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 404,
@@ -8147,7 +8472,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 405,
@@ -8172,7 +8498,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.1,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]",
+    "target_audience": "family"
   },
   {
     "id": 406,
@@ -8197,7 +8524,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 407,
@@ -8222,7 +8550,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 408,
@@ -8247,7 +8576,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 409,
@@ -8272,7 +8602,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 410,
@@ -8297,7 +8628,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 411,
@@ -8322,7 +8654,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 412,
@@ -8347,7 +8680,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.1,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0430\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0430\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 413,
@@ -8372,7 +8706,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 414,
@@ -8397,7 +8732,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.15,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0420\\u0438\\u0435\\u043b\\u0442\\u043e\\u0440 \", \"weight\": 0.35, \"desc\": \"\\u0440\\u0438\\u0435\\u043b\\u0442\\u043e\\u0440 (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0420\\u0438\\u0435\\u043b\\u0442\\u043e\\u0440 \", \"weight\": 0.35, \"desc\": \"\\u0440\\u0438\\u0435\\u043b\\u0442\\u043e\\u0440 (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 415,
@@ -8422,7 +8758,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.0,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"makler\", \"weight\": 0.3, \"desc\": \"makler (UZ)\"}, {\"type\": \"negative\", \"text\": \"makler\", \"weight\": 0.3, \"desc\": \"makler (UZ)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"makler\", \"weight\": 0.3, \"desc\": \"makler (UZ)\"}, {\"type\": \"negative\", \"text\": \"makler\", \"weight\": 0.3, \"desc\": \"makler (UZ)\"}]",
+    "target_audience": "family"
   },
   {
     "id": 416,
@@ -8447,7 +8784,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 417,
@@ -8472,7 +8810,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 418,
@@ -8497,7 +8836,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.1,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0430\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0430\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 419,
@@ -8522,7 +8862,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 420,
@@ -8547,7 +8888,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 421,
@@ -8572,7 +8914,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 422,
@@ -8597,7 +8940,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 423,
@@ -8622,7 +8966,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 424,
@@ -8647,7 +8992,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 425,
@@ -8672,7 +9018,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 426,
@@ -8697,7 +9044,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.1,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 427,
@@ -8722,7 +9070,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.1,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f \\u0430\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u0430\", \"weight\": 0.4, \"desc\": \"Agent fee required (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f \\u0430\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u0430\", \"weight\": 0.4, \"desc\": \"Agent fee required (RU)\"}]",
+    "target_audience": "family"
   },
   {
     "id": 428,
@@ -8747,7 +9096,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_OWNER",
     "cls_score": 0.85,
-    "cls_reasons": "[{\"type\": \"positive\", \"text\": \"kvartira  egasidan\", \"weight\": 0.35, \"desc\": \"egasidan (UZ)\"}]"
+    "cls_reasons": "[{\"type\": \"positive\", \"text\": \"kvartira  egasidan\", \"weight\": 0.35, \"desc\": \"egasidan (UZ)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 429,
@@ -8772,7 +9122,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.1,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 430,
@@ -8797,7 +9148,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 431,
@@ -8822,7 +9174,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.1,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 432,
@@ -8847,7 +9200,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 433,
@@ -8872,7 +9226,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 434,
@@ -8897,7 +9252,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.1,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 435,
@@ -8922,7 +9278,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.2,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"makler\", \"weight\": 0.3, \"desc\": \"makler (UZ)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"makler\", \"weight\": 0.3, \"desc\": \"makler (UZ)\"}]",
+    "target_audience": "female"
   },
   {
     "id": 436,
@@ -8947,7 +9304,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 437,
@@ -8972,7 +9330,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 438,
@@ -8997,7 +9356,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.1,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 439,
@@ -9022,7 +9382,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "family"
   },
   {
     "id": 440,
@@ -9047,7 +9408,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 441,
@@ -9072,7 +9434,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.2,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f\", \"weight\": 0.3, \"desc\": \"\\u043a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f\", \"weight\": 0.3, \"desc\": \"\\u043a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 442,
@@ -9097,7 +9460,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 443,
@@ -9122,7 +9486,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 444,
@@ -9147,7 +9512,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 445,
@@ -9172,7 +9538,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_OWNER",
     "cls_score": 0.85,
-    "cls_reasons": "[{\"type\": \"contextual_owner\", \"text\": \"Maklersiz\", \"weight\": 0.35, \"desc\": \"Contextual: 0% commission / no broker fee (Uzbek)\"}]"
+    "cls_reasons": "[{\"type\": \"contextual_owner\", \"text\": \"Maklersiz\", \"weight\": 0.35, \"desc\": \"Contextual: 0% commission / no broker fee (Uzbek)\"}]",
+    "target_audience": "female"
   },
   {
     "id": 446,
@@ -9197,7 +9564,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 447,
@@ -9222,7 +9590,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "family"
   },
   {
     "id": 448,
@@ -9247,7 +9616,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "family"
   },
   {
     "id": 449,
@@ -9272,7 +9642,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.15,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0420\\u0438\\u0435\\u043b\\u0442\\u043e\\u0440\", \"weight\": 0.35, \"desc\": \"\\u0440\\u0438\\u0435\\u043b\\u0442\\u043e\\u0440 (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0420\\u0438\\u0435\\u043b\\u0442\\u043e\\u0440\", \"weight\": 0.35, \"desc\": \"\\u0440\\u0438\\u0435\\u043b\\u0442\\u043e\\u0440 (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 450,
@@ -9297,7 +9668,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.15,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0420\\u0438\\u0435\\u043b\\u0442\\u043e\\u0440 \", \"weight\": 0.35, \"desc\": \"\\u0440\\u0438\\u0435\\u043b\\u0442\\u043e\\u0440 (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0420\\u0438\\u0435\\u043b\\u0442\\u043e\\u0440 \", \"weight\": 0.35, \"desc\": \"\\u0440\\u0438\\u0435\\u043b\\u0442\\u043e\\u0440 (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 451,
@@ -9322,7 +9694,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.1,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f \\u0430\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u0430\", \"weight\": 0.4, \"desc\": \"Agent fee required (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f \\u0430\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u0430\", \"weight\": 0.4, \"desc\": \"Agent fee required (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 452,
@@ -9347,7 +9720,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 453,
@@ -9372,7 +9746,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.0,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f \\u0430\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u0430\", \"weight\": 0.4, \"desc\": \"Agent fee required (RU)\"}, {\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f \\u0430\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u0430\", \"weight\": 0.4, \"desc\": \"Agent fee required (RU)\"}, {\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 454,
@@ -9397,7 +9772,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.1,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 455,
@@ -9422,7 +9798,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 456,
@@ -9447,7 +9824,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.1,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 457,
@@ -9472,7 +9850,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 458,
@@ -9497,7 +9876,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 459,
@@ -9522,7 +9902,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 460,
@@ -9547,7 +9928,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "family"
   },
   {
     "id": 461,
@@ -9572,7 +9954,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.0,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"Makler\", \"weight\": 0.3, \"desc\": \"makler (UZ)\"}, {\"type\": \"negative\", \"text\": \"Makler\", \"weight\": 0.3, \"desc\": \"makler (UZ)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"Makler\", \"weight\": 0.3, \"desc\": \"makler (UZ)\"}, {\"type\": \"negative\", \"text\": \"Makler\", \"weight\": 0.3, \"desc\": \"makler (UZ)\"}]",
+    "target_audience": "family"
   },
   {
     "id": 462,
@@ -9597,7 +9980,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.1,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 463,
@@ -9622,7 +10006,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 464,
@@ -9647,7 +10032,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.1,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 465,
@@ -9672,7 +10058,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.0,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f \\u0430\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u0430\", \"weight\": 0.4, \"desc\": \"Agent fee required (RU)\"}, {\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f \\u0430\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u0430\", \"weight\": 0.4, \"desc\": \"Agent fee required (RU)\"}, {\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 466,
@@ -9697,7 +10084,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.0,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f \\u0430\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u0430\", \"weight\": 0.4, \"desc\": \"Agent fee required (RU)\"}, {\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f \\u0430\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u0430\", \"weight\": 0.4, \"desc\": \"Agent fee required (RU)\"}, {\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 467,
@@ -9722,7 +10110,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.0,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f \\u0430\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u0430\", \"weight\": 0.4, \"desc\": \"Agent fee required (RU)\"}, {\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f \\u0430\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u0430\", \"weight\": 0.4, \"desc\": \"Agent fee required (RU)\"}, {\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 468,
@@ -9747,7 +10136,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 469,
@@ -9772,7 +10162,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 470,
@@ -9797,7 +10188,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 471,
@@ -9822,7 +10214,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.1,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 472,
@@ -9847,7 +10240,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_OWNER",
     "cls_score": 0.85,
-    "cls_reasons": "[{\"type\": \"contextual_owner\", \"text\": \"Maklersiz\", \"weight\": 0.35, \"desc\": \"Contextual: 0% commission / no broker fee (Uzbek)\"}]"
+    "cls_reasons": "[{\"type\": \"contextual_owner\", \"text\": \"Maklersiz\", \"weight\": 0.35, \"desc\": \"Contextual: 0% commission / no broker fee (Uzbek)\"}]",
+    "target_audience": "female"
   },
   {
     "id": 473,
@@ -9872,7 +10266,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 474,
@@ -9897,7 +10292,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.2,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f\", \"weight\": 0.3, \"desc\": \"\\u043a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f\", \"weight\": 0.3, \"desc\": \"\\u043a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 475,
@@ -9922,7 +10318,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 476,
@@ -9947,7 +10344,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 477,
@@ -9972,7 +10370,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 478,
@@ -9997,7 +10396,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 479,
@@ -10022,7 +10422,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 480,
@@ -10047,7 +10448,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "family"
   },
   {
     "id": 481,
@@ -10072,7 +10474,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 482,
@@ -10097,7 +10500,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 483,
@@ -10122,7 +10526,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 484,
@@ -10147,7 +10552,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 485,
@@ -10172,7 +10578,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 486,
@@ -10197,7 +10604,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 487,
@@ -10222,7 +10630,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 488,
@@ -10247,7 +10656,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 489,
@@ -10272,7 +10682,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 490,
@@ -10297,7 +10708,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.1,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 491,
@@ -10322,7 +10734,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "family"
   },
   {
     "id": 492,
@@ -10347,7 +10760,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 493,
@@ -10372,7 +10786,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 494,
@@ -10397,7 +10812,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 495,
@@ -10422,7 +10838,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 496,
@@ -10447,7 +10864,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_OWNER",
     "cls_score": 0.85,
-    "cls_reasons": "[{\"type\": \"contextual_owner\", \"text\": \"Maklersiz\", \"weight\": 0.35, \"desc\": \"Contextual: 0% commission / no broker fee (Uzbek)\"}]"
+    "cls_reasons": "[{\"type\": \"contextual_owner\", \"text\": \"Maklersiz\", \"weight\": 0.35, \"desc\": \"Contextual: 0% commission / no broker fee (Uzbek)\"}]",
+    "target_audience": "female"
   },
   {
     "id": 497,
@@ -10472,7 +10890,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 498,
@@ -10497,7 +10916,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.15,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0420\\u0438\\u0435\\u043b\\u0442\\u043e\\u0440\", \"weight\": 0.35, \"desc\": \"\\u0440\\u0438\\u0435\\u043b\\u0442\\u043e\\u0440 (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0420\\u0438\\u0435\\u043b\\u0442\\u043e\\u0440\", \"weight\": 0.35, \"desc\": \"\\u0440\\u0438\\u0435\\u043b\\u0442\\u043e\\u0440 (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 499,
@@ -10522,7 +10942,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.15,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0420\\u0438\\u0435\\u043b\\u0442\\u043e\\u0440 \", \"weight\": 0.35, \"desc\": \"\\u0440\\u0438\\u0435\\u043b\\u0442\\u043e\\u0440 (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0420\\u0438\\u0435\\u043b\\u0442\\u043e\\u0440 \", \"weight\": 0.35, \"desc\": \"\\u0440\\u0438\\u0435\\u043b\\u0442\\u043e\\u0440 (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 500,
@@ -10547,7 +10968,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.1,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f \\u0430\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u0430\", \"weight\": 0.4, \"desc\": \"Agent fee required (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f \\u0430\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u0430\", \"weight\": 0.4, \"desc\": \"Agent fee required (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 501,
@@ -10572,7 +10994,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 502,
@@ -10597,7 +11020,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.0,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f \\u0430\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u0430\", \"weight\": 0.4, \"desc\": \"Agent fee required (RU)\"}, {\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f \\u0430\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u0430\", \"weight\": 0.4, \"desc\": \"Agent fee required (RU)\"}, {\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 503,
@@ -10622,7 +11046,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.1,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 504,
@@ -10647,7 +11072,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 505,
@@ -10672,7 +11098,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.1,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 506,
@@ -10697,7 +11124,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 507,
@@ -10722,7 +11150,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 508,
@@ -10747,7 +11176,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_OWNER",
     "cls_score": 1.0,
-    "cls_reasons": "[{\"type\": \"contextual_owner\", \"text\": \"\\u0431\\u0435\\u0437 \\u043f\\u043e\\u0441\\u0440\\u0435\\u0434\\u043d\\u0438\\u043a\\u043e\\u0432\", \"weight\": 0.35, \"desc\": \"Contextual: No commission / no agents (Russian)\"}, {\"type\": \"positive\", \"text\": \"\\u0421\\u043e\\u0431\\u0441\\u0442\\u0432\\u0435\\u043d\\u043d\\u0438\\u043a\", \"weight\": 0.3, \"desc\": \"\\u0441\\u043e\\u0431\\u0441\\u0442\\u0432\\u0435\\u043d\\u043d\\u0438\\u043a (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"contextual_owner\", \"text\": \"\\u0431\\u0435\\u0437 \\u043f\\u043e\\u0441\\u0440\\u0435\\u0434\\u043d\\u0438\\u043a\\u043e\\u0432\", \"weight\": 0.35, \"desc\": \"Contextual: No commission / no agents (Russian)\"}, {\"type\": \"positive\", \"text\": \"\\u0421\\u043e\\u0431\\u0441\\u0442\\u0432\\u0435\\u043d\\u043d\\u0438\\u043a\", \"weight\": 0.3, \"desc\": \"\\u0441\\u043e\\u0431\\u0441\\u0442\\u0432\\u0435\\u043d\\u043d\\u0438\\u043a (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 509,
@@ -10772,7 +11202,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 510,
@@ -10797,7 +11228,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.1,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 511,
@@ -10822,7 +11254,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 512,
@@ -10847,7 +11280,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.1,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 513,
@@ -10872,7 +11306,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.0,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f \\u0430\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u0430\", \"weight\": 0.4, \"desc\": \"Agent fee required (RU)\"}, {\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f \\u0430\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u0430\", \"weight\": 0.4, \"desc\": \"Agent fee required (RU)\"}, {\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 514,
@@ -10897,7 +11332,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.0,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f \\u0430\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u0430\", \"weight\": 0.4, \"desc\": \"Agent fee required (RU)\"}, {\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f \\u0430\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u0430\", \"weight\": 0.4, \"desc\": \"Agent fee required (RU)\"}, {\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 515,
@@ -10922,7 +11358,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.0,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f \\u0430\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u0430\", \"weight\": 0.4, \"desc\": \"Agent fee required (RU)\"}, {\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u041a\\u043e\\u043c\\u0438\\u0441\\u0441\\u0438\\u044f \\u0430\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u0430\", \"weight\": 0.4, \"desc\": \"Agent fee required (RU)\"}, {\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 516,
@@ -10947,7 +11384,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 517,
@@ -10972,7 +11410,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 518,
@@ -10997,7 +11436,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 519,
@@ -11022,7 +11462,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.1,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0410\\u0433\\u0435\\u043d\\u0442\\u0441\\u0442\\u0432\\u043e \\u043d\\u0435\\u0434\\u0432\\u0438\\u0436\\u0438\\u043c\\u043e\\u0441\\u0442\\u0438\", \"weight\": 0.4, \"desc\": \"Real estate agency (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 520,
@@ -11047,7 +11488,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 521,
@@ -11072,7 +11514,8 @@
     "contact_telegram": null,
     "cls_label": "LIKELY_AGENT",
     "cls_score": 0.1,
-    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0443\\u0441\\u043b\\u0443\\u0433\\u0438 \\u0435\\u0441\\u0442\\u044c\", \"weight\": 0.4, \"desc\": \"Agent fee required (RU)\"}]"
+    "cls_reasons": "[{\"type\": \"negative\", \"text\": \"\\u0443\\u0441\\u043b\\u0443\\u0433\\u0438 \\u0435\\u0441\\u0442\\u044c\", \"weight\": 0.4, \"desc\": \"Agent fee required (RU)\"}]",
+    "target_audience": "any"
   },
   {
     "id": 522,
@@ -11097,7 +11540,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 523,
@@ -11122,7 +11566,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 524,
@@ -11147,7 +11592,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 525,
@@ -11172,7 +11618,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 526,
@@ -11197,7 +11644,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "family"
   },
   {
     "id": 527,
@@ -11222,7 +11670,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 528,
@@ -11247,7 +11696,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 529,
@@ -11272,7 +11722,8 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   },
   {
     "id": 530,
@@ -11297,6 +11748,7 @@
     "contact_telegram": null,
     "cls_label": "NEEDS_REVIEW",
     "cls_score": 0.5,
-    "cls_reasons": "[]"
+    "cls_reasons": "[]",
+    "target_audience": "any"
   }
 ]

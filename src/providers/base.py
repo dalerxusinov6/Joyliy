@@ -32,6 +32,7 @@ class RawListingItem(BaseModel):
     description: Optional[str] = None
     contact_phone: Optional[str] = None
     contact_telegram: Optional[str] = None
+    target_audience: Optional[str] = "any"
     image_urls: List[str] = Field(default_factory=list)
     # Publication date is None if not reliably known. Never fabricated.
     publication_date: Optional[datetime] = None

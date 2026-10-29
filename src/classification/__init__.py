@@ -6,6 +6,12 @@ from src.classification.types import (
     MatchedSignal,
 )
 from src.classification.engine import ClassificationEngine, default_classifier
+from src.classification.audience import (
+    TargetAudience,
+    detect_target_audience,
+    get_audience_label_uz,
+    get_audience_icon,
+)
 
 __all__ = [
     "ClassificationLabel",
@@ -13,5 +19,9 @@ __all__ = [
     "MatchedSignal",
     "ClassificationEngine",
     "default_classifier",
+    "TargetAudience",
+    "detect_target_audience",
+    "get_audience_label_uz",
+    "get_audience_icon",
 ]
 

@@ -205,6 +205,7 @@ class OLXHttpListingProvider(BaseListingProvider):
                         description=r.get("description"),
                         contact_phone=r.get("contact_phone"),
                         contact_telegram=r.get("contact_telegram"),
+                        target_audience=r.get("target_audience", "any"),
                         image_urls=img_urls,
                         publication_date=parse_publication_date(r.get("publication_date")),
                     )
