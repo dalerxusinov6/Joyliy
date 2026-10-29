@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Joyliy — Toshkentda maklersiz ijara</title>
+<style>
+:root{--bg:#faf9f6;--surf:#f1f0ec;--card:#fff;--tx:#121412;--mu:#6b6f6b;--bd:#e4e3de;--ac:#047857;--ac2:#065f46;--acs:#e3f3ec;--sh:0 1px 2px rgba(0,0,0,.05),0 6px 20px rgba(0,0,0,.05);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101210;--surf:#1a1d1a;--card:#171a17;--tx:#f2f3f0;--mu:#9ba09a;--bd:#2a2e2a;--ac:#34d399;--ac2:#6ee7b7;--acs:#12281f;--sh:none;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#101210;--surf:#1a1d1a;--card:#171a17;--tx:#f2f3f0;--mu:#9ba09a;--bd:#2a2e2a;--ac:#34d399;--ac2:#6ee7b7;--acs:#12281f;--sh:none;color-scheme:dark}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-behavior:smooth;scroll-padding-top:calc(72px + env(safe-area-inset-top,0px))}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow-x:hidden;padding-bottom:72px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:60}
+a{color:inherit;text-decoration:none}button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+.wrap{max-width:1280px;margin:0 auto;padding:0 16px}
+svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border-radius:12px;border:1px solid var(--bd);background:var(--card);font-weight:600;transition:.15s}
+.btn:hover{border-color:var(--mu)}
+.btn.p{background:var(--ac);border-color:var(--ac);color:#fff}.btn.p:hover{background:var(--ac2)}
+:root[data-theme="dark"] .btn.p,:root:not([data-theme="light"]) .btn.p{color:#04251a}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--bd)}
+.hd{display:flex;align-items:center;gap:12px;height:64px}
+.logo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:20px;letter-spacing:-.02em}
+.logo b{width:30px;height:30px;border-radius:9px;background:var(--ac);display:grid;place-items:center;color:#fff}
+nav.d{display:none;gap:4px;margin-left:16px}nav.d a{padding:8px 12px;border-radius:10px;color:var(--mu);font-weight:500}nav.d a:hover{background:var(--surf);color:var(--tx)}
+.sp{flex:1}
+.hd .opt{display:none}
+select.lang{min-height:40px;border:1px solid var(--bd);background:var(--card);border-radius:10px;padding:0 8px}
+.ib{width:44px;height:44px;border-radius:12px;border:1px solid var(--bd);background:var(--card);display:grid;place-items:center;position:relative}
+.hero{padding:32px 0 24px}
+.hero-in{display:grid;gap:24px;align-items:center}
+h1{font-size:clamp(30px,5vw,48px);line-height:1.08;letter-spacing:-.03em;margin:0 0 12px}
+.lead{color:var(--mu);max-width:520px;margin:0 0 24px}
+.panel{background:var(--card);border:1px solid var(--bd);border-radius:18px;box-shadow:var(--sh);padding:12px;display:grid;gap:8px}
+.fld{display:flex;flex-direction:column;gap:2px;padding:8px 12px;border-radius:12px;background:var(--surf)}
+.fld label{font-size:12px;color:var(--mu);font-weight:600}
+.fld select{border:0;background:transparent;min-height:28px;outline:0;width:100%}
+.vis{border-radius:22px;overflow:hidden;aspect-ratio:4/3;position:relative;border:1px solid var(--bd)}
+.vis svg{width:100%;height:100%;display:block}
+.demo{position:absolute;left:10px;bottom:10px;background:rgba(0,0,0,.6);color:#fff;font-size:11px;padding:2px 8px;border-radius:99px}
+section{padding:28px 0}
+h2{font-size:24px;letter-spacing:-.02em;margin:0 0 4px}
+.sub{color:var(--mu);margin:0 0 16px}
+.sh{display:flex;align-items:end;justify-content:space-between;gap:12px;margin-bottom:16px}
+.cats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.cat{display:flex;align-items:center;gap:10px;padding:14px;min-height:56px;background:var(--card);border:1px solid var(--bd);border-radius:14px;text-align:left;font-weight:600;transition:.15s}
+.cat:hover,.cat.on{border-color:var(--ac);background:var(--acs)}
+.cat svg{color:var(--ac)}
+.grid{display:grid;gap:20px;grid-template-columns:1fr}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:18px;overflow:hidden;cursor:pointer;transition:.2s;display:flex;flex-direction:column}
+.card:hover{box-shadow:var(--sh);transform:translateY(-2px)}
+.ph{position:relative;aspect-ratio:4/3;background:var(--surf)}
+.ph svg{width:100%;height:100%;display:block}
+.cnt{position:absolute;left:10px;bottom:10px;background:rgba(0,0,0,.6);color:#fff;font-size:12px;padding:2px 8px;border-radius:99px}
+.fav{position:absolute;right:10px;top:10px;width:44px;height:44px;border-radius:50%;border:0;background:rgba(255,255,255,.92);color:#222;display:grid;place-items:center}
+.fav.on{color:#e11d48}.fav.on svg{fill:#e11d48}
+.tag{position:absolute;left:10px;top:10px;background:#fff;color:#065f46;font-size:12px;font-weight:700;padding:3px 10px;border-radius:99px;display:flex;gap:4px;align-items:center}
+.cb{padding:14px 16px 16px;display:flex;flex-direction:column;gap:4px}
+.pr{font-size:20px;font-weight:800;letter-spacing:-.02em}.pr small{font-weight:500;color:var(--mu);font-size:14px}
+.mt{color:var(--tx);font-size:14px}.mu{color:var(--mu);font-size:14px}
+.row{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-top:4px}
+.ok{display:inline-flex;gap:4px;align-items:center;color:var(--ac);font-size:13px;font-weight:600}.ok svg{width:16px;height:16px}
+.empty{padding:32px;text-align:center;color:var(--mu);border:1px dashed var(--bd);border-radius:16px;grid-column:1/-1}
+.steps{display:grid;gap:12px}
+.step{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:20px}
+.step .n{width:36px;height:36px;border-radius:50%;background:var(--acs);color:var(--ac);display:grid;place-items:center;font-weight:800;margin-bottom:10px}
+.step h3{margin:0 0 4px;font-size:17px}.step p{margin:0;color:var(--mu);font-size:15px}
+.cta{background:var(--ac);color:#fff;border-radius:24px;padding:32px 24px;display:grid;gap:16px}
+.cta h2{color:#fff}.cta p{margin:0;opacity:.9}
+.cta .btn{background:#fff;color:#065f46;border-color:#fff;width:fit-content}
+footer{border-top:1px solid var(--bd);padding:32px 0;margin-top:24px;color:var(--mu);font-size:14px}
+.fg{display:grid;gap:24px}.fg h4{color:var(--tx);margin:0 0 8px;font-size:14px}.fg a{display:block;padding:4px 0}
+.bn{position:fixed;inset:auto 0 0;z-index:55;background:var(--card);border-top:1px solid var(--bd);display:grid;grid-template-columns:repeat(4,1fr);padding-bottom:env(safe-area-inset-bottom,0px)}
+.bn button{border:0;background:none;min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11px;color:var(--mu)}
+.bn button.on{color:var(--ac)}
+.ov{position:fixed;inset:0;z-index:80;background:rgba(0,0,0,.45);display:none}
+.ov.show{display:block}
+.sheet{position:absolute;background:var(--bg);overflow:auto;inset:0;display:flex;flex-direction:column}
+.sheet .top{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--bd);position:sticky;top:0;background:var(--bg);z-index:2;font-weight:700}
+.sheet .bd{padding:16px;flex:1}
+.chk{display:flex;align-items:center;gap:12px;min-height:48px;border-bottom:1px solid var(--bd)}
+.chk input{width:22px;height:22px;accent-color:var(--ac)}
+.gal{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:8px;scrollbar-width:none}
+.gal>div{flex:0 0 100%;scroll-snap-align:center;aspect-ratio:4/3;border-radius:16px;overflow:hidden}
+.gal svg{width:100%;height:100%;display:block}
+.facts{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:16px 0}
+.facts div{background:var(--surf);border-radius:12px;padding:10px 12px}.facts b{display:block}
+.cbar{position:sticky;bottom:0;display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));background:var(--bg);border-top:1px solid var(--bd)}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#111;color:#fff;padding:10px 16px;border-radius:12px;z-index:99;font-size:14px;opacity:0;pointer-events:none;transition:.2s;max-width:90vw;text-align:center}
+.toast.show{opacity:1}
+.badge{position:absolute;top:6px;right:6px;min-width:18px;height:18px;border-radius:9px;background:var(--ac);color:#fff;font-size:11px;display:grid;place-items:center;padding:0 4px}
+@media(min-width:768px){
+.wrap{padding:0 28px}.grid{grid-template-columns:repeat(2,1fr)}.cats{grid-template-columns:repeat(3,1fr)}.steps{grid-template-columns:repeat(3,1fr)}.fg{grid-template-columns:2fr 1fr 1fr 1fr}
+.panel{grid-template-columns:1fr 1fr 1fr}.panel .btn{grid-column:span 3}
+.cta{grid-template-columns:1fr auto;align-items:center;padding:40px}
+.hd .opt{display:inline-flex}
+}
+@media(min-width:1024px){
+body{padding-bottom:0}.bn{display:none}.hero{padding:56px 0 40px}.hero-in{grid-template-columns:1.1fr .9fr}
+nav.d{display:flex}.grid{grid-template-columns:repeat(3,1fr)}.cats{grid-template-columns:repeat(6,1fr)}.cat{flex-direction:column;align-items:flex-start}
+.panel{grid-template-columns:1.3fr 1fr 1fr auto auto}.panel .btn{grid-column:auto}
+.ov.side .sheet,.ov.dlg .sheet{inset:0 0 0 auto;width:440px}
+.ov.dlg .sheet{inset:5vh calc(50% - 360px);width:720px;border-radius:20px}
+.toast{bottom:32px}
+}
+@media(min-width:1280px){.grid.g4{grid-template-columns:repeat(4,1fr)}}
+.fi{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}.fi label{font-size:13px;font-weight:600;color:var(--mu)}.fi input,.fi select{min-height:48px;border:1px solid var(--bd);background:var(--card);border-radius:12px;padding:0 12px;width:100%}.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.pv{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.pv img{width:72px;height:72px;object-fit:cover;border-radius:10px}.mp{width:100%;height:auto;background:var(--surf);border-radius:16px;display:block}.pin{cursor:pointer}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute"><defs>
+<symbol id="search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></symbol>
+<symbol id="map" viewBox="0 0 24 24"><path d="M9 3 3 5v16l6-2 6 2 6-2V3l-6 2z"/><path d="M9 3v16M15 5v16"/></symbol>
+<symbol id="heart" viewBox="0 0 24 24"><path d="M12 21s-8-5-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 6-8 11-8 11z"/></symbol>
+<symbol id="user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
+<symbol id="plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+<symbol id="x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+<symbol id="sliders" viewBox="0 0 24 24"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></symbol>
+<symbol id="check" viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></symbol>
+<symbol id="shield" viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/></symbol>
+<symbol id="phone" viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></symbol>
+<symbol id="send" viewBox="0 0 24 24"><path d="m22 2-11 11M22 2l-7 20-4-9-9-4z"/></symbol>
+<symbol id="flag" viewBox="0 0 24 24"><path d="M5 21V4M5 4h12l-2 4 2 4H5"/></symbol>
+<symbol id="bed" viewBox="0 0 24 24"><path d="M3 18V6M3 14h18v4M21 14v-2a3 3 0 0 0-3-3h-7v5"/><circle cx="7" cy="11" r="1.5"/></symbol>
+<symbol id="users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2 20a7 7 0 0 1 14 0M17 4.5a3.5 3.5 0 0 1 0 7M22 20a6 6 0 0 0-4-5.6"/></symbol>
+<symbol id="cap" viewBox="0 0 24 24"><path d="m2 9 10-5 10 5-10 5zM6 11.5V16c0 1.5 3 3 6 3s6-1.500 6-3v-4.500"/></symbol>
+<symbol id="key" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="m11 12 9-9M16 7l3 3"/></symbol>
+<symbol id="moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.500 4 8 8 0 1 0 20 14.500z"/></symbol>
+</defs></svg>
+
+<header><div class="wrap hd">
+<a class="logo" href="#top"><b><svg class="i" style="stroke:#fff"><use href="#key"/></svg></b>Joyliy</a>
+<nav class="d"><a href="#natija" data-i="nav1">Kvartira topish</a><a href="#" data-cat="mk">Maklersiz ijara</a><a href="#qanday">Qanday ishlaydi?</a></nav>
+<span class="sp"></span>
+<select class="lang opt" aria-label="Til" id="lang"><option>UZ</option><option>RU</option><option>EN</option></select>
+<button class="ib opt" id="theme" aria-label="Mavzu"><svg class="i"><use href="#moon"/></svg></button>
+<button class="ib" id="favTop" aria-label="Saqlanganlar"><svg class="i"><use href="#heart"/></svg><span class="badge" id="fcount" hidden>0</span></button>
+<a class="btn p opt" href="#owner" style="display:none" id="pubTop"><svg class="i"><use href="#plus"/></svg><span data-i="pub">E’lon berish</span></a>
+<button class="ib" id="profTop" aria-label="Profil"><svg class="i"><use href="#user"/></svg></button>
+</div></header>
+
+<main id="top">
+<div class="wrap hero"><div class="hero-in">
+<div>
+<h1>Uy topish osonroq.</h1>
+<p class="lead">Toshkent bo‘ylab o‘zingizga mos kvartirani toping. Egasi bilan to‘g‘ridan-to‘g‘ri bog‘laning.</p>
+<div class="panel" role="search">
+<div class="fld"><label for="qd">Hudud yoki metro</label><select id="qd"><option value="">Barcha hududlar</option></select></div>
+<div class="fld"><label for="qr">Xonalar soni</label><select id="qr"><option value="">Istalgan</option><option>1</option><option>2</option><option>3</option></select></div>
+<div class="fld"><label for="qp">Narx oralig‘i</label><select id="qp"><option value="">Istalgan narx</option><option value="3000000">3 mln so‘mgacha</option><option value="4000000">4 mln so‘mgacha</option><option value="6000000">6 mln so‘mgacha</option></select></div>
+<button class="btn" id="openF"><svg class="i"><use href="#sliders"/></svg>Filtrlar</button>
+<button class="btn p" id="go"><svg class="i"><use href="#search"/></svg>Qidirish</button>
+</div>
+</div>
+<div class="vis" aria-hidden="true"><div id="heroArt"></div><span class="demo">Demo tasvir</span></div>
+</div></div>
+
+<div class="wrap"><section style="padding-top:8px">
+<div class="cats" id="cats"></div></section></div>
+
+<div class="wrap"><section id="natija">
+<div class="sh"><div><h2 id="rt">Tanlangan e’lonlar</h2><p class="sub" id="rc"></p></div><button class="btn" id="clr">Tozalash</button></div>
+<div class="grid g4" id="gMain"></div></section>
+
+<section><div class="sh"><div><h2>Yangi qo‘shilganlar</h2><p class="sub">So‘nggi kunlarda joylangan e’lonlar</p></div></div><div class="grid g4" id="gNew"></div></section>
+<section><div class="sh"><div><h2>Metro yaqinida</h2><p class="sub">Metrogacha 7 daqiqagacha piyoda</p></div></div><div class="grid g4" id="gMetro"></div></section>
+<section><div class="sh"><div><h2>Sheriklik uchun</h2><p class="sub">Xonadosh qidirayotganlar uchun</p></div></div><div class="grid g4" id="gRoom"></div></section>
+
+<section id="qanday"><h2>Qanday ishlaydi?</h2><p class="sub">Uch oddiy qadam</p>
+<div class="steps">
+<div class="step"><div class="n">1</div><h3>Qidiring</h3><p>Hudud, metro, xonalar soni va narx bo‘yicha filtrlang.</p></div>
+<div class="step"><div class="n">2</div><h3>Bog‘laning</h3><p>Egasiga to‘g‘ridan-to‘g‘ri qo‘ng‘iroq qiling yoki Telegram orqali yozing.</p></div>
+<div class="step"><div class="n">3</div><h3>Ko‘rib, kelishing</h3><p>Kvartirani o‘z ko‘zingiz bilan ko‘rib, shartlarni egasi bilan kelishing. Shubhali e’lonlar haqida xabar bering.</p></div>
+</div></section>
+
+<section id="owner"><div class="cta"><div><h2>Kvartirangiz bormi?</h2><p>E’loningizni joylang va ijarachilar bilan vositachisiz bog‘laning. “Maklersiz” belgisi faqat egalik tasdiqlangan e’lonlarga beriladi.</p></div><button class="btn" id="pub2"><svg class="i"><use href="#plus"/></svg>E’lon berish</button></div></section>
+</div>
+</main>
+
+<footer><div class="wrap fg">
+<div><div class="logo" style="margin-bottom:8px"><b><svg class="i" style="stroke:#fff"><use href="#key"/></svg></b>Joyliy</div>Toshkentda egasidan to‘g‘ridan-to‘g‘ri ijara. Ushbu sahifadagi e’lonlar demo maqsadida.</div>
+<div><h4>Platforma</h4><a href="#natija">Kvartira topish</a><a href="#qanday">Qanday ishlaydi?</a><a href="#owner">E’lon berish</a></div>
+<div><h4>Yordam</h4><a href="#">Xavfsizlik qoidalari</a><a href="#">Maklersiz mezonlari</a><a href="#">Shikoyat qilish</a></div>
+<div><h4>Aloqa</h4><a href="mailto:salom@joyliy.uz">salom@joyliy.uz</a><a href="https://t.me/joyliy_bot">Telegram: @joyliy_bot</a><a href="#">Toshkent, O‘zbekiston</a></div>
+</div><div class="wrap" style="margin-top:20px">© 2026 Joyliy</div></footer>
+
+<nav class="bn" aria-label="Asosiy">
+<button class="on" data-n="s"><svg class="i"><use href="#search"/></svg>Qidiruv</button>
+<button data-n="m"><svg class="i"><use href="#map"/></svg>Xarita</button>
+<button data-n="f"><svg class="i"><use href="#heart"/></svg>Saqlanganlar</button>
+<button data-n="p"><svg class="i"><use href="#user"/></svg>Profil</button>
+</nav>
+
+<div class="ov side" id="ovF"><div class="sheet" role="dialog" aria-label="Filtrlar">
+<div class="top">Filtrlar<button class="ib" data-close aria-label="Yopish"><svg class="i"><use href="#x"/></svg></button></div>
+<div class="bd">
+<label class="chk"><input type="checkbox" data-f="mk"> Faqat maklersiz (tasdiqlangan)</label>
+<label class="chk"><input type="checkbox" data-f="mebel"> Mebel bor</label>
+<label class="chk"><input type="checkbox" data-f="kond"> Konditsioner</label>
+<label class="chk"><input type="checkbox" data-f="kir"> Kir yuvish mashinasi</label>
+<label class="chk"><input type="checkbox" data-f="net"> Internet</label>
+<div class="fld" style="margin-top:16px"><label for="sort">Saralash</label><select id="sort"><option value="new">Yangilari birinchi</option><option value="lo">Arzonroq</option><option value="hi">Qimmatroq</option></select></div>
+</div>
+<div class="cbar"><button class="btn" id="fRes">Tiklash</button><button class="btn p" id="fOk">Ko‘rsatish</button></div>
+</div></div>
+
+<div class="ov dlg" id="ovD"><div class="sheet" id="det" role="dialog" aria-label="E’lon"></div></div>
+<div class="ov side" id="ovS"><div class="sheet"><div class="top">Saqlanganlar<button class="ib" data-close aria-label="Yopish"><svg class="i"><use href="#x"/></svg></button></div><div class="bd"><div class="grid" style="grid-template-columns:1fr" id="gSaved"></div></div></div></div>
+<div class="ov side" id="ovM"><div class="sheet"><div class="top">Xarita<button class="ib" data-close aria-label="Yopish"><svg class="i"><use href="#x"/></svg></button></div><div class="bd"><svg class="mp" id="mapSvg" viewBox="0 0 400 330"></svg><p class="mu">Sxematik xarita: joylashuv taxminiy, demo maqsadida.</p></div></div></div>
+<div class="ov side" id="ovP"><div class="sheet"><div class="top">Profil<button class="ib" data-close aria-label="Yopish"><svg class="i"><use href="#x"/></svg></button></div><div class="bd" id="profBd"></div></div></div>
+<div class="ov dlg" id="ovN"><div class="sheet"><div class="top">Yangi e’lon<button class="ib" data-close aria-label="Yopish"><svg class="i"><use href="#x"/></svg></button></div>
+<form id="nf" class="bd"><div class="g2"><div class="fi"><label for="fd">Hudud</label><select id="fd" required></select></div><div class="fi"><label for="fr">Xonalar soni</label><select id="fr"><option>1</option><option>2</option><option>3</option><option>4</option></select></div></div>
+<div class="g2"><div class="fi"><label for="fp">Oylik narx (so‘m)</label><input id="fp" type="number" min="500000" step="50000" required></div><div class="fi"><label for="fa">Maydon (m²)</label><input id="fa" type="number" min="10" required></div></div>
+<div class="g2"><div class="fi"><label for="ff">Qavat</label><input id="ff" type="number" min="1" required></div><div class="fi"><label for="ft">Binodagi qavatlar</label><input id="ft" type="number" min="1" required></div></div>
+<div class="g2"><div class="fi"><label for="fm">Metro nomi</label><input id="fm" required></div><div class="fi"><label for="fmm">Metrogacha (daqiqa)</label><input id="fmm" type="number" min="0" required></div></div>
+<div class="g2"><div class="fi"><label for="ftel">Telefon raqami</label><input id="ftel" type="tel" required></div><div class="fi"><label for="ftg">Telegram foydalanuvchi nomi</label><input id="ftg" placeholder="@username"></div></div>
+<label class="chk"><input type="checkbox" name="am" value="mebel"> Mebel bor</label><label class="chk"><input type="checkbox" name="am" value="kond"> Konditsioner</label><label class="chk"><input type="checkbox" name="am" value="kir"> Kir yuvish mashinasi</label><label class="chk"><input type="checkbox" name="am" value="net"> Internet</label><label class="chk"><input type="checkbox" id="froom"> Sheriklik uchun ham</label>
+<div class="fi" style="margin-top:12px"><label for="fph">Rasmlar (kamida 1 ta, 6 tagacha)</label><input id="fph" type="file" accept="image/*" multiple></div><div class="pv" id="pv"></div>
+<label class="chk"><input type="checkbox" id="fown" required> Men kvartira egasiman</label><p class="mu">E’lon tekshiruvdan so‘ng “Maklersiz” belgisini olishi mumkin.</p>
+<button class="btn p" style="width:100%" type="submit">E’lonni joylash</button></form></div></div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const D=[
+{id:1,r:2,p:3500000,a:54,fl:'4/9',d:'Chilonzor',m:'Chilonzor',mm:7,own:1,days:1,hue:160,t:['mebel','kond','net'],room:0},
+{id:2,r:1,p:2600000,a:36,fl:'2/5',d:'Yunusobod',m:'Minor',mm:5,own:1,days:2,hue:200,t:['mebel','net'],room:0},
+{id:3,r:3,p:5800000,a:82,fl:'7/12',d:'Mirzo Ulug‘bek',m:'Mirzo Ulug‘bek',mm:10,own:0,days:3,hue:30,t:['mebel','kond','kir','net'],room:0},
+{id:4,r:1,p:2200000,a:32,fl:'3/9',d:'Sergeli',m:'Sergeli',mm:12,own:1,days:4,hue:260,t:['kir'],room:1},
+{id:5,r:2,p:4200000,a:61,fl:'5/9',d:'Shayxontohur',m:'Gafur G‘ulom',mm:6,own:1,days:5,hue:340,t:['mebel','kond','kir'],room:1},
+{id:6,r:2,p:3900000,a:58,fl:'1/4',d:'Mirobod',m:'Ming O‘rik',mm:4,own:0,days:6,hue:120,t:['mebel','net'],room:0},
+{id:7,r:3,p:6500000,a:96,fl:'9/16',d:'Yakkasaroy',m:'Shahriston',mm:8,own:1,days:7,hue:45,t:['mebel','kond','kir','net'],room:0},
+{id:8,r:1,p:1900000,a:28,fl:'2/5',d:'Olmazor',m:'Olmazor',mm:9,own:1,days:9,hue:20,t:['mebel'],room:1}
+];
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const ic=n=>`<svg class="i"><use href="#${n}"/></svg>`;
+const fmt=n=>n.toLocaleString('ru-RU').replace(/\u00a0/g,' ')+' so‘m';
+let fav=new Set();try{fav=new Set(JSON.parse(localStorage.getItem('fav')||'[]'))}catch(e){}
+const saveFav=()=>{try{localStorage.setItem('fav',JSON.stringify([...fav]))}catch(e){}};
+const F={d:'',r:'',p:'',cat:'',chk:{},sort:'new'};
+function art(h,v=0){const s=`hsl(${h} 35% 82%)`,w=`hsl(${h} 30% 94%)`,b=`hsl(${h} 40% 55%)`,k=`hsl(${h} 30% 30%)`;
+return `<svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice"><rect width="400" height="300" fill="${s}"/><rect y="210" width="400" height="90" fill="${w}"/>
+<rect x="${40+v*20}" y="50" width="130" height="190" fill="${b}"/><rect x="${190+v*10}" y="90" width="110" height="150" fill="${k}"/><rect x="320" y="120" width="80" height="120" fill="${b}" opacity=".7"/>
+${[0,1,2,3,4].map(i=>`<rect x="${58+v*20}" y="${68+i*34}" width="22" height="18" fill="${w}"/><rect x="${96+v*20}" y="${68+i*34}" width="22" height="18" fill="${w}"/><rect x="${134+v*20}" y="${68+i*34}" width="22" height="18" fill="${w}"/>`).join('')}
+${[0,1,2,3].map(i=>`<rect x="${206+v*10}" y="${108+i*32}" width="22" height="16" fill="${s}"/><rect x="${244+v*10}" y="${108+i*32}" width="22" height="16" fill="${s}"/>`).join('')}</svg>`}
+function card(x){const f=fav.has(x.id);
+return `<article class="card" data-id="${x.id}" tabindex="0"><div class="ph">${x.img?`<img src="${x.img}" alt="" style="width:100%;height:100%;object-fit:cover;display:block">`:art(x.hue)}${x.own?`<span class="tag">${ic('shield').replace('class="i"','class="i" style="width:14px;height:14px"')}Maklersiz</span>`:''}<span class="cnt">${x.img?'1/'+x.n:'1/4 · demo'}</span><button class="fav ${f?'on':''}" data-fav="${x.id}" aria-label="Saqlash">${ic('heart')}</button></div>
+<div class="cb"><div class="pr">${fmt(x.p)} <small>/ oy</small></div><div class="mt">${x.r} xonali kvartira</div><div class="mt">${x.a} m² · ${x.r} xona · ${x.fl} qavat</div><div class="mu">${x.d}, metroga ${x.mm} daqiqa</div>
+<div class="row"><span class="ok">${x.own?ic('check')+'Tasdiqlangan egasi':x.pend?'Tekshiruvda':''}</span><span class="mu">${ago(x.days)}</span></div></div></article>`}
+function filt(){let l=D.filter(x=>(!F.d||x.d===F.d)&&(!F.r||x.r==F.r)&&(!F.p||x.p<=+F.p)&&(!F.chk.mk||x.own)&&['mebel','kond','kir','net'].every(k=>!F.chk[k]||x.t.includes(k)));
+if(F.cat==='room')l=l.filter(x=>x.room);if(F.cat==='stu')l=l.filter(x=>x.p<=2700000);if(F.cat==='mk')l=l.filter(x=>x.own);if(['1','2','3'].includes(F.cat))l=l.filter(x=>x.r==F.cat);
+return l.sort((a,b)=>F.sort==='lo'?a.p-b.p:F.sort==='hi'?b.p-a.p:a.days-b.days)}
+function put(el,l){el.innerHTML=l.length?l.map(card).join(''):'<div class="empty">Hech narsa topilmadi. Filtrlarni o‘zgartirib ko‘ring.</div>'}
+function render(){const l=filt();put($('#gMain'),l);$('#rc').textContent=l.length+' ta e’lon topildi';
+put($('#gNew'),[...D].sort((a,b)=>a.days-b.days).slice(0,4));put($('#gMetro'),D.filter(x=>x.mm<=7));put($('#gRoom'),D.filter(x=>x.room));
+$('#fcount').hidden=!fav.size;$('#fcount').textContent=fav.size;
+$$('.cat').forEach(c=>c.classList.toggle('on',c.dataset.cat===F.cat))}
+const C=[['1','1 xonali kvartiralar','bed'],['2','2 xonali kvartiralar','bed'],['3','3 xonali kvartiralar','bed'],['room','Sheriklik uchun','users'],['stu','Talabalar uchun','cap'],['mk','Maklersiz kvartiralar','shield']];
+$('#cats').innerHTML=C.map(c=>`<button class="cat" data-cat="${c[0]}">${ic(c[2])}${c[1]}</button>`).join('');
+$('#qd').innerHTML+=[...new Set(D.map(x=>x.d))].map(d=>`<option>${d}</option>`).join('');
+$('#heroArt').innerHTML=art(160,1).replace('<svg','<svg style="width:100%;height:100%;display:block"');
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('show'),2200)}
+function open_(id){$('#'+id).classList.add('show');document.body.style.overflow='hidden'}
+function close_(){$$('.ov').forEach(o=>o.classList.remove('show'));document.body.style.overflow=''}
+function detail(id){const x=D.find(y=>y.id==id);if(!x)return;
+$('#det').innerHTML=`<div class="top">${x.r} xonali kvartira<button class="ib" data-close aria-label="Yopish">${ic('x')}</button></div>
+<div class="bd"><div class="gal">${x.imgs2?x.imgs2.map(s=>`<div><img src="${s}" alt="" style="width:100%;height:100%;object-fit:cover"></div>`).join(''):[0,1,2,3].map(v=>`<div>${art(x.hue+v*8,v)}</div>`).join('')}</div>${x.mine?'':'<p class="mu">Demo tasvirlar · suring →</p>'}
+<div class="pr" style="font-size:26px">${fmt(x.p)} <small>/ oy</small></div><div class="mt">${x.d}, ${x.m} metrosiga ${x.mm} daqiqa</div>
+<div class="facts"><div><span class="mu">Maydon</span><b>${x.a} m²</b></div><div><span class="mu">Xonalar</span><b>${x.r}</b></div><div><span class="mu">Qavat</span><b>${x.fl}</b></div><div><span class="mu">E’lon sanasi</span><b>${ago(x.days)}</b></div></div>
+<p>${x.own?`<span class="ok">${ic('shield')}Tasdiqlangan egasi — Maklersiz</span>`:'<span class="mu">Egalik hali tasdiqlanmagan.</span>'}</p>
+${x.mine?'':'<p class="mu">Bu demo e’lon. Haqiqiy tavsif, rasmlar va aloqa ma’lumotlari egasi tomonidan kiritiladi.</p>'}
+${x.desc?`<p class="mu" style="white-space:pre-line;margin-top:12px">${esc(x.desc)}</p>`:''}
+${x.disc?`<p style="font-size:12px;color:var(--mu);margin-top:6px">⚠️ ${esc(x.disc)}</p>`:''}
+<button class="btn" id="rep">${ic('flag')}Shikoyat qilish</button>${x.mine?' <button class="btn" id="del">O‘chirish</button>':''}</div>
+<div class="cbar">${x.url?`<a class="btn p" href="${x.url}" target="_blank" rel="noopener">${ic('send')}OLX’da ko‘rish</a>`:''}<a class="btn" href="tel:${x.tel||'+998000000000'}">${ic('phone')}Qo‘ng‘iroq qilish</a><a class="btn" href="https://t.me/${x.tg||''}" target="_blank" rel="noopener">${ic('send')}Telegram</a></div>`;
+close_();open_('ovD');$('#rep').onclick=()=>toast('Shikoyat qabul qilindi (demo). Rahmat!');if(x.mine)$('#del').onclick=()=>{D.splice(D.indexOf(x),1);saveMine();close_();render();toast('O‘chirildi')}}
+document.addEventListener('click',e=>{const t=e.target;
+const fb=t.closest('[data-fav]');if(fb){e.stopPropagation();const i=+fb.dataset.fav;fav.has(i)?fav.delete(i):fav.add(i);saveFav();render();if($('#ovS').classList.contains('show'))savedView();return}
+const pn=t.closest('[data-pin]');if(pn){detail(pn.dataset.pin);return}
+const cd=t.closest('.card');if(cd){detail(cd.dataset.id);return}
+const ct=t.closest('[data-cat]');if(ct&&ct.tagName!=='A'||ct&&ct.tagName==='A'){e.preventDefault();F.cat=F.cat===ct.dataset.cat?'':ct.dataset.cat;render();$('#natija').scrollIntoView();return}
+if(t.closest('[data-close]')||t.classList.contains('ov'))close_()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')close_();if(e.key==='Enter'&&e.target.classList.contains('card'))detail(e.target.dataset.id)});
+$('#go').onclick=()=>{F.d=$('#qd').value;F.r=$('#qr').value;F.p=$('#qp').value;render();$('#natija').scrollIntoView()};
+$('#openF').onclick=()=>open_('ovF');
+$('#fOk').onclick=()=>{$$('[data-f]').forEach(c=>F.chk[c.dataset.f]=c.checked);F.sort=$('#sort').value;close_();render();$('#natija').scrollIntoView()};
+$('#fRes').onclick=()=>{$$('[data-f]').forEach(c=>c.checked=false);$('#sort').value='new'};
+$('#clr').onclick=()=>{Object.assign(F,{d:'',r:'',p:'',cat:'',chk:{},sort:'new'});['#qd','#qr','#qp'].forEach(s=>$(s).value='');$$('[data-f]').forEach(c=>c.checked=false);render()};
+function savedView(){put($('#gSaved'),D.filter(x=>fav.has(x.id)));if(!fav.size)$('#gSaved').innerHTML='<div class="empty">Hali hech narsa saqlanmagan.</div>'}
+const showSaved=()=>{savedView();open_('ovS')};
+$('#favTop').onclick=showSaved;
+$('#profTop').onclick=()=>openProf();
+const esc=s=>String(s).replace(/[&<>"']/g,c=>'&#'+c.charCodeAt(0)+';');
+const ago=d=>d===0?'Bugun':d===1?'Kecha':d+' kun oldin';
+let U=null,PH=[],wantNew=0;try{U=JSON.parse(localStorage.getItem('user')||'null')}catch(e){}
+const saveMine=()=>{try{localStorage.setItem('mine',JSON.stringify(D.filter(x=>x.mine)))}catch(e){toast('Xotira to‘ldi: e’lon faqat shu sessiyada saqlandi')}};
+const XY={'Chilonzor':[110,200],'Yunusobod':[270,70],'Mirzo Ulug‘bek':[340,140],'Sergeli':[190,300],'Shayxontohur':[170,140],'Mirobod':[250,190],'Yakkasaroy':[210,240],'Olmazor':[100,110],'Yashnobod':[350,210],'Uchtepa':[55,165],'Bektemir':[300,290],'Yangihayot':[60,50]};
+$('#fd').innerHTML=Object.keys(XY).map(d=>`<option>${d}</option>`).join('');
+function openMap(){close_();const c={};$('#mapSvg').innerHTML='<path d="M0 235C110 205 190 265 400 205" style="stroke:var(--ac);opacity:.25;fill:none;stroke-width:10"/>'+Object.entries(XY).map(([n,[x,y]])=>`<text x="${x}" y="${y+26}" text-anchor="middle" style="fill:var(--mu);font-size:10px">${n}</text>`).join('')+D.map(x=>{const[b,y]=XY[x.d]||[200,150],k=c[x.d]=(c[x.d]||0)+1;return`<g class="pin" data-pin="${x.id}" transform="translate(${b},${y-(k-1)*26})"><rect x="-24" y="-12" width="48" height="22" rx="11" style="fill:var(--ac)"/><text text-anchor="middle" y="4" style="fill:#fff;font-size:11px;font-weight:700">${(x.p/1e6).toFixed(1)}M</text></g>`}).join('');open_('ovM')}
+function openProf(){close_();profView();open_('ovP')}
+function openNew(){close_();if(!U){wantNew=1;toast('Avval tizimga kiring');openProf();return}$('#nf').reset();PH=[];$('#pv').innerHTML='';$('#ftel').value=U.tel;open_('ovN')}
+function profView(){$('#profBd').innerHTML=U?`<p><b>${esc(U.name)}</b><br><span class="mu">${esc(U.tel)}</span></p><button class="btn p" id="np">E’lon berish</button><h3>Mening e’lonlarim</h3><div class="grid" style="grid-template-columns:1fr">${D.filter(x=>x.mine).map(card).join('')||'<div class="empty">Hali e’lon yo‘q.</div>'}</div><p><button class="btn" id="out">Chiqish</button></p>`:`<div class="fi"><label for="un">Ismingiz</label><input id="un" autocomplete="name"></div><div class="fi"><label for="ut">Telefon raqami</label><input id="ut" type="tel" placeholder="+998 90 123 45 67" autocomplete="tel"></div><button class="btn p" id="in" style="width:100%">Kirish</button><p class="mu">Demo: SMS-tasdiqlash backend ulangach ishlaydi.</p>`;
+if(U){$('#np').onclick=openNew;$('#out').onclick=()=>{U=null;try{localStorage.removeItem('user')}catch(e){}profView()}}else $('#in').onclick=()=>{const n=$('#un').value.trim(),t=$('#ut').value.replace(/[^+\d]/g,'');if(!n||t.replace(/\D/g,'').length<9)return toast('Ism va to‘g‘ri telefon raqamini kiriting');U={name:n,tel:t};try{localStorage.setItem('user',JSON.stringify(U))}catch(e){}profView();if(wantNew){wantNew=0;openNew()}}}
+$('#fph').onchange=e=>{[...e.target.files].slice(0,6-PH.length).forEach(f=>{const im=new Image();im.onload=()=>{const k=Math.min(1,800/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=im.width*k;c.height=im.height*k;c.getContext('2d').drawImage(im,0,0,c.width,c.height);PH.push(c.toDataURL('image/jpeg',.6));$('#pv').innerHTML=PH.map(s=>`<img src="${s}" alt="">`).join('')};im.src=URL.createObjectURL(f)});e.target.value=''};
+$('#nf').onsubmit=e=>{e.preventDefault();if(!PH.length)return toast('Kamida 1 ta rasm yuklang');const g=i=>$(i).value,x={id:Date.now(),r:+g('#fr'),p:+g('#fp'),a:+g('#fa'),fl:g('#ff')+'/'+g('#ft'),d:g('#fd'),m:esc(g('#fm')),mm:+g('#fmm'),own:0,pend:1,mine:1,days:0,hue:160,room:$('#froom').checked?1:0,t:$$('[name=am]:checked').map(c=>c.value),tel:g('#ftel').replace(/[^+\d]/g,''),tg:g('#ftg').replace(/[^\w]/g,''),img:PH[0],n:PH.length,imgs2:[...PH]};D.unshift(x);saveMine();close_();render();toast('E’lon joylandi. Tekshiruvdan keyin “Maklersiz” belgisi berilishi mumkin');$('#natija').scrollIntoView()};
+$('#pub2').onclick=$('#pubTop').onclick=e=>{e.preventDefault();openNew()};
+$$('.bn button').forEach(b=>b.onclick=()=>{const n=b.dataset.n;$$('.bn button').forEach(x=>x.classList.toggle('on',x===b));
+if(n==='s')scrollTo({top:0});if(n==='m')openMap();if(n==='f')showSaved();if(n==='p')openProf()});
+$('#theme').onclick=()=>{const r=document.documentElement,d=r.dataset.theme==='dark'||(!r.dataset.theme&&matchMedia('(prefers-color-scheme:dark)').matches);r.dataset.theme=d?'light':'dark'};
+
+if(matchMedia('(min-width:1024px)').matches)$('#pubTop').style.display='inline-flex';
+matchMedia('(min-width:1024px)').onchange=e=>$('#pubTop').style.display=e.matches?'inline-flex':'none';
+try{D.push(...JSON.parse(localStorage.getItem('mine')||'[]'))}catch(e){}
+const TB=`Kvartira topish|Найти квартиру|Find apartments
+Maklersiz ijara|Аренда без маклеров|No-agent rentals
+Qanday ishlaydi?|Как это работает?|How it works
+E’lon berish|Подать объявление|Post a listing
+Uy topish osonroq.|Найти жильё стало проще.|Finding a home, made easier.
+Toshkent bo‘ylab o‘zingizga mos kvartirani toping. Egasi bilan to‘g‘ridan-to‘g‘ri bog‘laning.|Найдите подходящую квартиру по всему Ташкенту. Связывайтесь напрямую с владельцем.|Find the right apartment across Tashkent. Contact the owner directly.
+Hudud yoki metro|Район или метро|Area or metro
+Xonalar soni|Количество комнат|Rooms
+Narx oralig‘i|Диапазон цен|Price range
+Barcha hududlar|Все районы|All areas
+Istalgan|Любое|Any
+Istalgan narx|Любая цена|Any price
+3 mln so‘mgacha|До 3 млн сум|Up to 3M UZS
+4 mln so‘mgacha|До 4 млн сум|Up to 4M UZS
+6 mln so‘mgacha|До 6 млн сум|Up to 6M UZS
+Filtrlar|Фильтры|Filters
+Qidirish|Искать|Search
+Tozalash|Сбросить|Clear
+Demo tasvir|Демо-изображение|Demo image
+1 xonali kvartiralar|1-комнатные|1-room apartments
+2 xonali kvartiralar|2-комнатные|2-room apartments
+3 xonali kvartiralar|3-комнатные|3-room apartments
+Sheriklik uchun|Для совместной аренды|For roommates
+Talabalar uchun|Для студентов|For students
+Maklersiz kvartiralar|Без маклеров|No-agent apartments
+Maklersiz|Без маклера|No agent
+Tanlangan e’lonlar|Подборка объявлений|Featured listings
+Yangi qo‘shilganlar|Новые объявления|Recently added
+So‘nggi kunlarda joylangan e’lonlar|Размещены в последние дни|Posted in recent days
+Metro yaqinida|Рядом с метро|Near metro
+Metrogacha 7 daqiqagacha piyoda|До метро до 7 минут пешком|Up to 7 minutes’ walk to metro
+Xonadosh qidirayotganlar uchun|Для тех, кто ищет соседа|For those looking for a roommate
+Uch oddiy qadam|Три простых шага|Three simple steps
+Qidiring|Ищите|Search
+Hudud, metro, xonalar soni va narx bo‘yicha filtrlang.|Фильтруйте по району, метро, комнатам и цене.|Filter by area, metro, rooms and price.
+Bog‘laning|Свяжитесь|Get in touch
+Egasiga to‘g‘ridan-to‘g‘ri qo‘ng‘iroq qiling yoki Telegram orqali yozing.|Позвоните владельцу или напишите в Telegram.|Call the owner or message them on Telegram.
+Ko‘rib, kelishing|Посмотрите и договоритесь|View and agree
+Kvartirani o‘z ko‘zingiz bilan ko‘rib, shartlarni egasi bilan kelishing. Shubhali e’lonlar haqida xabar bering.|Осмотрите квартиру и обсудите условия с владельцем. Сообщайте о подозрительных объявлениях.|See the apartment yourself and agree terms with the owner. Report suspicious listings.
+Kvartirangiz bormi?|Есть квартира?|Have an apartment?
+E’loningizni joylang va ijarachilar bilan vositachisiz bog‘laning. “Maklersiz” belgisi faqat egalik tasdiqlangan e’lonlarga beriladi.|Разместите объявление и свяжитесь с арендаторами без посредников. Метка «Без маклера» только для подтверждённых владельцев.|Post your listing and reach tenants without intermediaries. The “No agent” badge is for verified owners only.
+Toshkentda egasidan to‘g‘ridan-to‘g‘ri ijara. Ushbu sahifadagi e’lonlar demo maqsadida.|Аренда напрямую от владельцев в Ташкенте. Объявления на странице демонстрационные.|Direct-from-owner rentals in Tashkent. Listings on this page are demo content.
+Platforma|Платформа|Platform
+Yordam|Помощь|Help
+Aloqa|Контакты|Contact
+Xavfsizlik qoidalari|Правила безопасности|Safety rules
+Maklersiz mezonlari|Критерии «без маклера»|No-agent criteria
+Shikoyat qilish|Пожаловаться|Report
+Toshkent, O‘zbekiston|Ташкент, Узбекистан|Tashkent, Uzbekistan
+Qidiruv|Поиск|Search
+Xarita|Карта|Map
+Saqlanganlar|Избранное|Saved
+Profil|Профиль|Profile
+Faqat maklersiz (tasdiqlangan)|Только без маклера (подтверждённые)|No-agent only (verified)
+Mebel bor|Есть мебель|Furnished
+Konditsioner|Кондиционер|Air conditioning
+Kir yuvish mashinasi|Стиральная машина|Washing machine
+Internet|Интернет|Internet
+Saralash|Сортировка|Sort
+Yangilari birinchi|Сначала новые|Newest first
+Arzonroq|Дешевле|Cheapest
+Qimmatroq|Дороже|Most expensive
+Tiklash|Сбросить|Reset
+Ko‘rsatish|Показать|Show
+Tasdiqlangan egasi|Подтверждённый владелец|Verified owner
+Tekshiruvda|На проверке|Under review
+/ oy|/ мес|/ month
+Hech narsa topilmadi. Filtrlarni o‘zgartirib ko‘ring.|Ничего не найдено. Измените фильтры.|Nothing found. Try changing the filters.
+Hali hech narsa saqlanmagan.|Пока ничего не сохранено.|Nothing saved yet.
+Maydon|Площадь|Area
+Xonalar|Комнаты|Rooms
+Qavat|Этаж|Floor
+E’lon sanasi|Дата объявления|Posted
+Qo‘ng‘iroq qilish|Позвонить|Call
+Egalik hali tasdiqlanmagan.|Владение пока не подтверждено.|Ownership not yet verified.
+Bu demo e’lon. Haqiqiy tavsif, rasmlar va aloqa ma’lumotlari egasi tomonidan kiritiladi.|Это демо-объявление. Реальные описание, фото и контакты вводит владелец.|This is a demo listing. Real description, photos and contacts are provided by the owner.
+Demo tasvirlar · suring →|Демо-изображения · листайте →|Demo images · swipe →
+Sxematik xarita: joylashuv taxminiy, demo maqsadida.|Схематичная карта: расположение приблизительное, демо.|Schematic map: locations are approximate, for demo only.
+Ismingiz|Ваше имя|Your name
+Telefon raqami|Номер телефона|Phone number
+Kirish|Войти|Sign in
+Chiqish|Выйти|Sign out
+Mening e’lonlarim|Мои объявления|My listings
+Hali e’lon yo‘q.|Объявлений пока нет.|No listings yet.
+Demo: SMS-tasdiqlash backend ulangach ishlaydi.|Демо: SMS-подтверждение заработает после подключения бэкенда.|Demo: SMS verification works once a backend is connected.
+Yangi e’lon|Новое объявление|New listing
+Hudud|Район|District
+Oylik narx (so‘m)|Цена в месяц (сум)|Monthly rent (UZS)
+Maydon (m²)|Площадь (м²)|Area (m²)
+Binodagi qavatlar|Этажей в доме|Floors in building
+Metro nomi|Станция метро|Metro station
+Metrogacha (daqiqa)|До метро (мин)|Minutes to metro
+Telegram foydalanuvchi nomi|Имя пользователя Telegram|Telegram username
+Sheriklik uchun ham|Подходит для соседей|Roommates welcome
+Rasmlar (kamida 1 ta, 6 tagacha)|Фото (от 1 до 6)|Photos (1–6)
+Men kvartira egasiman|Я владелец квартиры|I am the apartment owner
+E’lon tekshiruvdan so‘ng “Maklersiz” belgisini olishi mumkin.|После проверки объявление может получить метку «Без маклера».|After review, your listing may receive the “No agent” badge.
+E’lonni joylash|Опубликовать|Publish
+O‘chirish|Удалить|Delete
+Shikoyat qabul qilindi (demo). Rahmat!|Жалоба принята (демо). Спасибо!|Report received (demo). Thank you!
+Avval tizimga kiring|Сначала войдите|Please sign in first
+Kamida 1 ta rasm yuklang|Загрузите минимум 1 фото|Upload at least 1 photo`;
+const T={ru:{},en:{}};TB.split('\n').forEach(l=>{const p=l.split('|');T.ru[p[0]]=p[1];T.en[p[0]]=p[2]});
+const W=[[/(\d+) xonali kvartira/,'$1-комн. квартира','$1-room apartment'],[/so‘m/g,'сум','UZS'],[/ xona\b/g,' комн.',' rooms'],[/ qavat/g,' эт.',' fl.'],[/Kecha/,'Вчера','Yesterday'],[/Bugun/,'Сегодня','Today'],[/(\d+) kun oldin/,'$1 дн. назад','$1 days ago'],[/(\d+) ta e’lon topildi/,'Найдено: $1','$1 listings found'],[/metro(?:ga|siga) (\d+) daqiqa/,'до метро $1 мин','$1 min to metro']];
+let L='uz',busy=0;try{L=localStorage.getItem('lang')||'uz'}catch(e){}
+const mo=new MutationObserver(()=>{if(!busy)apply()});
+function tr(s){const k=s.trim(),r=T[L]&&T[L][k];if(r)return s.replace(k,r);const j=L==='ru'?1:2;for(const w of W)s=s.replace(w[0],w[j]);return s}
+function apply(){busy=1;const w=document.createTreeWalker(document.body,4);let n;while(n=w.nextNode()){if(/^(SCRIPT|STYLE)$/.test(n.parentNode.tagName))continue;if(n._o===undefined)n._o=n.data;const v=L==='uz'?n._o:tr(n._o);if(n.data!==v)n.data=v}mo.takeRecords();busy=0}
+function setLang(l){L=l;document.documentElement.lang=l;try{localStorage.setItem('lang',l)}catch(e){}apply()}
+$('#lang').value=L.toUpperCase();$('#lang').onchange=e=>setLang(e.target.value.toLowerCase());
+mo.observe(document.body,{childList:true,subtree:true,characterData:true});
+render();apply();
+
+async function loadLiveListings(){
+  try{
+    const res=await fetch('/api/listings?limit=100');
+    if(res.ok){
+      const data=await res.json();
+      if(data.items&&data.items.length){
+        const live=data.items.map(item=>{
+          const isOwn=item.classification?(item.classification.label==='LIKELY_OWNER'?1:0):0;
+          return {
+            id: item.id,
+            r: item.rooms||1,
+            p: item.price_uzs||3000000,
+            a: item.area||50,
+            fl: item.floor||'3/9',
+            d: item.district||'Chilonzor',
+            m: item.district||'Markaz',
+            mm: 5,
+            own: isOwn,
+            days: 0,
+            hue: 160+(item.id*37)%180,
+            t: ['mebel','kond','net'],
+            room: item.rooms===0?1:0,
+            img: (item.image_urls&&item.image_urls.length)?item.image_urls[0]:null,
+            imgs2: item.image_urls||[],
+            n: (item.image_urls&&item.image_urls.length)?item.image_urls.length:1,
+            url: item.canonical_url,
+            title: item.title,
+            desc: item.description,
+            src: item.source_attribution,
+            disc: item.disclaimer
+          };
+        });
+        D.splice(0, D.length, ...live);
+        const selDist=[...new Set(D.map(x=>x.d).filter(Boolean))];
+        if(selDist.length){
+          $('#qd').innerHTML='<option value="">Barcha hududlar</option>'+selDist.map(d=>`<option>${d}</option>`).join('');
+        }
+        render();apply();
+      }
+    }
+  }catch(e){console.log('API live load fallback:',e)}
+}
+loadLiveListings();
+</script>
+</body>
+</html>
