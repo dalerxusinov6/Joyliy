@@ -67,3 +67,4 @@ def test_helper_labels_and_icons():
     assert get_audience_icon("female") == "👩"
     assert get_audience_icon("male") == "👨"
     assert get_audience_icon("any") == "👥"
+
