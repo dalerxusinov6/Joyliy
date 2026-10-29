@@ -16,7 +16,7 @@ class Settings(BaseSettings):
 
     # Telegram Bot
     BOT_TOKEN: str = Field(
-        default="mock_token_for_testing",
+        default="9270282601:AAErNi_NjloU5BG6NyGEBXb6vJ-NL-EM4J0",
         description="Telegram bot token obtained from @BotFather",
     )
     BOT_USERNAME: str = Field(
@@ -24,11 +24,11 @@ class Settings(BaseSettings):
         description="Telegram bot username without @",
     )
     ADMIN_IDS: Any = Field(
-        default_factory=list,
+        default_factory=lambda: [123456789, 5079685694],
         description="Telegram user IDs with administrative privileges",
     )
     CHANNEL_ID: Optional[str] = Field(
-        default=None,
+        default="@joyliy_uz",
         description="Telegram channel username (e.g. @joyliy_channel) or numeric ID (-100...)",
     )
     WEBSITE_URL: str = Field(
@@ -92,6 +92,15 @@ class Settings(BaseSettings):
 
     # Logging
     LOG_LEVEL: str = Field(default="INFO", description="Log level: DEBUG, INFO, WARNING, ERROR")
+
+    @field_validator("WEBSITE_URL", mode="before")
+    @classmethod
+    def resolve_website_url(cls, v: Any) -> str:
+        import os
+        render_url = os.environ.get("RENDER_EXTERNAL_URL")
+        if render_url and (not v or v == "http://localhost:3000"):
+            return render_url.rstrip("/")
+        return v or "http://localhost:3000"
 
     @field_validator("ADMIN_IDS", mode="before")
     @classmethod

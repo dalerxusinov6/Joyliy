@@ -82,13 +82,21 @@ async def run_application(mode: str = "all"):
     if mode in ("all", "bot") and dp and bot:
         logger.info("Starting Telegram Bot long-polling...")
         async def run_bot_polling():
+            # Reset webhook and drop backlog to ensure clean polling state
+            try:
+                await bot.delete_webhook(drop_pending_updates=True)
+                logger.info("Telegram webhook deleted and pending updates cleared.")
+            except Exception as e:
+                logger.warning("Could not delete webhook: %s", e)
+
             while not stop_event.is_set():
                 try:
-                    await dp.start_polling(bot)
+                    logger.info("Starting aiogram dispatcher polling...")
+                    await dp.start_polling(bot, handle_signals=False)
                 except Exception as exc:
-                    logger.error("Telegram bot polling error: %s. Retrying in 10s...", exc)
+                    logger.error("Telegram bot polling error: %s. Retrying in 5s...", exc)
                     try:
-                        await asyncio.wait_for(stop_event.wait(), timeout=10.0)
+                        await asyncio.wait_for(stop_event.wait(), timeout=5.0)
                     except asyncio.TimeoutError:
                         pass
         tasks.append(asyncio.create_task(run_bot_polling()))
