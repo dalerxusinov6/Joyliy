@@ -78,11 +78,11 @@ class OLXHttpListingProvider(BaseListingProvider):
     def name(self) -> str:
         return "olx_uz_http"
 
-    async def _fetch_api_listings(self, client: httpx.AsyncClient) -> List[RawListingItem]:
+    async def _fetch_api_listings(self, client: httpx.AsyncClient, max_pages: int = 2) -> List[RawListingItem]:
         """Fetch newly published listings from OLX official offers API, sorted by newest first."""
         api_endpoints = [
-            "https://www.olx.uz/api/v1/offers/?category_id=1147&city_id=4&offset=0&limit=40&sort_by=created_at:desc",
-            "https://www.olx.uz/api/v1/offers/?category_id=1147&city_id=4&offset=40&limit=40&sort_by=created_at:desc",
+            f"https://www.olx.uz/api/v1/offers/?category_id=1147&city_id=4&offset={page * 40}&limit=40&sort_by=created_at:desc"
+            for page in range(max(1, min(10, max_pages)))
         ]
         items = []
         seen_ids = set()
@@ -168,22 +168,24 @@ class OLXHttpListingProvider(BaseListingProvider):
                 return None
         return None
 
-    async def fetch_listings(self) -> List[RawListingItem]:
+    async def fetch_listings(self, deep: bool = False, max_pages: Optional[int] = None) -> List[RawListingItem]:
         """Iterate configured sources (API + search pages), returning unique listings."""
         self._last_check_at = datetime.now(timezone.utc)
         all_listings: List[RawListingItem] = []
         seen_urls = set()
 
+        pages_to_fetch = max_pages or (settings.MORNING_SCRAPE_PAGES if deep else 2)
+
         async with httpx.AsyncClient(follow_redirects=True) as client:
             # 1. Fetch via OLX API (reliable across cloud IPs)
-            api_items = await self._fetch_api_listings(client)
+            api_items = await self._fetch_api_listings(client, max_pages=pages_to_fetch)
             for it in api_items:
                 if it.canonical_url not in seen_urls:
                     seen_urls.add(it.canonical_url)
                     all_listings.append(it)
 
             # 2. Only attempt HTML search pages if API returned few or no listings
-            if len(all_listings) < 5:
+            if len(all_listings) < (10 if not deep else 30):
                 for url in self.search_urls:
                     html = await self._fetch_with_backoff(client, url)
                     if html:

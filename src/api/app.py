@@ -40,6 +40,49 @@ def create_app() -> FastAPI:
     base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     frontend_dist = os.path.join(base_dir, "frontend_dist")
     frontend_public = os.path.join(base_dir, "frontend", ".output", "public")
+    frontend_raw_public = os.path.join(base_dir, "frontend", "public")
+
+    def _find_static_file(filename: str):
+        for candidate_dir in [frontend_dist, frontend_public, frontend_raw_public]:
+            fpath = os.path.join(candidate_dir, filename)
+            if os.path.exists(fpath):
+                return fpath
+        return None
+
+    @app.get("/favicon.ico", include_in_schema=False)
+    async def favicon_ico():
+        p = _find_static_file("favicon.ico")
+        if p:
+            return FileResponse(p, media_type="image/x-icon")
+        return Response(status_code=404)
+
+    @app.get("/favicon.svg", include_in_schema=False)
+    async def favicon_svg():
+        p = _find_static_file("favicon.svg")
+        if p:
+            return FileResponse(p, media_type="image/svg+xml")
+        return Response(status_code=404)
+
+    @app.get("/favicon-32x32.png", include_in_schema=False)
+    async def favicon_32():
+        p = _find_static_file("favicon-32x32.png")
+        if p:
+            return FileResponse(p, media_type="image/png")
+        return Response(status_code=404)
+
+    @app.get("/favicon-16x16.png", include_in_schema=False)
+    async def favicon_16():
+        p = _find_static_file("favicon-16x16.png")
+        if p:
+            return FileResponse(p, media_type="image/png")
+        return Response(status_code=404)
+
+    @app.get("/apple-touch-icon.png", include_in_schema=False)
+    async def apple_touch_icon():
+        p = _find_static_file("apple-touch-icon.png")
+        if p:
+            return FileResponse(p, media_type="image/png")
+        return Response(status_code=404)
 
     static_dir = None
     if os.path.exists(frontend_dist) and os.path.exists(os.path.join(frontend_dist, "index.html")):
@@ -49,14 +92,6 @@ def create_app() -> FastAPI:
 
     if static_dir:
         from fastapi.staticfiles import StaticFiles
-
-        @app.get("/favicon.ico", include_in_schema=False)
-        async def favicon():
-            fav_path = os.path.join(static_dir, "favicon.ico")
-            if os.path.exists(fav_path):
-                return FileResponse(fav_path, media_type="image/x-icon")
-            return Response(status_code=404)
-
         app.mount("/", StaticFiles(directory=static_dir, html=True), name="frontend")
     else:
         @app.get("/", response_class=HTMLResponse)

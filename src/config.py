@@ -51,6 +51,19 @@ class Settings(BaseSettings):
         default="07:30",
         description="End of night quiet hours in Tashkent time (HH:MM)",
     )
+    # Daily Morning Scrape Settings
+    MORNING_SCRAPE_ENABLED: bool = Field(
+        default=True,
+        description="Enable automatic daily morning listing ingest for the website",
+    )
+    MORNING_SCRAPE_TIME: str = Field(
+        default="08:00",
+        description="Daily morning scrape time in Tashkent time (HH:MM)",
+    )
+    MORNING_SCRAPE_PAGES: int = Field(
+        default=4,
+        description="Number of pages to ingest during morning deep scrape (approx 160 listings)",
+    )
     WEBSITE_URL: str = Field(
         default="https://joyliy.onrender.com",
         description="Public URL of Joyliy frontend website",

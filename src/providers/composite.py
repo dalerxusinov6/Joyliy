@@ -32,7 +32,7 @@ class CompositeListingProvider(BaseListingProvider):
     def add_provider(self, provider: BaseListingProvider) -> None:
         self.providers.append(provider)
 
-    async def fetch_listings(self) -> List[RawListingItem]:
+    async def fetch_listings(self, **kwargs) -> List[RawListingItem]:
         """Fetch listings from all registered providers with fault isolation."""
         all_items: List[RawListingItem] = []
         seen_urls = set()
@@ -40,7 +40,10 @@ class CompositeListingProvider(BaseListingProvider):
         for provider in self.providers:
             try:
                 logger.info("Polling provider '%s'...", provider.name)
-                items = await provider.fetch_listings()
+                try:
+                    items = await provider.fetch_listings(**kwargs)
+                except TypeError:
+                    items = await provider.fetch_listings()
                 logger.info("Provider '%s' returned %d listings.", provider.name, len(items))
 
                 for it in items:

@@ -17,6 +17,18 @@ const { count: favCount } = useFavorites()
 const { selectedListing, filterCategory, fetchListings } = useListings()
 const { showFilters, showMap, showSaved, showProfile, showPostAd, toastMessage, showToast } = useModals()
 
+useHead({
+  title: 'Joyliy — Toshkentda maklersiz ijara',
+  link: [
+    { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+    { rel: 'alternate icon', type: 'image/x-icon', href: '/favicon.ico' },
+    { rel: 'shortcut icon', href: '/favicon.ico' },
+    { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' },
+    { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' },
+    { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
+  ],
+})
+
 // Fetch initial listings on load
 onMounted(async () => {
   await fetchListings()
