@@ -170,11 +170,29 @@ button {
   outline-offset: 2px;
 }
 
-/* Monograph Width Container */
+/* Container */
 .wrap {
   max-width: 1320px;
   margin: 0 auto;
-  padding: 0 32px;
+  padding: 0 16px;
+}
+
+@media (min-width: 640px) {
+  .wrap {
+    padding: 0 24px;
+  }
+}
+
+@media (min-width: 768px) {
+  .wrap {
+    padding: 0 36px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .wrap {
+    padding: 0 48px;
+  }
 }
 
 /* Icons */
@@ -322,8 +340,15 @@ header {
 .hd {
   display: flex;
   align-items: center;
-  gap: 20px;
-  height: 74px;
+  gap: 10px;
+  height: 62px;
+}
+
+@media (min-width: 768px) {
+  .hd {
+    gap: 20px;
+    height: 74px;
+  }
 }
 
 .sp {
@@ -606,9 +631,6 @@ header {
 
 /* Responsive */
 @media (min-width: 768px) {
-  .wrap {
-    padding: 0 48px;
-  }
   .grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 32px;

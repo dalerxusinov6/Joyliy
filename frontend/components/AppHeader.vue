@@ -101,9 +101,9 @@ const onLangChange = (lang: string) => {
           </svg>
         </button>
 
-        <!-- Saved Listings -->
+        <!-- Saved Listings (Visible on tablet/desktop, mobile has bottom bar) -->
         <button
-          class="ib saved-btn"
+          class="ib saved-btn desktop-only"
           @click="$emit('openFavorites')"
           :aria-label="t('saved')"
           title="Saqlangan uylar"
@@ -114,9 +114,9 @@ const onLangChange = (lang: string) => {
           <span v-if="favCount > 0" class="fav-count">{{ favCount }}</span>
         </button>
 
-        <!-- Profile -->
+        <!-- Profile (Visible on tablet/desktop, mobile has bottom bar) -->
         <button
-          class="profile-btn"
+          class="profile-btn desktop-only"
           @click="$emit('openProfile')"
           :aria-label="t('profile')"
           :title="user ? user.first_name : t('profile')"
@@ -132,8 +132,13 @@ const onLangChange = (lang: string) => {
         </button>
 
         <!-- Terracotta CTA -->
-        <button class="btn p cta-post opt" @click="$emit('openNew')">
-          <span>E’lon berish</span>
+        <button class="btn p cta-post" @click="$emit('openNew')" title="E’lon joylash">
+          <svg class="cta-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          <span class="cta-text-full">E’lon berish</span>
+          <span class="cta-text-short">E’lon</span>
         </button>
       </div>
     </div>
@@ -221,7 +226,23 @@ const onLangChange = (lang: string) => {
 .header-right {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
+}
+
+@media (min-width: 768px) {
+  .header-right {
+    gap: 12px;
+  }
+}
+
+.desktop-only {
+  display: none !important;
+}
+
+@media (min-width: 768px) {
+  .desktop-only {
+    display: inline-flex !important;
+  }
 }
 
 .lang-group {
@@ -229,11 +250,29 @@ const onLangChange = (lang: string) => {
   align-items: center;
   gap: 4px;
   font-family: var(--font-mono);
-  font-size: 11.5px;
+  font-size: 12px;
   border: 1px solid var(--sand);
-  padding: 4px 10px;
-  border-radius: var(--radius-xs);
+  padding: 0 8px;
+  height: 36px;
+  border-radius: 8px;
   background: var(--surf);
+}
+
+.theme-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid var(--sand);
+  background: var(--surf);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink);
+  transition: all 0.18s var(--ease);
+}
+
+.theme-btn:hover {
+  border-color: var(--ink);
 }
 
 .lang-btn {
@@ -254,6 +293,14 @@ const onLangChange = (lang: string) => {
 
 .saved-btn {
   position: relative;
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  border: 1px solid var(--sand);
+  background: var(--surf);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .fav-count {
@@ -274,9 +321,9 @@ const onLangChange = (lang: string) => {
 }
 
 .profile-btn {
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-xs);
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
   border: 1px solid var(--sand);
   background: var(--surf);
   color: var(--ink);
@@ -294,22 +341,64 @@ const onLangChange = (lang: string) => {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: var(--radius-xs);
+  border-radius: 8px;
 }
 
 .user-initial {
-  font-family: var(--font-serif);
-  font-style: italic;
+  font-family: var(--font-sans);
   font-weight: 700;
   color: var(--terracotta);
-  font-size: 16px;
+  font-size: 15px;
 }
 
 .cta-post {
-  padding: 0 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  height: 36px;
+  padding: 0 12px;
   font-size: 13px;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  font-weight: 700;
+  border-radius: 8px;
+  white-space: nowrap;
+  background: var(--terracotta);
+  color: #ffffff;
+  border: none;
+  transition: all 0.18s var(--ease);
+}
+
+.cta-post:hover {
+  background: var(--terracotta-hover);
+}
+
+.cta-plus {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+}
+
+.cta-text-full {
+  display: none;
+}
+
+.cta-text-short {
+  display: inline;
+}
+
+@media (min-width: 768px) {
+  .cta-post {
+    height: 40px;
+    padding: 0 18px;
+    font-size: 13.5px;
+    border-radius: 10px;
+  }
+  .cta-text-full {
+    display: inline;
+  }
+  .cta-text-short {
+    display: none;
+  }
 }
 
 @media (min-width: 1024px) {

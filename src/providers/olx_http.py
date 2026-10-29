@@ -38,15 +38,41 @@ class OLXHttpListingProvider(BaseListingProvider):
         self._last_status = ProviderStatus.HEALTHY
         self._last_message = "Initialized"
 
-        self.headers = {
+        self.api_headers = {
             "User-Agent": (
-                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
                 "AppleWebKit/537.36 (KHTML, like Gecko) "
-                "Chrome/123.0.0.0 Safari/537.36"
+                "Chrome/126.0.0.0 Safari/537.36"
             ),
-            "Accept": "application/json, text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            "Accept": "application/json, text/plain, */*",
             "Accept-Language": "uz,ru;q=0.9,en-US;q=0.8,en;q=0.7",
+            "Referer": "https://www.olx.uz/nedvizhimost/kvartiry/arenda-dolgosrochnaya/tashkent/",
+            "Origin": "https://www.olx.uz",
+            "Sec-Ch-Ua": '"Not/A)Brand";v="8", "Chromium";v="126", "Google Chrome";v="126"',
+            "Sec-Ch-Ua-Mobile": "?0",
+            "Sec-Ch-Ua-Platform": '"Windows"',
+            "Sec-Fetch-Dest": "empty",
+            "Sec-Fetch-Mode": "cors",
+            "Sec-Fetch-Site": "same-origin",
         }
+        self.html_headers = {
+            "User-Agent": (
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/126.0.0.0 Safari/537.36"
+            ),
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+            "Accept-Language": "uz,ru;q=0.9,en-US;q=0.8,en;q=0.7",
+            "Sec-Ch-Ua": '"Not/A)Brand";v="8", "Chromium";v="126", "Google Chrome";v="126"',
+            "Sec-Ch-Ua-Mobile": "?0",
+            "Sec-Ch-Ua-Platform": '"Windows"',
+            "Sec-Fetch-Dest": "document",
+            "Sec-Fetch-Mode": "navigate",
+            "Sec-Fetch-Site": "none",
+            "Sec-Fetch-User": "?1",
+            "Upgrade-Insecure-Requests": "1",
+        }
+        self.headers = self.html_headers
 
     @property
     def name(self) -> str:
@@ -56,7 +82,7 @@ class OLXHttpListingProvider(BaseListingProvider):
         """Fetch newly published listings from OLX official offers API."""
         api_url = "https://www.olx.uz/api/v1/offers/?category_id=1147&city_id=4&limit=40"
         try:
-            resp = await client.get(api_url, headers=self.headers, timeout=12.0)
+            resp = await client.get(api_url, headers=self.api_headers, timeout=12.0)
             if resp.status_code == 200:
                 data = resp.json()
                 raw_offers = data.get("data", [])

@@ -429,14 +429,15 @@ const formatPrice = (val: number) => {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 16px;
-  border-radius: var(--radius-xs);
+  padding: 10px 18px;
+  border-radius: 10px;
   border: 1px solid var(--sand);
   background: var(--surf);
   color: var(--ink);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   white-space: nowrap;
+  min-height: 42px;
   transition: all 0.2s ease;
   cursor: pointer;
 }
@@ -512,44 +513,57 @@ const formatPrice = (val: number) => {
 .audience-strip {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   margin-bottom: 32px;
-  padding: 12px 18px;
+  padding: 14px 18px;
   background: var(--surf);
   border: 1px solid var(--sand);
-  border-radius: var(--radius-xs);
+  border-radius: 14px;
   overflow-x: auto;
   scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.audience-strip::-webkit-scrollbar {
+  display: none;
 }
 
 .audience-title {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: var(--muted);
+  font-weight: 700;
   white-space: nowrap;
 }
 
 .audience-pills {
   display: flex;
-  gap: 8px;
+  gap: 10px;
 }
 
 .aud-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 5px 12px;
-  border-radius: var(--radius-xs);
+  gap: 8px;
+  padding: 9px 16px;
+  border-radius: 10px;
   border: 1px solid var(--sand);
   background: var(--ivory);
   color: var(--ink);
-  font-size: 12.5px;
+  font-size: 13.5px;
   font-weight: 600;
+  min-height: 42px;
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.18s ease;
+}
+
+.aud-btn .svg-i {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
 }
 
 .aud-btn:hover {
@@ -564,9 +578,10 @@ const formatPrice = (val: number) => {
 
 .aud-count {
   font-family: var(--font-mono);
-  font-size: 10px;
-  padding: 1px 6px;
-  border-radius: var(--radius-xs);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 6px;
   background: rgba(0, 0, 0, 0.08);
 }
 

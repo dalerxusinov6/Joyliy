@@ -4,7 +4,10 @@ FROM python:3.12-slim
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PYTHONPATH=/app
+    PYTHONPATH=/app \
+    RENDER=true \
+    WEBSITE_URL=https://joyliy.onrender.com \
+    BOT_MODE=webhook
 
 WORKDIR /app
 

@@ -32,8 +32,12 @@ class Settings(BaseSettings):
         description="Telegram channel username (e.g. @joyliy_channel) or numeric ID (-100...)",
     )
     WEBSITE_URL: str = Field(
-        default="http://localhost:3000",
+        default="https://joyliy.onrender.com",
         description="Public URL of Joyliy frontend website",
+    )
+    BOT_MODE: str = Field(
+        default="auto",
+        description="Telegram bot mode: 'auto', 'webhook', or 'polling'",
     )
     JWT_SECRET: str = Field(
         default="joyliy-super-secret-jwt-key-2026",

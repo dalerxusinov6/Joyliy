@@ -54,7 +54,7 @@ const applyQuick = (type: string, val: string) => {
           <div class="search-card">
             <div class="search-fields">
               <!-- District -->
-              <div class="field-box">
+              <div class="field-box field-district">
                 <div class="field-header">
                   <svg class="f-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                     <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
@@ -294,7 +294,7 @@ const applyQuick = (type: string, val: string) => {
   margin-top: 8px;
   background: var(--surf);
   border: 1px solid var(--sand);
-  border-radius: 14px;
+  border-radius: 16px;
   padding: 16px;
   box-shadow: 0 10px 30px -10px rgba(32, 38, 32, 0.08);
 }
@@ -305,7 +305,13 @@ const applyQuick = (type: string, val: string) => {
   gap: 12px;
 }
 
-@media (min-width: 640px) {
+@media (max-width: 560px) {
+  .field-district {
+    grid-column: span 2;
+  }
+}
+
+@media (min-width: 900px) {
   .search-fields {
     grid-template-columns: repeat(4, 1fr);
   }
@@ -314,16 +320,19 @@ const applyQuick = (type: string, val: string) => {
 .field-box {
   background: var(--bg);
   border: 1px solid var(--sand);
-  border-radius: 10px;
-  padding: 10px 12px;
+  border-radius: 12px;
+  padding: 12px 14px;
+  min-height: 60px;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   gap: 4px;
-  transition: border-color 0.18s;
+  transition: all 0.18s ease;
 }
 
 .field-box:focus-within {
   border-color: var(--terracotta);
+  background: var(--surf);
 }
 
 .field-header {
@@ -333,15 +342,15 @@ const applyQuick = (type: string, val: string) => {
 }
 
 .f-icon {
-  width: 14px;
-  height: 14px;
+  width: 15px;
+  height: 15px;
   color: var(--terracotta);
   flex-shrink: 0;
 }
 
 .field-title {
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--muted);
@@ -351,8 +360,8 @@ const applyQuick = (type: string, val: string) => {
   width: 100%;
   border: none;
   background: transparent;
-  padding: 2px 0 0;
-  font-size: 14px;
+  padding: 3px 0 0;
+  font-size: 15px;
   font-weight: 600;
   color: var(--ink);
   outline: none;
@@ -363,19 +372,19 @@ const applyQuick = (type: string, val: string) => {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-top: 14px;
+  margin-top: 16px;
 }
 
 .btn-filters-toggle {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 0 18px;
-  height: 46px;
+  padding: 0 20px;
+  height: 50px;
   background: var(--bg);
   border: 1px solid var(--sand);
-  border-radius: 10px;
-  font-size: 14px;
+  border-radius: 12px;
+  font-size: 15px;
   font-weight: 600;
   color: var(--ink);
   transition: all 0.18s var(--ease);
@@ -391,12 +400,12 @@ const applyQuick = (type: string, val: string) => {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  height: 46px;
+  height: 50px;
   background: var(--terracotta);
   color: #ffffff;
   border: none;
-  border-radius: 10px;
-  font-size: 15px;
+  border-radius: 12px;
+  font-size: 16px;
   font-weight: 700;
   letter-spacing: 0.01em;
   transition: all 0.18s var(--ease);
@@ -418,31 +427,32 @@ const applyQuick = (type: string, val: string) => {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 4px;
+  gap: 10px;
+  margin-top: 6px;
 }
 
 .chips-label {
-  font-size: 13px;
+  font-size: 13.5px;
   color: var(--muted);
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .chips-list {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px;
 }
 
 .chip-btn {
-  padding: 5px 12px;
+  padding: 8px 16px;
   background: var(--surf);
   border: 1px solid var(--sand);
   border-radius: 999px;
-  font-size: 12.5px;
-  font-weight: 500;
+  font-size: 13.5px;
+  font-weight: 600;
   color: var(--ink);
+  min-height: 38px;
   transition: all 0.15s;
 }
 

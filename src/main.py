@@ -82,7 +82,8 @@ async def run_application(mode: str = "all"):
 
     # 5. Start Telegram Bot (Webhook on Render/Cloud, Long-Polling locally)
     if mode in ("all", "bot") and dp and bot:
-        # Detect cloud hosting (Render sets RENDER, RENDER_SERVICE_ID, RENDER_EXTERNAL_URL, etc.)
+        # Determine whether to use webhook or long polling
+        bot_mode = (os.getenv("BOT_MODE") or settings.BOT_MODE or "auto").lower()
         render_external_url = (
             os.getenv("RENDER_EXTERNAL_URL")
             or (settings.WEBSITE_URL if "onrender.com" in settings.WEBSITE_URL else None)
@@ -92,14 +93,20 @@ async def run_application(mode: str = "all"):
             or os.getenv("RENDER_SERVICE_ID")
             or os.getenv("RENDER_INSTANCE_ID")
             or render_external_url
-            or (settings.WEBSITE_URL and "onrender.com" in settings.WEBSITE_URL)
+            or ("onrender.com" in settings.WEBSITE_URL)
+            or (os.getenv("PORT") and os.getenv("PORT") != "8000")
         )
 
-        if is_cloud_render:
+        use_webhook = (bot_mode == "webhook") or (bot_mode != "polling" and is_cloud_render)
+
+        if use_webhook:
             register_bot_webhook(bot, dp)
             webhook_base = render_external_url or "https://joyliy.onrender.com"
             webhook_url = f"{webhook_base.rstrip('/')}/api/telegram-webhook"
             try:
+                # Reset webhook and drop backlog to ensure clean webhook registration
+                await bot.delete_webhook(drop_pending_updates=True)
+                await asyncio.sleep(0.5)
                 await bot.set_webhook(
                     url=webhook_url,
                     drop_pending_updates=True,
@@ -123,12 +130,19 @@ async def run_application(mode: str = "all"):
                         logger.info("Starting aiogram dispatcher polling...")
                         await dp.start_polling(bot, handle_signals=False)
                     except Exception as exc:
-                        # Handle potential duplicate instance or network interruption gracefully
-                        logger.warning("Telegram bot polling error (%s). Re-checking in 5s...", exc)
-                        try:
-                            await asyncio.wait_for(stop_event.wait(), timeout=5.0)
-                        except asyncio.TimeoutError:
-                            pass
+                        exc_str = str(exc)
+                        if "TelegramConflictError" in str(type(exc)) or "terminated by other getUpdates" in exc_str or "Conflict" in exc_str:
+                            logger.warning("Telegram conflict detected (another bot instance running). Backing off for 15s...")
+                            try:
+                                await asyncio.wait_for(stop_event.wait(), timeout=15.0)
+                            except asyncio.TimeoutError:
+                                pass
+                        else:
+                            logger.warning("Telegram bot polling error (%s). Re-checking in 5s...", exc)
+                            try:
+                                await asyncio.wait_for(stop_event.wait(), timeout=5.0)
+                            except asyncio.TimeoutError:
+                                pass
             tasks.append(asyncio.create_task(run_bot_polling()))
 
     try:
