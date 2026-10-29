@@ -36,15 +36,29 @@ def create_app() -> FastAPI:
 
     app.include_router(api_router)
 
-    @app.get("/", response_class=HTMLResponse)
-    async def serve_index():
-        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-        html_file = os.path.join(base_dir, "Joyliy — Toshkentda maklersiz ijara.html")
-        if not os.path.exists(html_file):
-            html_file = os.path.join(base_dir, "Uyda — Toshkentda maklersiz ijara.html")
-        if os.path.exists(html_file):
-            return FileResponse(html_file, media_type="text/html")
-        return HTMLResponse("<h1>Joyliy Apartment Rental Platform</h1>")
+    # Mount modern compiled Nuxt frontend (frontend_dist) if available
+    base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    frontend_dist = os.path.join(base_dir, "frontend_dist")
+    frontend_public = os.path.join(base_dir, "frontend", ".output", "public")
+
+    static_dir = None
+    if os.path.exists(frontend_dist) and os.path.exists(os.path.join(frontend_dist, "index.html")):
+        static_dir = frontend_dist
+    elif os.path.exists(frontend_public) and os.path.exists(os.path.join(frontend_public, "index.html")):
+        static_dir = frontend_public
+
+    if static_dir:
+        from fastapi.staticfiles import StaticFiles
+        app.mount("/", StaticFiles(directory=static_dir, html=True), name="frontend")
+    else:
+        @app.get("/", response_class=HTMLResponse)
+        async def serve_index():
+            html_file = os.path.join(base_dir, "Joyliy — Toshkentda maklersiz ijara.html")
+            if not os.path.exists(html_file):
+                html_file = os.path.join(base_dir, "Uyda — Toshkentda maklersiz ijara.html")
+            if os.path.exists(html_file):
+                return FileResponse(html_file, media_type="text/html")
+            return HTMLResponse("<h1>Joyliy Apartment Rental Platform</h1>")
 
     return app
 

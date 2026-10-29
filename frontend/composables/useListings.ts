@@ -51,7 +51,8 @@ export function useListings() {
     isLoading.value = true
     try {
       const config = useRuntimeConfig()
-      const url = `${config.public.apiBase || 'http://localhost:8000'}/api/listings?limit=100`
+      const base = config.public.apiBase || ''
+      const url = `${base}/api/listings?limit=100`
       const data: any = await $fetch(url)
 
       if (data && data.items && data.items.length) {

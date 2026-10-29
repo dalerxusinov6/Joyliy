@@ -32,7 +32,7 @@ export function useAuth() {
 
         // Validate token against backend
         const config = useRuntimeConfig()
-        const apiBase = config.public.apiBase || 'http://localhost:8000'
+        const apiBase = config.public.apiBase || ''
         try {
           const res: any = await $fetch(`${apiBase}/api/auth/me`, {
             headers: { Authorization: `Bearer ${storedToken}` },
@@ -56,7 +56,7 @@ export function useAuth() {
   const startBotLogin = async () => {
     authError.value = null
     const config = useRuntimeConfig()
-    const apiBase = config.public.apiBase || 'http://localhost:8000'
+    const apiBase = config.public.apiBase || ''
 
     try {
       const data: any = await $fetch(`${apiBase}/api/auth/telegram/session`, {
@@ -86,7 +86,7 @@ export function useAuth() {
   const startPolling = (sessionId: string) => {
     stopPolling()
     const config = useRuntimeConfig()
-    const apiBase = config.public.apiBase || 'http://localhost:8000'
+    const apiBase = config.public.apiBase || ''
 
     let attempts = 0
     const maxAttempts = 120 // 3 minutes maximum
@@ -131,7 +131,7 @@ export function useAuth() {
   const loginWithWidget = async (widgetData: any) => {
     authError.value = null
     const config = useRuntimeConfig()
-    const apiBase = config.public.apiBase || 'http://localhost:8000'
+    const apiBase = config.public.apiBase || ''
 
     try {
       const res: any = await $fetch(`${apiBase}/api/auth/telegram/widget`, {
@@ -158,7 +158,7 @@ export function useAuth() {
   const mockConfirm = async () => {
     if (!activeSessionId.value) return
     const config = useRuntimeConfig()
-    const apiBase = config.public.apiBase || 'http://localhost:8000'
+    const apiBase = config.public.apiBase || ''
 
     const res: any = await $fetch(`${apiBase}/api/auth/telegram/mock_confirm`, {
       method: 'POST',
