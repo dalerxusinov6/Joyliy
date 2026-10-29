@@ -22,17 +22,8 @@ const onHeartClick = (e: MouseEvent) => {
   toggleFavorite(props.listing.id)
 }
 
-const sourceLabel = computed(() => {
-  if (props.listing.source === 'joymee_uz') return 'Joymee'
-  if (props.listing.source === 'realt24_uz') return 'Realt24'
-  return 'OLX'
-})
-
-const sourceClass = computed(() => {
-  if (props.listing.source === 'joymee_uz') return 'src-joymee'
-  if (props.listing.source === 'realt24_uz') return 'src-realt24'
-  return 'src-olx'
-})
+const sourceLabel = computed(() => 'OLX')
+const sourceClass = computed(() => 'src-olx')
 </script>
 
 <template>
@@ -141,12 +132,6 @@ const sourceClass = computed(() => {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
   z-index: 2;
   text-transform: uppercase;
-}
-.source-tag.src-joymee {
-  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-}
-.source-tag.src-realt24 {
-  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
 }
 .source-tag.src-olx {
   background: linear-gradient(135deg, #002f34 0%, #00464f 100%);

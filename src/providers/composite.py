@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 class CompositeListingProvider(BaseListingProvider):
     """
-    Combines multiple listing providers (e.g., OLX, Joymee, Realt24)
+    Combines multiple listing providers
     into a unified aggregation pipeline with fault isolation.
     """
 

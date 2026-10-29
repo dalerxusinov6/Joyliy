@@ -45,8 +45,6 @@ def to_listing_response(item: Listing) -> ListingResponse:
         )
     source_attributions = {
         "olx_uz": "Tashqi manba (OLX Uzbekistan)",
-        "joymee_uz": "Tashqi manba (Joymee.uz)",
-        "realt24_uz": "Tashqi manba (Realt24.uz)",
     }
     source_attr = source_attributions.get(item.source, f"Tashqi manba ({item.source})")
     return ListingResponse(

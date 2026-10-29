@@ -12,12 +12,7 @@ TASHKENT_TZ = timezone(timedelta(hours=5))
 
 def get_source_platform_name(source: Optional[str]) -> str:
     """Get user-friendly platform title from source identifier."""
-    mapping = {
-        "olx_uz": "OLX.uz",
-        "joymee_uz": "Joymee.uz",
-        "realt24_uz": "Realt24.uz",
-    }
-    return mapping.get(source or "olx_uz", "Asl manba")
+    return "OLX.uz"
 
 
 def format_price_uzs(price: Optional[int]) -> str:

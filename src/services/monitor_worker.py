@@ -11,8 +11,6 @@ from src.database import AsyncSessionLocal
 from src.models.system import SourceMonitorRun
 from src.providers.base import BaseListingProvider, ProviderStatus
 from src.providers.olx_http import OLXHttpListingProvider
-from src.providers.joymee_http import JoymeeHttpListingProvider
-from src.providers.realt24_http import Realt24HttpListingProvider
 from src.providers.composite import CompositeListingProvider
 from src.providers.fixture import FixtureListingProvider, ManualListingProvider
 from src.services.listing_service import listing_service
@@ -39,26 +37,15 @@ class MonitorWorker:
         self._last_run_at: Optional[datetime] = None
         self._last_status: str = "IDLE"
 
-        # Initialize provider based on configuration
+        # Initialize provider based on configuration (default to OLX)
         if provider:
             self.provider = provider
         elif settings.PROVIDER_TYPE == "fixture":
             self.provider = FixtureListingProvider()
         elif settings.PROVIDER_TYPE == "feed":
             self.provider = ManualListingProvider()
-        elif settings.PROVIDER_TYPE == "olx":
-            self.provider = OLXHttpListingProvider()
-        elif settings.PROVIDER_TYPE == "joymee":
-            self.provider = JoymeeHttpListingProvider()
-        elif settings.PROVIDER_TYPE == "realt24":
-            self.provider = Realt24HttpListingProvider()
         else:
-            # Auto / multi: combine OLX, Joymee, and Realt24 into unified pipeline
-            self.provider = CompositeListingProvider([
-                OLXHttpListingProvider(),
-                JoymeeHttpListingProvider(),
-                Realt24HttpListingProvider(),
-            ])
+            self.provider = OLXHttpListingProvider()
 
     def set_bot(self, bot: Bot) -> None:
         self.bot = bot

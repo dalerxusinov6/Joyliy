@@ -19,8 +19,6 @@ const onReport = () => {
 }
 
 const sourceViewLabel = computed(() => {
-  if (props.listing?.source === 'joymee_uz') return 'Joymee’da ko‘rish'
-  if (props.listing?.source === 'realt24_uz') return 'Realt24’da ko‘rish'
   return t('view_on_olx')
 })
 </script>
@@ -108,7 +106,7 @@ const sourceViewLabel = computed(() => {
             ⚠️ {{ listing.disclaimer || 'Egasidan ekanligi mustaqil tasdiqlanmagan. Asl manba havolasi saqlangan.' }}
           </p>
           <p style="font-size: 13px; color: var(--mu); margin-top: 6px">
-            🌐 Manba: <b style="color: var(--tx)">{{ listing.source_attribution || (listing.source === 'joymee_uz' ? 'Joymee.uz' : (listing.source === 'realt24_uz' ? 'Realt24.uz' : 'OLX.uz')) }}</b>
+            🌐 Manba: <b style="color: var(--tx)">{{ listing.source_attribution || 'OLX.uz' }}</b>
           </p>
         </div>
 
