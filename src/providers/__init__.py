@@ -16,6 +16,7 @@ from src.providers.parser import (
     extract_phone,
     extract_telegram_user,
     parse_olx_html_list,
+    parse_olx_api_offer,
 )
 from src.providers.olx_http import OLXHttpListingProvider
 from src.providers.composite import CompositeListingProvider

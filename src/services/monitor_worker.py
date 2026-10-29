@@ -142,20 +142,22 @@ class MonitorWorker:
                         logger.error("Error ingesting item %s: %s", item.canonical_url, item_err)
 
                 # 3. Dispatch notifications for new listings
-                for listing in new_listings:
-                    try:
-                        # Broadcast to Telegram channel if configured
-                        if settings.CHANNEL_ID:
-                            await notification_service.send_to_channel(listing)
-                            await asyncio.sleep(2.0)
-                    except Exception as ch_err:
-                        logger.error("Error broadcasting listing %d to channel: %s", listing.id, ch_err)
+                if notification_service.bot:
+                    for listing in new_listings:
+                        try:
+                            # Broadcast to Telegram channel if configured
+                            if settings.CHANNEL_ID:
+                                sent = await notification_service.send_to_channel(listing)
+                                if sent:
+                                    await asyncio.sleep(1.0)
+                        except Exception as ch_err:
+                            logger.error("Error broadcasting listing %d to channel: %s", listing.id, ch_err)
 
-                    try:
-                        # Dispatch to subscribed users matching preferences
-                        await notification_service.dispatch_new_listing(session, listing)
-                    except Exception as notif_err:
-                        logger.error("Error dispatching notification for listing %d: %s", listing.id, notif_err)
+                        try:
+                            # Dispatch to subscribed users matching preferences
+                            await notification_service.dispatch_new_listing(session, listing)
+                        except Exception as notif_err:
+                            logger.error("Error dispatching notification for listing %d: %s", listing.id, notif_err)
 
                 self._consecutive_failures = 0
                 self._last_status = status

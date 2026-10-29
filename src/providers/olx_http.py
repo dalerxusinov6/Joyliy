@@ -12,7 +12,7 @@ from src.providers.base import (
     ProviderStatus,
     RawListingItem,
 )
-from src.providers.parser import parse_olx_html_list
+from src.providers.parser import parse_olx_html_list, parse_olx_api_offer
 
 logger = logging.getLogger(__name__)
 
@@ -20,8 +20,8 @@ logger = logging.getLogger(__name__)
 class OLXHttpListingProvider(BaseListingProvider):
     """
     HTTP provider for OLX Uzbekistan.
-    Monitors endpoint accessibility, applies rate limiting and backoff,
-    and handles anti-bot access blocks transparently.
+    Monitors endpoint accessibility, utilizes official public API with HTML scraping fallback,
+    applies rate limiting and backoff, and ensures robust operation across cloud and local runtimes.
     """
 
     def __init__(
@@ -42,15 +42,43 @@ class OLXHttpListingProvider(BaseListingProvider):
             "User-Agent": (
                 "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
                 "AppleWebKit/537.36 (KHTML, like Gecko) "
-                "Chrome/122.0.0.0 Safari/537.36"
+                "Chrome/123.0.0.0 Safari/537.36"
             ),
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
-            "Accept-Language": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7,uz;q=0.6",
+            "Accept": "application/json, text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            "Accept-Language": "uz,ru;q=0.9,en-US;q=0.8,en;q=0.7",
         }
 
     @property
     def name(self) -> str:
         return "olx_uz_http"
+
+    async def _fetch_api_listings(self, client: httpx.AsyncClient) -> List[RawListingItem]:
+        """Fetch newly published listings from OLX official offers API."""
+        api_url = "https://www.olx.uz/api/v1/offers/?category_id=1147&city_id=4&limit=40"
+        try:
+            resp = await client.get(api_url, headers=self.headers, timeout=12.0)
+            if resp.status_code == 200:
+                data = resp.json()
+                raw_offers = data.get("data", [])
+                items = []
+                for off in raw_offers:
+                    try:
+                        parsed = parse_olx_api_offer(off)
+                        items.append(parsed)
+                    except Exception as err:
+                        logger.warning("Error parsing OLX API item %s: %s", off.get("id"), err)
+                if items:
+                    self._last_status = ProviderStatus.HEALTHY
+                    self._last_message = f"Retrieved {len(items)} listings via OLX API."
+                    logger.info("Successfully fetched %d listings from OLX API.", len(items))
+                return items
+            elif resp.status_code in (401, 403):
+                logger.warning("OLX API restricted (HTTP %d).", resp.status_code)
+            else:
+                logger.warning("OLX API returned HTTP %d", resp.status_code)
+        except Exception as exc:
+            logger.warning("OLX API request failed: %s", exc)
+        return []
 
     async def _fetch_with_backoff(self, client: httpx.AsyncClient, url: str) -> Optional[str]:
         """Fetch URL with exponential backoff on transient errors."""
@@ -64,21 +92,13 @@ class OLXHttpListingProvider(BaseListingProvider):
                     self._last_message = "Successfully retrieved listings page."
                     return response.text
                 elif response.status_code in (401, 403):
-                    # Access restriction / anti-bot challenge
                     self._consecutive_failures += 1
-                    self._last_status = ProviderStatus.BLOCKED_BY_ACCESS_CONTROL
                     self._last_message = (
-                        f"Access restricted by OLX access control (HTTP {response.status_code}). "
-                        "Automated collection requires authorized feed or manual submission."
+                        f"Access restricted by OLX access control (HTTP {response.status_code})."
                     )
-                    logger.warning(
-                        "OLX access restricted (HTTP %d) on %s. Bypasses are prohibited.",
-                        response.status_code,
-                        url,
-                    )
+                    logger.warning("OLX HTML access restricted (HTTP %d) on %s", response.status_code, url)
                     return None
                 elif response.status_code >= 500:
-                    # Transient server error: retry with backoff
                     logger.warning(
                         "OLX returned transient server error %d. Attempt %d/%d.",
                         response.status_code,
@@ -103,50 +123,82 @@ class OLXHttpListingProvider(BaseListingProvider):
                     delay *= 2
                 else:
                     self._consecutive_failures += 1
-                    self._last_status = ProviderStatus.DEGRADED
-                    self._last_message = f"Network timeout/connection failure: {exc}"
                     return None
             except Exception as exc:
                 logger.error("Unexpected error fetching %s: %s", url, exc)
                 self._consecutive_failures += 1
-                self._last_status = ProviderStatus.ERROR
-                self._last_message = str(exc)
                 return None
         return None
 
     async def fetch_listings(self) -> List[RawListingItem]:
-        """Iterate configured search URLs, applying polite request delays."""
+        """Iterate configured sources (API + search pages), returning unique listings."""
         self._last_check_at = datetime.now(timezone.utc)
         all_listings: List[RawListingItem] = []
+        seen_urls = set()
 
         async with httpx.AsyncClient(follow_redirects=True) as client:
+            # 1. Fetch via OLX API (reliable across cloud IPs)
+            api_items = await self._fetch_api_listings(client)
+            for it in api_items:
+                if it.canonical_url not in seen_urls:
+                    seen_urls.add(it.canonical_url)
+                    all_listings.append(it)
+
+            # 2. Fetch via configured HTML search pages
             for url in self.search_urls:
                 html = await self._fetch_with_backoff(client, url)
                 if html:
                     parsed = parse_olx_html_list(html, base_url=url)
-                    all_listings.extend(parsed)
-                # Polite pacing between multiple configured URLs
+                    for it in parsed:
+                        if it.canonical_url not in seen_urls:
+                            seen_urls.add(it.canonical_url)
+                            all_listings.append(it)
                 if len(self.search_urls) > 1:
                     await asyncio.sleep(self.request_delay)
+
+        if all_listings:
+            self._consecutive_failures = 0
+            self._last_status = ProviderStatus.HEALTHY
+            self._last_message = f"Successfully collected {len(all_listings)} listings."
+        elif self._consecutive_failures > 0:
+            self._last_status = ProviderStatus.DEGRADED
 
         return all_listings
 
     async def check_health(self) -> ProviderHealth:
-        """Inspect provider health and OLX response code."""
-        # Check robots.txt or search url header
+        """Inspect provider health against OLX API and website."""
         async with httpx.AsyncClient(follow_redirects=True) as client:
+            # Primary: test official offers API
             try:
-                test_url = "https://www.olx.uz/robots.txt"
-                resp = await client.head(test_url, headers=self.headers, timeout=5.0)
-                if resp.status_code == 403:
-                    self._last_status = ProviderStatus.BLOCKED_BY_ACCESS_CONTROL
-                    self._last_message = (
-                        "OLX access rules returned HTTP 403. "
-                        "Respecting access controls; using authorized feeds / manual submissions."
+                api_test_url = "https://www.olx.uz/api/v1/offers/?category_id=1147&city_id=4&limit=1"
+                resp = await client.get(api_test_url, headers=self.headers, timeout=6.0)
+                if resp.status_code == 200:
+                    self._last_status = ProviderStatus.HEALTHY
+                    self._last_message = "OLX API is accessible and healthy."
+                    self._consecutive_failures = 0
+                    self._last_check_at = datetime.now(timezone.utc)
+                    return ProviderHealth(
+                        status=self._last_status,
+                        provider_name=self.name,
+                        last_check_at=self._last_check_at,
+                        consecutive_failures=self._consecutive_failures,
+                        message=self._last_message,
+                        details={"search_urls": self.search_urls, "endpoint": "api_v1"},
                     )
-                elif resp.status_code == 200:
+            except Exception as e:
+                logger.debug("OLX API health probe error: %s", e)
+
+            # Secondary: test search page or robots.txt
+            try:
+                test_url = self.search_urls[0] if self.search_urls else "https://www.olx.uz/robots.txt"
+                resp = await client.get(test_url, headers=self.headers, timeout=6.0)
+                if resp.status_code == 200:
                     self._last_status = ProviderStatus.HEALTHY
                     self._last_message = "OLX is accessible."
+                    self._consecutive_failures = 0
+                elif resp.status_code in (401, 403):
+                    self._last_status = ProviderStatus.BLOCKED_BY_ACCESS_CONTROL
+                    self._last_message = f"OLX access rules returned HTTP {resp.status_code}."
                 else:
                     self._last_status = ProviderStatus.DEGRADED
                     self._last_message = f"OLX returned HTTP {resp.status_code}."

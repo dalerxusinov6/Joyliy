@@ -458,3 +458,103 @@ def parse_olx_html_list(html_content: str, base_url: str = "https://www.olx.uz")
 
     return listings
 
+
+def parse_olx_api_offer(offer: Dict[str, Any]) -> RawListingItem:
+    """Parse offer object from OLX v1 API into RawListingItem."""
+    oid = str(offer.get("id"))
+    url = offer.get("url")
+    title = str(offer.get("title") or "").strip()
+    desc = str(offer.get("description") or "").strip()
+
+    price_uzs = None
+    currency = "UZS"
+    price_raw = None
+
+    rooms = None
+    area = None
+    floor_num = None
+    total_floors = None
+    commission_flag = None
+
+    for p in offer.get("params", []):
+        key = p.get("key")
+        val = p.get("value", {}) if isinstance(p, dict) else {}
+        if key == "price":
+            price_raw = val.get("label")
+            raw_p = val.get("converted_value") or val.get("value")
+            try:
+                price_uzs = int(round(float(raw_p))) if raw_p is not None else None
+            except (ValueError, TypeError):
+                price_uzs = None
+            curr = val.get("currency")
+            currency = "USD" if curr in ("UYE", "USD") else "UZS"
+        elif key == "number_of_rooms":
+            try:
+                rooms = int(val.get("key") or val.get("label"))
+            except Exception:
+                pass
+        elif key == "total_area":
+            try:
+                area = float(val.get("key") or val.get("label"))
+            except Exception:
+                pass
+        elif key == "floor":
+            floor_num = str(val.get("key") or val.get("label")).strip()
+        elif key == "total_floors":
+            total_floors = str(val.get("key") or val.get("label")).strip()
+        elif key == "comission":
+            commission_flag = val.get("label")
+
+    if not rooms:
+        rooms = extract_rooms(title)
+    if not area:
+        area = extract_area(title)
+
+    floor = f"{floor_num}/{total_floors}" if floor_num and total_floors else floor_num
+
+    loc = offer.get("location", {})
+    dist_name = loc.get("district", {}).get("name") if isinstance(loc.get("district"), dict) else None
+    district = extract_district(dist_name or "") or extract_district(title) or "Toshkent"
+
+    geo = offer.get("map", {})
+    lat = geo.get("lat")
+    lon = geo.get("lon")
+
+    images = []
+    for ph in offer.get("photos", []):
+        lnk = ph.get("link")
+        if lnk:
+            images.append(lnk.replace("{width}x{height}", "1000x750"))
+
+    pub_date = parse_publication_date(offer.get("last_refresh_time") or offer.get("created_time"))
+
+    desc_extra = f"{desc}\n[OLX parametri: Комиссионные: {commission_flag or 'Noma’lum'}]"
+
+    raw_meta = {
+        "latitude": lat,
+        "longitude": lon,
+        "comission": commission_flag,
+        "is_business": offer.get("business"),
+    }
+
+    return RawListingItem(
+        source="olx_uz",
+        source_id=oid,
+        canonical_url=url,
+        title=title,
+        price_raw=price_raw,
+        price_uzs=price_uzs,
+        currency=currency,
+        district=district,
+        rooms=rooms,
+        area=area,
+        floor=floor,
+        description=desc_extra,
+        contact_phone=normalize_uz_phone(extract_phone(desc)),
+        contact_telegram=extract_telegram_user(desc),
+        image_urls=images,
+        publication_date=pub_date,
+        raw_metadata=raw_meta,
+    )
+
+
