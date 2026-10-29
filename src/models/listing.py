@@ -61,6 +61,9 @@ class Listing(Base):
         DateTime(timezone=True), default=utc_now, nullable=False
     )
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    posted_to_channel_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True), nullable=True, index=True
+    )
 
     # Relationships
     classification: Mapped[Optional["ListingClassification"]] = relationship(

@@ -95,6 +95,10 @@ async def init_db() -> None:
             except Exception:
                 pass
             try:
+                await conn.execute(text("ALTER TABLE listings ADD COLUMN posted_to_channel_at TIMESTAMP"))
+            except Exception:
+                pass
+            try:
                 await conn.execute(text("ALTER TABLE users ADD COLUMN photo_url VARCHAR(512)"))
             except Exception:
                 pass
@@ -117,6 +121,10 @@ async def init_db() -> None:
                         pass
                 try:
                     await conn.execute(text("ALTER TABLE listings ADD COLUMN target_audience VARCHAR(32) DEFAULT 'any'"))
+                except Exception:
+                    pass
+                try:
+                    await conn.execute(text("ALTER TABLE listings ADD COLUMN posted_to_channel_at TIMESTAMP"))
                 except Exception:
                     pass
                 try:

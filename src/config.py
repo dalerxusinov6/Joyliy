@@ -31,6 +31,26 @@ class Settings(BaseSettings):
         default="@joyliy_uz",
         description="Telegram channel username (e.g. @joyliy_channel) or numeric ID (-100...)",
     )
+    CHANNEL_DAILY_LIMIT: int = Field(
+        default=100,
+        description="Maximum listings to post to Telegram channel per day",
+    )
+    CHANNEL_BATCH_SIZE: int = Field(
+        default=2,
+        description="Number of listings to post to channel per monitoring cycle",
+    )
+    CHANNEL_POSTING_ENABLED: bool = Field(
+        default=True,
+        description="Enable automatic scheduled broadcast to channel",
+    )
+    CHANNEL_QUIET_HOURS_START: str = Field(
+        default="23:30",
+        description="Start of night quiet hours in Tashkent time (HH:MM) - no channel broadcast",
+    )
+    CHANNEL_QUIET_HOURS_END: str = Field(
+        default="07:30",
+        description="End of night quiet hours in Tashkent time (HH:MM)",
+    )
     WEBSITE_URL: str = Field(
         default="https://joyliy.onrender.com",
         description="Public URL of Joyliy frontend website",

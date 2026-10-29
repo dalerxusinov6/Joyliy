@@ -86,12 +86,18 @@ async def handle_admin_health(message: Message):
 
     status_icon = "🟢" if health.status.value == "HEALTHY" else ("🟡" if "DEGRADED" in health.status.value else "🔴")
 
+    async with AsyncSessionLocal() as session:
+        ch_stats = await notification_service.get_channel_posting_stats(session)
+
     text = (
         "🩺 <b>Tizim Salomatligi (Health Check):</b>\n\n"
         f"• Monitor holati: {'To‘xtatilgan (PAUSED)' if status_info['is_paused'] else 'Ishlamoqda (ACTIVE)'}\n"
         f"• Ishlayotgan provayder: <code>{status_info['provider']}</code>\n"
         f"• Provayder holati: {status_icon} <b>{health.status.value}</b>\n"
         f"• Xabar: {health.message}\n"
+        f"• Ulangan kanal: <code>{ch_stats['channel'] or 'Sozlanmagan'}</code>\n"
+        f"• Bugun kanalga yuborildi: <b>{ch_stats['posted_today']} / {ch_stats['daily_limit']}</b> ta\n"
+        f"• Navbatdagi yangi e'lonlar: <b>{ch_stats['unposted_total']}</b> ta\n"
         f"• So‘nggi muvaffaqiyatli sikl: {status_info['last_run_at'] or 'Hali ishga tushmadi'}\n"
         f"• Ketma-ket xatoliklar: {status_info['consecutive_failures']}\n"
         f"• Intervall: {status_info['poll_interval_seconds']} soniya"
@@ -243,29 +249,61 @@ async def handle_scrape_now(message: Message):
     """Manually trigger immediate OLX scrape and channel broadcast."""
     if not is_admin(message.from_user.id):
         return
-    status_msg = await message.answer("🔄 OLX dan yangi e'lonlar qidirilmoqda...")
+    status_msg = await message.answer("🔄 OLX dan yangi e'lonlar qidirilmoqda va kanal yangilanmoqda...")
     try:
         run_rec = await monitor_worker.run_once()
-        note = ""
-        if run_rec.listings_new == 0 and run_rec.listings_found > 0:
-            note = "\n\nℹ️ <i>Barcha topilgan e'lonlar allaqachon bazaga kiritilgan. Kanalga darhol e'lon chiqarish uchun <code>/post_latest 1</code> buyrug'idan foydalaning.</i>"
-        elif run_rec.listings_new > 0:
-            note = f"\n\n🚀 <b>{run_rec.listings_new}</b> ta yangi e'lon kanalga yuborildi!"
+
+        async with AsyncSessionLocal() as session:
+            stats = await notification_service.get_channel_posting_stats(session)
 
         status_text = "Faol / Ishlamoqda" if run_rec.status in ("SUCCESS", "OK") else run_rec.status
+        note = ""
+        if run_rec.listings_new > 0:
+            note = f"\n\n🚀 <b>{run_rec.listings_new}</b> ta yangi e'lon topildi!"
 
         await status_msg.edit_text(
-            f"✅ <b>Monitoring sikli yakunlandi!</b>\n\n"
+            f"✅ <b>Monitoring va Kanal yangilandi!</b>\n\n"
             f"• Manba: <b>OLX Uzbekistan</b>\n"
             f"• Tekshirilgan e'lonlar: <b>{run_rec.listings_found}</b> ta\n"
-            f"• Yangi e'lonlar: <b>{run_rec.listings_new}</b> ta\n"
+            f"• Yangi topilgan: <b>{run_rec.listings_new}</b> ta\n"
             f"• Holat: <b>{status_text}</b>\n"
-            f"• Kanal: <code>{settings.CHANNEL_ID or 'Sozlanmagan'}</code>"
+            f"• Ulangan kanal: <code>{settings.CHANNEL_ID or 'Sozlanmagan'}</code>\n"
+            f"• Bugun kanalga yuborildi: <b>{stats['posted_today']} / {stats['daily_limit']}</b> ta\n"
+            f"• Navbatdagi zaxira e'lonlar: <b>{stats['unposted_total']}</b> ta\n"
+            f"• Taqsimot: <b>Kuniga 100 tagacha bo‘lib-bo‘lib (har 10 daqiqada 1-2 tadan)</b>"
             f"{note}",
             parse_mode="HTML",
         )
     except Exception as e:
         await status_msg.edit_text(f"❌ Xatolik yuz berdi: {e}")
+
+
+@admin_router.message(Command("channel_status"))
+@admin_router.message(Command("channel"))
+async def handle_channel_status(message: Message):
+    """View channel broadcast status, today's count, and queue size."""
+    if not is_admin(message.from_user.id):
+        return
+    async with AsyncSessionLocal() as session:
+        stats = await notification_service.get_channel_posting_stats(session)
+
+    channel_name = settings.CHANNEL_ID or "Sozlanmagan"
+    quiet_str = "Sokin vaqt (tunda yuborilmaydi)" if stats["is_quiet_hours"] else "Faol vaqt (e'lonlar uzatilmoqda)"
+
+    text = (
+        f"📢 <b>Kanalga e'lon uzatish holati:</b>\n\n"
+        f"• Ulangan kanal: <code>{channel_name}</code>\n"
+        f"• Bugun yuborilgan e'lonlar: <b>{stats['posted_today']} / {stats['daily_limit']}</b> ta\n"
+        f"• Qolgan kunlik limit: <b>{stats['remaining_today']}</b> ta\n"
+        f"• Bazadagi navbatda turgan e'lonlar: <b>{stats['unposted_total']}</b> ta\n"
+        f"• Tizim grafigi: <b>Kun bo‘yi bo‘lib-bo‘lib (har 10 daqiqada 1-2 tadan)</b>\n"
+        f"• Hozirgi holat: <b>{quiet_str}</b>\n\n"
+        f"<b>Buyruqlar:</b>\n"
+        f"• <code>/post_latest 1</code> — hoziroq kanalga 1 ta e'lon chiqarish\n"
+        f"• <code>/scrape_now</code> — hozir qidirish va kanalni yangilash\n"
+        f"• <code>/set_channel @kanal_nomi</code> — kanal nomini o‘zgartirish"
+    )
+    await message.answer(text, parse_mode="HTML")
 
 
 @admin_router.message(Command("post_latest"))
@@ -297,15 +335,15 @@ async def handle_post_latest(message: Message):
         res = await session.execute(stmt)
         listings = res.scalars().all()
 
-    success_cnt = 0
-    for listing in reversed(listings):
-        try:
-            ok = await notification_service.send_to_channel(listing, channel_id=channel)
-            if ok:
-                success_cnt += 1
-            await asyncio.sleep(1.5)  # Telegram pace
-        except Exception as e:
-            logger.error("Error posting listing %d to channel: %s", listing.id, e)
+        success_cnt = 0
+        for listing in reversed(listings):
+            try:
+                ok = await notification_service.send_to_channel(listing, channel_id=channel, session=session)
+                if ok:
+                    success_cnt += 1
+                await asyncio.sleep(1.5)  # Telegram pace
+            except Exception as e:
+                logger.error("Error posting listing %d to channel: %s", listing.id, e)
 
     await status_msg.edit_text(
         f"✅ <b>{success_cnt}/{len(listings)} ta e'lon {channel} kanaliga muvaffaqiyatli yuklandi!</b>",

@@ -157,3 +157,34 @@ async def test_bot_blocked_by_user_deactivation(test_session: AsyncSession, mock
     )).scalar_one()
     assert updated_user.is_active is False
 
+
+@pytest.mark.asyncio
+async def test_channel_batch_broadcast_and_stats(test_session: AsyncSession, mock_bot):
+    """
+    Verify distributed batch channel posting, daily limits, and unposted queue management.
+    """
+    service = NotificationService(bot=mock_bot)
+
+    # Insert 3 listings
+    l1 = Listing(source="olx_uz", canonical_url="https://olx.uz/ch-1", title="Flat 1", is_active=True)
+    l2 = Listing(source="olx_uz", canonical_url="https://olx.uz/ch-2", title="Flat 2", is_active=True)
+    l3 = Listing(source="olx_uz", canonical_url="https://olx.uz/ch-3", title="Flat 3", is_active=True)
+    test_session.add_all([l1, l2, l3])
+    await test_session.commit()
+
+    # Initial stats
+    stats = await service.get_channel_posting_stats(test_session)
+    assert stats["posted_today"] == 0
+    assert stats["daily_limit"] == 100
+    assert stats["remaining_today"] == 100
+    assert stats["unposted_total"] >= 3
+
+    # Post batch of 2
+    posted = await service.broadcast_channel_batch(test_session, batch_limit=2, force=True)
+    assert posted == 2
+
+    # Verify updated stats
+    stats_after = await service.get_channel_posting_stats(test_session)
+    assert stats_after["posted_today"] == 2
+    assert stats_after["remaining_today"] == 98
+

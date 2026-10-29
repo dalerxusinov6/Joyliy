@@ -12,7 +12,7 @@ from aiogram.exceptions import (
     TelegramBadRequest,
     TelegramNetworkError,
 )
-from sqlalchemy import select, and_
+from sqlalchemy import select, and_, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -139,6 +139,7 @@ class NotificationService:
         listing: Listing,
         channel_id: Optional[str] = None,
         max_retries: int = 3,
+        session: Optional[AsyncSession] = None,
     ) -> bool:
         """
         Send a new listing with image(s) to a Telegram channel.
@@ -157,6 +158,7 @@ class NotificationService:
         reply_markup = get_channel_inline_keyboard(listing)
         images = [img for img in (listing.image_urls or []) if img and img.startswith("http")]
 
+        success = False
         for attempt in range(1, max_retries + 1):
             try:
                 if len(images) > 1:
@@ -178,7 +180,8 @@ class NotificationService:
                             parse_mode="HTML",
                             reply_markup=reply_markup,
                         )
-                        return True
+                        success = True
+                        break
                     except Exception as album_err:
                         logger.warning("Failed to send album to channel %s: %s, falling back to single photo", target, album_err)
                         if images:
@@ -189,7 +192,8 @@ class NotificationService:
                                 parse_mode="HTML",
                                 reply_markup=reply_markup,
                             )
-                            return True
+                            success = True
+                            break
 
                 elif len(images) == 1:
                     try:
@@ -200,7 +204,8 @@ class NotificationService:
                             parse_mode="HTML",
                             reply_markup=reply_markup,
                         )
-                        return True
+                        success = True
+                        break
                     except Exception as img_err:
                         logger.warning("Failed to send photo to channel %s: %s, falling back to text", target, img_err)
                         await self.bot.send_message(
@@ -209,7 +214,8 @@ class NotificationService:
                             parse_mode="HTML",
                             reply_markup=reply_markup,
                         )
-                        return True
+                        success = True
+                        break
                 else:
                     await self.bot.send_message(
                         chat_id=target,
@@ -217,7 +223,8 @@ class NotificationService:
                         parse_mode="HTML",
                         reply_markup=reply_markup,
                     )
-                    return True
+                    success = True
+                    break
 
             except TelegramRetryAfter as e:
                 wait_secs = e.retry_after + 1
@@ -235,7 +242,172 @@ class NotificationService:
                     await asyncio.sleep(2.0 * attempt)
                 else:
                     return False
-        return False
+
+        if success and session:
+            try:
+                listing.posted_to_channel_at = datetime.now(timezone.utc)
+                session.add(listing)
+                await session.commit()
+            except Exception as db_err:
+                logger.warning("Could not persist posted_to_channel_at for listing %d: %s", listing.id, db_err)
+
+        return success
+
+    async def get_channel_posting_stats(self, session: AsyncSession) -> dict:
+        """Calculate today's channel broadcasting metrics in Tashkent local time (UTC+5)."""
+        now_tashkent = datetime.now(timezone.utc).astimezone(TASHKENT_TZ)
+        today_midnight = now_tashkent.replace(hour=0, minute=0, second=0, microsecond=0).astimezone(timezone.utc)
+
+        # Count listings posted today
+        stmt_today = select(func.count(Listing.id)).where(Listing.posted_to_channel_at >= today_midnight)
+        posted_today = (await session.execute(stmt_today)).scalar() or 0
+
+        # Count unposted active listings in database
+        stmt_unposted = select(func.count(Listing.id)).where(
+            Listing.is_active == True,
+            Listing.posted_to_channel_at.is_(None),
+        )
+        unposted_total = (await session.execute(stmt_unposted)).scalar() or 0
+
+        # Check quiet night hours
+        current_time = now_tashkent.time()
+        try:
+            sh, sm = map(int, settings.CHANNEL_QUIET_HOURS_START.split(":"))
+            eh, em = map(int, settings.CHANNEL_QUIET_HOURS_END.split(":"))
+            start_q = time(sh, sm)
+            end_q = time(eh, em)
+        except Exception:
+            start_q = time(23, 30)
+            end_q = time(7, 30)
+
+        if start_q <= end_q:
+            is_quiet = start_q <= current_time <= end_q
+        else:
+            is_quiet = current_time >= start_q or current_time <= end_q
+
+        daily_limit = settings.CHANNEL_DAILY_LIMIT
+        remaining = max(0, daily_limit - posted_today)
+
+        return {
+            "channel": settings.CHANNEL_ID,
+            "posted_today": posted_today,
+            "daily_limit": daily_limit,
+            "remaining_today": remaining,
+            "unposted_total": unposted_total,
+            "is_quiet_hours": is_quiet,
+            "tashkent_time": now_tashkent.strftime("%H:%M"),
+        }
+
+    async def broadcast_channel_batch(
+        self,
+        session: AsyncSession,
+        new_listings: Optional[List[Listing]] = None,
+        batch_limit: Optional[int] = None,
+        force: bool = False,
+    ) -> int:
+        """
+        Broadcast up to 100 listings per day in smooth, distributed batches.
+        Prioritizes newly discovered items; fills remaining batch slots from unposted active listings.
+        """
+        if not settings.CHANNEL_ID or not self.bot:
+            return 0
+        if not settings.CHANNEL_POSTING_ENABLED and not force:
+            return 0
+
+        stats = await self.get_channel_posting_stats(session)
+
+        # Respect quiet night hours unless manually forced by admin
+        if stats["is_quiet_hours"] and not force:
+            logger.info(
+                "Channel broadcast skipped: Tashkent quiet hours active (%s).",
+                stats["tashkent_time"],
+            )
+            return 0
+
+        # Respect daily ceiling (e.g. 100 listings/day)
+        if stats["remaining_today"] <= 0 and not force:
+            logger.info(
+                "Channel broadcast daily ceiling reached (%d/%d listings posted today).",
+                stats["posted_today"],
+                stats["daily_limit"],
+            )
+            return 0
+
+        max_to_post = batch_limit or min(settings.CHANNEL_BATCH_SIZE, stats["remaining_today"])
+        if max_to_post <= 0:
+            return 0
+
+        candidates: List[Listing] = []
+        seen_ids = set()
+
+        # 1. First priority: Freshly discovered listings from current scrape
+        if new_listings:
+            for it in new_listings:
+                if it.id not in seen_ids and getattr(it, "posted_to_channel_at", None) is None:
+                    candidates.append(it)
+                    seen_ids.add(it.id)
+                    if len(candidates) >= max_to_post:
+                        break
+
+        # 2. Second priority: Unposted active listings from database
+        if len(candidates) < max_to_post:
+            needed = max_to_post - len(candidates)
+            stmt = (
+                select(Listing)
+                .options(selectinload(Listing.classification))
+                .where(
+                    Listing.is_active == True,
+                    Listing.posted_to_channel_at.is_(None),
+                )
+            )
+            if seen_ids:
+                stmt = stmt.where(Listing.id.not_in(seen_ids))
+
+            stmt = stmt.order_by(
+                Listing.publication_date.desc().nullslast(),
+                Listing.id.desc(),
+            ).limit(needed)
+
+            res = await session.execute(stmt)
+            unposted_db = res.scalars().all()
+            for it in unposted_db:
+                candidates.append(it)
+                seen_ids.add(it.id)
+
+        # 3. Third priority (fallback): If all listings in DB have been posted at least once, recycle older items (> 7 days)
+        if len(candidates) < max_to_post:
+            needed = max_to_post - len(candidates)
+            week_ago = datetime.now(timezone.utc) - timedelta(days=7)
+            stmt = (
+                select(Listing)
+                .options(selectinload(Listing.classification))
+                .where(
+                    Listing.is_active == True,
+                    Listing.posted_to_channel_at < week_ago,
+                )
+            )
+            if seen_ids:
+                stmt = stmt.where(Listing.id.not_in(seen_ids))
+            stmt = stmt.order_by(Listing.posted_to_channel_at.asc()).limit(needed)
+            res = await session.execute(stmt)
+            recycled = res.scalars().all()
+            for it in recycled:
+                candidates.append(it)
+                seen_ids.add(it.id)
+
+        # 4. Dispatch each candidate to the channel
+        posted_count = 0
+        for listing in candidates:
+            try:
+                sent = await self.send_to_channel(listing, session=session)
+                if sent:
+                    posted_count += 1
+                    logger.info("Successfully posted listing #%d to channel %s", listing.id, settings.CHANNEL_ID)
+                    await asyncio.sleep(2.0)  # Gentle pacing between messages
+            except Exception as post_err:
+                logger.error("Error broadcasting listing %d: %s", listing.id, post_err)
+
+        return posted_count
 
     async def send_to_user_with_retry(
         self,
