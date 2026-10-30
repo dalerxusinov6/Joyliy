@@ -1,11 +1,14 @@
 """Automated Telegram Channel Publishing Scheduler adhering to 10-post daily timeline."""
 
+from __future__ import annotations
+
 import asyncio
 import logging
 from datetime import datetime, timezone, timedelta, time
 from typing import Optional, List, Dict, Any
 from aiogram import Bot
 from sqlalchemy import select, and_, func
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.config import settings
 from src.database import AsyncSessionLocal
