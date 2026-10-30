@@ -85,6 +85,40 @@ def format_listing_message(listing: Listing) -> str:
     if listing.rooms is not None:
         lines.append(f"🛏 Xonalar: {listing.rooms}")
 
+    # 5b. Metro proximity if available
+    if getattr(listing, "metro_station", None):
+        dist_str = f" ({listing.metro_distance_m} m)" if getattr(listing, "metro_distance_m", None) else ""
+        lines.append(f"🚇 Metro: <b>{html.escape(listing.metro_station)}</b>{dist_str}")
+
+    # 5c. Furnished & Renovation
+    if getattr(listing, "is_furnished", None) is not None:
+        lines.append(f"🛋 Jihozlangan: {'Ha' if listing.is_furnished else 'Yo‘q'}")
+    if getattr(listing, "renovation_type", None):
+        lines.append(f"✨ Ta'mir: {html.escape(listing.renovation_type.capitalize())}")
+
+    # 5d. Fair Price evaluation
+    fp_cat = getattr(listing, "fair_price_category", None)
+    if fp_cat:
+        cat_badge = {
+            "BELOW_MARKET": "🟢 Bozordan arzon",
+            "FAIR_PRICE": "🟡 Bozor narxida",
+            "ABOVE_MARKET": "🔴 Bozordan qimmat",
+        }.get(fp_cat, fp_cat)
+        diff = getattr(listing, "price_diff_percent", None)
+        diff_str = f" ({diff:+.1f}%)" if diff is not None else ""
+        lines.append(f"📊 Bozor tahlili: <b>{cat_badge}</b>{diff_str}")
+
+    # 5e. Scam Risk indicator
+    scam_score = getattr(listing, "scam_risk_score", None)
+    if scam_score is not None:
+        if scam_score < 35:
+            risk_badge = "🟢 Xavfsiz"
+        elif scam_score < 70:
+            risk_badge = "🟡 O'rtacha xavf"
+        else:
+            risk_badge = "🔴 Yuqori xavf (Ehtiyot bo'ling)"
+        lines.append(f"🛡 Xavfsizlik: <b>{risk_badge}</b>")
+
     # 6. Source Attribution based on Maklersiz classification
     classification = None
     if "classification" in listing.__dict__:
@@ -145,6 +179,10 @@ def get_listing_inline_keyboard(listing: Listing, is_favorited: bool = False) ->
         ],
         [
             InlineKeyboardButton(text=fav_text, callback_data=fav_cb),
+            InlineKeyboardButton(text="⚖️ Taqqoslash", callback_data=f"cmp_add:{listing.id}"),
+        ],
+        [
+            InlineKeyboardButton(text="🚩 Shikoyat", callback_data=f"rep:{listing.id}"),
             InlineKeyboardButton(text="🚫 Yashirish", callback_data=f"hide:{listing.id}"),
         ],
     ]

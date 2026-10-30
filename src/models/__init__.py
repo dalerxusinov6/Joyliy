@@ -13,6 +13,13 @@ from src.models.listing import (
     QueueStatus,
 )
 from src.models.system import SourceMonitorRun, AdminAuditLog
+from src.models.ecosystem import (
+    ListingPriceHistory,
+    RoommateProfile,
+    RoommateConnectionRequest,
+    ListingReport,
+    SavedSearchAlert,
+)
 
 __all__ = [
     "Base",
@@ -29,5 +36,10 @@ __all__ = [
     "QueueStatus",
     "SourceMonitorRun",
     "AdminAuditLog",
+    "ListingPriceHistory",
+    "RoommateProfile",
+    "RoommateConnectionRequest",
+    "ListingReport",
+    "SavedSearchAlert",
 ]
 

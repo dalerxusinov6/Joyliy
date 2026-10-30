@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { useI18n } from '~/composables/useI18n'
 import { useFavorites } from '~/composables/useFavorites'
-import type { ListingItem } from '~/composables/useListings'
+import { useListings, type ListingItem } from '~/composables/useListings'
 
 const props = defineProps<{
   listing: ListingItem
@@ -12,6 +12,7 @@ const emit = defineEmits(['select'])
 
 const { t } = useI18n()
 const { isFavorite, toggleFavorite } = useFavorites()
+const { isInCompare, toggleCompare } = useListings()
 
 const formatPrice = (val: number) => {
   return val.toLocaleString('ru-RU').replace(/\u00a0/g, ' ') + ' so‘m'
@@ -20,6 +21,11 @@ const formatPrice = (val: number) => {
 const onBookmarkClick = (e: MouseEvent) => {
   e.stopPropagation()
   toggleFavorite(props.listing.id)
+}
+
+const onCompareClick = (e: MouseEvent) => {
+  e.stopPropagation()
+  toggleCompare(props.listing)
 }
 </script>
 
@@ -48,9 +54,27 @@ const onBookmarkClick = (e: MouseEvent) => {
 
       <!-- Top Badges Overlay -->
       <div class="badges-overlay">
+        <!-- AI Match Score Pill -->
+        <span v-if="listing.match_percentage" class="editorial-badge match-pill">
+          🎯 {{ listing.match_percentage }}% Mos
+        </span>
+
         <!-- Maklersiz Terracotta Pill -->
         <span v-if="listing.is_owner" class="editorial-badge maklersiz">
           Maklersiz
+        </span>
+
+        <!-- Fair Price Pill -->
+        <span v-if="listing.fair_price_category === 'BELOW_MARKET'" class="editorial-badge fp-pill below">
+          🟢 Bozordan arzon
+        </span>
+        <span v-else-if="listing.fair_price_category === 'ABOVE_MARKET'" class="editorial-badge fp-pill above">
+          🔴 Bozordan qimmat
+        </span>
+
+        <!-- Scam warning pill if high risk -->
+        <span v-if="listing.scam_risk_score && listing.scam_risk_score > 60" class="editorial-badge scam-pill">
+          ⚠️ Ehtiyot bo‘ling
         </span>
 
         <!-- Audience Tag -->
@@ -90,19 +114,31 @@ const onBookmarkClick = (e: MouseEvent) => {
         {{ listing.image_urls && listing.image_urls.length ? `1 / ${listing.image_urls.length}` : '1 / 1' }}
       </span>
 
-      <!-- Bookmark / Save Button -->
-      <button
-        class="bookmark-btn"
-        :class="{ active: isFavorite(listing.id) }"
-        @click="onBookmarkClick"
-        :aria-label="t('save')"
-        type="button"
-        title="Saqlash"
-      >
-        <svg class="i" viewBox="0 0 24 24">
-          <path d="m19 21-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-        </svg>
-      </button>
+      <!-- Action Buttons (Save & Compare) -->
+      <div class="card-photo-actions">
+        <button
+          class="photo-action-btn compare-btn"
+          :class="{ active: isInCompare(listing.id) }"
+          @click="onCompareClick"
+          title="Taqqoslashga qo‘shish"
+          type="button"
+        >
+          ⚖️
+        </button>
+
+        <button
+          class="photo-action-btn bookmark-btn"
+          :class="{ active: isFavorite(listing.id) }"
+          @click="onBookmarkClick"
+          :aria-label="t('save')"
+          type="button"
+          title="Saqlash"
+        >
+          <svg class="i" viewBox="0 0 24 24">
+            <path d="m19 21-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+          </svg>
+        </button>
+      </div>
     </div>
 
     <!-- Editorial Details Plate -->
@@ -131,7 +167,10 @@ const onBookmarkClick = (e: MouseEvent) => {
       <div class="location-line">
         <span class="district-name">{{ listing.district }}</span>
         <span class="location-sep">·</span>
-        <span class="transit-info">metroga {{ listing.metro_minutes || 5 }} daqiqa</span>
+        <span class="transit-info">
+          🚇 {{ listing.metro_station || listing.metro_name || 'Metro yaqin' }}
+          {{ listing.metro_distance_m ? `(${listing.metro_distance_m}m)` : `(~${listing.metro_minutes || 5} daq)` }}
+        </span>
       </div>
 
       <!-- Bottom Status & Time -->
@@ -269,10 +308,16 @@ const onBookmarkClick = (e: MouseEvent) => {
   border-radius: var(--radius-xs);
 }
 
-.bookmark-btn {
+.card-photo-actions {
   position: absolute;
   top: 12px;
   right: 12px;
+  display: flex;
+  gap: 6px;
+  z-index: 4;
+}
+
+.photo-action-btn {
   width: 34px;
   height: 34px;
   border-radius: var(--radius-xs);
@@ -283,10 +328,11 @@ const onBookmarkClick = (e: MouseEvent) => {
   align-items: center;
   justify-content: center;
   transition: all 0.18s ease;
-  z-index: 4;
+  font-size: 14px;
+  cursor: pointer;
 }
 
-.bookmark-btn:hover {
+.photo-action-btn:hover {
   border-color: var(--terracotta);
   color: var(--terracotta);
 }
@@ -299,6 +345,34 @@ const onBookmarkClick = (e: MouseEvent) => {
 
 .bookmark-btn.active svg {
   fill: currentColor;
+}
+
+.compare-btn.active {
+  background: #2b78e4;
+  border-color: #2b78e4;
+  color: #FFFFFF;
+}
+
+.match-pill {
+  background: #e6f4ea !important;
+  color: #137333 !important;
+  font-weight: 700 !important;
+}
+
+.fp-pill.below {
+  background: #e6f4ea !important;
+  color: #137333 !important;
+}
+
+.fp-pill.above {
+  background: #fce8e6 !important;
+  color: #c5221f !important;
+}
+
+.scam-pill {
+  background: #fce8e6 !important;
+  color: #c5221f !important;
+  font-weight: 700 !important;
 }
 
 .card-details {

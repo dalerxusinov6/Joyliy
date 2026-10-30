@@ -13,6 +13,7 @@ from src.bot.handlers.search import search_router
 from src.bot.handlers.favorites import favorites_router
 from src.bot.handlers.subscription import subscription_router
 from src.bot.handlers.admin import admin_router
+from src.bot.handlers.ecosystem import ecosystem_router
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +43,7 @@ def create_bot_and_dispatcher() -> Tuple[Optional[Bot], Optional[Dispatcher]]:
         dp.include_router(subscription_router)
         dp.include_router(favorites_router)
         dp.include_router(search_router)
+        dp.include_router(ecosystem_router)
         dp.include_router(common_router)
 
         return bot, dp

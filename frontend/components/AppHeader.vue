@@ -2,11 +2,22 @@
 import { useI18n } from '~/composables/useI18n'
 import { useFavorites } from '~/composables/useFavorites'
 import { useAuth } from '~/composables/useAuth'
+import { useListings } from '~/composables/useListings'
 
-const emit = defineEmits(['openFavorites', 'openProfile', 'openNew', 'filterMaklersiz', 'openMap'])
+const emit = defineEmits([
+  'openFavorites',
+  'openProfile',
+  'openNew',
+  'filterMaklersiz',
+  'openMap',
+  'openRoommates',
+  'openCompare',
+  'openNeighborhoods'
+])
 const { currentLang, setLang, t } = useI18n()
 const { count: favCount } = useFavorites()
 const { user, initAuth } = useAuth()
+const { compareList } = useListings()
 
 const isDark = ref(false)
 
@@ -51,8 +62,13 @@ const onLangChange = (lang: string) => {
       <nav class="d editorial-nav">
         <a href="#katalog" class="nav-item">Katalog</a>
         <a href="#katalog" class="nav-item" @click.prevent="$emit('filterMaklersiz')">Maklersiz</a>
-        <a href="#xarita" class="nav-item" @click.prevent="$emit('openMap')">Xarita</a>
-        <a href="#falsafa" class="nav-item">Falsafa</a>
+        <a href="#xarita" class="nav-item" @click.prevent="$emit('openMap')">🗺 Xarita</a>
+        <a href="#hamxona" class="nav-item" @click.prevent="$emit('openRoommates')">👥 Hamxona</a>
+        <a href="#taqqoslash" class="nav-item" @click.prevent="$emit('openCompare')">
+          ⚖️ Taqqoslash
+          <span v-if="compareList.length" class="badge-mini">{{ compareList.length }}</span>
+        </a>
+        <a href="#tumanlar" class="nav-item" @click.prevent="$emit('openNeighborhoods')">🏙 Tumanlar</a>
       </nav>
 
       <span class="sp"></span>
@@ -297,6 +313,20 @@ const onLangChange = (lang: string) => {
 
 .lang-slash {
   color: var(--sand);
+}
+
+.badge-mini {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--terracotta);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  margin-left: 4px;
 }
 
 .saved-btn {

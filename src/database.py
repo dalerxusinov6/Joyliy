@@ -94,6 +94,18 @@ def _sync_schema_migration(connection) -> None:
             ("image_fingerprint", "VARCHAR(64)"),
             ("target_audience", "VARCHAR(32) DEFAULT 'any'"),
             ("posted_to_channel_at", "TIMESTAMP"),
+            ("coordinates_lat", "FLOAT"),
+            ("coordinates_lon", "FLOAT"),
+            ("metro_station", "VARCHAR(128)"),
+            ("metro_distance_m", "INTEGER"),
+            ("is_furnished", "BOOLEAN DEFAULT TRUE"),
+            ("renovation_type", "VARCHAR(64)"),
+            ("fair_price_category", "VARCHAR(32) DEFAULT 'fair_price'"),
+            ("estimated_market_price", "BIGINT"),
+            ("price_diff_percent", "FLOAT"),
+            ("scam_risk_score", "INTEGER DEFAULT 10"),
+            ("scam_risk_level", "VARCHAR(32) DEFAULT 'low'"),
+            ("scam_risk_reasons", "TEXT DEFAULT '[]'"),
         ]:
             if col not in cols:
                 try:

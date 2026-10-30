@@ -28,6 +28,16 @@ class ListingResponse(BaseModel):
     contact_phone: Optional[str] = None
     contact_telegram: Optional[str] = None
     target_audience: str = "any"
+    coordinates_lat: Optional[float] = None
+    coordinates_lon: Optional[float] = None
+    metro_station: Optional[str] = None
+    metro_distance_m: Optional[int] = None
+    fair_price_category: Optional[str] = "fair_price"
+    estimated_market_price: Optional[int] = None
+    price_diff_percent: Optional[float] = None
+    scam_risk_score: Optional[int] = 10
+    scam_risk_level: Optional[str] = "low"
+    scam_risk_reasons: List[str] = Field(default_factory=list)
     image_urls: List[str]
     publication_date: Optional[datetime]
     first_seen_at: datetime
@@ -112,4 +122,53 @@ class MockConfirmAuthRequest(BaseModel):
     telegram_id: Optional[int] = 5079685694
     first_name: Optional[str] = "Ali"
     username: Optional[str] = "alivaliyev"
+
+
+# --- AI Ecosystem Schemas ---
+
+class AIMatchRequest(BaseModel):
+    query: str
+    limit: int = 15
+
+
+class CompareRequest(BaseModel):
+    listing_ids: List[int]
+
+
+class RoommateProfileCreate(BaseModel):
+    name: str
+    age: Optional[int] = None
+    gender: str = "any"
+    budget_uzs: int
+    preferred_districts: List[str] = Field(default_factory=lambda: ["Chilonzor"])
+    occupation: str = "student"
+    lifestyle_cleanliness: str = "very_clean"
+    lifestyle_sleep: str = "flexible"
+    smoking_allowed: bool = False
+    pets_allowed: bool = False
+    bio: str = ""
+    contact_telegram: str
+    move_in_date: Optional[str] = None
+
+
+class RoommateConnectRequest(BaseModel):
+    from_name: str
+    from_contact: str
+    message: str
+
+
+class ListingReportRequest(BaseModel):
+    reason: str
+    details: Optional[str] = None
+
+
+class ReverseImageSearchRequest(BaseModel):
+    image_url: str
+
+
+class AssistantChatRequest(BaseModel):
+    message: str
+    listing_id: Optional[int] = None
+    language: str = "uz"
+
 

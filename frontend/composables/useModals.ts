@@ -6,6 +6,15 @@ export function useModals() {
   const showSaved = useState<boolean>('modal_saved', () => false)
   const showProfile = useState<boolean>('modal_profile', () => false)
   const showPostAd = useState<boolean>('modal_post_ad', () => false)
+
+  // Ecosystem modals
+  const showCompare = useState<boolean>('modal_compare', () => false)
+  const showRoommates = useState<boolean>('modal_roommates', () => false)
+  const showNeighborhoods = useState<boolean>('modal_neighborhoods', () => false)
+  const showAssistant = useState<boolean>('modal_assistant', () => false)
+  const showReport = useState<boolean>('modal_report', () => false)
+  const reportingListingId = useState<number | null>('reporting_listing_id', () => null)
+
   const toastMessage = useState<string | null>('toast_message', () => null)
 
   let toastTimer: any = null
@@ -20,12 +29,27 @@ export function useModals() {
     }
   }
 
+  const openReportModal = (listingId: number) => {
+    reportingListingId.value = listingId
+    showReport.value = true
+  }
+
   return {
     showFilters,
     showMap,
     showSaved,
     showProfile,
     showPostAd,
+
+    // Ecosystem
+    showCompare,
+    showRoommates,
+    showNeighborhoods,
+    showAssistant,
+    showReport,
+    reportingListingId,
+    openReportModal,
+
     toastMessage,
     showToast,
   }

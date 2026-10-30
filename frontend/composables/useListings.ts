@@ -27,12 +27,38 @@ export interface ListingItem {
   amenities?: string[]
   disclaimer?: string
   source_attribution?: string
+
+  // Intelligent Ecosystem Fields
+  coordinates_lat?: number
+  coordinates_lon?: number
+  metro_station?: string
+  metro_distance_m?: number
+  fair_price_category?: string // 'BELOW_MARKET' | 'FAIR_PRICE' | 'ABOVE_MARKET'
+  estimated_market_price?: number
+  price_diff_percent?: number
+  scam_risk_score?: number
+  scam_risk_level?: string // 'LOW' | 'MEDIUM' | 'HIGH'
+  scam_risk_reasons?: string[]
+  is_furnished?: boolean
+  renovation_type?: string
+  match_percentage?: number
+  match_pros?: string[]
+  match_cons?: string[]
 }
 
 export function useListings() {
   const listings = useState<ListingItem[]>('listings', () => [])
   const isLoading = useState<boolean>('listings_loading', () => false)
   const selectedListing = useState<ListingItem | null>('selected_listing', () => null)
+
+  // AI Match Search state
+  const aiSearchQuery = useState<string>('ai_search_query', () => '')
+  const isAiSearching = useState<boolean>('is_ai_searching', () => false)
+  const aiSearchActive = useState<boolean>('ai_search_active', () => false)
+  const aiParsedCriteria = useState<any>('ai_parsed_criteria', () => null)
+
+  // Comparison state
+  const compareList = useState<ListingItem[]>('compare_list', () => [])
 
   // Filters state
   const filterDistrict = useState<string>('filter_district', () => '')
@@ -96,65 +122,158 @@ export function useListings() {
             image_urls: item.image_urls || [],
             is_owner: isOwner,
             confidence_score: item.classification?.confidence_score || 0.85,
-            metro_name: item.district || 'Metro',
-            metro_minutes: 5 + (idx % 7),
+            metro_name: item.metro_station || item.district || 'Metro',
+            metro_minutes: Math.max(3, Math.round((item.metro_distance_m || 500) / 75)),
             days_ago: daysAgo,
             is_shared_room: item.rooms === 0,
             amenities: ['mebel', 'kond', 'kir', 'net'],
             disclaimer: item.disclaimer || 'Egasidan ekanligi mustaqil tasdiqlanmagan.',
             source_attribution: item.source_attribution || 'Tashqi manba (OLX Uzbekistan)',
+
+            // Ecosystem properties
+            coordinates_lat: item.coordinates_lat,
+            coordinates_lon: item.coordinates_lon,
+            metro_station: item.metro_station,
+            metro_distance_m: item.metro_distance_m,
+            fair_price_category: item.fair_price_category,
+            estimated_market_price: item.estimated_market_price,
+            price_diff_percent: item.price_diff_percent,
+            scam_risk_score: item.scam_risk_score,
+            scam_risk_level: item.scam_risk_level,
+            scam_risk_reasons: item.scam_risk_reasons,
+            is_furnished: item.is_furnished,
+            renovation_type: item.renovation_type,
           }
         })
       }
     } catch (err) {
-      console.warn('API fetch fallback, loading offline default listings:', err)
-      // Fallback offline listings if backend is starting
-      if (!listings.value.length) {
-        listings.value = [
-          {
-            id: 1,
-            title: 'Chilonzor 9-kvartal 2 xonali kvartira, bevosita egasidan, maklersiz',
-            price_uzs: 3500000,
-            district: 'Chilonzor',
-            rooms: 2,
-            area: 54,
-            floor: '4/9',
-            is_owner: true,
-            metro_name: 'Chilonzor',
-            metro_minutes: 7,
-            days_ago: 0,
-            image_urls: ['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800'],
-            description: 'Kvartira toza, barcha jihozlari bor. Maklersiz beriladi, o‘zimning uyim.',
-            canonical_url: 'https://olx.uz',
-            amenities: ['mebel', 'kond', 'net'],
-          },
-          {
-            id: 2,
-            title: 'Yunusobod 4-mavze Minor metrosi yaqinida 1 xonali kvartira egasidan',
-            price_uzs: 2800000,
-            district: 'Yunusobod',
-            rooms: 1,
-            area: 38,
-            floor: '2/5',
-            is_owner: true,
-            metro_name: 'Minor',
-            metro_minutes: 5,
-            days_ago: 1,
-            image_urls: ['https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800'],
-            description: 'Minor metrosiga 5 daqiqa piyoda. Uy egasidan, vositachilarsiz.',
-            canonical_url: 'https://olx.uz',
-            amenities: ['mebel', 'net'],
-          },
-        ]
-      }
+      console.warn('API fetch fallback, loading default listings:', err)
     } finally {
       isLoading.value = false
     }
   }
 
-  // Filtered listings computed
+  // AI Match Natural Language Query Execution
+  const runAiMatch = async (query: string) => {
+    if (!query || !query.trim()) {
+      aiSearchActive.value = false
+      aiParsedCriteria.value = null
+      await fetchListings()
+      return
+    }
+
+    isAiSearching.value = true
+    aiSearchActive.value = true
+    aiSearchQuery.value = query
+
+    try {
+      const config = useRuntimeConfig()
+      const base = config.public.apiBase || ''
+      const res: any = await $fetch(`${base}/api/ai/match`, {
+        method: 'POST',
+        body: { query: query.trim(), limit: 40 },
+      })
+
+      if (res && res.matches) {
+        aiParsedCriteria.value = res.parsed_criteria
+        listings.value = res.matches.map((m: any) => {
+          const item = m.listing
+          const isOwner =
+            item.classification?.label === 'LIKELY_OWNER' ||
+            item.title.toLowerCase().includes('maklersiz') ||
+            item.title.toLowerCase().includes('egasidan')
+
+          return {
+            id: item.id,
+            source: item.source || 'olx_uz',
+            source_id: item.source_id,
+            canonical_url: item.canonical_url,
+            title: item.title,
+            price_raw: item.price_raw,
+            price_uzs: item.price_uzs || 3000000,
+            currency: item.currency || 'UZS',
+            district: item.district || 'Chilonzor',
+            rooms: item.rooms !== undefined && item.rooms !== null ? item.rooms : 2,
+            area: item.area || 54,
+            floor: item.floor || '3/9',
+            description: item.description || '',
+            contact_phone: item.contact_phone || undefined,
+            contact_telegram: item.contact_telegram || undefined,
+            target_audience: item.target_audience || 'any',
+            image_urls: item.image_urls || [],
+            is_owner: isOwner,
+            confidence_score: item.classification?.confidence_score || 0.85,
+            metro_name: item.metro_station || item.district || 'Metro',
+            metro_minutes: Math.max(3, Math.round((item.metro_distance_m || 500) / 75)),
+            days_ago: 0,
+            is_shared_room: item.rooms === 0,
+            amenities: ['mebel', 'kond', 'kir', 'net'],
+            disclaimer: item.disclaimer || 'Egasidan ekanligi mustaqil tasdiqlanmagan.',
+            source_attribution: item.source_attribution || 'Tashqi manba (OLX Uzbekistan)',
+
+            coordinates_lat: item.coordinates_lat,
+            coordinates_lon: item.coordinates_lon,
+            metro_station: item.metro_station,
+            metro_distance_m: item.metro_distance_m,
+            fair_price_category: item.fair_price_category,
+            estimated_market_price: item.estimated_market_price,
+            price_diff_percent: item.price_diff_percent,
+            scam_risk_score: item.scam_risk_score,
+            scam_risk_level: item.scam_risk_level,
+            scam_risk_reasons: item.scam_risk_reasons,
+            is_furnished: item.is_furnished,
+            renovation_type: item.renovation_type,
+
+            // AI Match specifics
+            match_percentage: m.match_percentage,
+            match_pros: m.pros || [],
+            match_cons: m.cons || [],
+          }
+        })
+      }
+    } catch (e) {
+      console.error('AI match failed, falling back:', e)
+    } finally {
+      isAiSearching.value = false
+    }
+  }
+
+  const resetAiMatch = async () => {
+    aiSearchActive.value = false
+    aiSearchQuery.value = ''
+    aiParsedCriteria.value = null
+    await fetchListings()
+  }
+
+  // Comparison methods
+  const toggleCompare = (item: ListingItem) => {
+    const idx = compareList.value.findIndex((x) => x.id === item.id)
+    if (idx >= 0) {
+      compareList.value.splice(idx, 1)
+    } else {
+      if (compareList.value.length >= 4) {
+        compareList.value.shift()
+      }
+      compareList.value.push(item)
+    }
+  }
+
+  const isInCompare = (id: number) => {
+    return compareList.value.some((x) => x.id === id)
+  }
+
+  const clearCompare = () => {
+    compareList.value = []
+  }
+
+  // Filtered listings logic
   const filteredListings = computed(() => {
     let result = [...listings.value]
+
+    // If AI Match is active, keep match score ordering
+    if (aiSearchActive.value) {
+      return result
+    }
 
     // District filter
     if (filterDistrict.value) {
@@ -164,7 +283,11 @@ export function useListings() {
     // Rooms filter
     if (filterRooms.value) {
       const r = Number(filterRooms.value)
-      result = result.filter((item) => item.rooms === r)
+      if (r === 4) {
+        result = result.filter((item) => item.rooms >= 4)
+      } else {
+        result = result.filter((item) => item.rooms === r)
+      }
     }
 
     // Max Price filter
@@ -184,6 +307,7 @@ export function useListings() {
     if (filterCategory.value === 'mk') result = result.filter((item) => item.is_owner)
     if (filterCategory.value === '3days') result = result.filter((item) => (item.days_ago || 0) <= 3)
     if (filterCategory.value === 'today') result = result.filter((item) => (item.days_ago || 0) === 0)
+    if (filterCategory.value === 'fair_cheap') result = result.filter((item) => item.fair_price_category === 'BELOW_MARKET')
 
     // Target Audience filter ('family', 'female', 'male')
     if (filterAudience.value && filterAudience.value !== 'all') {
@@ -239,6 +363,17 @@ export function useListings() {
     filterAmenities,
     availableDistricts,
     fetchListings,
+
+    // AI Match & Comparison
+    aiSearchQuery,
+    isAiSearching,
+    aiSearchActive,
+    aiParsedCriteria,
+    runAiMatch,
+    resetAiMatch,
+    compareList,
+    toggleCompare,
+    isInCompare,
+    clearCompare,
   }
 }
-

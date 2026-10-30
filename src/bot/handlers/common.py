@@ -149,6 +149,7 @@ async def handle_privacy(message: Message):
 
 
 @common_router.message(F.text == "🆕 Yangi e'lonlar")
+@common_router.message(F.text == "🏠 Kvartiralar")
 async def handle_latest_listings(message: Message):
     """Display the most recent apartment rental listings."""
     async with AsyncSessionLocal() as session:
@@ -165,11 +166,43 @@ async def handle_latest_listings(message: Message):
         )
         return
 
-    await message.answer(f"🆕 <b>Toshkentdagi so‘nggi {len(listings)} ta e'lon:</b>", parse_mode="HTML")
+    await message.answer(f"🏠 <b>Toshkentdagi so‘nggi {len(listings)} ta e'lon:</b>", parse_mode="HTML")
     for listing in listings:
         msg_text = format_listing_message(listing)
         kb = get_listing_inline_keyboard(listing)
         await message.answer(msg_text, reply_markup=kb)
+
+
+@common_router.message(F.text == "🔔 Bildirishnomalar")
+async def handle_notifications_menu(message: Message):
+    """Display active instant alerts and notification preferences."""
+    async with AsyncSessionLocal() as session:
+        user = await get_or_create_user(
+            session=session,
+            telegram_id=message.from_user.id,
+            username=message.from_user.username,
+            first_name=message.from_user.first_name,
+        )
+        pref = user.preference
+
+    notif_status = "✅ Faol" if pref and pref.notifications_enabled else "🔕 O‘chirilgan"
+    quiet_status = f"🌙 {pref.quiet_hours_start}-{pref.quiet_hours_end}" if pref and pref.quiet_hours_enabled else "O‘chirilgan"
+    districts = ", ".join(pref.districts) if pref and pref.districts else "Barcha tumanlar"
+
+    text = (
+        "🔔 <b>Joyliy Tezkor Bildirishnomalari</b>\n\n"
+        f"• Status: <b>{notif_status}</b>\n"
+        f"• Tinch rejim (tun): <b>{quiet_status}</b>\n"
+        f"• Kuzatilayotgan tumanlar: <b>{districts}</b>\n\n"
+        "Yangi mos e'lon joylanganida yoki saqlangan e'lon narxi arzonlashganda bot sizga birinchi bo'lib xabar beradi!"
+    )
+    kb = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text="⚙️ Sozlamalarni o'zgartirish", callback_data="nav:back_to_settings")],
+            [InlineKeyboardButton(text="🔕 Xabarlarni yoqish/o'chirish", callback_data="cfg:notif_toggle")],
+        ]
+    )
+    await message.answer(text, reply_markup=kb, parse_mode="HTML")
 
 
 @common_router.message(F.text == "🏠 Maklersiz kvartiralar")

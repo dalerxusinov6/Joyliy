@@ -52,6 +52,30 @@ class Listing(Base):
     content_hash: Mapped[Optional[str]] = mapped_column(String(64), index=True, nullable=True)
     image_fingerprint: Mapped[Optional[str]] = mapped_column(String(64), index=True, nullable=True)
 
+    # Location & Metro Intelligence
+    coordinates_lat: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    coordinates_lon: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    metro_station: Mapped[Optional[str]] = mapped_column(String(128), index=True, nullable=True)
+    metro_distance_m: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+
+    # Property Characteristics
+    is_furnished: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    renovation_type: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)  # euro, good, cosmetic, standard
+
+    # Fair Price AI Intelligence
+    fair_price_category: Mapped[Optional[str]] = mapped_column(
+        String(32), default="fair_price", index=True, nullable=True
+    )  # 'below_market', 'fair_price', 'above_market'
+    estimated_market_price: Mapped[Optional[int]] = mapped_column(BigInteger, nullable=True)
+    price_diff_percent: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+
+    # Scam Detector & Risk Indicators
+    scam_risk_score: Mapped[int] = mapped_column(Integer, default=10, nullable=False)  # 0 to 100
+    scam_risk_level: Mapped[str] = mapped_column(
+        String(32), default="low", index=True, nullable=False
+    )  # 'low', 'medium', 'high'
+    scam_risk_reasons: Mapped[list] = mapped_column(JSON, default=list, nullable=False)
+
     # Dates: publication_date is recorded only when reliably present; never fabricated
     publication_date: Mapped[Optional[datetime]] = mapped_column(
         DateTime(timezone=True), nullable=True

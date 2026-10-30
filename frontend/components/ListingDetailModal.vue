@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from '~/composables/useI18n'
-import type { ListingItem } from '~/composables/useListings'
+import { useListings, type ListingItem } from '~/composables/useListings'
+import { useModals } from '~/composables/useModals'
 
 const props = defineProps<{
   listing: ListingItem | null
@@ -9,6 +10,8 @@ const props = defineProps<{
 
 const emit = defineEmits(['close', 'toast'])
 const { t } = useI18n()
+const { isInCompare, toggleCompare } = useListings()
+const { openReportModal } = useModals()
 
 const activePhotoIndex = ref(0)
 
@@ -20,11 +23,20 @@ watch(
 )
 
 const formatPrice = (val: number) => {
-  return val.toLocaleString('ru-RU').replace(/\u00a0/g, ' ') + ' so‘m'
+  return (val || 0).toLocaleString('ru-RU').replace(/\u00a0/g, ' ') + ' so‘m'
 }
 
 const onReport = () => {
-  emit('toast', t('report_received'))
+  if (props.listing) {
+    openReportModal(props.listing.id)
+  }
+}
+
+const onToggleCompare = () => {
+  if (props.listing) {
+    toggleCompare(props.listing)
+    emit('toast', isInCompare(props.listing.id) ? 'Taqqoslashga qo‘shildi' : 'Taqqoslashdan olindi')
+  }
 }
 
 const sourceViewLabel = computed(() => {
@@ -149,6 +161,50 @@ const sourceViewLabel = computed(() => {
           </div>
         </div>
 
+        <!-- AI Intelligence Dossier -->
+        <div class="ai-intelligence-block">
+          <div class="intel-header">
+            <span class="intel-badge">Joyliy Fair Price & Safety AI</span>
+          </div>
+
+          <div class="intel-grid">
+            <!-- Market valuation card -->
+            <div class="intel-card">
+              <span class="ic-lbl">Bozor Tahlili (Fair Price)</span>
+              <div class="ic-status">
+                <span v-if="listing.fair_price_category === 'BELOW_MARKET'" class="tag-good">
+                  🟢 Bozordan arzon {{ listing.price_diff_percent ? `(${listing.price_diff_percent > 0 ? '+' : ''}${listing.price_diff_percent}%)` : '' }}
+                </span>
+                <span v-else-if="listing.fair_price_category === 'ABOVE_MARKET'" class="tag-warn">
+                  🔴 Bozordan qimmat {{ listing.price_diff_percent ? `(+${listing.price_diff_percent}%)` : '' }}
+                </span>
+                <span v-else class="tag-fair">
+                  🟡 Bozor narxida
+                </span>
+              </div>
+              <p class="ic-desc">
+                Toshkent {{ listing.district }} tumanida o‘xshash xonadonlar o‘rtacha narxi: ~{{ formatPrice(listing.estimated_market_price || listing.price_uzs) }}
+              </p>
+            </div>
+
+            <!-- Scam detector card -->
+            <div class="intel-card">
+              <span class="ic-lbl">Xavfsizlik Tahlili</span>
+              <div class="ic-status">
+                <span v-if="(listing.scam_risk_score || 0) < 40" class="tag-safe">
+                  🛡 Xavfsiz e’lon ({{ 100 - (listing.scam_risk_score || 10) }}% ishonch)
+                </span>
+                <span v-else class="tag-danger">
+                  ⚠️ Ehtiyot bo‘ling (Xavf darajasi: {{ listing.scam_risk_score }}%)
+                </span>
+              </div>
+              <p class="ic-desc">
+                Avans to‘lamang, xonadonni va egalik kadastrini bevosita ko‘rishdan avval pul o‘tkazmang.
+              </p>
+            </div>
+          </div>
+        </div>
+
         <!-- Description Text -->
         <div v-if="listing.description" class="exhibition-description-block">
           <h4 class="description-heading">Tavsif va shartlar</h4>
@@ -181,6 +237,15 @@ const sourceViewLabel = computed(() => {
 
       <!-- Action Footer Bar -->
       <div class="cbar exhibition-cbar">
+        <button
+          type="button"
+          class="btn cmp-btn"
+          :class="{ active: isInCompare(listing.id) }"
+          @click="onToggleCompare"
+        >
+          <span>⚖️ {{ isInCompare(listing.id) ? 'Taqqoslangan' : 'Taqqoslash' }}</span>
+        </button>
+
         <a
           v-if="listing.contact_phone"
           class="btn p call-btn"
@@ -559,6 +624,96 @@ const sourceViewLabel = computed(() => {
 
 .source-btn {
   flex: 1;
+}
+
+.cmp-btn {
+  padding: 0 14px;
+  background: var(--sand-light, #f4f0eb);
+  border: 1px solid var(--sand, #ebe5db);
+  color: var(--ink, #1c1c1b);
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.cmp-btn.active {
+  background: #2b78e4;
+  color: #ffffff;
+  border-color: #2b78e4;
+}
+
+.ai-intelligence-block {
+  margin-top: 20px;
+  padding: 16px;
+  background: var(--sand-light, #f8f6f2);
+  border: 1px solid var(--sand, #ebe5db);
+  border-radius: 12px;
+}
+
+.intel-header {
+  margin-bottom: 12px;
+}
+
+.intel-badge {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #BC684B;
+  letter-spacing: 0.5px;
+}
+
+.intel-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.intel-card {
+  background: #ffffff;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid #ebe5db;
+}
+
+.ic-lbl {
+  display: block;
+  font-size: 11.5px;
+  color: #72746b;
+  margin-bottom: 6px;
+}
+
+.ic-status {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.ic-desc {
+  font-size: 11.5px;
+  color: #666;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.tag-good {
+  color: #137333;
+}
+
+.tag-warn {
+  color: #c5221f;
+}
+
+.tag-fair {
+  color: #b06000;
+}
+
+.tag-safe {
+  color: #137333;
+}
+
+.tag-danger {
+  color: #c5221f;
 }
 
 @media (max-width: 640px) {

@@ -33,12 +33,13 @@ await useAsyncData('listings_ssr', async () => {
 // Editorial categories
 const categories = [
   { key: '', title: 'Barcha takliflar' },
-  { key: 'mk', title: 'Maklersiz e’lonlar' },
+  { key: 'mk', title: '🏠 Maklersiz e’lonlar' },
+  { key: 'fair_cheap', title: '🟢 Bozordan arzon' },
   { key: '3days', title: 'Oxirgi 3 kun' },
   { key: '1', title: '1 xonali' },
   { key: '2', title: '2 xonali' },
   { key: '3', title: '3 xonali' },
-  { key: 'room', title: 'Sheriklik uchun' },
+  { key: 'room', title: '👥 Sheriklik uchun' },
 ]
 
 // Audience options
