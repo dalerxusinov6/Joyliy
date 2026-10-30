@@ -1,0 +1,30 @@
+# Version control
+.git
+.gitignore
+
+# Local virtual environment and caches
+.venv
+__pycache__
+*.py[cod]
+*$py.class
+.pytest_cache
+.coverage
+htmlcov
+
+# Node / Nuxt build artifacts and dependencies
+frontend/node_modules
+frontend/.output
+frontend/.nuxt
+frontend/.turbo
+
+# Local environment files (Render injects prod env vars)
+.env
+.env.*
+!.env.example
+
+# Miscellaneous
+*.log
+logs/
+*.tmp
+Joyliy — Toshkentda maklersiz ijara.html
+Uyda — Toshkentda maklersiz ijara.html

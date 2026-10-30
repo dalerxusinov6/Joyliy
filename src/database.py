@@ -78,104 +78,58 @@ async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
             raise
 
 
+def _sync_schema_migration(connection) -> None:
+    """Synchronously verify and migrate missing columns across both PostgreSQL and SQLite."""
+    from sqlalchemy import inspect, text
+
+    insp = inspect(connection)
+    tables = set(insp.get_table_names())
+
+    if "listings" in tables:
+        cols = {c["name"] for c in insp.get_columns("listings")}
+        for col, ctype in [
+            ("contact_phone", "VARCHAR(128)"),
+            ("contact_telegram", "VARCHAR(128)"),
+            ("content_hash", "VARCHAR(64)"),
+            ("image_fingerprint", "VARCHAR(64)"),
+            ("target_audience", "VARCHAR(32) DEFAULT 'any'"),
+            ("posted_to_channel_at", "TIMESTAMP"),
+        ]:
+            if col not in cols:
+                try:
+                    connection.execute(text(f"ALTER TABLE listings ADD COLUMN {col} {ctype}"))
+                except Exception as e:
+                    logger.debug("Could not add column %s to listings: %s", col, e)
+
+    if "users" in tables:
+        cols = {c["name"] for c in insp.get_columns("users")}
+        if "photo_url" not in cols:
+            try:
+                connection.execute(text("ALTER TABLE users ADD COLUMN photo_url VARCHAR(512)"))
+            except Exception as e:
+                logger.debug("Could not add column photo_url to users: %s", e)
+
+    if "channel_posts" in tables:
+        cols = {c["name"] for c in insp.get_columns("channel_posts")}
+        for col, ctype in [
+            ("content_hash", "VARCHAR(64)"),
+            ("image_fingerprint", "VARCHAR(64)"),
+            ("telegram_message_id", "BIGINT"),
+        ]:
+            if col not in cols:
+                try:
+                    connection.execute(text(f"ALTER TABLE channel_posts ADD COLUMN {col} {ctype}"))
+                except Exception as e:
+                    logger.debug("Could not add column %s to channel_posts: %s", col, e)
+
+
 async def init_db() -> None:
     """Initialize database tables, with seamless local SQLite fallback if PostgreSQL is unreachable."""
     global engine, _engine, _session_maker
     try:
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
-            from sqlalchemy import text
-            for col in ["contact_phone", "contact_telegram"]:
-                try:
-                    await conn.execute(text(f"ALTER TABLE listings ADD COLUMN {col} VARCHAR(128)"))
-                except Exception:
-                    pass
-            for col in ["content_hash", "image_fingerprint"]:
-                try:
-                    await conn.execute(text(f"ALTER TABLE listings ADD COLUMN {col} VARCHAR(64)"))
-                except Exception:
-                    pass
-            try:
-                await conn.execute(text("ALTER TABLE listings ADD COLUMN target_audience VARCHAR(32) DEFAULT 'any'"))
-            except Exception:
-                pass
-            try:
-                await conn.execute(text("ALTER TABLE listings ADD COLUMN posted_to_channel_at TIMESTAMP"))
-            except Exception:
-                pass
-            try:
-                await conn.execute(text("""
-                    CREATE TABLE IF NOT EXISTS channel_posts (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        listing_id INTEGER,
-                        canonical_url VARCHAR(1024),
-                        title VARCHAR(512) NOT NULL,
-                        normalized_title VARCHAR(512) NOT NULL,
-                        district VARCHAR(128),
-                        rooms INTEGER,
-                        price_uzs BIGINT,
-                        contact_phone VARCHAR(128),
-                        content_hash VARCHAR(64),
-                        image_fingerprint VARCHAR(64),
-                        telegram_message_id BIGINT,
-                        posted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        channel_id VARCHAR(128) DEFAULT '@joyliy_uz'
-                    )
-                """))
-            except Exception:
-                pass
-            for col, ctype in [("content_hash", "VARCHAR(64)"), ("image_fingerprint", "VARCHAR(64)"), ("telegram_message_id", "BIGINT")]:
-                try:
-                    await conn.execute(text(f"ALTER TABLE channel_posts ADD COLUMN {col} {ctype}"))
-                except Exception:
-                    pass
-            try:
-                await conn.execute(text("""
-                    CREATE TABLE IF NOT EXISTS channel_publish_queue (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        listing_id INTEGER UNIQUE NOT NULL,
-                        canonical_url VARCHAR(1024) UNIQUE NOT NULL,
-                        source_id VARCHAR(128),
-                        title VARCHAR(512) NOT NULL,
-                        normalized_title VARCHAR(512) NOT NULL,
-                        district VARCHAR(128),
-                        rooms INTEGER,
-                        price_uzs BIGINT,
-                        contact_phone VARCHAR(128),
-                        content_hash VARCHAR(64) NOT NULL,
-                        image_fingerprint VARCHAR(64),
-                        status VARCHAR(32) DEFAULT 'pending' NOT NULL,
-                        attempts INTEGER DEFAULT 0 NOT NULL,
-                        error_message TEXT,
-                        telegram_message_id BIGINT,
-                        scheduled_slot VARCHAR(32),
-                        publication_date TIMESTAMP,
-                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-                        published_at TIMESTAMP,
-                        FOREIGN KEY (listing_id) REFERENCES listings(id) ON DELETE CASCADE
-                    )
-                """))
-            except Exception:
-                pass
-            try:
-                await conn.execute(text("""
-                    CREATE TABLE IF NOT EXISTS channel_publish_schedule (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        slot_date VARCHAR(10) NOT NULL,
-                        slot_time VARCHAR(5) NOT NULL,
-                        status VARCHAR(32) DEFAULT 'pending' NOT NULL,
-                        queue_item_id INTEGER,
-                        telegram_message_id BIGINT,
-                        executed_at TIMESTAMP,
-                        UNIQUE (slot_date, slot_time)
-                    )
-                """))
-            except Exception:
-                pass
-            try:
-                await conn.execute(text("ALTER TABLE users ADD COLUMN photo_url VARCHAR(512)"))
-            except Exception:
-                pass
+            await conn.run_sync(_sync_schema_migration)
         logger.info("Database tables initialized successfully.")
     except Exception as exc:
         if not str(engine.url).startswith("sqlite"):
@@ -187,98 +141,7 @@ async def init_db() -> None:
             engine = _engine
             async with engine.begin() as conn:
                 await conn.run_sync(Base.metadata.create_all)
-                from sqlalchemy import text
-                for col in ["contact_phone", "contact_telegram"]:
-                    try:
-                        await conn.execute(text(f"ALTER TABLE listings ADD COLUMN {col} VARCHAR(128)"))
-                    except Exception:
-                        pass
-                for col in ["content_hash", "image_fingerprint"]:
-                    try:
-                        await conn.execute(text(f"ALTER TABLE listings ADD COLUMN {col} VARCHAR(64)"))
-                    except Exception:
-                        pass
-                try:
-                    await conn.execute(text("ALTER TABLE listings ADD COLUMN target_audience VARCHAR(32) DEFAULT 'any'"))
-                except Exception:
-                    pass
-                try:
-                    await conn.execute(text("ALTER TABLE listings ADD COLUMN posted_to_channel_at TIMESTAMP"))
-                except Exception:
-                    pass
-                try:
-                    await conn.execute(text("""
-                        CREATE TABLE IF NOT EXISTS channel_posts (
-                            id INTEGER PRIMARY KEY AUTOINCREMENT,
-                            listing_id INTEGER,
-                            canonical_url VARCHAR(1024),
-                            title VARCHAR(512) NOT NULL,
-                            normalized_title VARCHAR(512) NOT NULL,
-                            district VARCHAR(128),
-                            rooms INTEGER,
-                            price_uzs BIGINT,
-                            contact_phone VARCHAR(128),
-                            content_hash VARCHAR(64),
-                            image_fingerprint VARCHAR(64),
-                            telegram_message_id BIGINT,
-                            posted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                            channel_id VARCHAR(128) DEFAULT '@joyliy_uz'
-                        )
-                    """))
-                except Exception:
-                    pass
-                for col, ctype in [("content_hash", "VARCHAR(64)"), ("image_fingerprint", "VARCHAR(64)"), ("telegram_message_id", "BIGINT")]:
-                    try:
-                        await conn.execute(text(f"ALTER TABLE channel_posts ADD COLUMN {col} {ctype}"))
-                    except Exception:
-                        pass
-                try:
-                    await conn.execute(text("""
-                        CREATE TABLE IF NOT EXISTS channel_publish_queue (
-                            id INTEGER PRIMARY KEY AUTOINCREMENT,
-                            listing_id INTEGER UNIQUE NOT NULL,
-                            canonical_url VARCHAR(1024) UNIQUE NOT NULL,
-                            source_id VARCHAR(128),
-                            title VARCHAR(512) NOT NULL,
-                            normalized_title VARCHAR(512) NOT NULL,
-                            district VARCHAR(128),
-                            rooms INTEGER,
-                            price_uzs BIGINT,
-                            contact_phone VARCHAR(128),
-                            content_hash VARCHAR(64) NOT NULL,
-                            image_fingerprint VARCHAR(64),
-                            status VARCHAR(32) DEFAULT 'pending' NOT NULL,
-                            attempts INTEGER DEFAULT 0 NOT NULL,
-                            error_message TEXT,
-                            telegram_message_id BIGINT,
-                            scheduled_slot VARCHAR(32),
-                            publication_date TIMESTAMP,
-                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-                            published_at TIMESTAMP,
-                            FOREIGN KEY (listing_id) REFERENCES listings(id) ON DELETE CASCADE
-                        )
-                    """))
-                except Exception:
-                    pass
-                try:
-                    await conn.execute(text("""
-                        CREATE TABLE IF NOT EXISTS channel_publish_schedule (
-                            id INTEGER PRIMARY KEY AUTOINCREMENT,
-                            slot_date VARCHAR(10) NOT NULL,
-                            slot_time VARCHAR(5) NOT NULL,
-                            status VARCHAR(32) DEFAULT 'pending' NOT NULL,
-                            queue_item_id INTEGER,
-                            telegram_message_id BIGINT,
-                            executed_at TIMESTAMP,
-                            UNIQUE (slot_date, slot_time)
-                        )
-                    """))
-                except Exception:
-                    pass
-                try:
-                    await conn.execute(text("ALTER TABLE users ADD COLUMN photo_url VARCHAR(512)"))
-                except Exception:
-                    pass
+                await conn.run_sync(_sync_schema_migration)
             logger.info("Local SQLite database 'uyda.db' initialized successfully.")
         else:
             raise

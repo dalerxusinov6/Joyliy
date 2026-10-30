@@ -28,11 +28,12 @@ COPY . .
 
 # Create non-root user for security
 RUN useradd -u 1000 -m appuser && \
-    chown -R appuser:appuser /app
+    chown -R appuser:appuser /app && \
+    chmod -R 775 /app
 USER appuser
 
 # Expose API port
-EXPOSE 8000
+EXPOSE 8000 10000
 
 # Default entrypoint
 CMD ["python", "-m", "src.main", "--mode", "all"]

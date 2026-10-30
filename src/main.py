@@ -44,6 +44,7 @@ async def run_application(mode: str = "all"):
         bot, dp = create_bot_and_dispatcher()
         if bot and dp:
             monitor_worker.set_bot(bot)
+            channel_scheduler.set_bot(bot)
             logger.info("Telegram Bot and Dispatcher configured.")
         else:
             logger.warning("Telegram Bot is disabled (valid BOT_TOKEN not configured).")
@@ -58,15 +59,18 @@ async def run_application(mode: str = "all"):
     server_task = None
     if mode in ("all", "api"):
         app = create_app()
+        # Bind dynamically to environment PORT and HOST (essential for Render dynamic port allocation)
+        bind_port = int(os.getenv("PORT", str(settings.PORT)))
+        bind_host = os.getenv("HOST", settings.HOST)
         config = uvicorn.Config(
             app=app,
-            host=settings.HOST,
-            port=settings.PORT,
+            host=bind_host,
+            port=bind_port,
             log_level=settings.LOG_LEVEL.lower(),
         )
         server = uvicorn.Server(config)
         server_task = asyncio.create_task(server.serve())
-        logger.info("FastAPI web server bound to %s:%d", settings.HOST, settings.PORT)
+        logger.info("FastAPI web server bound to %s:%d", bind_host, bind_port)
 
     # Graceful shutdown handler
     stop_event = asyncio.Event()
