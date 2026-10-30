@@ -22,6 +22,8 @@ from src.models.system import SourceMonitorRun, AdminAuditLog
 from src.classification.types import ClassificationLabel
 from src.services.monitor_worker import monitor_worker
 from src.services.notification_service import notification_service
+from src.services.channel_scheduler import channel_scheduler
+from src.services.queue_service import queue_service
 from src.bot.formatter import format_listing_message, get_listing_inline_keyboard, TASHKENT_TZ
 
 logger = logging.getLogger(__name__)
@@ -121,21 +123,25 @@ async def handle_admin_menu(message: Message):
     text = (
         "👑 <b>Joyliy Admin Boshqaruv Markazi:</b>\n\n"
         "Quyidagi boshqaruv bo‘limlaridan birini tanlang yoki buyruqlardan foydalaning:\n\n"
+        "• <code>/queue</code> — Telegram kanal e'lonlar navbati va 10 ta kunlik reja grafigi\n"
+        "• <code>/channel</code> — Telegram kanal (@joyliy_uz) holati va statistika\n"
         "• <code>/scraper</code> — E'lonlarni avtomatik va ertalabki yuklash boshqaruvi\n"
         "• <code>/scrape_now</code> — Hoziroq yangi e'lonlarni yuklash\n"
-        "• <code>/channel</code> — Telegram kanal (@joyliy_uz) holati va statistika\n"
-        "• <code>/post_latest 1</code> — Kanalga yangi e'lon chiqarish\n"
+        "• <code>/post_latest</code> — Kanalga navbatdagi 1 ta e'lonni chiqarish\n"
         "• <code>/admin_stats</code> — Foydalanuvchilar va platforma statistikasi\n"
         "• <code>/admin_health</code> — Server va provayder salomatligi\n"
         "• <code>/set_scrape_time 08:00</code> — Ertalabki yuklash vaqtini belgilash"
     )
     kb = InlineKeyboardMarkup(inline_keyboard=[
         [
-            InlineKeyboardButton(text="⚙️ Scraper Boshqaruvi", callback_data="sc_refresh"),
+            InlineKeyboardButton(text="📋 E'lonlar Navbati (/queue)", callback_data="queue_refresh"),
             InlineKeyboardButton(text="📢 Kanal Boshqaruvi", callback_data="sc_channel_info")
         ],
         [
-            InlineKeyboardButton(text="📊 Tizim Statistikasi", callback_data="admin_stats_menu"),
+            InlineKeyboardButton(text="⚙️ Scraper Boshqaruvi", callback_data="sc_refresh"),
+            InlineKeyboardButton(text="📊 Tizim Statistikasi", callback_data="admin_stats_menu")
+        ],
+        [
             InlineKeyboardButton(text="🩺 Salomatlik (Health)", callback_data="admin_health_menu")
         ]
     ])
@@ -778,37 +784,164 @@ async def handle_set_channel(message: Message):
     await log_admin_action(message.from_user.id, "set_channel", {"channel_id": new_channel})
 
 
+@admin_router.message(Command("queue"))
+async def handle_admin_queue(message: Message):
+    """Display persistent publishing queue status and today's 10 schedule slots."""
+    if not is_admin(message.from_user.id):
+        return
+
+    status = await channel_scheduler.get_schedule_status()
+    q = status["queue"]
+
+    slot_lines = []
+    for sl in status["slots"]:
+        st = sl["status"]
+        if st == "published":
+            icon = "✅"
+        elif st == "skipped":
+            icon = "⏭"
+        elif st == "missed":
+            icon = "⚠️"
+        elif st == "publishing":
+            icon = "🔄"
+        elif st == "due":
+            icon = "⏳"
+        else:
+            icon = "⚪️"
+        slot_lines.append(f"{icon} <code>{sl['time']}</code> — {st}")
+
+    slots_formatted = "\n".join(slot_lines)
+
+    text = (
+        f"📋 <b>Telegram Kanal E'lonlar Navbati (Queue & Schedule):</b>\n\n"
+        f"• Toshkent vaqti: <b>⏰ {status['tashkent_time']}</b>\n"
+        f"• Nashr oraliq oynasi: <b>08:00 – 20:00</b> ({'🟢 Ochiq' if status['is_within_window'] else '🔴 Yopiq'})\n"
+        f"• Bugun chop etilgan: <b>{status['published_today']} / {status['total_slots']} ta</b>\n"
+        f"• Navbatdagi reja sloti: <b>{status['next_slot']}</b>\n\n"
+        f"📦 <b>Doimiy navbat holati (Persistent DB Queue):</b>\n"
+        f"• Kutilmoqda (Pending): <b>{q.get('pending', 0)} ta</b>\n"
+        f"• Jarayonda (Publishing): <b>{q.get('publishing', 0)} ta</b>\n"
+        f"• Kanalga chiqqan (Published): <b>{q.get('published', 0)} ta</b>\n"
+        f"• Rad etilgan (Duplicate): <b>{q.get('rejected', 0)} ta</b>\n"
+        f"• Xato bergan (Failed): <b>{q.get('failed', 0)} ta</b>\n\n"
+        f"📅 <b>Bugungi 10 ta reja grafigi:</b>\n"
+        f"{slots_formatted}\n\n"
+        f"<i>Kanalga har bir slotda faqat 1 ta eng yangi va noyob e'lon chiqadi. Dublikatlar qat'iyan taqiqlangan.</i>"
+    )
+
+    kb = InlineKeyboardMarkup(inline_keyboard=[
+        [
+            InlineKeyboardButton(text="🔄 Navbatni yangilash", callback_data="queue_refresh"),
+            InlineKeyboardButton(text="📤 Keyingisini chiqarish", callback_data="queue_publish_next"),
+        ],
+        [
+            InlineKeyboardButton(text="⚙️ Scraper Boshqaruvi", callback_data="sc_refresh"),
+        ]
+    ])
+    await message.answer(text, reply_markup=kb, parse_mode="HTML")
+
+
+@admin_router.callback_query(F.data == "queue_refresh")
+async def handle_queue_refresh(callback: CallbackQuery):
+    if not is_admin(callback.from_user.id):
+        await callback.answer("Ruxsat berilmagan.", show_alert=True)
+        return
+    status = await channel_scheduler.get_schedule_status()
+    q = status["queue"]
+    slot_lines = []
+    for sl in status["slots"]:
+        st = sl["status"]
+        icon = "✅" if st == "published" else ("⏭" if st == "skipped" else ("⚠️" if st == "missed" else ("🔄" if st == "publishing" else ("⏳" if st == "due" else "⚪️"))))
+        slot_lines.append(f"{icon} <code>{sl['time']}</code> — {st}")
+    slots_formatted = "\n".join(slot_lines)
+
+    text = (
+        f"📋 <b>Telegram Kanal E'lonlar Navbati (Queue & Schedule):</b>\n\n"
+        f"• Toshkent vaqti: <b>⏰ {status['tashkent_time']}</b>\n"
+        f"• Nashr oraliq oynasi: <b>08:00 – 20:00</b> ({'🟢 Ochiq' if status['is_within_window'] else '🔴 Yopiq'})\n"
+        f"• Bugun chop etilgan: <b>{status['published_today']} / {status['total_slots']} ta</b>\n"
+        f"• Navbatdagi reja sloti: <b>{status['next_slot']}</b>\n\n"
+        f"📦 <b>Doimiy navbat holati (Persistent DB Queue):</b>\n"
+        f"• Kutilmoqda (Pending): <b>{q.get('pending', 0)} ta</b>\n"
+        f"• Jarayonda (Publishing): <b>{q.get('publishing', 0)} ta</b>\n"
+        f"• Kanalga chiqqan (Published): <b>{q.get('published', 0)} ta</b>\n"
+        f"• Rad etilgan (Duplicate): <b>{q.get('rejected', 0)} ta</b>\n"
+        f"• Xato bergan (Failed): <b>{q.get('failed', 0)} ta</b>\n\n"
+        f"📅 <b>Bugungi 10 ta reja grafigi:</b>\n"
+        f"{slots_formatted}\n\n"
+        f"<i>Kanalga har bir slotda faqat 1 ta eng yangi va noyob e'lon chiqadi. Dublikatlar qat'iyan taqiqlangan.</i>"
+    )
+    kb = InlineKeyboardMarkup(inline_keyboard=[
+        [
+            InlineKeyboardButton(text="🔄 Navbatni yangilash", callback_data="queue_refresh"),
+            InlineKeyboardButton(text="📤 Keyingisini chiqarish", callback_data="queue_publish_next"),
+        ],
+        [
+            InlineKeyboardButton(text="⚙️ Scraper Boshqaruvi", callback_data="sc_refresh"),
+        ]
+    ])
+    await callback.message.edit_text(text, reply_markup=kb, parse_mode="HTML")
+    await callback.answer("Navbat yangilandi.")
+
+
+@admin_router.callback_query(F.data == "queue_publish_next")
+async def handle_queue_publish_next(callback: CallbackQuery):
+    if not is_admin(callback.from_user.id):
+        await callback.answer("Ruxsat berilmagan.", show_alert=True)
+        return
+    await callback.answer("Keyingi e'lon chop etilmoqda...")
+    now_tash = datetime.now(timezone.utc).astimezone(TASHKENT_TZ)
+    today_str = now_tash.strftime("%Y-%m-%d")
+    res = await channel_scheduler.execute_slot(today_str, "manual", force=True)
+    if res.get("status") == "published":
+        await callback.message.answer(
+            f"✅ <b>Yangi e'lon kanalga muvaffaqiyatli chiqarildi!</b>\n"
+            f"Listing ID: #{res.get('listing_id')} | Msg ID: {res.get('telegram_message_id')}",
+            parse_mode="HTML"
+        )
+    elif res.get("status") == "skipped":
+        await callback.message.answer("ℹ️ <b>Navbatda yangi e'lon yo‘q.</b> Barcha e'lonlar allaqachon chiqarilgan.", parse_mode="HTML")
+    else:
+        await callback.message.answer(f"⚠️ Natija: {res.get('status')} - {res.get('error', '')}", parse_mode="HTML")
+
+
 @admin_router.message(Command("channel_status"))
 @admin_router.message(Command("channel"))
 async def handle_channel_status(message: Message):
     """View channel broadcast status, today's count, and queue size."""
     if not is_admin(message.from_user.id):
         return
-    async with AsyncSessionLocal() as session:
-        stats = await notification_service.get_channel_posting_stats(session)
 
+    sched_status = await channel_scheduler.get_schedule_status()
     channel_name = settings.CHANNEL_ID or "Sozlanmagan"
-    quiet_str = "Sokin vaqt (tunda yuborilmaydi)" if stats["is_quiet_hours"] else "Faol vaqt (e'lonlar uzatilmoqda)"
+    quiet_str = "Faol vaqt (08:00 – 20:00)" if sched_status["is_within_window"] else "Sokin vaqt (tunda yuborilmaydi)"
 
     text = (
-        f"📢 <b>Kanalga e'lon uzatish holati:</b>\n\n"
+        f"📢 <b>Kanalga e'lon uzatish tizimi (@joyliy_uz):</b>\n\n"
         f"• Ulangan kanal: <code>{channel_name}</code>\n"
-        f"• Bugun yuborilgan e'lonlar: <b>{stats['posted_today']} / {stats['daily_limit']}</b> ta\n"
-        f"• Qolgan kunlik limit: <b>{stats['remaining_today']}</b> ta\n"
-        f"• Bazadagi navbatda turgan e'lonlar: <b>{stats['unposted_total']}</b> ta\n"
-        f"• Tizim grafigi: <b>Kun bo‘yi bo‘lib-bo‘lib (har 10 daqiqada 1 tadan)</b>\n"
-        f"• Hozirgi holat: <b>{quiet_str}</b>\n\n"
+        f"• Bugun e'lon qilingan: <b>{sched_status['published_today']} / {sched_status['total_slots']} ta</b>\n"
+        f"• Navbatdagi vaqt sloti: <b>⏰ {sched_status['next_slot']}</b>\n"
+        f"• Nashr oynasi: <b>08:00 – 20:00 (12 soat davomida teng 10 ta post)</b>\n"
+        f"• Hozirgi holat: <b>{quiet_str}</b>\n"
+        f"• Navbatdagi kutilayotgan e'lonlar: <b>{sched_status['queue'].get('pending', 0)} ta</b>\n\n"
         f"<b>Buyruqlar:</b>\n"
-        f"• <code>/post_latest 1</code> — hoziroq kanalga 1 ta e'lon chiqarish\n"
-        f"• <code>/scrape_now</code> — hozir qidirish va yangilash\n"
-        f"• <code>/set_channel @kanal_nomi</code> — kanal nomini o‘zgartirish"
+        f"• <code>/queue</code> — E'lonlar navbati va bugungi 10 ta reja grafigi\n"
+        f"• <code>/post_latest</code> — Navbatdagi 1 ta e'lonni hoziroq chiqarish\n"
+        f"• <code>/scrape_now</code> — Internetdan yangi e'lonlarni yuklash\n"
+        f"• <code>/set_channel @kanal_nomi</code> — Kanal nomini o‘zgartirish"
     )
-    await message.answer(text, parse_mode="HTML")
+    kb = InlineKeyboardMarkup(inline_keyboard=[
+        [
+            InlineKeyboardButton(text="📋 E'lonlar Navbati (/queue)", callback_data="queue_refresh"),
+            InlineKeyboardButton(text="📤 1 ta chiqarish", callback_data="queue_publish_next"),
+        ]
+    ])
+    await message.answer(text, reply_markup=kb, parse_mode="HTML")
 
 
 @admin_router.message(Command("post_latest"))
 async def handle_post_latest(message: Message):
-    """Post N most recent unposted, unique listings to configured channel."""
+    """Post next eligible unposted, unique listing from queue to configured channel."""
     if not is_admin(message.from_user.id):
         return
     channel = settings.CHANNEL_ID
@@ -816,62 +949,26 @@ async def handle_post_latest(message: Message):
         await message.answer("⚠️ Avval <code>/set_channel @kanal_nomi</code> buyrug‘i orqali kanalni sozlang.", parse_mode="HTML")
         return
 
-    parts = message.text.split()
-    count = 1
-    if len(parts) > 1 and parts[1].isdigit():
-        count = min(10, max(1, int(parts[1])))
+    status_msg = await message.answer(f"📤 Navbatdagi yangi e'lon <code>{channel}</code> kanaliga tayyorlanmoqda...", parse_mode="HTML")
 
-    status_msg = await message.answer(f"📤 So‘nggi {count} ta yangi e'lon <code>{channel}</code> kanaliga tayyorlanmoqda...", parse_mode="HTML")
+    now_tash = datetime.now(timezone.utc).astimezone(TASHKENT_TZ)
+    today_str = now_tash.strftime("%Y-%m-%d")
+    res = await channel_scheduler.execute_slot(today_str, "manual", force=True)
 
-    async with AsyncSessionLocal() as session:
-        # Strictly select ONLY listings that have NEVER been posted to the channel
-        stmt = (
-            select(Listing)
-            .options(selectinload(Listing.classification))
-            .where(
-                Listing.is_active == True,
-                Listing.posted_to_channel_at.is_(None),
-            )
-            .order_by(
-                Listing.publication_date.desc().nullslast(),
-                Listing.id.desc(),
-            )
-            .limit(count * 5)
-        )
-        res = await session.execute(stmt)
-        candidates = res.scalars().all()
-
-        chosen_candidates = []
-        for listing in candidates:
-            if len(chosen_candidates) >= count:
-                break
-            # Skip any duplicate match against history and already chosen items
-            if await notification_service.is_channel_duplicate(session, listing, in_batch_candidates=chosen_candidates):
-                listing.posted_to_channel_at = datetime.now(timezone.utc)
-                listing.is_active = False
-                session.add(listing)
-                await session.commit()
-                continue
-            chosen_candidates.append(listing)
-
-        success_cnt = 0
-        for listing in chosen_candidates:
-            try:
-                ok = await notification_service.send_to_channel(listing, channel_id=channel, session=session)
-                if ok:
-                    success_cnt += 1
-                await asyncio.sleep(2.0)  # Telegram pace
-            except Exception as e:
-                logger.error("Error posting listing %d to channel: %s", listing.id, e)
-
-    if success_cnt > 0:
+    if res.get("status") == "published":
         await status_msg.edit_text(
-            f"✅ <b>{success_cnt} ta mutlaqo yangi e'lon {channel} kanaliga muvaffaqiyatli yuklandi!</b>",
+            f"✅ <b>E'lon #{res.get('listing_id')} muvaffaqiyatli kanalga joylandi!</b>\n"
+            f"Kanal: {channel}\nTelegram Message ID: <code>{res.get('telegram_message_id')}</code>",
+            parse_mode="HTML"
+        )
+    elif res.get("status") == "skipped":
+        await status_msg.edit_text(
+            f"ℹ️ <b>Bazada kanalga yuborilmagan yangi e'lon qolmadi.</b>\n\n"
+            f"Barcha e'lonlar allaqachon kanalga chiqqan yoki dublikat sifatida filtrlangan. Yangi e'lonlarni yuklash uchun <code>/scrape_now</code> buyrug‘ini bosing.",
             parse_mode="HTML"
         )
     else:
         await status_msg.edit_text(
-            f"ℹ️ <b>Bazada kanalga yuborilmagan yangi e'lon qolmadi.</b>\n\n"
-            f"Barcha e'lonlar allaqachon kanalga chiqqan. Yangi e'lonlarni internetdan (OLX) yuklab olish uchun <code>/scrape_now</code> buyrug‘ini bosing.",
+            f"⚠️ <b>Chiqarishda xatolik yuz berdi:</b>\n<code>{res.get('error', 'Nomaʼlum xato')}</code>",
             parse_mode="HTML"
         )

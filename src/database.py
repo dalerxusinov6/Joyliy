@@ -90,6 +90,11 @@ async def init_db() -> None:
                     await conn.execute(text(f"ALTER TABLE listings ADD COLUMN {col} VARCHAR(128)"))
                 except Exception:
                     pass
+            for col in ["content_hash", "image_fingerprint"]:
+                try:
+                    await conn.execute(text(f"ALTER TABLE listings ADD COLUMN {col} VARCHAR(64)"))
+                except Exception:
+                    pass
             try:
                 await conn.execute(text("ALTER TABLE listings ADD COLUMN target_audience VARCHAR(32) DEFAULT 'any'"))
             except Exception:
@@ -110,8 +115,59 @@ async def init_db() -> None:
                         rooms INTEGER,
                         price_uzs BIGINT,
                         contact_phone VARCHAR(128),
+                        content_hash VARCHAR(64),
+                        image_fingerprint VARCHAR(64),
+                        telegram_message_id BIGINT,
                         posted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                         channel_id VARCHAR(128) DEFAULT '@joyliy_uz'
+                    )
+                """))
+            except Exception:
+                pass
+            for col, ctype in [("content_hash", "VARCHAR(64)"), ("image_fingerprint", "VARCHAR(64)"), ("telegram_message_id", "BIGINT")]:
+                try:
+                    await conn.execute(text(f"ALTER TABLE channel_posts ADD COLUMN {col} {ctype}"))
+                except Exception:
+                    pass
+            try:
+                await conn.execute(text("""
+                    CREATE TABLE IF NOT EXISTS channel_publish_queue (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        listing_id INTEGER UNIQUE NOT NULL,
+                        canonical_url VARCHAR(1024) UNIQUE NOT NULL,
+                        source_id VARCHAR(128),
+                        title VARCHAR(512) NOT NULL,
+                        normalized_title VARCHAR(512) NOT NULL,
+                        district VARCHAR(128),
+                        rooms INTEGER,
+                        price_uzs BIGINT,
+                        contact_phone VARCHAR(128),
+                        content_hash VARCHAR(64) NOT NULL,
+                        image_fingerprint VARCHAR(64),
+                        status VARCHAR(32) DEFAULT 'pending' NOT NULL,
+                        attempts INTEGER DEFAULT 0 NOT NULL,
+                        error_message TEXT,
+                        telegram_message_id BIGINT,
+                        scheduled_slot VARCHAR(32),
+                        publication_date TIMESTAMP,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+                        published_at TIMESTAMP,
+                        FOREIGN KEY (listing_id) REFERENCES listings(id) ON DELETE CASCADE
+                    )
+                """))
+            except Exception:
+                pass
+            try:
+                await conn.execute(text("""
+                    CREATE TABLE IF NOT EXISTS channel_publish_schedule (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        slot_date VARCHAR(10) NOT NULL,
+                        slot_time VARCHAR(5) NOT NULL,
+                        status VARCHAR(32) DEFAULT 'pending' NOT NULL,
+                        queue_item_id INTEGER,
+                        telegram_message_id BIGINT,
+                        executed_at TIMESTAMP,
+                        UNIQUE (slot_date, slot_time)
                     )
                 """))
             except Exception:
@@ -137,6 +193,11 @@ async def init_db() -> None:
                         await conn.execute(text(f"ALTER TABLE listings ADD COLUMN {col} VARCHAR(128)"))
                     except Exception:
                         pass
+                for col in ["content_hash", "image_fingerprint"]:
+                    try:
+                        await conn.execute(text(f"ALTER TABLE listings ADD COLUMN {col} VARCHAR(64)"))
+                    except Exception:
+                        pass
                 try:
                     await conn.execute(text("ALTER TABLE listings ADD COLUMN target_audience VARCHAR(32) DEFAULT 'any'"))
                 except Exception:
@@ -157,8 +218,59 @@ async def init_db() -> None:
                             rooms INTEGER,
                             price_uzs BIGINT,
                             contact_phone VARCHAR(128),
+                            content_hash VARCHAR(64),
+                            image_fingerprint VARCHAR(64),
+                            telegram_message_id BIGINT,
                             posted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                             channel_id VARCHAR(128) DEFAULT '@joyliy_uz'
+                        )
+                    """))
+                except Exception:
+                    pass
+                for col, ctype in [("content_hash", "VARCHAR(64)"), ("image_fingerprint", "VARCHAR(64)"), ("telegram_message_id", "BIGINT")]:
+                    try:
+                        await conn.execute(text(f"ALTER TABLE channel_posts ADD COLUMN {col} {ctype}"))
+                    except Exception:
+                        pass
+                try:
+                    await conn.execute(text("""
+                        CREATE TABLE IF NOT EXISTS channel_publish_queue (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            listing_id INTEGER UNIQUE NOT NULL,
+                            canonical_url VARCHAR(1024) UNIQUE NOT NULL,
+                            source_id VARCHAR(128),
+                            title VARCHAR(512) NOT NULL,
+                            normalized_title VARCHAR(512) NOT NULL,
+                            district VARCHAR(128),
+                            rooms INTEGER,
+                            price_uzs BIGINT,
+                            contact_phone VARCHAR(128),
+                            content_hash VARCHAR(64) NOT NULL,
+                            image_fingerprint VARCHAR(64),
+                            status VARCHAR(32) DEFAULT 'pending' NOT NULL,
+                            attempts INTEGER DEFAULT 0 NOT NULL,
+                            error_message TEXT,
+                            telegram_message_id BIGINT,
+                            scheduled_slot VARCHAR(32),
+                            publication_date TIMESTAMP,
+                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+                            published_at TIMESTAMP,
+                            FOREIGN KEY (listing_id) REFERENCES listings(id) ON DELETE CASCADE
+                        )
+                    """))
+                except Exception:
+                    pass
+                try:
+                    await conn.execute(text("""
+                        CREATE TABLE IF NOT EXISTS channel_publish_schedule (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            slot_date VARCHAR(10) NOT NULL,
+                            slot_time VARCHAR(5) NOT NULL,
+                            status VARCHAR(32) DEFAULT 'pending' NOT NULL,
+                            queue_item_id INTEGER,
+                            telegram_message_id BIGINT,
+                            executed_at TIMESTAMP,
+                            UNIQUE (slot_date, slot_time)
                         )
                     """))
                 except Exception:

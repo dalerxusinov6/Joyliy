@@ -55,6 +55,11 @@ class ListingService:
             title=item.title, description=item.description
         )
 
+        from src.services.queue_service import compute_content_hash, compute_image_fingerprint, queue_service
+
+        c_hash = compute_content_hash(item.title, item.district, item.price_uzs, item.rooms)
+        img_fp = compute_image_fingerprint(item.image_urls)
+
         listing = Listing(
             source=item.source,
             source_id=item.source_id,
@@ -72,6 +77,8 @@ class ListingService:
             contact_telegram=getattr(item, "contact_telegram", None),
             target_audience=item.target_audience or detect_target_audience(item.title, item.description),
             image_urls=item.image_urls,
+            content_hash=c_hash,
+            image_fingerprint=img_fp,
             publication_date=item.publication_date,
             first_seen_at=now,
             last_seen_at=now,
@@ -94,6 +101,12 @@ class ListingService:
         )
         session.add(classification)
         await session.commit()
+
+        # Enqueue into persistent publishing queue
+        try:
+            await queue_service.enqueue_listing(session, listing)
+        except Exception as q_err:
+            logger.debug("Automatic queue enqueue for listing #%d: %s", listing.id, q_err)
 
         # Eager load classification
         listing.classification = classification

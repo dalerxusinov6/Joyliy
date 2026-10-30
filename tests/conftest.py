@@ -76,7 +76,7 @@ class MockTelegramBot:
 
         msg = {"chat_id": chat_id, "text": text, "reply_markup": reply_markup, **kwargs}
         self.sent_messages.append(msg)
-        return msg
+        return type("MockMsg", (), {"message_id": len(self.sent_messages)})()
 
     async def send_photo(self, chat_id: int, photo: str, caption: str, reply_markup=None, **kwargs):
         if self.force_forbidden:
@@ -90,7 +90,14 @@ class MockTelegramBot:
 
         msg = {"chat_id": chat_id, "photo": photo, "caption": caption, "reply_markup": reply_markup, **kwargs}
         self.sent_photos.append(msg)
-        return msg
+        return type("MockMsg", (), {"message_id": len(self.sent_photos)})()
+
+    async def send_media_group(self, chat_id: int, media: list, **kwargs):
+        if self.force_forbidden:
+            from aiogram.exceptions import TelegramForbiddenError
+            raise TelegramForbiddenError(method="sendMediaGroup", message="Bot blocked")
+        self.sent_photos.append({"chat_id": chat_id, "media": media, **kwargs})
+        return [type("MockMsg", (), {"message_id": 777})()]
 
 
 @pytest.fixture

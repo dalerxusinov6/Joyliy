@@ -1,5 +1,7 @@
 """Telegram message and keyboard formatter for apartment listings."""
 
+import html
+import re
 from datetime import datetime, timezone, timedelta
 from typing import Optional
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
@@ -8,6 +10,32 @@ from src.classification.types import ClassificationLabel
 
 # Tashkent local timezone offset: UTC+5
 TASHKENT_TZ = timezone(timedelta(hours=5))
+
+
+def clean_description_for_telegram(desc: Optional[str], max_len: int = 400) -> str:
+    """Clean and safely truncate description text for Telegram captions."""
+    if not desc:
+        return ""
+    # Convert <br> or <p> tags to newlines
+    text = re.sub(r"<br\s*/?>", "\n", desc, flags=re.IGNORECASE)
+    text = re.sub(r"</p>", "\n", text, flags=re.IGNORECASE)
+    text = re.sub(r"<[^>]+>", " ", text)
+    # Remove metadata notes like [OLX parametri: ...]
+    text = re.sub(r"\[OLX parametri:.*?\]", "", text, flags=re.DOTALL)
+    # Strip excessive repeated whitespace and linebreaks
+    lines = [re.sub(r"\s+", " ", line).strip() for line in text.splitlines()]
+    non_empty = [l for l in lines if l]
+    collapsed = "\n".join(non_empty)
+
+    # Truncate at word boundary if exceeding max_len
+    if len(collapsed) > max_len:
+        cut = collapsed[:max_len]
+        last_space = cut.rfind(" ")
+        if last_space > max_len // 2:
+            cut = cut[:last_space]
+        collapsed = cut.strip() + "..."
+
+    return html.escape(collapsed)
 
 
 def get_source_platform_name(source: Optional[str]) -> str:
@@ -25,7 +53,7 @@ def format_price_uzs(price: Optional[int]) -> str:
 def format_listing_message(listing: Listing) -> str:
     """
     Format listing details into the exact Telegram message layout.
-    Does not invent missing fields or publication times.
+    Escapes all user input to prevent broken HTML.
     """
     # 1. Headline
     rooms_label = (
@@ -34,7 +62,8 @@ def format_listing_message(listing: Listing) -> str:
         else ("Studiya" if listing.rooms == 0 else "Kvartira")
     )
     district_label = listing.district or "Toshkent"
-    headline = f"🏠 {rooms_label} — {district_label}"
+    clean_title = html.escape(listing.title.strip())
+    headline = f"🏠 <b>{html.escape(rooms_label)} — {html.escape(district_label)}</b>"
 
     lines = [headline, ""]
 
@@ -42,11 +71,11 @@ def format_listing_message(listing: Listing) -> str:
     if listing.price_uzs is not None:
         lines.append(f"💰 Narxi: {format_price_uzs(listing.price_uzs)}")
     elif listing.price_raw:
-        lines.append(f"💰 Narxi: {listing.price_raw}")
+        lines.append(f"💰 Narxi: {html.escape(listing.price_raw.strip())}")
 
     # 3. District
     if listing.district:
-        lines.append(f"📍 Hudud: {listing.district}")
+        lines.append(f"📍 Hudud: {html.escape(listing.district.strip())}")
 
     # 4. Area
     if listing.area:
@@ -123,13 +152,78 @@ def get_listing_inline_keyboard(listing: Listing, is_favorited: bool = False) ->
 
 
 def format_channel_message(listing: Listing) -> str:
-    """Format listing message for Telegram channel broadcasting with phone and telegram contacts."""
+    """
+    Format professional Telegram channel advertisement according to exact specification:
+    🏠 [Advertisement Title]
+    💰 Price: [Price]
+    📍 Location: [Location]
+    📅 Published: [Publication Date]
+    📝 [Clean and readable description]
+    🔗 View advertisement: [Original URL]
+    """
     from src.providers.parser import extract_phone, extract_telegram_user
 
-    base_text = format_listing_message(listing)
-    platform = get_source_platform_name(getattr(listing, "source", None))
+    clean_title = html.escape(listing.title.strip())
+    lines = [f"🏠 <b>{clean_title}</b>", ""]
 
-    # 1. Resolve phone and telegram handle
+    # Price
+    if listing.price_uzs is not None:
+        lines.append(f"💰 <b>Narxi:</b> {format_price_uzs(listing.price_uzs)}")
+    elif listing.price_raw:
+        lines.append(f"💰 <b>Narxi:</b> {html.escape(listing.price_raw.strip())}")
+
+    # Location
+    location_parts = []
+    if listing.district:
+        location_parts.append(listing.district.strip())
+    if location_parts:
+        lines.append(f"📍 <b>Manzil:</b> {html.escape(', '.join(location_parts))}")
+
+    # Rooms and area if available
+    specs = []
+    if listing.rooms is not None and listing.rooms > 0:
+        specs.append(f"{listing.rooms} xona")
+    elif listing.rooms == 0:
+        specs.append("Studiya")
+    if listing.area:
+        specs.append(f"{int(listing.area) if listing.area.is_integer() else listing.area} m²")
+    if listing.floor:
+        specs.append(f"{listing.floor}-qavat")
+    if specs:
+        lines.append(f"📐 <b>Parametrlar:</b> {html.escape(' • '.join(specs))}")
+
+    # Publication Date
+    pub_dt = (listing.publication_date or listing.first_seen_at or datetime.now(timezone.utc)).astimezone(TASHKENT_TZ)
+    lines.append(f"📅 <b>E’lon qilingan:</b> {pub_dt.strftime('%d.%m.%Y, %H:%M')}")
+
+    # Source / Maklersiz status
+    classification = None
+    if "classification" in listing.__dict__:
+        classification = listing.__dict__["classification"]
+    else:
+        try:
+            from sqlalchemy.orm.attributes import NO_VALUE
+            from sqlalchemy.orm import inspect as sa_inspect
+            insp = sa_inspect(listing)
+            loaded = insp.attrs.classification.loaded_value
+            if loaded is not NO_VALUE:
+                classification = loaded
+        except Exception:
+            classification = None
+
+    label = classification.label if classification else ClassificationLabel.NEEDS_REVIEW.value
+    if label == ClassificationLabel.LIKELY_OWNER.value:
+        lines.append("👤 <b>Manba:</b> Egasidan (Maklersiz)")
+    elif label == ClassificationLabel.LIKELY_AGENT.value:
+        lines.append("👤 <b>Manba:</b> Agentlik / Rieltor")
+
+    # Clean description (without raw HTML, stripped of excess newlines)
+    clean_desc = clean_description_for_telegram(listing.description, max_len=420)
+    if clean_desc:
+        lines.append("")
+        lines.append(f"📝 <b>Tavsif:</b>\n{clean_desc}")
+
+    # Contacts
     phone = getattr(listing, "contact_phone", None)
     if not phone:
         phone = extract_phone(f"{listing.title} {listing.description or ''}")
@@ -140,26 +234,50 @@ def format_channel_message(listing: Listing) -> str:
 
     contact_lines = []
     if phone:
-        contact_lines.append(f"📞 Telefon: <code>{phone}</code>")
+        contact_lines.append(f"📞 <b>Telefon:</b> <code>{html.escape(phone)}</code>")
     if tg_user:
         clean_tg = tg_user.lstrip("@")
-        contact_lines.append(f"💬 Telegram: <a href=\"https://t.me/{clean_tg}\">@{clean_tg}</a>")
+        contact_lines.append(f"💬 <b>Telegram:</b> <a href=\"https://t.me/{clean_tg}\">@{html.escape(clean_tg)}</a>")
 
-    if not phone and not tg_user:
-        contact_lines.append(f"📞 Aloqa: <a href=\"{listing.canonical_url}\">{platform} orqali ko‘rish</a>")
+    if contact_lines:
+        lines.append("")
+        lines.extend(contact_lines)
 
-    contacts_block = "\n".join(contact_lines)
+    # Link & Channel attribution
+    platform = get_source_platform_name(getattr(listing, "source", None))
+    lines.append("")
+    lines.append(f"🔗 <b>E’lonni ko‘rish:</b> <a href=\"{listing.canonical_url}\">{platform} orqali ochish</a>")
+    lines.append("🤖 <b>Joyliy:</b> @joyliy_uz | @joyliy_bot")
 
-    footer = (
-        f"\n\n🔗 <a href=\"{listing.canonical_url}\">{platform}’da ko‘rish</a>"
-        f" | 🤖 <a href=\"https://t.me/joyliy_bot\">@joyliy_bot</a>"
+    return "\n".join(lines)
+
+
+def get_channel_inline_keyboard(listing: Listing) -> InlineKeyboardMarkup:
+    """Create inline buttons for channel postings including direct Telegram contact."""
+    from src.providers.parser import extract_telegram_user
+
+    tg_user = getattr(listing, "contact_telegram", None)
+    if not tg_user:
+        tg_user = extract_telegram_user(f"{listing.title} {listing.description or ''}")
+
+    platform = get_source_platform_name(getattr(listing, "source", None))
+
+    buttons_row1 = []
+    if tg_user:
+        clean_tg = tg_user.lstrip("@")
+        buttons_row1.append(
+            InlineKeyboardButton(text="💬 Egasiga yozish", url=f"https://t.me/{clean_tg}")
+        )
+
+    buttons_row1.append(
+        InlineKeyboardButton(text=f"🔗 {platform}’da ko‘rish", url=listing.canonical_url)
     )
 
-    if "⚠️ Egasidan" in base_text:
-        parts = base_text.split("⚠️ Egasidan")
-        return f"{parts[0].rstrip()}\n\n{contacts_block}\n\n⚠️ Egasidan{parts[1]}{footer}"
-    else:
-        return f"{base_text}\n\n{contacts_block}{footer}"
+    buttons_row2 = [
+        InlineKeyboardButton(text="🤖 Joyliy Bot", url="https://t.me/joyliy_bot"),
+    ]
+
+    return InlineKeyboardMarkup(inline_keyboard=[buttons_row1, buttons_row2])
 
 
 def get_channel_inline_keyboard(listing: Listing) -> InlineKeyboardMarkup:

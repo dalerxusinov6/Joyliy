@@ -36,7 +36,7 @@ const onLangChange = (lang: string) => {
     <div class="wrap hd">
       <!-- Left: Architectural Brand Wordmark -->
       <NuxtLink to="/" class="brand-link">
-        <div class="brand-logo-mark">
+        <div class="brand-logo-mark" style="background-color: #BC684B !important; color: #ffffff !important;">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="logo-icon">
             <path d="M3 10.5 12 3l9 7.5V20a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 20v-9.5z" />
             <circle cx="12" cy="13" r="2" fill="currentColor" />

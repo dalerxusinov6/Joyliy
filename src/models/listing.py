@@ -49,6 +49,8 @@ class Listing(Base):
         String(32), default="any", index=True, nullable=False
     )  # 'family', 'female', 'male', 'any'
     image_urls: Mapped[list] = mapped_column(JSON, default=list, nullable=False)
+    content_hash: Mapped[Optional[str]] = mapped_column(String(64), index=True, nullable=True)
+    image_fingerprint: Mapped[Optional[str]] = mapped_column(String(64), index=True, nullable=True)
 
     # Dates: publication_date is recorded only when reliably present; never fabricated
     publication_date: Mapped[Optional[datetime]] = mapped_column(
@@ -184,7 +186,96 @@ class ChannelPostHistory(Base):
     rooms: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     price_uzs: Mapped[Optional[int]] = mapped_column(BigInteger, nullable=True)
     contact_phone: Mapped[Optional[str]] = mapped_column(String(128), nullable=True, index=True)
+    content_hash: Mapped[Optional[str]] = mapped_column(String(64), nullable=True, index=True)
+    image_fingerprint: Mapped[Optional[str]] = mapped_column(String(64), nullable=True, index=True)
+    telegram_message_id: Mapped[Optional[int]] = mapped_column(BigInteger, nullable=True)
     posted_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=utc_now, index=True, nullable=False
     )
     channel_id: Mapped[str] = mapped_column(String(128), default="@joyliy_uz", nullable=False)
+
+
+class QueueStatus:
+    PENDING = "pending"
+    PUBLISHING = "publishing"
+    PUBLISHED = "published"
+    FAILED = "failed"
+    REJECTED = "rejected"
+
+
+class ChannelPublishQueue(Base):
+    """
+    Persistent queue for Telegram channel publishing.
+    Enforces strict deduplication and state machine:
+    pending -> publishing -> published | failed | rejected
+    """
+
+    __tablename__ = "channel_publish_queue"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    listing_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("listings.id", ondelete="CASCADE"), unique=True, index=True, nullable=False
+    )
+    canonical_url: Mapped[str] = mapped_column(String(1024), unique=True, index=True, nullable=False)
+    source_id: Mapped[Optional[str]] = mapped_column(String(128), index=True, nullable=True)
+    title: Mapped[str] = mapped_column(String(512), nullable=False)
+    normalized_title: Mapped[str] = mapped_column(String(512), index=True, nullable=False)
+    district: Mapped[Optional[str]] = mapped_column(String(128), index=True, nullable=True)
+    rooms: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    price_uzs: Mapped[Optional[int]] = mapped_column(BigInteger, nullable=True)
+    contact_phone: Mapped[Optional[str]] = mapped_column(String(128), nullable=True, index=True)
+    content_hash: Mapped[str] = mapped_column(String(64), index=True, nullable=False)
+    image_fingerprint: Mapped[Optional[str]] = mapped_column(String(64), index=True, nullable=True)
+
+    # State tracking: pending, publishing, published, failed, rejected
+    status: Mapped[str] = mapped_column(String(32), default=QueueStatus.PENDING, index=True, nullable=False)
+    attempts: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    error_message: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+
+    # Delivery info
+    telegram_message_id: Mapped[Optional[int]] = mapped_column(BigInteger, nullable=True)
+    scheduled_slot: Mapped[Optional[str]] = mapped_column(String(32), nullable=True)
+    publication_date: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True), index=True, nullable=True
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=utc_now, index=True, nullable=False
+    )
+    published_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True), index=True, nullable=True
+    )
+
+    # Relationships
+    listing: Mapped["Listing"] = relationship("Listing")
+
+    __table_args__ = (
+        Index("idx_queue_status_pubdate", "status", "publication_date"),
+        Index("idx_queue_content_hash", "content_hash"),
+    )
+
+    def __repr__(self) -> str:
+        return f"<ChannelPublishQueue id={self.id} listing_id={self.listing_id} status={self.status}>"
+
+
+class ChannelPublishSchedule(Base):
+    """
+    Persistent log of executed 10 daily publication slots (Asia/Tashkent).
+    Guarantees idempotency across restarts and eliminates burst postings.
+    """
+
+    __tablename__ = "channel_publish_schedule"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    slot_date: Mapped[str] = mapped_column(String(10), index=True, nullable=False)  # e.g. "2026-10-30"
+    slot_time: Mapped[str] = mapped_column(String(5), index=True, nullable=False)  # e.g. "08:00"
+    status: Mapped[str] = mapped_column(String(32), default="pending", nullable=False)  # pending, published, skipped, missed
+    queue_item_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    telegram_message_id: Mapped[Optional[int]] = mapped_column(BigInteger, nullable=True)
+    executed_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+
+    __table_args__ = (
+        UniqueConstraint("slot_date", "slot_time", name="uq_channel_slot_date_time"),
+    )
+
+    def __repr__(self) -> str:
+        return f"<ChannelPublishSchedule {self.slot_date} {self.slot_time} status={self.status}>"

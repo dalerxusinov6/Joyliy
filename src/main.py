@@ -12,6 +12,7 @@ from src.config import settings
 from src.database import init_db
 from src.bot.bot_instance import create_bot_and_dispatcher
 from src.services.monitor_worker import monitor_worker
+from src.services.channel_scheduler import channel_scheduler
 from src.api.app import create_app
 from src.api.routes import register_bot_webhook
 
@@ -47,10 +48,11 @@ async def run_application(mode: str = "all"):
         else:
             logger.warning("Telegram Bot is disabled (valid BOT_TOKEN not configured).")
 
-    # 3. Setup Monitor Worker if requested
+    # 3. Setup Monitor Worker & Channel Scheduler if requested
     if mode in ("all", "worker"):
         monitor_worker.start()
-        logger.info("Background Monitor Worker started.")
+        channel_scheduler.start()
+        logger.info("Background Monitor Worker and Channel Scheduler started.")
 
     # 4. Setup FastAPI Server if requested
     server_task = None
@@ -159,6 +161,9 @@ async def run_application(mode: str = "all"):
         pass
     finally:
         logger.info("Shutting down components...")
+        # Stop channel scheduler
+        await channel_scheduler.stop()
+
         # Stop monitor worker
         await monitor_worker.stop()
 

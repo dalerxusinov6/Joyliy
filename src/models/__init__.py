@@ -8,6 +8,9 @@ from src.models.listing import (
     Favorite,
     NotificationHistory,
     ChannelPostHistory,
+    ChannelPublishQueue,
+    ChannelPublishSchedule,
+    QueueStatus,
 )
 from src.models.system import SourceMonitorRun, AdminAuditLog
 
@@ -21,6 +24,9 @@ __all__ = [
     "Favorite",
     "NotificationHistory",
     "ChannelPostHistory",
+    "ChannelPublishQueue",
+    "ChannelPublishSchedule",
+    "QueueStatus",
     "SourceMonitorRun",
     "AdminAuditLog",
 ]

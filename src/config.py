@@ -32,23 +32,38 @@ class Settings(BaseSettings):
         description="Telegram channel username (e.g. @joyliy_channel) or numeric ID (-100...)",
     )
     CHANNEL_DAILY_LIMIT: int = Field(
-        default=100,
+        default=10,
         description="Maximum listings to post to Telegram channel per day",
     )
     CHANNEL_BATCH_SIZE: int = Field(
         default=1,
-        description="Number of listings to post to channel per monitoring cycle",
+        description="Number of listings to post to channel per scheduled slot",
     )
     CHANNEL_POSTING_ENABLED: bool = Field(
         default=True,
         description="Enable automatic scheduled broadcast to channel",
     )
+    CHANNEL_SCHEDULE_TIMES: List[str] = Field(
+        default_factory=lambda: [
+            "08:00", "09:20", "10:40", "12:00", "13:20",
+            "14:40", "16:00", "17:20", "18:40", "20:00",
+        ],
+        description="10 scheduled publication slots distributed evenly across 12-hour window (Tashkent time)",
+    )
+    CHANNEL_WINDOW_START: str = Field(
+        default="08:00",
+        description="Start of publishing window in Tashkent time (HH:MM)",
+    )
+    CHANNEL_WINDOW_END: str = Field(
+        default="20:00",
+        description="End of publishing window in Tashkent time (HH:MM)",
+    )
     CHANNEL_QUIET_HOURS_START: str = Field(
-        default="23:30",
+        default="20:01",
         description="Start of night quiet hours in Tashkent time (HH:MM) - no channel broadcast",
     )
     CHANNEL_QUIET_HOURS_END: str = Field(
-        default="07:30",
+        default="07:59",
         description="End of night quiet hours in Tashkent time (HH:MM)",
     )
     # Daily Morning Scrape Settings

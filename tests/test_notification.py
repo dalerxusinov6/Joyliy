@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
+from src.config import settings
 from src.models.user import User, UserSearchPreference
 from src.models.listing import Listing, ListingClassification, NotificationHistory
 from src.classification.types import ClassificationLabel
@@ -175,8 +176,8 @@ async def test_channel_batch_broadcast_and_stats(test_session: AsyncSession, moc
     # Initial stats
     stats = await service.get_channel_posting_stats(test_session)
     assert stats["posted_today"] == 0
-    assert stats["daily_limit"] == 100
-    assert stats["remaining_today"] == 100
+    assert stats["daily_limit"] == settings.CHANNEL_DAILY_LIMIT
+    assert stats["remaining_today"] == settings.CHANNEL_DAILY_LIMIT
     assert stats["unposted_total"] >= 3
 
     # Post batch of 2
@@ -186,7 +187,7 @@ async def test_channel_batch_broadcast_and_stats(test_session: AsyncSession, moc
     # Verify updated stats
     stats_after = await service.get_channel_posting_stats(test_session)
     assert stats_after["posted_today"] == 2
-    assert stats_after["remaining_today"] == 98
+    assert stats_after["remaining_today"] == settings.CHANNEL_DAILY_LIMIT - 2
 
 
 @pytest.mark.asyncio

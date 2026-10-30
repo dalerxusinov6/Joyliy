@@ -139,6 +139,131 @@ class NotificationService:
     def set_bot(self, bot: Bot) -> None:
         self.bot = bot
 
+    async def send_to_channel_verified(
+        self,
+        listing: Listing,
+        channel_id: Optional[str] = None,
+        max_retries: int = 3,
+    ) -> Optional[int]:
+        """
+        Send a listing to the Telegram channel with strict verification.
+        Returns the confirmed Telegram message ID on success, or None on failure.
+        Applies exponential backoff and prevents duplicate retries if message was already delivered.
+        """
+        import html
+        import re
+
+        target = channel_id or settings.CHANNEL_ID
+        if not target:
+            return None
+        if not self.bot:
+            logger.warning("Bot instance not configured in NotificationService.")
+            return None
+
+        caption = format_channel_message(listing)
+        reply_markup = get_channel_inline_keyboard(listing)
+        images = [img for img in (listing.image_urls or []) if img and img.startswith("http")]
+
+        msg_id: Optional[int] = None
+
+        for attempt in range(1, max_retries + 1):
+            try:
+                if len(images) > 1:
+                    media = [
+                        InputMediaPhoto(
+                            media=url,
+                            caption=caption if idx == 0 else None,
+                            parse_mode="HTML",
+                        )
+                        for idx, url in enumerate(images[:6])  # Max 6 high-res photos
+                    ]
+                    try:
+                        sent_msgs = await self.bot.send_media_group(chat_id=target, media=media)
+                        if sent_msgs and len(sent_msgs) > 0:
+                            msg_id = getattr(sent_msgs[0], "message_id", None) or 1
+
+                        # Send optional action button below album
+                        try:
+                            clean_t = html.escape(listing.title.strip())
+                            await self.bot.send_message(
+                                chat_id=target,
+                                text=f"👉 <b>{clean_t}</b>",
+                                parse_mode="HTML",
+                                reply_markup=reply_markup,
+                            )
+                        except Exception as btn_err:
+                            logger.debug("Optional button sending below album skipped: %s", btn_err)
+
+                        break
+                    except Exception as album_err:
+                        logger.warning("Media group failed on %s: %s. Falling back to single photo.", target, album_err)
+                        if images:
+                            sent = await self.bot.send_photo(
+                                chat_id=target,
+                                photo=images[0],
+                                caption=caption,
+                                parse_mode="HTML",
+                                reply_markup=reply_markup,
+                            )
+                            msg_id = getattr(sent, "message_id", None) or 1
+                            break
+
+                elif len(images) == 1:
+                    try:
+                        sent = await self.bot.send_photo(
+                            chat_id=target,
+                            photo=images[0],
+                            caption=caption,
+                            parse_mode="HTML",
+                            reply_markup=reply_markup,
+                        )
+                        msg_id = getattr(sent, "message_id", None) or 1
+                        break
+                    except Exception as img_err:
+                        logger.warning("Photo send failed on %s: %s. Falling back to text.", target, img_err)
+                        sent = await self.bot.send_message(
+                            chat_id=target,
+                            text=caption,
+                            parse_mode="HTML",
+                            reply_markup=reply_markup,
+                        )
+                        msg_id = getattr(sent, "message_id", None) or 1
+                        break
+                else:
+                    sent = await self.bot.send_message(
+                        chat_id=target,
+                        text=caption,
+                        parse_mode="HTML",
+                        reply_markup=reply_markup,
+                    )
+                    msg_id = getattr(sent, "message_id", None) or 1
+                    break
+
+            except TelegramRetryAfter as e:
+                wait_secs = e.retry_after + 1
+                logger.warning("Flood control on channel %s: waiting %d s", target, wait_secs)
+                await asyncio.sleep(wait_secs)
+            except TelegramForbiddenError:
+                logger.error("Bot is not an administrator with post permissions in channel %s", target)
+                return None
+            except TelegramBadRequest as e:
+                logger.error("Telegram bad request posting to channel %s: %s", target, e)
+                try:
+                    # Strip HTML tags and send plain text fallback
+                    plain_text = re.sub(r"<[^>]+>", "", caption)
+                    sent = await self.bot.send_message(chat_id=target, text=plain_text, reply_markup=reply_markup)
+                    return getattr(sent, "message_id", None) or 1
+                except Exception:
+                    return None
+            except Exception as e:
+                logger.error("Error posting to channel %s (attempt %d/%d): %s", target, attempt, max_retries, e)
+                if attempt < max_retries:
+                    await asyncio.sleep(2.0 * attempt)
+                else:
+                    return None
+
+        return msg_id
+
     async def send_to_channel(
         self,
         listing: Listing,
@@ -148,144 +273,50 @@ class NotificationService:
     ) -> bool:
         """
         Send a new listing with image(s) to a Telegram channel.
-        If multiple images exist, sends an album (media group), then the action button.
-        If single image, sends a photo with inline keyboard.
-        If no image, sends a text message with inline keyboard.
+        Maintains backward compatibility and records history in database.
         """
-        target = channel_id or settings.CHANNEL_ID
-        if not target:
-            return False
-        if not self.bot:
-            logger.warning("Bot instance not configured in NotificationService.")
+        msg_id = await self.send_to_channel_verified(listing, channel_id, max_retries)
+        if not msg_id:
             return False
 
-        caption = format_channel_message(listing)
-        reply_markup = get_channel_inline_keyboard(listing)
-        images = [img for img in (listing.image_urls or []) if img and img.startswith("http")]
-
-        success = False
-        for attempt in range(1, max_retries + 1):
+        if session:
             try:
-                if len(images) > 1:
-                    # Send media group (album) with caption on the first image
-                    media = [
-                        InputMediaPhoto(
-                            media=url,
-                            caption=caption if idx == 0 else None,
-                            parse_mode="HTML",
-                        )
-                        for idx, url in enumerate(images[:8])  # OLX high-res photos (max 8)
-                    ]
-                    try:
-                        await self.bot.send_media_group(chat_id=target, media=media)
-                        # Send button below album
-                        await self.bot.send_message(
-                            chat_id=target,
-                            text=f"👉 <b>{listing.title}</b>",
-                            parse_mode="HTML",
-                            reply_markup=reply_markup,
-                        )
-                        success = True
-                        break
-                    except Exception as album_err:
-                        logger.warning("Failed to send album to channel %s: %s, falling back to single photo", target, album_err)
-                        if images:
-                            await self.bot.send_photo(
-                                chat_id=target,
-                                photo=images[0],
-                                caption=caption,
-                                parse_mode="HTML",
-                                reply_markup=reply_markup,
-                            )
-                            success = True
-                            break
+                from src.services.queue_service import queue_service
+                from src.models.listing import ChannelPublishQueue
 
-                elif len(images) == 1:
-                    try:
-                        await self.bot.send_photo(
-                            chat_id=target,
-                            photo=images[0],
-                            caption=caption,
-                            parse_mode="HTML",
-                            reply_markup=reply_markup,
-                        )
-                        success = True
-                        break
-                    except Exception as img_err:
-                        logger.warning("Failed to send photo to channel %s: %s, falling back to text", target, img_err)
-                        await self.bot.send_message(
-                            chat_id=target,
-                            text=caption,
-                            parse_mode="HTML",
-                            reply_markup=reply_markup,
-                        )
-                        success = True
-                        break
-                else:
-                    await self.bot.send_message(
-                        chat_id=target,
-                        text=caption,
-                        parse_mode="HTML",
-                        reply_markup=reply_markup,
-                    )
-                    success = True
-                    break
-
-            except TelegramRetryAfter as e:
-                wait_secs = e.retry_after + 1
-                logger.warning("Flood control on channel %s: waiting %d s", target, wait_secs)
-                await asyncio.sleep(wait_secs)
-            except TelegramForbiddenError:
-                logger.error("Bot is not an administrator with post permissions in channel %s", target)
-                return False
-            except TelegramBadRequest as e:
-                logger.error("Telegram bad request posting to channel %s: %s", target, e)
-                return False
-            except Exception as e:
-                logger.error("Error posting to channel %s (attempt %d/%d): %s", target, attempt, max_retries, e)
-                if attempt < max_retries:
-                    await asyncio.sleep(2.0 * attempt)
-                else:
-                    return False
-
-        if success and session:
-            try:
-                now_utc = datetime.now(timezone.utc)
-                listing.posted_to_channel_at = now_utc
-                session.add(listing)
-
-                # Persist to ChannelPostHistory for permanent historical deduplication
-                norm_t = self.normalize_text_key(listing.title)
-                c_post = ChannelPostHistory(
-                    listing_id=listing.id,
-                    canonical_url=listing.canonical_url,
-                    title=listing.title,
-                    normalized_title=norm_t,
-                    district=listing.district,
-                    rooms=listing.rooms,
-                    price_uzs=listing.price_uzs,
-                    contact_phone=listing.contact_phone,
-                    posted_at=now_utc,
-                    channel_id=str(target),
+                # If listing is in queue, update its status
+                q_res = await session.execute(
+                    select(ChannelPublishQueue).where(ChannelPublishQueue.listing_id == listing.id)
                 )
-                session.add(c_post)
+                q_item = q_res.scalars().first()
+                if q_item:
+                    await queue_service.mark_published(session, q_item, telegram_message_id=msg_id)
+                else:
+                    now_utc = datetime.now(timezone.utc)
+                    listing.posted_to_channel_at = now_utc
+                    session.add(listing)
 
-                # Atomically retire any unposted duplicates with same title or URL
-                from sqlalchemy import update
-                retire_stmt = (
-                    update(Listing)
-                    .where(
-                        Listing.posted_to_channel_at.is_(None),
-                        (Listing.title == listing.title) | (Listing.canonical_url == listing.canonical_url),
+                    c_post = ChannelPostHistory(
+                        listing_id=listing.id,
+                        canonical_url=listing.canonical_url,
+                        title=listing.title,
+                        normalized_title=queue_service.normalize_text_key(listing.title),
+                        district=listing.district,
+                        rooms=listing.rooms,
+                        price_uzs=listing.price_uzs,
+                        contact_phone=listing.contact_phone,
+                        content_hash=getattr(listing, "content_hash", None),
+                        image_fingerprint=getattr(listing, "image_fingerprint", None),
+                        telegram_message_id=msg_id,
+                        posted_at=now_utc,
+                        channel_id=str(channel_id or settings.CHANNEL_ID or "@joyliy_uz"),
                     )
-                    .values(posted_to_channel_at=now_utc, is_active=False)
-                )
-                await session.execute(retire_stmt)
-                await session.commit()
+                    session.add(c_post)
+                    await session.commit()
             except Exception as db_err:
                 logger.warning("Could not persist channel post record for listing %d: %s", listing.id, db_err)
 
-        return success
+        return True
 
     async def get_channel_posting_stats(self, session: AsyncSession) -> dict:
         """Calculate today's channel broadcasting metrics in Tashkent local time (UTC+5)."""
@@ -307,21 +338,14 @@ class NotificationService:
         )
         unposted_total = (await session.execute(stmt_unposted)).scalar() or 0
 
-        # Check quiet night hours
-        current_time = now_tashkent.time()
-        try:
-            sh, sm = map(int, settings.CHANNEL_QUIET_HOURS_START.split(":"))
-            eh, em = map(int, settings.CHANNEL_QUIET_HOURS_END.split(":"))
-            start_q = time(sh, sm)
-            end_q = time(eh, em)
-        except Exception:
-            start_q = time(23, 30)
-            end_q = time(7, 30)
+        # Queue metrics
+        from src.services.queue_service import queue_service
+        q_stats = await queue_service.get_queue_stats(session)
 
-        if start_q <= end_q:
-            is_quiet = start_q <= current_time <= end_q
-        else:
-            is_quiet = current_time >= start_q or current_time <= end_q
+        # Next scheduled slot
+        from src.services.channel_scheduler import channel_scheduler
+        next_slot = channel_scheduler.get_next_scheduled_slot(now_tashkent)
+        is_window = channel_scheduler.is_within_publishing_window(now_tashkent)
 
         daily_limit = settings.CHANNEL_DAILY_LIMIT
         remaining = max(0, daily_limit - posted_today)
@@ -332,18 +356,21 @@ class NotificationService:
             "daily_limit": daily_limit,
             "remaining_today": remaining,
             "unposted_total": unposted_total,
-            "is_quiet_hours": is_quiet,
+            "queue_pending": q_stats["pending"],
+            "queue_total": q_stats["total"],
+            "queue_published": q_stats["published"],
+            "queue_failed": q_stats["failed"],
+            "next_slot": next_slot,
+            "is_within_window": is_window,
+            "is_quiet_hours": not is_window,
             "tashkent_time": now_tashkent.strftime("%H:%M"),
         }
 
     @staticmethod
     def normalize_text_key(text: Optional[str]) -> str:
         """Normalize text by removing punctuation, converting to lowercase, and collapsing whitespace."""
-        import re
-        if not text:
-            return ""
-        cleaned = re.sub(r"[^\w\s]", " ", text.lower())
-        return " ".join(cleaned.split())
+        from src.services.queue_service import normalize_title
+        return normalize_title(text)
 
     async def is_channel_duplicate(
         self,
@@ -351,146 +378,10 @@ class NotificationService:
         candidate: Listing,
         in_batch_candidates: Optional[List[Listing]] = None,
     ) -> bool:
-        """
-        Intelligently detect whether an identical or near-duplicate listing was ever posted to the channel,
-        or is already selected in the current batch.
-        Matches by:
-        0. In-batch candidates check (prevents duplicate listings being queued together)
-        1. Exact canonical URL
-        2. Exact or normalized title within same district
-        3. Same contact phone + district + rooms
-        4. Same district + rooms + exact/similar price + high title similarity (>= 60%)
-        """
-        if candidate.posted_to_channel_at is not None:
-            return True
-
-        norm_title = self.normalize_text_key(candidate.title)
-        cand_phone = (candidate.contact_phone or "").strip()
-        cand_words = set(norm_title.split())
-
-        # 0. Check against in-batch candidates FIRST
-        if in_batch_candidates:
-            for b in in_batch_candidates:
-                if b.id == candidate.id:
-                    return True
-                if b.canonical_url and candidate.canonical_url and b.canonical_url.strip() == candidate.canonical_url.strip():
-                    logger.info("In-batch duplicate by URL: #%d matches #%d", candidate.id, b.id)
-                    return True
-                b_norm = self.normalize_text_key(b.title)
-                if norm_title and b_norm and norm_title == b_norm:
-                    logger.info("In-batch duplicate by title: #%d ('%s') matches #%d", candidate.id, candidate.title, b.id)
-                    return True
-                b_phone = (b.contact_phone or "").strip()
-                if cand_phone and b_phone and cand_phone == b_phone:
-                    if candidate.district and b.district and candidate.district == b.district:
-                        if candidate.rooms and b.rooms and candidate.rooms == b.rooms:
-                            logger.info("In-batch duplicate by phone: #%d matches #%d", candidate.id, b.id)
-                            return True
-                if candidate.district and b.district and candidate.district == b.district:
-                    if candidate.rooms and b.rooms and candidate.rooms == b.rooms:
-                        b_words = set(b_norm.split()) if b_norm else set()
-                        if cand_words and b_words:
-                            overlap = len(cand_words & b_words) / max(len(cand_words), len(b_words))
-                            if overlap >= 0.60:
-                                logger.info("In-batch duplicate by similarity (%.2f): #%d matches #%d", overlap, candidate.id, b.id)
-                                return True
-
-        # 1. Check against persistent ChannelPostHistory table
-        try:
-            stmt_hist = select(
-                ChannelPostHistory.listing_id,
-                ChannelPostHistory.canonical_url,
-                ChannelPostHistory.title,
-                ChannelPostHistory.normalized_title,
-                ChannelPostHistory.district,
-                ChannelPostHistory.rooms,
-                ChannelPostHistory.price_uzs,
-                ChannelPostHistory.contact_phone,
-            )
-            res_hist = await session.execute(stmt_hist)
-            hist_rows = res_hist.fetchall()
-            for h_lid, h_url, h_title, h_norm, h_dist, h_rooms, h_price, h_phone in hist_rows:
-                if h_url and candidate.canonical_url and h_url.strip() == candidate.canonical_url.strip():
-                    logger.info("Channel duplicate by URL in history: #%d matches post #%s", candidate.id, h_lid)
-                    return True
-                if norm_title and h_norm and norm_title == h_norm:
-                    if not candidate.district or not h_dist or candidate.district == h_dist:
-                        logger.info("Channel duplicate by title in history: #%d matches post #%s", candidate.id, h_lid)
-                        return True
-                h_phone_str = (h_phone or "").strip()
-                if cand_phone and h_phone_str and cand_phone == h_phone_str:
-                    if candidate.district and h_dist and candidate.district == h_dist:
-                        if candidate.rooms and h_rooms and candidate.rooms == h_rooms:
-                            logger.info("Channel duplicate by phone in history: #%d matches post #%s", candidate.id, h_lid)
-                            return True
-                if candidate.district and h_dist and candidate.district == h_dist:
-                    if candidate.rooms and h_rooms and candidate.rooms == h_rooms:
-                        h_words = set(h_norm.split()) if h_norm else set()
-                        if cand_words and h_words:
-                            overlap = len(cand_words & h_words) / max(len(cand_words), len(h_words))
-                            if overlap >= 0.60:
-                                logger.info(
-                                    "Channel duplicate by similarity (%.2f) in history: #%d matches post #%s",
-                                    overlap, candidate.id, h_lid
-                                )
-                                return True
-        except Exception as e:
-            logger.debug("ChannelPostHistory check skipped: %s", e)
-
-        # 2. Query all listings that have already been posted to the channel
-        stmt = (
-            select(
-                Listing.id,
-                Listing.canonical_url,
-                Listing.title,
-                Listing.district,
-                Listing.rooms,
-                Listing.price_uzs,
-                Listing.contact_phone,
-            )
-            .where(
-                Listing.posted_to_channel_at.is_not(None),
-                Listing.id != candidate.id,
-            )
-        )
-        res = await session.execute(stmt)
-        posted_rows = res.fetchall()
-
-        for p_id, p_url, p_title, p_dist, p_rooms, p_price, p_phone in posted_rows:
-            # 1. Canonical URL match
-            if p_url and candidate.canonical_url and p_url.strip() == candidate.canonical_url.strip():
-                logger.info("Channel duplicate by URL: #%d matches posted #%d", candidate.id, p_id)
-                return True
-
-            # 2. Normalized title match
-            p_norm = self.normalize_text_key(p_title)
-            if norm_title and p_norm and norm_title == p_norm:
-                if not candidate.district or not p_dist or candidate.district == p_dist:
-                    logger.info("Channel duplicate by title: #%d ('%s') matches posted #%d", candidate.id, candidate.title, p_id)
-                    return True
-
-            # 3. Same contact phone + same district + same room count
-            p_phone_str = (p_phone or "").strip()
-            if cand_phone and p_phone_str and cand_phone == p_phone_str:
-                if candidate.district and p_dist and candidate.district == p_dist:
-                    if candidate.rooms and p_rooms and candidate.rooms == p_rooms:
-                        logger.info("Channel duplicate by phone: #%d phone '%s' matches posted #%d", candidate.id, cand_phone, p_id)
-                        return True
-
-            # 4. Same district + rooms + price + high word overlap
-            if candidate.district and p_dist and candidate.district == p_dist:
-                if candidate.rooms and p_rooms and candidate.rooms == p_rooms:
-                    p_words = set(p_norm.split())
-                    if cand_words and p_words:
-                        overlap = len(cand_words & p_words) / max(len(cand_words), len(p_words))
-                        if overlap >= 0.60:
-                            logger.info(
-                                "Channel duplicate by similarity (%.2f): #%d matches posted #%d",
-                                overlap, candidate.id, p_id
-                            )
-                            return True
-
-        return False
+        """Check whether candidate is a duplicate across multi-layer detection."""
+        from src.services.queue_service import queue_service
+        is_dup, _ = await queue_service.is_duplicate(session, candidate, in_memory_candidates=in_batch_candidates)
+        return is_dup
 
     async def broadcast_channel_batch(
         self,
@@ -500,99 +391,52 @@ class NotificationService:
         force: bool = False,
     ) -> int:
         """
-        Broadcast up to 100 listings per day in smooth, distributed batches.
-        Prioritizes newly discovered items; fills remaining batch slots from unposted active listings.
-        Strictly guarantees: NEVER sends duplicates, NEVER repeats an already posted listing.
+        Feed discovered listings into persistent queue.
+        If force=True (e.g. admin manual command or unit test), immediately publishes next eligible queue item.
         """
-        if not settings.CHANNEL_ID or not self.bot:
-            return 0
-        if not settings.CHANNEL_POSTING_ENABLED and not force:
-            return 0
+        from src.services.queue_service import queue_service
+        from src.services.channel_scheduler import channel_scheduler
 
-        stats = await self.get_channel_posting_stats(session)
+        if self.bot:
+            channel_scheduler.set_bot(self.bot)
 
-        # Respect quiet night hours unless manually forced by admin
-        if stats["is_quiet_hours"] and not force:
-            logger.info(
-                "Channel broadcast skipped: Tashkent quiet hours active (%s).",
-                stats["tashkent_time"],
-            )
-            return 0
-
-        # Respect daily ceiling (e.g. 100 listings/day)
-        if stats["remaining_today"] <= 0 and not force:
-            logger.info(
-                "Channel broadcast daily ceiling reached (%d/%d listings posted today).",
-                stats["posted_today"],
-                stats["daily_limit"],
-            )
-            return 0
-
-        max_to_post = batch_limit or min(settings.CHANNEL_BATCH_SIZE, stats["remaining_today"])
-        if max_to_post <= 0:
-            return 0
-
-        candidates: List[Listing] = []
-        seen_ids = set()
-
-        # 1. First priority: Freshly discovered listings from current scrape
+        # 1. Enqueue all discovered listings into persistent queue
         if new_listings:
             for it in new_listings:
-                if it.id not in seen_ids and getattr(it, "posted_to_channel_at", None) is None:
-                    if not await self.is_channel_duplicate(session, it, in_batch_candidates=candidates):
-                        candidates.append(it)
-                        seen_ids.add(it.id)
-                    else:
-                        it.posted_to_channel_at = datetime.now(timezone.utc)
-                        it.is_active = False
-                        session.add(it)
-                        await session.commit()
-                    if len(candidates) >= max_to_post:
-                        break
-
-        # 2. Second priority: Unposted active listings from database
-        if len(candidates) < max_to_post:
-            needed = max_to_post - len(candidates)
-            stmt = (
-                select(Listing)
-                .options(selectinload(Listing.classification))
-                .where(
-                    Listing.is_active == True,
-                    Listing.posted_to_channel_at.is_(None),
-                )
+                try:
+                    await queue_service.enqueue_listing(session, it)
+                except Exception as eq_err:
+                    logger.debug("Enqueue listing #%d: %s", it.id, eq_err)
+        else:
+            unposted_stmt = select(Listing).where(
+                Listing.is_active == True,
+                Listing.posted_to_channel_at.is_(None),
             )
-            if seen_ids:
-                stmt = stmt.where(Listing.id.not_in(seen_ids))
+            unposted_rows = (await session.execute(unposted_stmt)).scalars().all()
+            for it in unposted_rows:
+                try:
+                    await queue_service.enqueue_listing(session, it)
+                except Exception as eq_err:
+                    logger.debug("Enqueue unposted listing #%d: %s", it.id, eq_err)
 
-            # Fetch a wider batch so we can skip duplicates and still fulfill needed count
-            stmt = stmt.order_by(
-                Listing.publication_date.desc().nullslast(),
-                Listing.id.desc(),
-            ).limit(max(30, needed * 10))
-
-            res = await session.execute(stmt)
-            unposted_db = res.scalars().all()
-            for it in unposted_db:
-                if len(candidates) >= max_to_post:
+        # 2. If force=True, execute slot immediately
+        if force:
+            now_tash = datetime.now(timezone.utc).astimezone(TASHKENT_TZ)
+            today_str = now_tash.strftime("%Y-%m-%d")
+            limit = batch_limit or 1
+            published_cnt = 0
+            for idx in range(limit):
+                res = await channel_scheduler.execute_slot(
+                    today_str, f"manual_{idx}", force=True, session=session
+                )
+                if res.get("status") == "published":
+                    published_cnt += 1
+                else:
                     break
-                if it.id in seen_ids:
-                    continue
-                # Strictly filter out duplicates against channel history AND current batch
-                if await self.is_channel_duplicate(session, it, in_batch_candidates=candidates):
-                    # Mark retired so we don't query it repeatedly
-                    it.posted_to_channel_at = datetime.now(timezone.utc)
-                    it.is_active = False
-                    session.add(it)
-                    await session.commit()
-                    continue
+            return published_cnt
 
-                candidates.append(it)
-                seen_ids.add(it.id)
-
-        # STRICT GUARANTEE: NEVER REPOST ALREADY POSTED LISTINGS.
-        if not candidates:
-            logger.info("No unposted unique listings available for channel broadcast. Waiting for fresh scrape.")
-            return 0
+        # Under regular operation, publishing is executed exclusively at the 10 daily slots by ChannelScheduler
+        return 0
 
         # 4. Dispatch each candidate to the channel
         posted_count = 0
