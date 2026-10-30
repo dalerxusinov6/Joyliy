@@ -185,8 +185,27 @@ class AIAssistantService:
             f"💡 **Tavsiya:** Kvartirani shaxsan borib ko‘ring, uy egasining kadastr hujjatini tekshiring va ijara shartnomasini rasmiylashtiring."
         )
 
+        custom_llm_advice = None
+        if len(user_message.strip()) > 6 and not any(k in user_message.lower() for k in ["tahlil", "baholash", "evaluate"]):
+            listing_dict = {
+                "id": listing.id,
+                "title": listing.title,
+                "price_uzs": listing.price_uzs,
+                "district": listing.district,
+                "area": listing.area,
+                "rooms": listing.rooms,
+                "is_owner": is_owner,
+                "description": listing.description,
+            }
+            try:
+                custom_llm_advice = await free_llm_service.evaluate_listing(listing_dict, user_message)
+            except Exception as e:
+                logger.debug("Listing LLM evaluation fallback: %s", e)
+
+        final_response = f"{custom_llm_advice}\n\n---\n{verdict}" if custom_llm_advice and len(custom_llm_advice.strip()) > 20 else verdict
+
         return {
-            "response": verdict,
+            "response": final_response,
             "quick_topics": ["Egasi bilan uchrashuvda nima so‘rash kerak?", "Shartnoma tuzish", "Boshqa kvartiralar bilan solishtirish"],
             "listing_evaluated": {
                 "id": listing.id,

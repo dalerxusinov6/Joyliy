@@ -92,6 +92,20 @@ class Settings(BaseSettings):
         description="Secret key for signing auth tokens",
     )
 
+    # AI / LLM Keys (Free tier options: Gemini 2.0 Flash, Groq Cloud, OpenRouter)
+    GEMINI_API_KEY: Optional[str] = Field(
+        default=None,
+        description="Google Gemini API Key (Free tier at aistudio.google.com)",
+    )
+    GROQ_API_KEY: Optional[str] = Field(
+        default=None,
+        description="Groq API Key (Free tier at console.groq.com)",
+    )
+    OPENROUTER_API_KEY: Optional[str] = Field(
+        default=None,
+        description="OpenRouter API Key (Free tier at openrouter.ai)",
+    )
+
     # Database
     DATABASE_URL: str = Field(
         default="sqlite+aiosqlite:///./uyda.db",

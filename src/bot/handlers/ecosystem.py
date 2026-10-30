@@ -101,7 +101,9 @@ async def run_ai_search(message: Message, query: str, state: FSMContext):
     if parsed.get("max_price_uzs"):
         criteria_lines.append(f"💰 Maksimal byudjet: <b>{format_price_uzs(parsed['max_price_uzs'])}</b>")
     if parsed.get("rooms"):
-        criteria_lines.append(f"🛏 Xonalar: <b>{', '.join(map(str, parsed['rooms']))}</b>")
+        r_val = parsed["rooms"]
+        r_str = ", ".join(map(str, r_val)) if isinstance(r_val, list) else f"{r_val} xonali"
+        criteria_lines.append(f"🛏 Xonalar: <b>{r_str}</b>")
     if parsed.get("owner_only"):
         criteria_lines.append("👤 Faqat <b>egasidan</b>")
     if parsed.get("target_audience") and parsed["target_audience"] != "any":

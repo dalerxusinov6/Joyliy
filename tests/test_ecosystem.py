@@ -129,3 +129,25 @@ async def test_ecosystem_api_routes(test_session: AsyncSession):
         data_ask = resp_ask.json()
         assert "reply" in data_ask or "response" in data_ask
         assert len(data_ask.get("practical_tips", [])) > 0
+
+
+@pytest.mark.asyncio
+async def test_free_llm_and_async_nlp_extraction():
+    """Verify free LLM service responses and async natural language query extraction."""
+    from src.services.free_llm_service import free_llm_service
+    from src.services.ai_match_service import ai_match_service
+
+    # 1. Test LLM generation with fallback guarantee
+    resp = await free_llm_service.generate_response("Kommunal to'lovlarni kim to'laydi?")
+    assert len(resp) > 20
+    assert any(k in resp.lower() for k in ["kommunal", "schetchik", "to'lov", "suv", "elektr"])
+
+    # 2. Test async query parsing with Tashkent real-estate logic
+    parsed = await ai_match_service.parse_natural_language_query_async(
+        "Chilonzorda metro yaqinida 4 million so'mgacha 2 xonali kvartira oila uchun maklersiz"
+    )
+    assert parsed["district"] == "Chilonzor"
+    assert parsed["rooms"] == 2
+    assert parsed["max_price_uzs"] == 4000000
+    assert parsed["owner_only"] is True
+    assert parsed["target_audience"] == "family"

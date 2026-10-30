@@ -129,6 +129,49 @@ class AIMatchService:
 
         return extracted
 
+    async def parse_natural_language_query_async(self, query: str) -> Dict[str, Any]:
+        """
+        Asynchronously parse natural language query with LLM extraction where available,
+        fusing with deterministic local Tashkent rules for guaranteed precision.
+        """
+        deterministic = self.parse_natural_language_query(query)
+        try:
+            from src.services.free_llm_service import free_llm_service
+            llm_extracted = await free_llm_service.extract_search_criteria(query)
+            if llm_extracted and isinstance(llm_extracted, dict):
+                # Fuse LLM insights into deterministic extraction
+                if not deterministic["district"] and llm_extracted.get("district"):
+                    deterministic["district"] = llm_extracted["district"]
+                    deterministic["tags"].append(f"📍 {llm_extracted['district']}")
+
+                if not deterministic["metro"] and llm_extracted.get("metro"):
+                    deterministic["metro"] = llm_extracted["metro"]
+                    deterministic["near_metro"] = True
+                    deterministic["tags"].append(f"🚇 {llm_extracted['metro']} metro")
+
+                if not deterministic["rooms"] and llm_extracted.get("rooms"):
+                    deterministic["rooms"] = llm_extracted["rooms"]
+                    deterministic["tags"].append(f"🏠 {llm_extracted['rooms']} xonali")
+
+                if not deterministic["max_price_uzs"] and llm_extracted.get("max_price_uzs"):
+                    deterministic["max_price_uzs"] = int(llm_extracted["max_price_uzs"])
+                    deterministic["tags"].append(f"💰 Max {deterministic['max_price_uzs']:,} so‘m")
+
+                if llm_extracted.get("owner_only") and not deterministic["owner_only"]:
+                    deterministic["owner_only"] = True
+                    deterministic["tags"].append("🔑 Egasidan (Maklersiz)")
+
+                if deterministic["target_audience"] == "any" and llm_extracted.get("target_audience") and llm_extracted["target_audience"] != "any":
+                    deterministic["target_audience"] = llm_extracted["target_audience"]
+                    deterministic["tags"].append(f"👥 {llm_extracted['target_audience']}")
+
+                if llm_extracted.get("reasoning"):
+                    deterministic["reasoning"] = llm_extracted["reasoning"]
+        except Exception as e:
+            logger.debug("LLM query parse skipped, using deterministic output: %s", e)
+
+        return deterministic
+
     async def search_and_rank_matches(
         self,
         session: AsyncSession,
@@ -139,7 +182,7 @@ class AIMatchService:
         Execute AI Match search: parse natural query, retrieve candidates, score similarity,
         and provide transparent explanation breakdowns.
         """
-        parsed = self.parse_natural_language_query(query)
+        parsed = await self.parse_natural_language_query_async(query)
 
         # Base candidate query
         conditions = [Listing.is_active == True]
