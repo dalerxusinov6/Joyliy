@@ -19,7 +19,7 @@ import ReportModal from '~/components/ReportModal.vue'
 
 const { t } = useI18n()
 const { count: favCount } = useFavorites()
-const { selectedListing, filterCategory, fetchListings, compareList } = useListings()
+const { selectedListing, filterCategory, fetchListings, compareList, clearCompare } = useListings()
 const {
   showFilters,
   showMap,
@@ -38,13 +38,9 @@ const {
 useHead({
   title: 'Joyliy — Toshkentda Aqlli Ijara Ekosistemasi',
   link: [
-    { rel: 'icon', type: 'image/svg+xml', href: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Crect width='24' height='24' rx='5.5' fill='%23BC684B'/%3E%3Cpath d='M4.5 10.5L12 4.25L19.5 10.5V18.5C19.5 19.3284 18.8284 20 18 20H6C5.17157 20 4.5 19.3284 4.5 18.5V10.5Z' stroke='%23FFFFFF' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='12' cy='13' r='1.6' fill='%23FFFFFF'/%3E%3C/svg%3E" },
-    { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
-    { rel: 'alternate icon', type: 'image/x-icon', href: '/favicon.ico' },
-    { rel: 'shortcut icon', href: '/favicon.ico' },
-    { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' },
-    { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' },
-    { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
+    { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg', key: 'app-icon-svg' },
+    { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico', key: 'app-icon-ico' },
+    { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png', key: 'app-apple-touch-icon' },
   ],
 })
 
@@ -156,6 +152,24 @@ const scrollToResults = () => {
     <!-- AI Virtual Rental Advisor Floating Widget -->
     <AIAssistantWidget />
 
+    <!-- Floating Comparison Bar -->
+    <Transition name="slide-fade">
+      <div v-if="compareList.length > 0 && !showCompare" class="floating-compare-bar">
+        <div class="fc-left">
+          <span class="fc-pill">⚖️ {{ compareList.length }}</span>
+          <span class="fc-label">Kvartira taqqoslashda</span>
+        </div>
+        <div class="fc-right">
+          <button class="fc-btn-view" @click="showCompare = true">
+            Taqqoslash
+          </button>
+          <button class="fc-btn-clear" @click="clearCompare" title="Tozalash">
+            ✕
+          </button>
+        </div>
+      </div>
+    </Transition>
+
     <!-- Toast Notification -->
     <div v-if="toastMessage" class="toast">
       {{ toastMessage }}
@@ -213,5 +227,108 @@ const scrollToResults = () => {
 }
 main {
   flex: 1;
+}
+
+.floating-compare-bar {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--ink, #181C18);
+  color: #ffffff;
+  padding: 8px 10px 8px 16px;
+  border-radius: var(--radius-full, 9999px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .floating-compare-bar {
+    bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+    left: 16px;
+    right: 16px;
+    transform: none;
+    justify-content: space-between;
+  }
+}
+
+.fc-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fc-pill {
+  background: var(--terracotta, #C85A32);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+}
+
+.fc-label {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.fc-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.fc-btn-view {
+  background: var(--terracotta, #C85A32);
+  color: #ffffff;
+  border: none;
+  font-size: 12.5px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: opacity 0.18s;
+}
+
+.fc-btn-view:hover {
+  opacity: 0.92;
+}
+
+.fc-btn-clear {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  border: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+}
+
+.slide-fade-enter-active,
+.slide-fade-leave-active {
+  transition: all 0.25s ease;
+}
+
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  transform: translate(-50%, 20px);
+  opacity: 0;
+}
+
+@media (max-width: 640px) {
+  .slide-fade-enter-from,
+  .slide-fade-leave-to {
+    transform: translateY(20px);
+  }
 }
 </style>

@@ -191,3 +191,4 @@ class PriceIntelligenceService:
 
 
 price_intelligence_service = PriceIntelligenceService()
+

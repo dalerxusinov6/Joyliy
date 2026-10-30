@@ -152,3 +152,4 @@ class SavedSearchAlert(Base):
 
     def __repr__(self) -> str:
         return f"<SavedSearchAlert id={self.id} title={self.title!r} user_id={self.user_id}>"
+

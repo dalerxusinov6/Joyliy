@@ -52,60 +52,22 @@ const onCompareClick = (e: MouseEvent) => {
         </svg>
       </div>
 
-      <!-- Top Badges Overlay -->
+      <!-- Top Badges Overlay (Clean, non-cluttering max 2 badges) -->
       <div class="badges-overlay">
-        <!-- AI Match Score Pill -->
+        <!-- Badge 1: AI Match or Maklersiz -->
         <span v-if="listing.match_percentage" class="editorial-badge match-pill">
           🎯 {{ listing.match_percentage }}% Mos
         </span>
-
-        <!-- Maklersiz Terracotta Pill -->
-        <span v-if="listing.is_owner" class="editorial-badge maklersiz">
+        <span v-else-if="listing.is_owner" class="editorial-badge maklersiz">
           Maklersiz
         </span>
 
-        <!-- Fair Price Pill -->
+        <!-- Badge 2: Fair Price / Scam Risk -->
         <span v-if="listing.fair_price_category === 'BELOW_MARKET'" class="editorial-badge fp-pill below">
           🟢 Bozordan arzon
         </span>
-        <span v-else-if="listing.fair_price_category === 'ABOVE_MARKET'" class="editorial-badge fp-pill above">
-          🔴 Bozordan qimmat
-        </span>
-
-        <!-- Scam warning pill if high risk -->
-        <span v-if="listing.scam_risk_score && listing.scam_risk_score > 60" class="editorial-badge scam-pill">
+        <span v-else-if="listing.scam_risk_score && listing.scam_risk_score > 60" class="editorial-badge scam-pill">
           ⚠️ Ehtiyot bo‘ling
-        </span>
-
-        <!-- Audience Tag -->
-        <span
-          v-if="listing.target_audience && listing.target_audience !== 'any'"
-          class="editorial-badge audience"
-          :class="`aud-${listing.target_audience}`"
-        >
-          <template v-if="listing.target_audience === 'family'">
-            <svg class="badge-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-              <circle cx="9" cy="7" r="4" />
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-            </svg>
-            <span>Oila uchun</span>
-          </template>
-          <template v-else-if="listing.target_audience === 'female'">
-            <svg class="badge-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-              <circle cx="12" cy="7" r="4" />
-            </svg>
-            <span>Qizlar uchun</span>
-          </template>
-          <template v-else-if="listing.target_audience === 'male'">
-            <svg class="badge-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-              <circle cx="12" cy="7" r="4" />
-            </svg>
-            <span>Yigitlar uchun</span>
-          </template>
         </span>
       </div>
 
@@ -145,8 +107,13 @@ const onCompareClick = (e: MouseEvent) => {
     <div class="card-details">
       <!-- Price & Period -->
       <div class="price-line">
-        <span class="price-val">{{ formatPrice(listing.price_uzs) }}</span>
-        <span class="price-sub">{{ t('per_month') }}</span>
+        <div class="price-main">
+          <span class="price-val">{{ formatPrice(listing.price_uzs) }}</span>
+          <span class="price-sub">/{{ t('per_month') }}</span>
+        </div>
+        <span v-if="listing.fair_price_diff_percent && listing.fair_price_diff_percent < -5" class="fp-inline-tag below">
+          {{ listing.fair_price_diff_percent }}% arzon
+        </span>
       </div>
 
       <!-- Title in clean editorial font -->
@@ -154,13 +121,20 @@ const onCompareClick = (e: MouseEvent) => {
         {{ listing.title }}
       </h3>
 
-      <!-- Architectural Specs (Area · Rooms · Floor) -->
+      <!-- Architectural Specs (Area · Rooms · Floor · Audience) -->
       <div class="specs-line">
         <span class="spec-unit">{{ listing.area }} m²</span>
-        <span class="spec-sep">/</span>
+        <span class="spec-sep">·</span>
         <span class="spec-unit">{{ listing.rooms }} xona</span>
-        <span class="spec-sep">/</span>
+        <span class="spec-sep">·</span>
         <span class="spec-unit">{{ listing.floor || '3/9' }} qavat</span>
+        <span
+          v-if="listing.target_audience && listing.target_audience !== 'any'"
+          class="spec-audience-pill"
+          :class="`aud-${listing.target_audience}`"
+        >
+          {{ listing.target_audience === 'family' ? '👨‍👩‍👧 Oila' : listing.target_audience === 'female' ? '👩 Qizlar' : '👨 Yigitlar' }}
+        </span>
       </div>
 
       <!-- District & Metro Transit -->
@@ -384,9 +358,53 @@ const onCompareClick = (e: MouseEvent) => {
 
 .price-line {
   display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.price-main {
+  display: flex;
   align-items: baseline;
   gap: 4px;
-  margin-bottom: 8px;
+}
+
+.fp-inline-tag {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.fp-inline-tag.below {
+  background: var(--emerald-subtle, #e6f4ea);
+  color: var(--emerald, #137333);
+}
+
+.spec-audience-pill {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--sand-light, #f0ede6);
+  color: var(--ink);
+}
+
+.spec-audience-pill.aud-family {
+  color: #1B7A43;
+  background: #E8F6ED;
+}
+
+.spec-audience-pill.aud-female {
+  color: #B83280;
+  background: #FDF2F8;
+}
+
+.spec-audience-pill.aud-male {
+  color: #2563EB;
+  background: #EFF6FF;
 }
 
 .price-val {

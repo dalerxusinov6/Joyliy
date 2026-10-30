@@ -465,3 +465,4 @@ const formatPrice = (val: number) => {
   cursor: pointer;
 }
 </style>
+

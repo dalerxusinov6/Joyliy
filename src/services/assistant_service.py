@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.models.listing import Listing
 from src.services.price_intelligence_service import price_intelligence_service
 from src.services.scam_detector_service import scam_detector_service
+from src.services.free_llm_service import free_llm_service
 
 logger = logging.getLogger(__name__)
 
@@ -57,8 +58,29 @@ class AIAssistantService:
         if listing_id:
             return await self._evaluate_specific_listing(session, listing_id, user_message, language)
 
-        # General rental advice logic
-        if any(w in msg_lower for w in ["shartnoma", "договор", "contract", "soliq", "registratsiya", "propiska"]):
+        # 1. Try real free LLM generation with grounded Uzbekistan knowledge context
+        llm_response = None
+        if len(user_message.strip()) > 5:
+            ctx_items = [f"{k.upper()}: {v}" for k, v in KNOWLEDGE_BASE_UZ.items()]
+            ctx_str = "\n\n".join(ctx_items)
+            try:
+                llm_response = await free_llm_service.generate_response(
+                    user_message=user_message,
+                    context=ctx_str,
+                )
+            except Exception as e:
+                logger.warning("LLM service call failed, using rule-based response: %s", e)
+
+        if llm_response and len(llm_response.strip()) > 20:
+            text = llm_response.strip()
+            quick_topics = [
+                "Ijara shartnomasi (soliq)",
+                "Zalog (depozit) qaytarish",
+                "Kommunal to‘lovlar",
+                "Uy egasiga savollar",
+            ]
+        # 2. General rental advice fallback logic
+        elif any(w in msg_lower for w in ["shartnoma", "договор", "contract", "soliq", "registratsiya", "propiska"]):
             text = (
                 "📄 **Ijara shartnomasi va qonuniy masalalar:**\n\n"
                 f"{KNOWLEDGE_BASE_UZ['shartnoma']}\n\n"

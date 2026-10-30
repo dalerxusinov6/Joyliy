@@ -151,3 +151,4 @@ class ComparisonService:
 
 
 comparison_service = ComparisonService()
+

@@ -175,10 +175,10 @@ const sendQuestion = async (textToSend?: string) => {
   z-index: 1100;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 640px) {
   .assistant-container {
-    bottom: 80px;
-    right: 16px;
+    bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+    right: 14px;
   }
 }
 
@@ -187,13 +187,13 @@ const sendQuestion = async (textToSend?: string) => {
   align-items: center;
   gap: 8px;
   padding: 10px 18px;
-  border-radius: 28px;
-  background: #BC684B;
+  border-radius: var(--radius-full, 9999px);
+  background: var(--terracotta, #C85A32);
   color: #ffffff;
   border: none;
   font-size: 13.5px;
   font-weight: 700;
-  box-shadow: 0 8px 24px rgba(188, 104, 75, 0.4);
+  box-shadow: 0 8px 24px rgba(200, 90, 50, 0.35);
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
@@ -201,7 +201,7 @@ const sendQuestion = async (textToSend?: string) => {
 
 .assistant-trigger:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 28px rgba(188, 104, 75, 0.5);
+  box-shadow: 0 12px 28px rgba(200, 90, 50, 0.45);
 }
 
 .trigger-icon {
@@ -213,7 +213,7 @@ const sendQuestion = async (textToSend?: string) => {
   height: 8px;
   background: #2ecc71;
   border-radius: 50%;
-  border: 1.5px solid #BC684B;
+  border: 1.5px solid var(--terracotta, #C85A32);
 }
 
 .chat-drawer {
@@ -224,7 +224,7 @@ const sendQuestion = async (textToSend?: string) => {
   max-width: calc(100vw - 32px);
   height: 520px;
   max-height: calc(100vh - 120px);
-  background: #ffffff;
+  background: var(--surf, #ffffff);
   border: 1px solid var(--sand, #ebe5db);
   border-radius: 16px;
   box-shadow: 0 20px 45px rgba(0,0,0,0.22);
@@ -232,6 +232,19 @@ const sendQuestion = async (textToSend?: string) => {
   flex-direction: column;
   overflow: hidden;
   animation: slideUp 0.2s ease-out;
+}
+
+@media (max-width: 640px) {
+  .chat-drawer {
+    position: fixed;
+    inset: auto 12px calc(76px + env(safe-area-inset-bottom, 0px)) 12px;
+    width: auto;
+    max-width: none;
+    height: 72vh;
+    max-height: 580px;
+    border-radius: 20px;
+    box-shadow: 0 -8px 36px rgba(0, 0, 0, 0.28);
+  }
 }
 
 @keyframes slideUp {
@@ -430,3 +443,4 @@ const sendQuestion = async (textToSend?: string) => {
   cursor: not-allowed;
 }
 </style>
+

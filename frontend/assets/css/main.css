@@ -4,18 +4,22 @@
    ========================================================================== */
 
 :root {
-  /* Palette: Warm Architectural Canvas */
-  --ink: #202620;          /* Midnight ink (Primary typography, structural weight) */
-  --ivory: #F3F0E8;        /* Warm ivory (Primary background canvas) */
-  --terracotta: #BC684B;   /* Terracotta (Signature editorial accent, key CTAs) */
-  --terracotta-hover: #A7553A;
-  --terracotta-subtle: #F6EDE8;
-  --olive: #92957A;        /* Soft olive (Subtle botanical architectural tone) */
-  --olive-subtle: #ECEEE5;
-  --sand: #DDD3C2;         /* Pale sand (Architectural dividing lines, borders) */
-  --sand-light: #EBE5DB;
+  /* Palette: Crisp Scandinavian Warmth & Architectural Ink */
+  --ink: #181C18;          /* Deep rich mineral black */
+  --ivory: #FBFBFA;        /* Clean, warm alabaster canvas */
+  --terracotta: #C85A32;   /* Signature warm terracotta orange */
+  --terracotta-hover: #B24E28;
+  --terracotta-subtle: #FDF4F0;
+  --olive: #737A6A;        /* Sage / muted botanical */
+  --olive-subtle: #F1F3ED;
+  --sand: #EAE6DF;         /* Crisp hairline border */
+  --sand-light: #F4F1EA;
   --white: #FFFFFF;        /* Crisp surface white */
-  --muted: #72746B;        /* Muted secondary editorial metadata */
+  --muted: #666C66;        /* Readable neutral metadata */
+  --emerald: #1B7A43;      /* Fair price green */
+  --emerald-subtle: #E8F6ED;
+  --blue: #2563EB;
+  --blue-subtle: #EFF6FF;
 
   /* Legacy & Semantic Bindings */
   --bg: var(--ivory);
@@ -26,7 +30,7 @@
   --tx-muted: var(--muted);
   --mu: var(--muted);
   --bd: var(--sand);
-  --bd-hover: var(--olive);
+  --bd-hover: var(--terracotta);
   --ac: var(--terracotta);
   --ac-dark: var(--ink);
   --ac-hover: var(--terracotta-hover);
@@ -37,18 +41,18 @@
   --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
-  /* Architectural Radii (Subtle, crisp, intentional) */
-  --radius-xs: 2px;
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
+  /* Architectural Radii (Clean, comfortable, modern) */
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
   --radius-full: 9999px;
 
-  /* Elevations (Subtle ambient shadow, not artificial glassmorphism) */
-  --sh-sm: 0 1px 3px rgba(32, 38, 32, 0.04);
-  --sh-card: 0 4px 16px -2px rgba(32, 38, 32, 0.05);
-  --sh-hover: 0 14px 32px -4px rgba(32, 38, 32, 0.1);
-  --sh-modal: 0 24px 60px -10px rgba(32, 38, 32, 0.25);
+  /* Ambient Soft Shadows */
+  --sh-sm: 0 1px 3px rgba(24, 28, 24, 0.04), 0 1px 2px rgba(24, 28, 24, 0.02);
+  --sh-card: 0 4px 18px -2px rgba(24, 28, 24, 0.05);
+  --sh-hover: 0 16px 36px -6px rgba(24, 28, 24, 0.09);
+  --sh-modal: 0 24px 64px -12px rgba(24, 28, 24, 0.22);
 
   /* Transitions */
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
@@ -58,57 +62,57 @@
 /* Dark Mode Tokens */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --ink: #F3F0E8;
-    --ivory: #151915;
-    --terracotta: #D4795C;
-    --terracotta-hover: #E28C71;
+    --ink: #F4F2EB;
+    --ivory: #131713;
+    --terracotta: #E06C45;
+    --terracotta-hover: #EC7C57;
     --terracotta-subtle: #291C17;
-    --olive: #AAB08E;
-    --olive-subtle: #22261E;
-    --sand: #2C332C;
-    --sand-light: #1E231E;
-    --white: #1C211C;
-    --muted: #9E9E94;
+    --olive: #9DA38D;
+    --olive-subtle: #1F251C;
+    --sand: #262D26;
+    --sand-light: #1A201A;
+    --white: #1A201A;
+    --muted: #9BA29B;
 
-    --bg: #151915;
-    --surf: #1C211C;
-    --surf-muted: #242B24;
-    --card: #1C211C;
-    --tx: #F3F0E8;
-    --tx-muted: #9E9E94;
-    --mu: #9E9E94;
-    --bd: #2C332C;
-    --bd-hover: #454E45;
-    --ac: #D4795C;
-    --ac-dark: #F3F0E8;
+    --bg: #131713;
+    --surf: #1A201A;
+    --surf-muted: #222922;
+    --card: #1A201A;
+    --tx: #F4F2EB;
+    --tx-muted: #9BA29B;
+    --mu: #9BA29B;
+    --bd: #262D26;
+    --bd-hover: #3E483E;
+    --ac: #E06C45;
+    --ac-dark: #F4F2EB;
     color-scheme: dark;
   }
 }
 
 :root[data-theme="dark"] {
-  --ink: #F3F0E8;
-  --ivory: #151915;
-  --terracotta: #D4795C;
-  --terracotta-hover: #E28C71;
+  --ink: #F4F2EB;
+  --ivory: #131713;
+  --terracotta: #E06C45;
+  --terracotta-hover: #EC7C57;
   --terracotta-subtle: #291C17;
-  --olive: #AAB08E;
-  --olive-subtle: #22261E;
-  --sand: #2C332C;
-  --sand-light: #1E231E;
-  --white: #1C211C;
-  --muted: #9E9E94;
+  --olive: #9DA38D;
+  --olive-subtle: #1F251C;
+  --sand: #262D26;
+  --sand-light: #1A201A;
+  --white: #1A201A;
+  --muted: #9BA29B;
 
-  --bg: #151915;
-  --surf: #1C211C;
-  --surf-muted: #242B24;
-  --card: #1C211C;
-  --tx: #F3F0E8;
-  --tx-muted: #9E9E94;
-  --mu: #9E9E94;
-  --bd: #2C332C;
-  --bd-hover: #454E45;
-  --ac: #D4795C;
-  --ac-dark: #F3F0E8;
+  --bg: #131713;
+  --surf: #1A201A;
+  --surf-muted: #222922;
+  --card: #1A201A;
+  --tx: #F4F2EB;
+  --tx-muted: #9BA29B;
+  --mu: #9BA29B;
+  --bd: #262D26;
+  --bd-hover: #3E483E;
+  --ac: #E06C45;
+  --ac-dark: #F4F2EB;
   color-scheme: dark;
 }
 
@@ -584,18 +588,18 @@ header {
   position: fixed;
   inset: auto 0 0;
   z-index: 55;
-  background: rgba(243, 240, 232, 0.96);
+  background: rgba(251, 251, 250, 0.96);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-top: 1px solid var(--sand);
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 :root[data-theme="dark"] .bn,
 :root:not([data-theme="light"]) .bn {
-  background: rgba(21, 25, 21, 0.96);
+  background: rgba(19, 23, 19, 0.96);
 }
 
 .bn button {

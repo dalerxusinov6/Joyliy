@@ -285,3 +285,4 @@ const formatPrice = (p: number) => {
   color: #ffffff;
 }
 </style>
+

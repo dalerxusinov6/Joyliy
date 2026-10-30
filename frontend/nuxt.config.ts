@@ -19,13 +19,9 @@ export default defineNuxtConfig({
         { name: 'theme-color', content: '#BC684B' },
       ],
       link: [
-        { rel: 'icon', type: 'image/svg+xml', href: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Crect width='24' height='24' rx='5.5' fill='%23BC684B'/%3E%3Cpath d='M4.5 10.5L12 4.25L19.5 10.5V18.5C19.5 19.3284 18.8284 20 18 20H6C5.17157 20 4.5 19.3284 4.5 18.5V10.5Z' stroke='%23FFFFFF' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='12' cy='13' r='1.6' fill='%23FFFFFF'/%3E%3C/svg%3E" },
-        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
-        { rel: 'alternate icon', type: 'image/x-icon', href: '/favicon.ico' },
-        { rel: 'shortcut icon', href: '/favicon.ico' },
-        { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' },
-        { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' },
-        { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
+        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg', key: 'icon-svg' },
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico', key: 'icon-ico' },
+        { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png', key: 'apple-touch-icon' },
         {
           rel: 'preconnect',
           href: 'https://fonts.googleapis.com',
@@ -49,6 +45,16 @@ export default defineNuxtConfig({
     routeRules: {
       '/api/**': {
         proxy: 'http://localhost:8000/api/**',
+      },
+    },
+    hooks: {
+      'prerender:generate'(route) {
+        if (route.fileName && route.fileName.endsWith('.html') && route.contents) {
+          route.contents = route.contents.replace(
+            '</head>',
+            '<link rel="icon" type="image/svg+xml" href="/favicon.svg">\n<link rel="icon" type="image/x-icon" href="/favicon.ico">\n<link rel="shortcut icon" href="/favicon.ico">\n<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">\n</head>'
+          )
+        }
       },
     },
   },
