@@ -1,10 +1,26 @@
 /* ==========================================================================
-   JOYLIY — ICONLY DESIGN SYSTEM & PROPTECH DISCOVERY
+   JOYLIY — ICONLY DESIGN SYSTEM & MOBILE-FIRST RESPONSIVE ARCHITECTURE
    Visual Direction: Calm, Minimal, Atmospheric Blue Gradients, Frosted Glass,
-   Generous Radii (24-36px), Floating Capsules & Sophisticated Minimalism.
+   Generous Radii (24-36px), Floating Capsules & Native Mobile App Polish.
    ========================================================================== */
 
 :root {
+  /* Centralized Stacking Context (Z-Index Architecture) */
+  --z-content: 1;
+  --z-header: 100;
+  --z-dropdown: 200;
+  --z-overlay: 800;
+  --z-bottom-nav: 1000;
+  --z-chatbot: 1100;
+  --z-modal: 1200;
+  --z-chat-fullscreen: 1300;
+
+  /* Mobile Layout Dimensions */
+  --mobile-nav-height: 64px;
+  --mobile-nav-bottom: 12px;
+  --chatbot-gap: 20px;
+  --chatbot-size: 52px;
+
   /* Iconly Core Palette */
   --blue-primary: #2878C8;       /* Signature Iconly Blue */
   --blue-deep: #175B9B;          /* Deep Navigation Blue */
@@ -153,7 +169,7 @@
 }
 
 /* ==========================================================================
-   Base & Reset
+   Base & Reset (Mobile-First Architecture)
    ========================================================================== */
 
 *, *::before, *::after {
@@ -161,21 +177,38 @@
 }
 
 html {
+  max-width: 100%;
+  overflow-x: hidden;
   scroll-behavior: smooth;
-  scroll-padding-top: calc(88px + env(safe-area-inset-top, 0px));
+  scroll-padding-top: calc(76px + env(safe-area-inset-top, 0px));
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 body {
   margin: 0;
+  max-width: 100%;
+  overflow-x: hidden;
   background: var(--bg);
   color: var(--tx);
   font-family: var(--font-sans);
   font-size: 15px;
   line-height: 1.6;
-  overflow-x: hidden;
-  padding-bottom: 96px;
+  /* Safe clearance so floating bottom bar & chatbot NEVER cover content */
+  padding-bottom: calc(var(--mobile-nav-height) + var(--mobile-nav-bottom) + 32px + env(safe-area-inset-bottom, 0px));
+}
+
+@media (min-width: 1024px) {
+  body {
+    padding-bottom: 0;
+  }
+}
+
+/* Background scroll locking when modal or chat is open */
+body.chat-open,
+body.modal-open {
+  overflow: hidden !important;
+  touch-action: none;
 }
 
 body::before {
@@ -184,7 +217,7 @@ body::before {
   inset: 0 0 auto;
   height: env(safe-area-inset-top, 0px);
   background: var(--bg);
-  z-index: 60;
+  z-index: var(--z-header);
 }
 
 a {
@@ -203,6 +236,8 @@ button {
   cursor: pointer;
   border: none;
   background: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 :focus-visible {
@@ -210,11 +245,18 @@ button {
   outline-offset: 2px;
 }
 
-/* Main Container */
+/* Main Responsive Container */
 .wrap {
+  width: 100%;
   max-width: 1360px;
   margin: 0 auto;
-  padding: 0 16px;
+  padding: 0 14px;
+}
+
+@media (min-width: 375px) {
+  .wrap {
+    padding: 0 16px;
+  }
 }
 
 @media (min-width: 640px) {
@@ -265,7 +307,7 @@ svg.i {
 }
 
 /* ==========================================================================
-   Buttons
+   Buttons & Touch Targets (Min 44x44px for Touch)
    ========================================================================== */
 
 .btn {
@@ -274,7 +316,7 @@ svg.i {
   justify-content: center;
   gap: 8px;
   min-height: 44px;
-  padding: 0 22px;
+  padding: 0 20px;
   border-radius: var(--radius-full);
   border: 1px solid var(--bd);
   background: var(--surf);
@@ -292,7 +334,7 @@ svg.i {
 }
 
 .btn:active {
-  transform: translateY(1px);
+  transform: scale(0.98);
 }
 
 /* Primary Blue CTA */
@@ -326,8 +368,10 @@ svg.i {
 
 /* Minimal Icon Button */
 .ib {
-  width: 40px;
-  height: 40px;
+  min-width: 44px;
+  min-height: 44px;
+  width: 44px;
+  height: 44px;
   border-radius: var(--radius-full);
   border: 1px solid var(--bd);
   background: var(--surf);
@@ -344,6 +388,10 @@ svg.i {
   color: var(--blue-primary);
 }
 
+.ib:active {
+  transform: scale(0.96);
+}
+
 /* ==========================================================================
    Navigation Header
    ========================================================================== */
@@ -351,7 +399,7 @@ svg.i {
 header {
   position: sticky;
   top: 0;
-  z-index: 50;
+  z-index: var(--z-header);
   background: rgba(243, 244, 245, 0.88);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
@@ -367,8 +415,15 @@ header {
 .hd {
   display: flex;
   align-items: center;
-  gap: 12px;
-  height: 66px;
+  gap: 8px;
+  height: 60px;
+}
+
+@media (min-width: 640px) {
+  .hd {
+    gap: 12px;
+    height: 66px;
+  }
 }
 
 @media (min-width: 768px) {
@@ -383,19 +438,19 @@ header {
 }
 
 /* ==========================================================================
-   Property Cards & Catalog
+   Property Cards & Catalog Grid
    ========================================================================== */
 
 .grid {
   display: grid;
-  gap: 24px;
+  gap: 16px;
   grid-template-columns: 1fr;
 }
 
 @media (min-width: 640px) {
   .grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 24px;
+    gap: 20px;
   }
 }
 
@@ -447,8 +502,8 @@ header {
 
 .cnt {
   position: absolute;
-  left: 12px;
-  bottom: 12px;
+  left: 10px;
+  bottom: 10px;
   background: rgba(23, 25, 29, 0.7);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
@@ -456,16 +511,16 @@ header {
   font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.04em;
-  padding: 4px 9px;
+  padding: 3px 8px;
   border-radius: var(--radius-full);
 }
 
 .fav {
   position: absolute;
-  right: 12px;
-  top: 12px;
-  width: 38px;
-  height: 38px;
+  right: 10px;
+  top: 10px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   border: 1px solid rgba(255, 255, 255, 0.9);
   background: rgba(255, 255, 255, 0.92);
@@ -480,8 +535,12 @@ header {
 }
 
 .fav:hover {
-  transform: scale(1.08);
+  transform: scale(1.06);
   color: #EF4444;
+}
+
+.fav:active {
+  transform: scale(0.94);
 }
 
 .fav.on {
@@ -494,7 +553,7 @@ header {
 }
 
 .cb {
-  padding: 16px 18px 20px;
+  padding: 14px 14px 16px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -503,7 +562,7 @@ header {
 
 .pr {
   font-family: var(--font-sans);
-  font-size: 20px;
+  font-size: clamp(18px, 4.5vw, 20px);
   font-weight: 800;
   letter-spacing: -0.02em;
   color: var(--text-primary);
@@ -519,15 +578,19 @@ header {
 
 .mt {
   color: var(--text-primary);
-  font-size: 14.5px;
+  font-size: 14px;
   font-weight: 600;
   line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .mu {
   color: var(--text-secondary);
-  font-size: 13px;
-  line-height: 1.45;
+  font-size: 12.5px;
+  line-height: 1.4;
 }
 
 .row {
@@ -536,21 +599,21 @@ header {
   gap: 8px;
   align-items: center;
   margin-top: auto;
-  padding-top: 12px;
+  padding-top: 10px;
   border-top: 1px solid var(--bd);
 }
 
 /* ==========================================================================
-   Modals, Sheets & Drawers
+   Modals, Sheets & Drawers (Bottom-Sheet Architecture on Mobile)
    ========================================================================== */
 
 .ov {
   position: fixed;
   inset: 0;
-  z-index: 80;
-  background: rgba(23, 25, 29, 0.55);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  z-index: var(--z-modal);
+  background: rgba(23, 25, 29, 0.6);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -558,10 +621,18 @@ header {
   padding: 16px;
 }
 
+@media (max-width: 767px) {
+  .ov {
+    padding: 0;
+    align-items: flex-end;
+  }
+}
+
 .sheet {
   position: relative;
   background: var(--surface);
-  overflow: auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -572,24 +643,55 @@ header {
   box-shadow: var(--sh-modal);
 }
 
+@media (max-width: 767px) {
+  .sheet {
+    max-width: 100%;
+    width: 100%;
+    max-height: 92dvh;
+    border-radius: 24px 24px 0 0;
+    border-bottom: none;
+    margin: 0;
+    box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.3);
+    animation: slideUpSheet 0.25s var(--ease);
+  }
+}
+
+@keyframes slideUpSheet {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
 .sheet .top {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 24px;
+  padding: 16px 20px;
   border-bottom: 1px solid var(--bd);
   position: sticky;
   top: 0;
   background: var(--surface);
   z-index: 2;
   font-weight: 700;
-  font-size: 17px;
+  font-size: 16px;
   color: var(--text-primary);
 }
 
+@media (min-width: 768px) {
+  .sheet .top {
+    padding: 20px 24px;
+    font-size: 17px;
+  }
+}
+
 .sheet .bd {
-  padding: 24px;
+  padding: 16px 18px;
   flex: 1;
+}
+
+@media (min-width: 768px) {
+  .sheet .bd {
+    padding: 24px;
+  }
 }
 
 .cbar {
@@ -597,27 +699,41 @@ header {
   bottom: 0;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  padding: 16px 24px calc(16px + env(safe-area-inset-bottom, 0px));
+  gap: 10px;
+  padding: 14px 18px calc(14px + env(safe-area-inset-bottom, 0px));
   background: var(--surface);
   border-top: 1px solid var(--bd);
   z-index: 5;
 }
 
+@media (min-width: 768px) {
+  .cbar {
+    gap: 12px;
+    padding: 16px 24px;
+  }
+}
+
 .toast {
   position: fixed;
   left: 50%;
-  bottom: 96px;
+  bottom: calc(var(--mobile-nav-height) + var(--mobile-nav-bottom) + 20px + env(safe-area-inset-bottom, 0px));
   transform: translateX(-50%);
   background: #17191D;
   color: #FFFFFF;
-  padding: 12px 24px;
+  padding: 10px 20px;
   border-radius: var(--radius-full);
-  z-index: 99;
-  font-size: 13.5px;
+  z-index: var(--z-modal);
+  font-size: 13px;
   font-weight: 600;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
   border: 1px solid rgba(255, 255, 255, 0.15);
+  white-space: nowrap;
+}
+
+@media (min-width: 1024px) {
+  .toast {
+    bottom: 32px;
+  }
 }
 
 /* ==========================================================================
@@ -626,58 +742,98 @@ header {
 
 .bn {
   position: fixed;
-  bottom: 20px;
-  left: 20px;
-  right: 20px;
+  bottom: calc(var(--mobile-nav-bottom) + env(safe-area-inset-bottom, 0px));
+  left: 12px;
+  right: 12px;
   max-width: 440px;
   margin: 0 auto;
-  height: 64px;
-  z-index: 70;
-  background: rgba(255, 255, 255, 0.9);
+  height: var(--mobile-nav-height);
+  z-index: var(--z-bottom-nav);
+  background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border: 1px solid rgba(255, 255, 255, 0.9);
   border-radius: var(--radius-full);
-  box-shadow: 0 12px 36px rgba(23, 25, 29, 0.14);
+  box-shadow: 0 12px 36px rgba(23, 25, 29, 0.16);
   display: flex;
   align-items: center;
   justify-content: space-around;
-  padding: 0 8px;
+  padding: 0 6px;
+  transition: transform 0.28s var(--ease), opacity 0.2s ease;
+}
+
+@media (min-width: 375px) {
+  .bn {
+    left: 16px;
+    right: 16px;
+    padding: 0 8px;
+  }
 }
 
 :root[data-theme="dark"] .bn,
 :root:not([data-theme="light"]) .bn {
-  background: rgba(22, 27, 34, 0.92);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
+  background: rgba(22, 27, 34, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
+}
+
+/* When chat or modal is open, bottom nav is hidden smoothly */
+body.chat-open .bn {
+  transform: translateY(180%);
+  opacity: 0;
+  pointer-events: none;
 }
 
 .bn button {
   border: 0;
   background: none;
-  height: 48px;
+  min-height: 44px;
+  height: 46px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 0 12px;
-  font-size: 12px;
+  gap: 5px;
+  padding: 0 8px;
+  font-size: 11px;
   font-weight: 600;
   color: var(--text-secondary);
   border-radius: var(--radius-full);
   transition: all 0.2s var(--ease);
+  flex-shrink: 1;
+}
+
+@media (max-width: 374px) {
+  .bn button {
+    padding: 0 5px;
+    font-size: 10px;
+    gap: 3px;
+  }
+  .bn button svg.i {
+    width: 16px;
+    height: 16px;
+  }
 }
 
 .bn button:hover {
   color: var(--text-primary);
 }
 
+.bn button:active {
+  transform: scale(0.96);
+}
+
 /* Active Dark Capsule Button (Iconly Mobile Reference Image) */
 .bn button.on {
   background: #17191D;
   color: #FFFFFF;
-  padding: 0 18px;
+  padding: 0 14px;
   box-shadow: 0 4px 14px rgba(23, 25, 29, 0.2);
+}
+
+@media (max-width: 374px) {
+  .bn button.on {
+    padding: 0 10px;
+  }
 }
 
 :root[data-theme="dark"] .bn button.on,
@@ -691,7 +847,14 @@ header {
   stroke: #FFFFFF;
 }
 
-/* Animations */
+/* Hide on desktop */
+@media (min-width: 1024px) {
+  .bn {
+    display: none;
+  }
+}
+
+/* Global Animations */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -700,13 +863,4 @@ header {
 @keyframes slideUp {
   from { opacity: 0; transform: translateY(16px); }
   to { opacity: 1; transform: translateY(0); }
-}
-
-@media (min-width: 1024px) {
-  body {
-    padding-bottom: 0;
-  }
-  .bn {
-    display: none;
-  }
 }

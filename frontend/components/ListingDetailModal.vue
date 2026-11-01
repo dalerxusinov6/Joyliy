@@ -242,8 +242,11 @@ const sourceViewLabel = computed(() => {
           class="btn cmp-btn"
           :class="{ active: isInCompare(listing.id) }"
           @click="onToggleCompare"
+          :title="isInCompare(listing.id) ? 'Taqqoslangan' : 'Taqqoslash'"
+          :aria-label="isInCompare(listing.id) ? 'Taqqoslangan' : 'Taqqoslash'"
         >
-          <span>⚖️ {{ isInCompare(listing.id) ? 'Taqqoslangan' : 'Taqqoslash' }}</span>
+          <span class="cmp-desktop-text">⚖️ {{ isInCompare(listing.id) ? 'Taqqoslangan' : 'Taqqoslash' }}</span>
+          <span class="cmp-mobile-text">⚖️</span>
         </button>
 
         <a
@@ -254,7 +257,8 @@ const sourceViewLabel = computed(() => {
           <svg class="btn-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
           </svg>
-          <span>Qo‘ng‘iroq qilish</span>
+          <span class="btn-text-full">Qo‘ng‘iroq qilish</span>
+          <span class="btn-text-short">Qo‘ng‘iroq</span>
         </a>
         <a
           v-if="listing.contact_telegram"
@@ -266,7 +270,8 @@ const sourceViewLabel = computed(() => {
           <svg class="btn-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="m22 2-11 11M22 2l-7 20-4-9-9-4z" />
           </svg>
-          <span>Telegram orqali yozish</span>
+          <span class="btn-text-full">Telegram orqali yozish</span>
+          <span class="btn-text-short">Telegram</span>
         </a>
         <a
           v-if="listing.canonical_url"
@@ -284,7 +289,7 @@ const sourceViewLabel = computed(() => {
           </svg>
         </a>
         <a
-          v-if="!listing.contact_telegram && !listing.contact_phone"
+          v-if="!listing.contact_telegram && !listing.contact_phone && !listing.canonical_url"
           class="btn"
           href="https://t.me/joyliy_bot"
           target="_blank"
@@ -716,12 +721,89 @@ const sourceViewLabel = computed(() => {
   color: #c5221f;
 }
 
+.cmp-desktop-text {
+  display: inline;
+}
+
+.cmp-mobile-text {
+  display: none;
+}
+
+.btn-text-full {
+  display: inline;
+}
+
+.btn-text-short {
+  display: none;
+}
+
 @media (max-width: 640px) {
+  .exhibition-header {
+    padding: 14px 16px;
+  }
+  .exhibition-body {
+    padding: 16px 16px 24px;
+  }
   .exhibition-specs-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+  .large-price {
+    font-size: 23px;
+  }
+  .exhibition-listing-title {
+    font-size: 19px;
+    margin-bottom: 14px;
+  }
+  .cmp-desktop-text {
+    display: none;
+  }
+  .cmp-mobile-text {
+    display: inline;
+  }
+  .btn-text-full {
+    display: none;
+  }
+  .btn-text-short {
+    display: inline;
+  }
   .exhibition-cbar {
-    flex-direction: column;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px calc(12px + env(safe-area-inset-bottom, 0px));
+    position: sticky;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-top: 1px solid var(--sand, #ebe5db);
+    z-index: 10;
+  }
+  .exhibition-cbar .btn {
+    min-height: 46px;
+    padding: 0 12px;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: var(--radius-full, 9999px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .exhibition-cbar .cmp-btn {
+    width: 46px;
+    height: 46px;
+    padding: 0;
+    flex: none;
+    border-radius: 50%;
+  }
+  .exhibition-cbar .call-btn {
+    flex: 1.3;
+    font-weight: 700;
+  }
+  .exhibition-cbar .tg-btn,
+  .exhibition-cbar .source-btn {
+    flex: 1;
   }
 }
 </style>

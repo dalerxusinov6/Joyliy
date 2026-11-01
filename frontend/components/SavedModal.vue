@@ -111,4 +111,17 @@ const savedListings = computed(() => {
   margin: 0 auto 24px;
   line-height: 1.6;
 }
+
+@media (max-width: 640px) {
+  .saved-header {
+    padding: 14px 16px;
+  }
+  .saved-body {
+    padding: 16px 14px;
+  }
+  .saved-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+}
 </style>

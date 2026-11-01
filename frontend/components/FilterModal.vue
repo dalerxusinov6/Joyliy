@@ -337,4 +337,27 @@ const onApply = () => {
 .filter-cbar .btn:first-child {
   flex: 1;
 }
+
+@media (max-width: 640px) {
+  .filter-header {
+    padding: 14px 18px;
+  }
+  .filter-body {
+    padding: 16px 18px 24px;
+    gap: 18px;
+  }
+  .filter-cbar {
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+    position: sticky;
+    bottom: 0;
+    background: var(--surf);
+    border-top: 1px solid var(--sand);
+    z-index: 10;
+  }
+  .filter-cbar .btn {
+    min-height: 46px;
+    font-size: 13.5px;
+    font-weight: 600;
+  }
+}
 </style>

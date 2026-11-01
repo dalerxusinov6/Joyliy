@@ -644,4 +644,24 @@ onBeforeUnmount(() => {
   transform: translateY(20px);
   opacity: 0;
 }
+
+@media (max-width: 767px) {
+  .yandex-map-sheet {
+    width: 100vw !important;
+    height: 92dvh !important;
+    max-height: 92dvh !important;
+    border-radius: 24px 24px 0 0 !important;
+  }
+  .selected-apartment-card {
+    left: 12px;
+    right: 12px;
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    padding: 10px;
+    gap: 10px;
+  }
+  .card-thumb {
+    width: 58px;
+    height: 58px;
+  }
+}
 </style>

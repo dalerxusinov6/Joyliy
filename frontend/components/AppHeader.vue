@@ -46,7 +46,7 @@ const onLangChange = (lang: string) => {
   <header class="iconly-header">
     <div class="wrap hd">
       <!-- Left: Logo & Wordmark -->
-      <NuxtLink to="/" class="brand-link">
+      <NuxtLink to="/" class="brand-link" aria-label="Joyliy.uz bosh sahifasi">
         <div class="brand-logo-mark">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="logo-icon">
             <path d="M3 10.5 12 3l9 7.5V20a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 20v-9.5z" />
@@ -58,8 +58,8 @@ const onLangChange = (lang: string) => {
         </div>
       </NuxtLink>
 
-      <!-- Center: Clean Floating Pill Navigation -->
-      <nav class="d iconly-nav">
+      <!-- Center: Clean Floating Pill Navigation (Hidden on mobile/tablet, desktop only) -->
+      <nav class="d iconly-nav" aria-label="Asosiy navigatsiya">
         <a href="#katalog" class="nav-item">Bosh sahifa</a>
         <a href="#katalog" class="nav-item" @click.prevent="$emit('filterMaklersiz')">Maklersiz</a>
         <a href="#xarita" class="nav-item" @click.prevent="$emit('openMap')">Xarita</a>
@@ -73,10 +73,10 @@ const onLangChange = (lang: string) => {
 
       <span class="sp"></span>
 
-      <!-- Right: Controls & Dark CTA Pill -->
+      <!-- Right: Responsive Controls & Dark CTA Pill -->
       <div class="header-right">
         <!-- Language Switcher Pill -->
-        <div class="lang-pill">
+        <div class="lang-pill" role="group" aria-label="Tilni tanlash">
           <button
             type="button"
             class="lang-choice"
@@ -116,7 +116,7 @@ const onLangChange = (lang: string) => {
           </svg>
         </button>
 
-        <!-- Saved Listings -->
+        <!-- Saved Listings (Visible on tablet/desktop, mobile has bottom bar) -->
         <button
           class="ib saved-btn desktop-only"
           @click="$emit('openFavorites')"
@@ -129,7 +129,7 @@ const onLangChange = (lang: string) => {
           <span v-if="favCount > 0" class="fav-count">{{ favCount }}</span>
         </button>
 
-        <!-- Profile -->
+        <!-- Profile (Desktop only) -->
         <button
           class="profile-btn desktop-only"
           @click="$emit('openProfile')"
@@ -164,7 +164,7 @@ const onLangChange = (lang: string) => {
 .iconly-header {
   position: sticky;
   top: 0;
-  z-index: 50;
+  z-index: var(--z-header, 100);
   background: rgba(243, 244, 245, 0.88);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
@@ -179,20 +179,36 @@ const onLangChange = (lang: string) => {
 .brand-link {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+@media (min-width: 640px) {
+  .brand-link {
+    gap: 10px;
+  }
 }
 
 .brand-logo-mark {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   background: var(--blue-gradient);
   color: #ffffff;
-  border-radius: 12px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: 0 4px 14px rgba(40, 120, 200, 0.3);
   transition: all 0.2s var(--ease);
+  flex-shrink: 0;
+}
+
+@media (min-width: 768px) {
+  .brand-logo-mark {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+  }
 }
 
 .brand-link:hover .brand-logo-mark {
@@ -201,9 +217,16 @@ const onLangChange = (lang: string) => {
 }
 
 .logo-icon {
-  width: 20px;
-  height: 20px;
+  width: 17px;
+  height: 17px;
   color: #ffffff;
+}
+
+@media (min-width: 768px) {
+  .logo-icon {
+    width: 20px;
+    height: 20px;
+  }
 }
 
 .brand-identity {
@@ -213,11 +236,12 @@ const onLangChange = (lang: string) => {
 
 .brand-name {
   font-family: var(--font-sans);
-  font-size: 20px;
+  font-size: clamp(16px, 4.4vw, 20px);
   font-weight: 800;
   letter-spacing: -0.03em;
   color: var(--text-primary);
   line-height: 1;
+  white-space: nowrap;
 }
 
 .brand-tld {
@@ -225,11 +249,12 @@ const onLangChange = (lang: string) => {
   font-weight: 700;
 }
 
+/* Center Desktop Nav */
 .iconly-nav {
   display: none;
   align-items: center;
   gap: 6px;
-  margin-left: 28px;
+  margin-left: 24px;
   background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -254,6 +279,7 @@ const onLangChange = (lang: string) => {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  white-space: nowrap;
 }
 
 .nav-item:hover {
@@ -265,17 +291,30 @@ const onLangChange = (lang: string) => {
   background: rgba(255, 255, 255, 0.08);
 }
 
+/* Header Right Controls */
 .header-right {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
+}
+
+@media (min-width: 375px) {
+  .header-right {
+    gap: 8px;
+  }
+}
+
+@media (min-width: 768px) {
+  .header-right {
+    gap: 10px;
+  }
 }
 
 .desktop-only {
   display: none !important;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 1024px) {
   .desktop-only {
     display: inline-flex !important;
   }
@@ -288,8 +327,15 @@ const onLangChange = (lang: string) => {
   background: rgba(255, 255, 255, 0.8);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-full);
-  padding: 3px;
-  height: 36px;
+  padding: 2px;
+  height: 34px;
+}
+
+@media (min-width: 768px) {
+  .lang-pill {
+    padding: 3px;
+    height: 36px;
+  }
 }
 
 :root[data-theme="dark"] .lang-pill {
@@ -298,12 +344,20 @@ const onLangChange = (lang: string) => {
 
 .lang-choice {
   font-family: var(--font-sans);
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 700;
   color: var(--text-secondary);
-  padding: 4px 10px;
+  padding: 3px 7px;
   border-radius: var(--radius-full);
   transition: all 0.18s ease;
+  min-height: 28px;
+}
+
+@media (min-width: 768px) {
+  .lang-choice {
+    font-size: 11.5px;
+    padding: 4px 10px;
+  }
 }
 
 .lang-choice.active {
@@ -318,8 +372,10 @@ const onLangChange = (lang: string) => {
 }
 
 .theme-btn {
-  width: 38px;
-  height: 38px;
+  min-width: 36px;
+  min-height: 36px;
+  width: 36px;
+  height: 36px;
   border-radius: var(--radius-full);
   border: 1px solid var(--border-subtle);
   background: var(--surface);
@@ -328,6 +384,15 @@ const onLangChange = (lang: string) => {
   align-items: center;
   justify-content: center;
   transition: all 0.18s var(--ease);
+}
+
+@media (min-width: 768px) {
+  .theme-btn {
+    min-width: 38px;
+    min-height: 38px;
+    width: 38px;
+    height: 38px;
+  }
 }
 
 .theme-btn:hover {
@@ -413,10 +478,10 @@ const onLangChange = (lang: string) => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  height: 38px;
-  padding: 0 16px;
-  font-size: 13px;
+  gap: 5px;
+  height: 36px;
+  padding: 0 12px;
+  font-size: 12.5px;
   font-weight: 700;
   border-radius: var(--radius-full);
   white-space: nowrap;
@@ -425,6 +490,14 @@ const onLangChange = (lang: string) => {
   border: none;
   box-shadow: 0 4px 12px rgba(23, 25, 29, 0.15);
   transition: all 0.18s var(--ease);
+}
+
+@media (min-width: 375px) {
+  .cta-post {
+    padding: 0 14px;
+    font-size: 13px;
+    height: 38px;
+  }
 }
 
 :root[data-theme="dark"] .cta-post {
@@ -436,9 +509,13 @@ const onLangChange = (lang: string) => {
   box-shadow: 0 6px 16px rgba(23, 25, 29, 0.22);
 }
 
+.cta-post:active {
+  transform: scale(0.97);
+}
+
 .cta-plus {
-  width: 14px;
-  height: 14px;
+  width: 13px;
+  height: 13px;
   flex-shrink: 0;
 }
 

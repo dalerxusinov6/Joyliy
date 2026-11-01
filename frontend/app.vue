@@ -67,6 +67,37 @@ const scrollToResults = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 }
+// Body scroll and navigation lock when any modal is open
+const isAnyModalOpen = computed(() => {
+  return !!(
+    selectedListing.value ||
+    showFilters.value ||
+    showMap.value ||
+    showSaved.value ||
+    showProfile.value ||
+    showPostAd.value ||
+    showCompare.value ||
+    showRoommates.value ||
+    showNeighborhoods.value ||
+    showReport.value
+  )
+})
+
+watch(isAnyModalOpen, (open) => {
+  if (import.meta.client) {
+    if (open) {
+      document.body.classList.add('modal-open')
+    } else {
+      document.body.classList.remove('modal-open')
+    }
+  }
+}, { immediate: true })
+
+onUnmounted(() => {
+  if (import.meta.client) {
+    document.body.classList.remove('modal-open')
+  }
+})
 </script>
 
 <template>
@@ -247,13 +278,10 @@ main {
   white-space: nowrap;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 767px) {
+  /* On mobile, comparison is integrated into bottom nav capsule with counter badge */
   .floating-compare-bar {
-    bottom: calc(88px + env(safe-area-inset-bottom, 0px));
-    left: 16px;
-    right: 16px;
-    transform: none;
-    justify-content: space-between;
+    display: none !important;
   }
 }
 

@@ -359,4 +359,27 @@ const onSubmit = async () => {
     grid-template-columns: 1fr 1fr;
   }
 }
+
+@media (max-width: 600px) {
+  .post-ad-header {
+    padding: 14px 18px;
+  }
+  .post-ad-body {
+    padding: 16px 18px 24px;
+  }
+  .post-actions-bar {
+    position: sticky;
+    bottom: 0;
+    background: var(--surf);
+    padding: 12px 18px calc(12px + env(safe-area-inset-bottom, 0px));
+    margin: 16px -18px -24px;
+    border-top: 1px solid var(--sand);
+    z-index: 10;
+  }
+  .post-actions-bar .btn {
+    min-height: 46px;
+    font-size: 13.5px;
+    font-weight: 600;
+  }
+}
 </style>

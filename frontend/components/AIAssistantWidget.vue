@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch, onUnmounted } from 'vue'
 
 interface ChatMessage {
   id: string
@@ -31,6 +31,23 @@ const quickQuestions = [
   '💡 Kommunal to‘lovlarni kim to‘lashi shart?',
   '🛡 Firibgarlardan qanday himoyalanamiz?',
 ]
+
+// Toggle global body class to suppress bottom navigation & lock background scroll on mobile
+watch(isOpen, (opened) => {
+  if (typeof document !== 'undefined') {
+    if (opened) {
+      document.body.classList.add('chat-open')
+    } else {
+      document.body.classList.remove('chat-open')
+    }
+  }
+})
+
+onUnmounted(() => {
+  if (typeof document !== 'undefined') {
+    document.body.classList.remove('chat-open')
+  }
+})
 
 const sendQuestion = async (textToSend?: string) => {
   const query = (textToSend || inputQuery.value).trim()
@@ -75,20 +92,21 @@ const sendQuestion = async (textToSend?: string) => {
 
 <template>
   <div class="iconly-assistant-wrapper">
-    <!-- Floating Trigger Capsule Button -->
+    <!-- Floating Trigger Capsule Button (Strictly positioned ABOVE bottom nav) -->
     <button
+      v-show="!isOpen"
       type="button"
       class="iconly-assistant-trigger"
-      :class="{ 'is-active': isOpen }"
-      @click="isOpen = !isOpen"
+      @click="isOpen = true"
       title="Joyliy AI Maslahatchi"
+      aria-label="AI Maslahatchi chatini ochish"
     >
       <div class="trigger-spark-circle">✨</div>
       <span class="trigger-text">AI Maslahatchi</span>
       <span class="online-dot"></span>
     </button>
 
-    <!-- Chat Drawer Panel (Frosted Glass Surface) -->
+    <!-- Chat Drawer Panel (Dedicated Fullscreen on Mobile, Floating Drawer on Desktop) -->
     <Transition name="fade-slide">
       <div v-if="isOpen" class="iconly-chat-drawer">
         <!-- Drawer Header -->
@@ -100,7 +118,7 @@ const sendQuestion = async (textToSend?: string) => {
               <span class="bot-subtitle">Groq Qwen AI · Toshkent Ijara Huquqi</span>
             </div>
           </div>
-          <button class="btn-close-drawer" @click="isOpen = false">✕</button>
+          <button class="btn-close-drawer" @click="isOpen = false" aria-label="Yopish">✕</button>
         </div>
 
         <!-- Quick Suggestions Strip -->
@@ -162,7 +180,12 @@ const sendQuestion = async (textToSend?: string) => {
               placeholder="Ijara yoki shartnoma bo‘yicha so‘rang..."
               class="chat-text-input"
             />
-            <button type="submit" class="btn-send-message" :disabled="!inputQuery.trim() || isLoading">
+            <button
+              type="submit"
+              class="btn-send-message"
+              :disabled="!inputQuery.trim() || isLoading"
+              aria-label="Xabar yuborish"
+            >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="send-arr">
                 <line x1="22" y1="2" x2="11" y2="13" />
                 <polygon points="22 2 15 22 11 13 2 9 22 2" />
@@ -176,51 +199,75 @@ const sendQuestion = async (textToSend?: string) => {
 </template>
 
 <style scoped>
+/* Centralized Independent Positioning System */
 .iconly-assistant-wrapper {
   position: fixed;
-  bottom: 24px;
-  right: 24px;
-  z-index: 1100;
+  bottom: 28px;
+  right: 28px;
+  z-index: var(--z-chatbot, 1100);
+  pointer-events: none;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 1023px) {
   .iconly-assistant-wrapper {
-    bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+    /* Guaranteed minimum gap of 20px above the bottom navigation */
+    bottom: calc(
+      var(--mobile-nav-height, 64px) +
+      var(--mobile-nav-bottom, 12px) +
+      var(--chatbot-gap, 20px) +
+      env(safe-area-inset-bottom, 0px)
+    );
     right: 16px;
   }
 }
 
 /* Floating Trigger Capsule */
 .iconly-assistant-trigger {
+  pointer-events: auto;
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 20px 10px 12px;
+  gap: 8px;
+  min-height: 48px;
+  height: var(--chatbot-size, 52px);
+  padding: 0 18px 0 12px;
   border-radius: var(--radius-full);
   background: var(--blue-gradient);
   color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  font-size: 13.5px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  font-size: 13px;
   font-weight: 700;
-  box-shadow: 0 10px 28px rgba(40, 120, 200, 0.35);
+  box-shadow: 0 10px 28px rgba(40, 120, 200, 0.38);
   cursor: pointer;
-  transition: all 0.25s var(--ease);
+  transition: all 0.22s var(--ease);
+}
+
+@media (max-width: 374px) {
+  .iconly-assistant-trigger {
+    padding: 0 12px 0 10px;
+    font-size: 12px;
+    gap: 6px;
+    height: 46px;
+  }
 }
 
 .iconly-assistant-trigger:hover {
   transform: translateY(-2px);
-  box-shadow: 0 14px 34px rgba(40, 120, 200, 0.45);
+  box-shadow: 0 14px 34px rgba(40, 120, 200, 0.48);
+}
+
+.iconly-assistant-trigger:active {
+  transform: scale(0.96);
 }
 
 .trigger-spark-circle {
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.24);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .online-dot {
@@ -228,19 +275,20 @@ const sendQuestion = async (textToSend?: string) => {
   height: 7px;
   background: #10B981;
   border-radius: 50%;
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.85);
 }
 
 /* Chat Drawer Panel */
 .iconly-chat-drawer {
+  pointer-events: auto;
   position: absolute;
-  bottom: 64px;
+  bottom: 0;
   right: 0;
-  width: 390px;
+  width: 400px;
   max-width: calc(100vw - 32px);
-  height: 540px;
+  height: 560px;
   max-height: calc(100vh - 120px);
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border: 1px solid rgba(255, 255, 255, 0.95);
@@ -249,33 +297,40 @@ const sendQuestion = async (textToSend?: string) => {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  z-index: var(--z-modal, 1200);
 }
 
 :root[data-theme="dark"] .iconly-chat-drawer {
-  background: rgba(22, 27, 34, 0.95);
+  background: rgba(22, 27, 34, 0.96);
   border-color: rgba(255, 255, 255, 0.1);
   box-shadow: 0 20px 56px rgba(0, 0, 0, 0.45);
 }
 
-@media (max-width: 640px) {
+/* Dedicated Full-Screen Overlay on Mobile (No overlap, clean keyboard handling) */
+@media (max-width: 767px) {
   .iconly-chat-drawer {
     position: fixed;
-    inset: auto 12px calc(84px + env(safe-area-inset-bottom, 0px)) 12px;
-    width: auto;
-    max-width: none;
-    height: 72vh;
-    border-radius: 24px;
+    inset: 0;
+    width: 100vw;
+    height: 100dvh;
+    max-height: 100dvh;
+    border-radius: 0;
+    border: none;
+    z-index: var(--z-chat-fullscreen, 1300);
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 }
 
 /* Header */
 .chat-header-bar {
-  padding: 16px 20px;
+  padding: 14px 18px;
   background: rgba(240, 247, 253, 0.85);
   border-bottom: 1px solid var(--border-subtle);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-shrink: 0;
 }
 
 :root[data-theme="dark"] .chat-header-bar {
@@ -285,46 +340,58 @@ const sendQuestion = async (textToSend?: string) => {
 .header-bot-info {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .bot-avatar-circle {
-  width: 38px;
-  height: 38px;
+  width: 36px;
+  height: 36px;
   background: var(--blue-gradient);
   color: #ffffff;
-  border-radius: 12px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
+  font-size: 17px;
   box-shadow: 0 4px 12px rgba(40, 120, 200, 0.25);
 }
 
 .bot-name {
   margin: 0;
-  font-size: 15px;
+  font-size: 14.5px;
   font-weight: 700;
   color: var(--text-primary);
 }
 
 .bot-subtitle {
-  font-size: 11.5px;
+  font-size: 11px;
   color: var(--text-secondary);
 }
 
 .btn-close-drawer {
+  min-width: 44px;
+  min-height: 44px;
+  width: 44px;
+  height: 44px;
   background: none;
   border: none;
-  font-size: 16px;
+  font-size: 18px;
   color: var(--text-secondary);
   cursor: pointer;
-  padding: 4px;
-  transition: color 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.15s ease;
 }
 
 .btn-close-drawer:hover {
+  background: var(--surface-subtle);
   color: var(--text-primary);
+}
+
+.btn-close-drawer:active {
+  transform: scale(0.92);
 }
 
 /* Quick Prompts */
@@ -336,6 +403,8 @@ const sendQuestion = async (textToSend?: string) => {
   background: var(--surface-subtle);
   border-bottom: 1px solid var(--border-subtle);
   scrollbar-width: none;
+  flex-shrink: 0;
+  -webkit-overflow-scrolling: touch;
 }
 
 .quick-prompts-strip::-webkit-scrollbar {
@@ -343,15 +412,16 @@ const sendQuestion = async (textToSend?: string) => {
 }
 
 .prompt-pill-btn {
-  padding: 5px 12px;
+  padding: 6px 12px;
   border-radius: var(--radius-full);
   border: 1px solid var(--border-subtle);
   background: var(--surface);
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 500;
   color: var(--text-secondary);
   white-space: nowrap;
   transition: all 0.15s ease;
+  min-height: 32px;
 }
 
 .prompt-pill-btn:hover {
@@ -368,6 +438,7 @@ const sendQuestion = async (textToSend?: string) => {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  -webkit-overflow-scrolling: touch;
 }
 
 .message-row {
@@ -383,11 +454,12 @@ const sendQuestion = async (textToSend?: string) => {
 }
 
 .message-bubble {
-  max-width: 86%;
+  max-width: 88%;
   padding: 12px 16px;
   border-radius: 18px;
   font-size: 13.5px;
   line-height: 1.5;
+  word-break: break-word;
 }
 
 .user .message-bubble {
@@ -450,7 +522,7 @@ const sendQuestion = async (textToSend?: string) => {
 .typing-pill {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   background: var(--surface-subtle);
   padding: 8px 14px;
   border-radius: var(--radius-full);
@@ -482,9 +554,10 @@ const sendQuestion = async (textToSend?: string) => {
 
 /* Footer Input */
 .chat-footer-bar {
-  padding: 12px 16px;
+  padding: 12px 14px;
   border-top: 1px solid var(--border-subtle);
   background: var(--surface);
+  flex-shrink: 0;
 }
 
 .input-form {
@@ -495,7 +568,8 @@ const sendQuestion = async (textToSend?: string) => {
 
 .chat-text-input {
   flex: 1;
-  height: 42px;
+  min-height: 44px;
+  height: 44px;
   padding: 0 16px;
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-full);
@@ -504,6 +578,7 @@ const sendQuestion = async (textToSend?: string) => {
   color: var(--text-primary);
   outline: none;
   transition: all 0.2s ease;
+  min-width: 0;
 }
 
 .chat-text-input:focus {
@@ -516,8 +591,10 @@ const sendQuestion = async (textToSend?: string) => {
 }
 
 .btn-send-message {
-  width: 42px;
-  height: 42px;
+  min-width: 44px;
+  min-height: 44px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background: var(--blue-primary);
   color: #FFFFFF;
@@ -527,11 +604,12 @@ const sendQuestion = async (textToSend?: string) => {
   justify-content: center;
   cursor: pointer;
   transition: all 0.18s ease;
+  flex-shrink: 0;
 }
 
 .btn-send-message:hover:not(:disabled) {
   background: var(--blue-deep);
-  transform: scale(1.05);
+  transform: scale(1.04);
 }
 
 .btn-send-message:disabled {
@@ -547,12 +625,12 @@ const sendQuestion = async (textToSend?: string) => {
 /* Transitions */
 .fade-slide-enter-active,
 .fade-slide-leave-active {
-  transition: all 0.22s var(--ease);
+  transition: all 0.24s var(--ease);
 }
 
 .fade-slide-enter-from,
 .fade-slide-leave-to {
   opacity: 0;
-  transform: translateY(12px) scale(0.98);
+  transform: translateY(16px) scale(0.98);
 }
 </style>

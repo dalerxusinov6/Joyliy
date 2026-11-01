@@ -662,8 +662,23 @@ const formatPrice = (p: number) => {
   gap: 14px;
 }
 
+@media (max-width: 600px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  .full-width {
+    grid-column: span 1;
+  }
+}
+
 .full-width {
   grid-column: span 2;
+}
+
+@media (max-width: 600px) {
+  .full-width {
+    grid-column: span 1;
+  }
 }
 
 .form-group label {

@@ -464,5 +464,27 @@ const formatPrice = (val: number) => {
   font-size: 13px;
   cursor: pointer;
 }
+
+@media (max-width: 640px) {
+  .compare-columns {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 12px;
+    padding-bottom: 8px;
+    scrollbar-width: thin;
+  }
+  .compare-col {
+    min-width: 260px;
+    max-width: 82vw;
+    flex: none;
+    scroll-snap-align: start;
+  }
+  .winner-banner {
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px 14px;
+  }
+}
 </style>
 

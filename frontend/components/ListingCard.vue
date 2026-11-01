@@ -15,7 +15,7 @@ const { isFavorite, toggleFavorite } = useFavorites()
 const { isInCompare, toggleCompare } = useListings()
 
 const formatPrice = (val: number) => {
-  return val.toLocaleString('ru-RU').replace(/\u00a0/g, ' ') + ' so‘m'
+  return (val || 0).toLocaleString('ru-RU').replace(/\u00a0/g, ' ') + ' so‘m'
 }
 
 const onBookmarkClick = (e: MouseEvent) => {
@@ -100,6 +100,7 @@ const scoreColorClass = computed(() => {
           :class="{ active: isInCompare(listing.id) }"
           @click="onCompareClick"
           title="Taqqoslash"
+          aria-label="Taqqoslashga qo‘shish"
         >
           <span>⚖️</span>
         </button>
@@ -208,12 +209,18 @@ const scoreColorClass = computed(() => {
   background: var(--surface);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-card);
-  padding: 12px;
+  padding: 10px;
   display: flex;
   flex-direction: column;
   transition: all 0.25s var(--ease);
   cursor: pointer;
   box-shadow: 0 4px 18px rgba(23, 25, 29, 0.04);
+}
+
+@media (min-width: 480px) {
+  .iconly-property-card {
+    padding: 12px;
+  }
 }
 
 .iconly-property-card:hover {
@@ -227,8 +234,14 @@ const scoreColorClass = computed(() => {
   position: relative;
   aspect-ratio: 16/11;
   background: var(--surface-subtle);
-  border-radius: var(--radius-inner);
+  border-radius: 16px;
   overflow: hidden;
+}
+
+@media (min-width: 480px) {
+  .card-media-wrap {
+    border-radius: var(--radius-inner);
+  }
 }
 
 .card-photo {
@@ -257,24 +270,40 @@ const scoreColorClass = computed(() => {
 /* Top Badges */
 .top-badges-row {
   position: absolute;
-  top: 10px;
-  left: 10px;
+  top: 8px;
+  left: 8px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
   align-items: flex-start;
   z-index: 3;
 }
 
+@media (min-width: 480px) {
+  .top-badges-row {
+    top: 10px;
+    left: 10px;
+    gap: 6px;
+  }
+}
+
 .iconly-badge {
   font-family: var(--font-sans);
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 700;
-  padding: 4px 10px;
+  padding: 3px 8px;
   border-radius: var(--radius-full);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+  white-space: nowrap;
+}
+
+@media (min-width: 480px) {
+  .iconly-badge {
+    font-size: 11px;
+    padding: 4px 10px;
+  }
 }
 
 .owner-badge {
@@ -295,15 +324,24 @@ const scoreColorClass = computed(() => {
 /* Media Actions (Compare & Circular Favorite) */
 .media-actions {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 8px;
+  right: 8px;
   display: flex;
   align-items: center;
   gap: 6px;
   z-index: 4;
 }
 
+@media (min-width: 480px) {
+  .media-actions {
+    top: 10px;
+    right: 10px;
+  }
+}
+
 .media-action-circle {
+  min-width: 36px;
+  min-height: 36px;
   width: 36px;
   height: 36px;
   border-radius: 50%;
@@ -320,7 +358,11 @@ const scoreColorClass = computed(() => {
 }
 
 .media-action-circle:hover {
-  transform: scale(1.08);
+  transform: scale(1.06);
+}
+
+.media-action-circle:active {
+  transform: scale(0.92);
 }
 
 .compare-circle {
@@ -337,8 +379,8 @@ const scoreColorClass = computed(() => {
 }
 
 .heart-icon {
-  width: 17px;
-  height: 17px;
+  width: 16px;
+  height: 16px;
   fill: none;
   stroke: currentColor;
   stroke-width: 2;
@@ -361,25 +403,32 @@ const scoreColorClass = computed(() => {
 
 .media-count-pill {
   position: absolute;
-  bottom: 10px;
-  left: 10px;
+  bottom: 8px;
+  left: 8px;
   background: rgba(23, 25, 29, 0.7);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   color: #FFFFFF;
-  font-size: 10.5px;
+  font-size: 10px;
   font-weight: 600;
-  padding: 3px 8px;
+  padding: 3px 7px;
   border-radius: var(--radius-full);
 }
 
 /* Card Body */
 .card-body {
-  padding: 14px 6px 4px;
+  padding: 12px 4px 4px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 7px;
   flex: 1;
+}
+
+@media (min-width: 480px) {
+  .card-body {
+    padding: 14px 6px 4px;
+    gap: 8px;
+  }
 }
 
 /* Price & Circular Score Row */
@@ -387,42 +436,46 @@ const scoreColorClass = computed(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
 }
 
 .price-block {
   display: flex;
   align-items: baseline;
   gap: 3px;
+  min-width: 0;
 }
 
 .price-amount {
   font-family: var(--font-sans);
-  font-size: 20px;
+  font-size: clamp(17px, 4.8vw, 20px);
   font-weight: 800;
   letter-spacing: -0.03em;
   color: var(--text-primary);
+  white-space: nowrap;
 }
 
 .price-period {
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 500;
   color: var(--text-secondary);
 }
 
 /* Score Ring (Matching Image 1's 9.4 Circular Ring) */
 .score-indicator-badge {
-  width: 38px;
-  height: 38px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   background: var(--surface-subtle);
   transition: all 0.2s ease;
+  flex-shrink: 0;
 }
 
 .score-digit {
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 800;
   color: var(--text-primary);
   font-family: var(--font-sans);
@@ -443,7 +496,7 @@ const scoreColorClass = computed(() => {
 /* Title */
 .property-title {
   font-family: var(--font-sans);
-  font-size: 14.5px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--text-primary);
   margin: 0;
@@ -452,14 +505,21 @@ const scoreColorClass = computed(() => {
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  word-break: break-word;
+}
+
+@media (min-width: 480px) {
+  .property-title {
+    font-size: 14.5px;
+  }
 }
 
 /* Location */
 .location-row {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 12.5px;
+  gap: 5px;
+  font-size: 12px;
   color: var(--text-secondary);
 }
 
@@ -476,6 +536,7 @@ const scoreColorClass = computed(() => {
 
 .district-name {
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .metro-transit {
@@ -484,23 +545,24 @@ const scoreColorClass = computed(() => {
   text-overflow: ellipsis;
 }
 
-/* Specs Pills */
+/* Specs Pills (Wrap gracefully on 320px screens) */
 .specs-pills-row {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   flex-wrap: wrap;
   padding: 2px 0;
 }
 
 .spec-pill {
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 600;
   color: var(--text-secondary);
   background: var(--surface-subtle);
   border: 1px solid var(--border-subtle);
-  padding: 3px 9px;
+  padding: 3px 8px;
   border-radius: var(--radius-full);
+  white-space: nowrap;
 }
 
 .audience-pill {
@@ -517,7 +579,7 @@ const scoreColorClass = computed(() => {
   padding: 8px 10px;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 4px;
   margin-top: 2px;
 }
 
@@ -545,13 +607,14 @@ const scoreColorClass = computed(() => {
 }
 
 .ai-pro-badge {
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 500;
   color: #065F46;
   background: #D1FAE5;
-  padding: 2px 7px;
+  padding: 2px 6px;
   border-radius: var(--radius-xs);
   display: inline-block;
+  word-break: break-word;
 }
 
 :root[data-theme="dark"] .ai-pro-badge {
@@ -560,13 +623,14 @@ const scoreColorClass = computed(() => {
 }
 
 .ai-con-badge {
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 500;
   color: #92400E;
   background: #FEF3C7;
-  padding: 2px 7px;
+  padding: 2px 6px;
   border-radius: var(--radius-xs);
   display: inline-block;
+  word-break: break-word;
 }
 
 /* Footer Row */
@@ -574,10 +638,10 @@ const scoreColorClass = computed(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-top: 10px;
+  padding-top: 8px;
   border-top: 1px solid var(--border-subtle);
   margin-top: auto;
-  font-size: 11.5px;
+  font-size: 11px;
   color: var(--text-secondary);
 }
 

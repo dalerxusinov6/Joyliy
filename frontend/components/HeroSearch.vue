@@ -74,10 +74,11 @@ const applyQuick = (type: string, val: string) => {
               O‘zbekistondagi uy-joylarni sotib oling yoki ijaraga oling. Xonadon egalaridan tekshirilgan e’lonlar va sun’iy intellekt tahlili.
             </p>
 
-            <!-- Mode Switcher Tabs (Iconly Pill Tabs) -->
-            <div class="mode-tabs-wrapper">
+            <!-- Mode Switcher Tabs (Iconly Pill Tabs - Touch-Friendly Scrollable) -->
+            <div class="mode-tabs-wrapper" role="tablist" aria-label="Qidiruv rejimlari">
               <button
                 type="button"
+                role="tab"
                 class="mode-pill-tab"
                 :class="{ active: searchMode === 'rent' }"
                 @click="searchMode = 'rent'"
@@ -86,6 +87,7 @@ const applyQuick = (type: string, val: string) => {
               </button>
               <button
                 type="button"
+                role="tab"
                 class="mode-pill-tab"
                 :class="{ active: searchMode === 'buy' }"
                 @click="searchMode = 'buy'"
@@ -94,6 +96,7 @@ const applyQuick = (type: string, val: string) => {
               </button>
               <button
                 type="button"
+                role="tab"
                 class="mode-pill-tab ai-tab-special"
                 :class="{ active: searchMode === 'ai' }"
                 @click="searchMode = 'ai'"
@@ -117,8 +120,9 @@ const applyQuick = (type: string, val: string) => {
                   <input
                     v-model="aiInput"
                     type="text"
-                    placeholder="Masalan: Chilonzor metro yaqinida 4 mln gacha 2 xonali kvartira oila uchun..."
+                    placeholder="Masalan: Chilonzor metro yaqinida 4 mln gacha 2 xonali kvartira..."
                     class="ai-search-input"
+                    aria-label="AI qidiruv so‘rovi"
                     @keydown.enter.prevent="handleAiSearch"
                   />
                   <button
@@ -136,7 +140,7 @@ const applyQuick = (type: string, val: string) => {
                   </button>
                 </div>
 
-                <!-- Quick Prompt Suggestions -->
+                <!-- Quick Prompt Suggestions (Horizontal Scroll) -->
                 <div class="ai-prompts-row">
                   <span class="prompts-title">Misollar:</span>
                   <div class="prompts-scroll">
@@ -160,7 +164,7 @@ const applyQuick = (type: string, val: string) => {
                   <div class="field-item">
                     <label class="field-lbl">Tuman</label>
                     <div class="field-select-wrap">
-                      <select v-model="filterDistrict" class="iconly-select">
+                      <select v-model="filterDistrict" class="iconly-select" aria-label="Tuman tanlang">
                         <option value="">Barcha tumanlar</option>
                         <option v-for="d in availableDistricts" :key="d" :value="d">{{ d }}</option>
                       </select>
@@ -171,7 +175,7 @@ const applyQuick = (type: string, val: string) => {
                   <div class="field-item">
                     <label class="field-lbl">Xonalar soni</label>
                     <div class="field-select-wrap">
-                      <select v-model="filterRooms" class="iconly-select">
+                      <select v-model="filterRooms" class="iconly-select" aria-label="Xonalar soni">
                         <option value="">Istalgan</option>
                         <option value="1">1 xonali</option>
                         <option value="2">2 xonali</option>
@@ -185,7 +189,7 @@ const applyQuick = (type: string, val: string) => {
                   <div class="field-item">
                     <label class="field-lbl">Maksimal byudjet</label>
                     <div class="field-select-wrap">
-                      <select v-model="filterMaxPrice" class="iconly-select">
+                      <select v-model="filterMaxPrice" class="iconly-select" aria-label="Maksimal byudjet">
                         <option value="">Istalgan narx</option>
                         <option value="3000000">3 000 000 so‘m</option>
                         <option value="4000000">4 000 000 so‘m</option>
@@ -200,7 +204,7 @@ const applyQuick = (type: string, val: string) => {
                   <div class="field-item">
                     <label class="field-lbl">Kim uchun</label>
                     <div class="field-select-wrap">
-                      <select v-model="filterAudience" class="iconly-select">
+                      <select v-model="filterAudience" class="iconly-select" aria-label="Kim uchun">
                         <option value="all">Barchasi</option>
                         <option value="family">Oila uchun</option>
                         <option value="female">Qizlar uchun</option>
@@ -209,13 +213,14 @@ const applyQuick = (type: string, val: string) => {
                     </div>
                   </div>
 
-                  <!-- Action Buttons -->
+                  <!-- Action Buttons (Responsive Layout) -->
                   <div class="field-actions">
                     <button
                       type="button"
                       class="btn-iconly-filter"
                       @click="$emit('openFilters')"
                       title="Qo‘shimcha filtrlar"
+                      aria-label="Kengaytirilgan filtrlar"
                     >
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="filter-icon">
                         <line x1="4" y1="21" x2="4" y2="14" />
@@ -230,7 +235,7 @@ const applyQuick = (type: string, val: string) => {
                       </svg>
                     </button>
 
-                    <button type="button" class="btn-iconly-submit" @click="onSearch">
+                    <button type="button" class="btn-iconly-submit" @click="onSearch" aria-label="Qidirish">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="search-icon">
                         <circle cx="11" cy="11" r="8" />
                         <line x1="21" y1="21" x2="16.65" y2="16.65" />
@@ -254,7 +259,7 @@ const applyQuick = (type: string, val: string) => {
             </div>
           </div>
 
-          <!-- Right: Hero Visual Showcase (Atmospheric Graphic matching Image 1) -->
+          <!-- Right: Hero Visual Showcase (Desktop Only) -->
           <div class="hero-right-visual">
             <div class="visual-stack">
               <!-- Background Architectural Photo with Glass Overlay -->
@@ -309,24 +314,50 @@ const applyQuick = (type: string, val: string) => {
 
 <style scoped>
 .iconly-hero-section {
-  padding: 24px 0 32px;
+  padding: 16px 0 24px;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 640px) {
+  .iconly-hero-section {
+    padding: 24px 0 32px;
+  }
+}
+
+@media (min-width: 1024px) {
   .iconly-hero-section {
     padding: 32px 0 44px;
   }
 }
 
-/* Atmospheric Hero Card (Inspired by Image 1) */
+/* Atmospheric Hero Card */
 .atmospheric-hero-card {
   background: var(--hero-gradient);
-  border-radius: var(--radius-hero);
+  border-radius: var(--radius-card);
   border: 1px solid rgba(255, 255, 255, 0.9);
   box-shadow: 0 16px 48px -8px rgba(40, 120, 200, 0.12), 0 4px 16px rgba(0, 0, 0, 0.02);
-  padding: 28px 20px;
+  padding: 20px 14px;
   position: relative;
   overflow: hidden;
+}
+
+@media (min-width: 480px) {
+  .atmospheric-hero-card {
+    padding: 24px 18px;
+    border-radius: 28px;
+  }
+}
+
+@media (min-width: 768px) {
+  .atmospheric-hero-card {
+    padding: 36px 32px;
+    border-radius: var(--radius-hero);
+  }
+}
+
+@media (min-width: 1200px) {
+  .atmospheric-hero-card {
+    padding: 48px 44px;
+  }
 }
 
 :root[data-theme="dark"] .atmospheric-hero-card {
@@ -335,29 +366,17 @@ const applyQuick = (type: string, val: string) => {
   box-shadow: 0 16px 48px -8px rgba(0, 0, 0, 0.4);
 }
 
-@media (min-width: 768px) {
-  .atmospheric-hero-card {
-    padding: 44px 36px;
-  }
-}
-
-@media (min-width: 1200px) {
-  .atmospheric-hero-card {
-    padding: 52px 48px;
-  }
-}
-
 .hero-inner-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 36px;
+  gap: 28px;
   align-items: center;
 }
 
 @media (min-width: 1024px) {
   .hero-inner-grid {
     grid-template-columns: 1.15fr 0.85fr;
-    gap: 48px;
+    gap: 44px;
   }
 }
 
@@ -370,13 +389,22 @@ const applyQuick = (type: string, val: string) => {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.9);
-  padding: 6px 14px;
+  padding: 5px 12px;
   border-radius: var(--radius-full);
-  font-size: 12.5px;
+  font-size: 11.5px;
   font-weight: 600;
   color: var(--blue-deep);
   box-shadow: 0 2px 8px rgba(40, 120, 200, 0.08);
-  margin-bottom: 18px;
+  margin-bottom: 14px;
+  max-width: 100%;
+}
+
+@media (min-width: 480px) {
+  .hero-badge-pill {
+    font-size: 12.5px;
+    padding: 6px 14px;
+    margin-bottom: 18px;
+  }
 }
 
 :root[data-theme="dark"] .hero-badge-pill {
@@ -391,17 +419,19 @@ const applyQuick = (type: string, val: string) => {
   border-radius: 50%;
   background: #10B981;
   box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+  flex-shrink: 0;
 }
 
-/* Headings */
+/* Responsive Headings */
 .hero-heading {
   font-family: var(--font-sans);
-  font-size: clamp(32px, 4.4vw, 54px);
+  font-size: clamp(23px, 6.5vw, 50px);
   font-weight: 800;
   letter-spacing: -0.035em;
-  line-height: 1.12;
+  line-height: 1.16;
   color: var(--text-primary);
-  margin: 0 0 14px;
+  margin: 0 0 10px;
+  word-break: break-word;
 }
 
 .heading-gradient {
@@ -412,25 +442,39 @@ const applyQuick = (type: string, val: string) => {
 }
 
 .hero-subheading {
-  font-size: clamp(14.5px, 1.2vw, 16.5px);
+  font-size: clamp(13px, 3.5vw, 16px);
   color: var(--text-secondary);
-  line-height: 1.55;
-  margin: 0 0 28px;
+  line-height: 1.5;
+  margin: 0 0 20px;
   max-width: 540px;
 }
 
-/* Mode Switcher Tabs */
+@media (min-width: 768px) {
+  .hero-subheading {
+    margin-bottom: 24px;
+  }
+}
+
+/* Mode Switcher Tabs (Scrollable on narrow mobile screens) */
 .mode-tabs-wrapper {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  padding: 5px;
+  padding: 4px;
   border-radius: var(--radius-full);
   border: 1px solid rgba(255, 255, 255, 0.9);
-  margin-bottom: 20px;
+  margin-bottom: 16px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+}
+
+.mode-tabs-wrapper::-webkit-scrollbar {
+  display: none;
 }
 
 :root[data-theme="dark"] .mode-tabs-wrapper {
@@ -440,15 +484,25 @@ const applyQuick = (type: string, val: string) => {
 
 .mode-pill-tab {
   font-family: var(--font-sans);
-  font-size: 13.5px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--text-secondary);
-  padding: 8px 18px;
+  padding: 7px 12px;
   border-radius: var(--radius-full);
   transition: all 0.2s var(--ease);
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  min-height: 36px;
+}
+
+@media (min-width: 375px) {
+  .mode-pill-tab {
+    font-size: 13px;
+    padding: 8px 16px;
+  }
 }
 
 .mode-pill-tab:hover {
@@ -470,15 +524,15 @@ const applyQuick = (type: string, val: string) => {
 }
 
 .ai-sparkle {
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .ai-chip-pill {
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 700;
   background: rgba(40, 120, 200, 0.18);
   color: var(--blue-primary);
-  padding: 2px 7px;
+  padding: 2px 6px;
   border-radius: var(--radius-full);
 }
 
@@ -495,20 +549,26 @@ const applyQuick = (type: string, val: string) => {
   border-radius: var(--radius-card);
   border: 1px solid rgba(255, 255, 255, 0.95);
   box-shadow: 0 12px 36px rgba(40, 120, 200, 0.09), 0 2px 10px rgba(0, 0, 0, 0.03);
-  padding: 16px;
+  padding: 12px;
   transition: all 0.25s var(--ease);
 }
 
-:root[data-theme="dark"] .floating-search-console {
-  background: rgba(22, 27, 34, 0.92);
-  border-color: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
+@media (min-width: 480px) {
+  .floating-search-console {
+    padding: 16px;
+  }
 }
 
 @media (min-width: 768px) {
   .floating-search-console {
     padding: 18px 22px;
   }
+}
+
+:root[data-theme="dark"] .floating-search-console {
+  background: rgba(22, 27, 34, 0.92);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
 }
 
 /* AI Mode Console */
@@ -528,6 +588,16 @@ const applyQuick = (type: string, val: string) => {
   transition: all 0.2s var(--ease);
 }
 
+@media (max-width: 639px) {
+  .ai-input-wrapper {
+    flex-direction: column;
+    align-items: stretch;
+    border-radius: var(--radius-md);
+    padding: 8px 10px;
+    gap: 8px;
+  }
+}
+
 .ai-input-wrapper:focus-within {
   border-color: var(--blue-primary);
   background: #FFFFFF;
@@ -545,6 +615,12 @@ const applyQuick = (type: string, val: string) => {
   margin-right: 10px;
 }
 
+@media (max-width: 639px) {
+  .ai-input-prefix {
+    display: none;
+  }
+}
+
 .sparkle-icon {
   width: 20px;
   height: 20px;
@@ -555,9 +631,10 @@ const applyQuick = (type: string, val: string) => {
   border: none;
   background: transparent;
   outline: none;
-  font-size: 14.5px;
+  font-size: 14px;
   color: var(--text-primary);
   min-width: 0;
+  min-height: 40px;
 }
 
 .ai-search-input::placeholder {
@@ -567,9 +644,11 @@ const applyQuick = (type: string, val: string) => {
 .btn-iconly-search {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
+  min-height: 44px;
   height: 44px;
-  padding: 0 22px;
+  padding: 0 20px;
   border-radius: var(--radius-full);
   background: #17191D;
   color: #FFFFFF;
@@ -581,13 +660,22 @@ const applyQuick = (type: string, val: string) => {
   transition: all 0.2s var(--ease);
 }
 
+@media (max-width: 639px) {
+  .btn-iconly-search {
+    width: 100%;
+  }
+}
+
 :root[data-theme="dark"] .btn-iconly-search {
   background: var(--blue-primary);
 }
 
 .btn-iconly-search:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(23, 25, 29, 0.28);
+}
+
+.btn-iconly-search:active {
+  transform: scale(0.98);
 }
 
 .btn-iconly-search:disabled {
@@ -600,18 +688,22 @@ const applyQuick = (type: string, val: string) => {
   height: 15px;
 }
 
-/* AI Prompts Row */
+/* AI Prompts Row (Horizontal Touch Scroll) */
 .ai-prompts-row {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 0 4px;
+  padding: 0 2px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
 }
 
 .prompts-title {
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 600;
   color: var(--text-secondary);
+  flex-shrink: 0;
 }
 
 .prompts-scroll {
@@ -627,15 +719,16 @@ const applyQuick = (type: string, val: string) => {
 }
 
 .prompt-pill {
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 500;
   color: var(--text-secondary);
   background: rgba(40, 120, 200, 0.08);
   border: 1px solid rgba(40, 120, 200, 0.12);
-  padding: 4px 12px;
+  padding: 4px 10px;
   border-radius: var(--radius-full);
   white-space: nowrap;
   transition: all 0.15s ease;
+  min-height: 30px;
 }
 
 .prompt-pill:hover {
@@ -647,12 +740,13 @@ const applyQuick = (type: string, val: string) => {
 .console-fields-row {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 12px;
+  gap: 10px;
 }
 
 @media (min-width: 640px) {
   .console-fields-row {
     grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
   }
 }
 
@@ -666,14 +760,14 @@ const applyQuick = (type: string, val: string) => {
 .field-item {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 4px;
 }
 
 .field-lbl {
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 600;
   color: var(--text-secondary);
-  padding-left: 4px;
+  padding-left: 2px;
 }
 
 .field-select-wrap {
@@ -682,6 +776,7 @@ const applyQuick = (type: string, val: string) => {
 
 .iconly-select {
   width: 100%;
+  min-height: 44px;
   height: 44px;
   padding: 0 14px;
   background: var(--surface-subtle);
@@ -705,7 +800,19 @@ const applyQuick = (type: string, val: string) => {
   gap: 8px;
 }
 
+@media (max-width: 639px) {
+  .field-actions {
+    display: grid;
+    grid-template-columns: 46px 1fr;
+    gap: 8px;
+    width: 100%;
+    margin-top: 4px;
+  }
+}
+
 .btn-iconly-filter {
+  min-width: 44px;
+  min-height: 44px;
   width: 44px;
   height: 44px;
   border-radius: var(--radius-full);
@@ -716,6 +823,14 @@ const applyQuick = (type: string, val: string) => {
   align-items: center;
   justify-content: center;
   transition: all 0.18s ease;
+  flex-shrink: 0;
+}
+
+@media (max-width: 639px) {
+  .btn-iconly-filter {
+    width: 46px;
+    height: 46px;
+  }
 }
 
 .btn-iconly-filter:hover {
@@ -733,6 +848,7 @@ const applyQuick = (type: string, val: string) => {
   align-items: center;
   justify-content: center;
   gap: 6px;
+  min-height: 44px;
   height: 44px;
   padding: 0 22px;
   border-radius: var(--radius-full);
@@ -746,12 +862,23 @@ const applyQuick = (type: string, val: string) => {
   transition: all 0.2s var(--ease);
 }
 
+@media (max-width: 639px) {
+  .btn-iconly-submit {
+    width: 100%;
+    height: 46px;
+  }
+}
+
 :root[data-theme="dark"] .btn-iconly-submit {
   background: var(--blue-primary);
 }
 
 .btn-iconly-submit:hover {
   transform: translateY(-1px);
+}
+
+.btn-iconly-submit:active {
+  transform: scale(0.98);
 }
 
 .search-icon {
@@ -768,20 +895,34 @@ const applyQuick = (type: string, val: string) => {
   border: 1px solid rgba(40, 120, 200, 0.2);
   border-radius: var(--radius-full);
   padding: 8px 16px;
-  margin-top: 16px;
-  font-size: 13px;
+  margin-top: 14px;
+  font-size: 12.5px;
+  gap: 8px;
+}
+
+@media (max-width: 639px) {
+  .ai-active-status {
+    flex-direction: column;
+    align-items: flex-start;
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+  }
+  .ai-reset-btn {
+    align-self: flex-end;
+  }
 }
 
 .ai-status-left {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .ai-badge-live {
   background: var(--blue-primary);
   color: #ffffff;
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 700;
   padding: 2px 8px;
   border-radius: var(--radius-full);
@@ -790,6 +931,7 @@ const applyQuick = (type: string, val: string) => {
 .ai-query-text {
   color: var(--blue-deep);
   font-weight: 600;
+  word-break: break-word;
 }
 
 .ai-reset-btn {
@@ -798,9 +940,10 @@ const applyQuick = (type: string, val: string) => {
   font-weight: 700;
   border: none;
   background: none;
+  min-height: 32px;
 }
 
-/* Right: Visual Showcase */
+/* Right: Visual Showcase (Desktop Only) */
 .hero-right-visual {
   display: none;
 }
@@ -876,7 +1019,7 @@ const applyQuick = (type: string, val: string) => {
   background: var(--border-subtle);
 }
 
-/* Floating Circular Score Badge (Image 1 Signature Element) */
+/* Floating Circular Score Badge */
 .floating-score-badge {
   position: absolute;
   top: -16px;

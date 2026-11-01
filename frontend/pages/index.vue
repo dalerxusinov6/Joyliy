@@ -109,7 +109,7 @@ const remainingListings = computed(() => {
 })
 
 const formatPrice = (val: number) => {
-  return val.toLocaleString('ru-RU').replace(/\u00a0/g, ' ') + ' so‘m'
+  return (val || 0).toLocaleString('ru-RU').replace(/\u00a0/g, ' ') + ' so‘m'
 }
 </script>
 
@@ -118,7 +118,7 @@ const formatPrice = (val: number) => {
     <!-- Hero with Atmospheric Dashboard Banner & Console -->
     <HeroSearch @openFilters="showFilters = true" />
 
-    <!-- Curated Category Strip (Pill Tabs matching Image 2) -->
+    <!-- Curated Category Strip (Pill Tabs - Smooth Edge Touch Scroll) -->
     <div class="wrap">
       <div class="category-pill-container">
         <div class="category-pill-scroll">
@@ -169,7 +169,7 @@ const formatPrice = (val: number) => {
 
         <!-- Audience Filter Pill Strip -->
         <div class="audience-pill-row">
-          <span class="aud-lbl">Ijarachilar toifasi:</span>
+          <span class="aud-lbl">Ijarachilar:</span>
           <div class="aud-scroll">
             <button
               v-for="aud in audienceOptions"
@@ -195,6 +195,7 @@ const formatPrice = (val: number) => {
               :src="dominantFeatured.image_urls[0]"
               :alt="dominantFeatured.title"
               class="featured-photo"
+              loading="lazy"
             />
             <div v-else class="featured-placeholder">
               <span>Joyliy Tanlangan Xonadon</span>
@@ -227,7 +228,7 @@ const formatPrice = (val: number) => {
 
           <div class="featured-content-plate">
             <div class="featured-price-row">
-              <div>
+              <div class="price-side">
                 <span class="f-price-value">{{ formatPrice(dominantFeatured.price_uzs) }}</span>
                 <span class="f-price-period">/ oy</span>
               </div>
@@ -260,7 +261,7 @@ const formatPrice = (val: number) => {
           </div>
         </div>
 
-        <!-- Remaining Listings Grid (3-column responsive cards) -->
+        <!-- Remaining Listings Grid (Fluid responsive layout) -->
         <div v-if="remainingListings.length" class="grid catalog-listings-grid">
           <ListingCard
             v-for="item in remainingListings"
@@ -383,21 +384,22 @@ const formatPrice = (val: number) => {
 .iconly-homepage {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 }
 
-/* Category Pill Tabs (Matching Image 2) */
+/* Category Pill Tabs (Smooth Edge Touch Scroll) */
 .category-pill-container {
-  padding: 8px 0 16px;
+  padding: 4px 0 12px;
 }
 
 .category-pill-scroll {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   overflow-x: auto;
   scrollbar-width: none;
-  padding: 4px 2px;
+  padding: 2px 0;
+  -webkit-overflow-scrolling: touch;
 }
 
 .category-pill-scroll::-webkit-scrollbar {
@@ -406,21 +408,37 @@ const formatPrice = (val: number) => {
 
 .category-pill-btn {
   font-family: var(--font-sans);
-  font-size: 13.5px;
+  font-size: 12.5px;
   font-weight: 600;
   color: var(--text-secondary);
   background: var(--surface);
   border: 1px solid var(--border-subtle);
-  padding: 8px 18px;
+  padding: 6px 14px;
   border-radius: var(--radius-full);
   white-space: nowrap;
   transition: all 0.18s var(--ease);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+@media (min-width: 480px) {
+  .category-pill-btn {
+    font-size: 13.5px;
+    padding: 8px 18px;
+    min-height: 40px;
+  }
 }
 
 .category-pill-btn:hover {
   color: var(--text-primary);
   border-color: rgba(23, 25, 29, 0.15);
+}
+
+.category-pill-btn:active {
+  transform: scale(0.96);
 }
 
 .category-pill-btn.active {
@@ -437,21 +455,27 @@ const formatPrice = (val: number) => {
 
 /* Catalog Section */
 .catalog-section {
-  padding: 16px 0 36px;
+  padding: 12px 0 28px;
+}
+
+@media (min-width: 768px) {
+  .catalog-section {
+    padding: 16px 0 36px;
+  }
 }
 
 .section-heading-bar {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
   flex-wrap: wrap;
   gap: 12px;
 }
 
 .section-title {
   font-family: var(--font-sans);
-  font-size: 24px;
+  font-size: clamp(20px, 5.5vw, 26px);
   font-weight: 800;
   letter-spacing: -0.025em;
   color: var(--text-primary);
@@ -459,7 +483,7 @@ const formatPrice = (val: number) => {
 }
 
 .section-subtitle {
-  font-size: 14px;
+  font-size: clamp(12.5px, 3.5vw, 14px);
   color: var(--text-secondary);
   margin: 0;
 }
@@ -474,6 +498,7 @@ const formatPrice = (val: number) => {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  min-height: 38px;
   height: 38px;
   padding: 0 16px;
   border-radius: var(--radius-full);
@@ -490,12 +515,17 @@ const formatPrice = (val: number) => {
   color: var(--blue-primary);
 }
 
+.btn-map-action:active {
+  transform: scale(0.96);
+}
+
 .action-icon {
   width: 15px;
   height: 15px;
 }
 
 .btn-clear-action {
+  min-height: 38px;
   height: 38px;
   padding: 0 14px;
   border-radius: var(--radius-full);
@@ -515,10 +545,11 @@ const formatPrice = (val: number) => {
 .audience-pill-row {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 24px;
+  gap: 8px;
+  margin-bottom: 20px;
   overflow-x: auto;
   scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
 }
 
 .audience-pill-row::-webkit-scrollbar {
@@ -526,10 +557,11 @@ const formatPrice = (val: number) => {
 }
 
 .aud-lbl {
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--text-secondary);
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .aud-scroll {
@@ -539,18 +571,19 @@ const formatPrice = (val: number) => {
 }
 
 .aud-pill-btn {
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--text-secondary);
   background: var(--surface);
   border: 1px solid var(--border-subtle);
-  padding: 5px 12px;
+  padding: 5px 10px;
   border-radius: var(--radius-full);
   white-space: nowrap;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   transition: all 0.15s ease;
+  min-height: 32px;
 }
 
 .aud-pill-btn:hover {
@@ -564,26 +597,35 @@ const formatPrice = (val: number) => {
 }
 
 .aud-pill-count {
-  font-size: 10.5px;
+  font-size: 10px;
   font-weight: 700;
   background: rgba(23, 25, 29, 0.08);
-  padding: 1px 6px;
+  padding: 1px 5px;
   border-radius: var(--radius-full);
 }
 
-/* Dominant Featured Card (Iconly Hero Card with Floating Specs Overlay) */
+/* Dominant Featured Card */
 .iconly-featured-card {
   background: var(--surface);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-card);
-  padding: 14px;
-  margin-bottom: 28px;
+  border-radius: 20px;
+  padding: 10px;
+  margin-bottom: 22px;
   display: grid;
   grid-template-columns: 1fr;
-  gap: 20px;
+  gap: 14px;
   cursor: pointer;
   box-shadow: 0 8px 30px rgba(40, 120, 200, 0.06);
   transition: all 0.25s var(--ease);
+}
+
+@media (min-width: 480px) {
+  .iconly-featured-card {
+    border-radius: var(--radius-card);
+    padding: 14px;
+    gap: 18px;
+    margin-bottom: 28px;
+  }
 }
 
 @media (min-width: 900px) {
@@ -604,9 +646,15 @@ const formatPrice = (val: number) => {
 .featured-media-frame {
   position: relative;
   aspect-ratio: 16/10;
-  border-radius: var(--radius-inner);
+  border-radius: 14px;
   overflow: hidden;
   background: var(--surface-subtle);
+}
+
+@media (min-width: 480px) {
+  .featured-media-frame {
+    border-radius: var(--radius-inner);
+  }
 }
 
 .featured-photo {
@@ -618,19 +666,27 @@ const formatPrice = (val: number) => {
 
 .featured-top-left-tag {
   position: absolute;
-  top: 12px;
-  left: 12px;
+  top: 8px;
+  left: 8px;
   display: flex;
-  gap: 6px;
+  gap: 5px;
   z-index: 3;
+}
+
+@media (min-width: 480px) {
+  .featured-top-left-tag {
+    top: 12px;
+    left: 12px;
+    gap: 6px;
+  }
 }
 
 .hot-rent-pill {
   background: #17191D;
   color: #FFFFFF;
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 700;
-  padding: 4px 10px;
+  padding: 3px 8px;
   border-radius: var(--radius-full);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
@@ -638,28 +694,38 @@ const formatPrice = (val: number) => {
 .owner-pill {
   background: #10B981;
   color: #FFFFFF;
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 700;
-  padding: 4px 10px;
+  padding: 3px 8px;
   border-radius: var(--radius-full);
 }
 
-/* Frosted Specs Overlay across Bottom of Image (Signature Image 2 Style!) */
+/* Frosted Specs Overlay across Bottom of Image */
 .featured-frosted-specs-overlay {
   position: absolute;
-  bottom: 12px;
-  left: 12px;
-  right: 12px;
+  bottom: 8px;
+  left: 8px;
+  right: 8px;
   background: rgba(255, 255, 255, 0.88);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
   border: 1px solid rgba(255, 255, 255, 0.9);
-  border-radius: var(--radius-md);
-  padding: 10px 18px;
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
   display: flex;
   align-items: center;
   justify-content: space-around;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+
+@media (min-width: 480px) {
+  .featured-frosted-specs-overlay {
+    bottom: 12px;
+    left: 12px;
+    right: 12px;
+    padding: 10px 18px;
+    border-radius: var(--radius-md);
+  }
 }
 
 :root[data-theme="dark"] .featured-frosted-specs-overlay {
@@ -673,92 +739,126 @@ const formatPrice = (val: number) => {
 }
 
 .f-lbl {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--text-secondary);
 }
 
 .f-val {
-  font-size: 13.5px;
+  font-size: 12.5px;
   font-weight: 700;
   color: var(--text-primary);
 }
 
+@media (min-width: 480px) {
+  .f-lbl {
+    font-size: 11px;
+  }
+  .f-val {
+    font-size: 13.5px;
+  }
+}
+
 .frosted-spec-div {
   width: 1px;
-  height: 22px;
+  height: 18px;
   background: var(--border-subtle);
+}
+
+@media (min-width: 480px) {
+  .frosted-spec-div {
+    height: 22px;
+  }
 }
 
 .featured-content-plate {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 6px 4px;
+  gap: 10px;
+  padding: 4px 2px;
+}
+
+@media (min-width: 480px) {
+  .featured-content-plate {
+    gap: 12px;
+    padding: 6px 4px;
+  }
 }
 
 .featured-price-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
+}
+
+.price-side {
+  display: flex;
+  align-items: baseline;
+  min-width: 0;
 }
 
 .f-price-value {
   font-family: var(--font-sans);
-  font-size: 24px;
+  font-size: clamp(20px, 5.5vw, 24px);
   font-weight: 800;
   letter-spacing: -0.03em;
   color: var(--text-primary);
+  white-space: nowrap;
 }
 
 .f-price-period {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   color: var(--text-secondary);
   margin-left: 3px;
 }
 
 .f-score-indicator {
-  width: 42px;
-  height: 42px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   border: 3px solid #10B981;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 800;
   color: var(--text-primary);
+  flex-shrink: 0;
 }
 
 .f-card-title {
   font-family: var(--font-sans);
-  font-size: 18px;
+  font-size: clamp(15.5px, 4vw, 18px);
   font-weight: 700;
   color: var(--text-primary);
   line-height: 1.35;
   margin: 0;
+  word-break: break-word;
 }
 
 .f-location-row {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 13px;
+  font-size: 12.5px;
   color: var(--text-secondary);
 }
 
 .pin-mini {
-  width: 15px;
-  height: 15px;
+  width: 14px;
+  height: 14px;
   color: var(--blue-primary);
+  flex-shrink: 0;
 }
 
 .f-action-bar {
-  margin-top: 8px;
+  margin-top: 4px;
 }
 
 .inspect-cta {
   height: 42px;
+  min-height: 42px;
   padding: 0 20px;
   border-radius: var(--radius-full);
 }
@@ -773,32 +873,45 @@ const formatPrice = (val: number) => {
   background: var(--surface);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-card);
-  padding: 48px 24px;
+  padding: 36px 20px;
   text-align: center;
   max-width: 480px;
-  margin: 40px auto;
+  margin: 30px auto;
 }
 
 .empty-icon-wrap {
-  font-size: 36px;
+  font-size: 32px;
   margin-bottom: 12px;
 }
 
 /* Popular Districts Section */
 .districts-section {
-  padding: 36px 0;
+  padding: 24px 0;
+}
+
+@media (min-width: 768px) {
+  .districts-section {
+    padding: 36px 0;
+  }
 }
 
 .districts-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 14px;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+@media (min-width: 480px) {
+  .districts-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
 }
 
 @media (min-width: 768px) {
   .districts-grid {
     grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
+    gap: 14px;
   }
 }
 
@@ -806,18 +919,23 @@ const formatPrice = (val: number) => {
   background: var(--surface);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
-  padding: 16px 18px;
+  padding: 14px 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   transition: all 0.2s var(--ease);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+  min-height: 48px;
 }
 
 .district-pill-card:hover {
   border-color: var(--blue-primary);
   box-shadow: 0 8px 24px rgba(40, 120, 200, 0.1);
   transform: translateY(-2px);
+}
+
+.district-pill-card:active {
+  transform: scale(0.98);
 }
 
 .district-pill-card.active {
@@ -829,23 +947,23 @@ const formatPrice = (val: number) => {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 3px;
+  gap: 2px;
 }
 
 .district-name-bold {
-  font-size: 14.5px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--text-primary);
 }
 
 .district-count-tag {
-  font-size: 12px;
+  font-size: 11.5px;
   color: var(--text-secondary);
 }
 
 .district-arrow-circle {
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   background: var(--surface-subtle);
   display: flex;
@@ -853,6 +971,7 @@ const formatPrice = (val: number) => {
   justify-content: center;
   color: var(--text-secondary);
   transition: all 0.2s ease;
+  flex-shrink: 0;
 }
 
 .district-pill-card:hover .district-arrow-circle {
@@ -867,18 +986,30 @@ const formatPrice = (val: number) => {
 
 /* Why Joyliy Section */
 .why-joyliy-section {
-  padding: 40px 0;
+  padding: 28px 0;
+}
+
+@media (min-width: 768px) {
+  .why-joyliy-section {
+    padding: 40px 0;
+  }
 }
 
 .why-heading-wrap {
   text-align: center;
-  margin-bottom: 32px;
+  margin-bottom: 24px;
+}
+
+@media (min-width: 768px) {
+  .why-heading-wrap {
+    margin-bottom: 32px;
+  }
 }
 
 .why-cards-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 20px;
+  gap: 14px;
 }
 
 @media (min-width: 768px) {
@@ -892,9 +1023,15 @@ const formatPrice = (val: number) => {
   background: var(--surface);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-card);
-  padding: 28px 24px;
+  padding: 22px 18px;
   box-shadow: 0 4px 18px rgba(23, 25, 29, 0.03);
   transition: all 0.2s var(--ease);
+}
+
+@media (min-width: 768px) {
+  .why-card {
+    padding: 28px 24px;
+  }
 }
 
 .why-card:hover {
@@ -904,55 +1041,63 @@ const formatPrice = (val: number) => {
 }
 
 .why-icon-circle {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   border-radius: var(--radius-md);
   background: var(--blue-pale);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 18px;
+  margin-bottom: 14px;
 }
 
 .icon-emoji {
-  font-size: 22px;
+  font-size: 20px;
 }
 
 .why-card-title {
   font-family: var(--font-sans);
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--text-primary);
-  margin: 0 0 8px;
+  margin: 0 0 6px;
 }
 
 .why-card-desc {
-  font-size: 13.5px;
+  font-size: 13px;
   color: var(--text-secondary);
-  line-height: 1.55;
+  line-height: 1.5;
   margin: 0;
 }
 
 /* Landlord CTA Banner */
 .landlord-cta-section {
-  padding: 32px 0 48px;
+  padding: 24px 0 36px;
+}
+
+@media (min-width: 768px) {
+  .landlord-cta-section {
+    padding: 32px 0 48px;
+  }
 }
 
 .landlord-cta-card {
   background: var(--hero-gradient);
   border: 1px solid rgba(255, 255, 255, 0.9);
-  border-radius: var(--radius-hero);
-  padding: 36px 28px;
+  border-radius: var(--radius-card);
+  padding: 24px 18px;
   display: grid;
   grid-template-columns: 1fr;
-  gap: 24px;
+  gap: 20px;
   align-items: center;
   box-shadow: 0 12px 36px rgba(40, 120, 200, 0.08);
 }
 
-:root[data-theme="dark"] .landlord-cta-card {
-  background: linear-gradient(135deg, #161B22 0%, #1A2332 100%);
-  border-color: rgba(255, 255, 255, 0.08);
+@media (min-width: 480px) {
+  .landlord-cta-card {
+    border-radius: var(--radius-hero);
+    padding: 32px 24px;
+  }
 }
 
 @media (min-width: 768px) {
@@ -962,37 +1107,44 @@ const formatPrice = (val: number) => {
   }
 }
 
+:root[data-theme="dark"] .landlord-cta-card {
+  background: linear-gradient(135deg, #161B22 0%, #1A2332 100%);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
 .cta-pill-badge {
   display: inline-block;
   background: rgba(40, 120, 200, 0.15);
   color: var(--blue-deep);
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 700;
-  padding: 4px 12px;
+  padding: 4px 10px;
   border-radius: var(--radius-full);
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .cta-title {
   font-family: var(--font-sans);
-  font-size: clamp(22px, 2.5vw, 32px);
+  font-size: clamp(20px, 5vw, 30px);
   font-weight: 800;
   color: var(--text-primary);
-  margin: 0 0 10px;
+  margin: 0 0 8px;
   letter-spacing: -0.02em;
+  word-break: break-word;
 }
 
 .cta-desc {
-  font-size: 14.5px;
+  font-size: 13.5px;
   color: var(--text-secondary);
-  margin: 0 0 20px;
+  margin: 0 0 18px;
   max-width: 520px;
   line-height: 1.5;
 }
 
 .cta-main-btn {
+  min-height: 44px;
   height: 44px;
-  padding: 0 24px;
+  padding: 0 22px;
 }
 
 .cta-visual-side {
@@ -1006,7 +1158,7 @@ const formatPrice = (val: number) => {
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.95);
   border-radius: var(--radius-card);
-  padding: 20px 28px;
+  padding: 16px 24px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1019,14 +1171,14 @@ const formatPrice = (val: number) => {
 }
 
 .stat-number {
-  font-size: 28px;
+  font-size: 26px;
   font-weight: 800;
   color: var(--blue-primary);
   letter-spacing: -0.02em;
 }
 
 .stat-desc {
-  font-size: 12px;
+  font-size: 11.5px;
   color: var(--text-secondary);
   font-weight: 600;
 }
