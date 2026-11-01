@@ -174,10 +174,11 @@ export function useListings() {
         body: { query: query.trim(), limit: 40 },
       })
 
-      if (res && res.matches) {
-        aiParsedCriteria.value = res.parsed_criteria
-        listings.value = res.matches.map((m: any) => {
-          const item = m.listing
+      const rawMatches = res?.matches || res?.results || []
+      if (res && rawMatches.length > 0) {
+        aiParsedCriteria.value = res.parsed_criteria || res.parsed_filters
+        listings.value = rawMatches.map((m: any) => {
+          const item = m.listing || m
           const isOwner =
             item.classification?.label === 'LIKELY_OWNER' ||
             item.title.toLowerCase().includes('maklersiz') ||
@@ -225,7 +226,7 @@ export function useListings() {
             renovation_type: item.renovation_type,
 
             // AI Match specifics
-            match_percentage: m.match_percentage,
+            match_percentage: m.match_percentage ?? m.match_score ?? 85,
             match_pros: m.pros || [],
             match_cons: m.cons || [],
           }

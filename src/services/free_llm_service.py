@@ -15,6 +15,7 @@ Connects to free model providers in priority order:
 
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 import os
@@ -173,7 +174,9 @@ class FreeLLMService:
             logger.debug("DashScope Qwen error: %s", e)
         return None
 
-    async def _call_qwen_groq(self, message: str, system_prompt: str) -> Optional[str]:
+    async def _call_qwen_groq(
+        self, message: str, system_prompt: str, max_tokens: int = 1800
+    ) -> Optional[str]:
         """Call Groq Cloud with Qwen 27B or GPT-OSS models."""
         key = self.groq_key or self.qwen_key
         if not key:
@@ -191,7 +194,7 @@ class FreeLLMService:
                     {"role": "user", "content": message},
                 ],
                 "temperature": 0.2,
-                "max_tokens": 900,
+                "max_tokens": max_tokens,
             }
             try:
                 async with httpx.AsyncClient(timeout=self.timeout) as client:
@@ -385,6 +388,109 @@ class FreeLLMService:
             f"- Tavsif: {listing_data.get('description', '')[:500]}\n"
         )
         return await self.generate_response(user_question, sys_p, context)
+
+    async def rank_listings_for_query(
+        self, query: str, candidates: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
+        """
+        Deeply analyze each apartment candidate against the user's search query using Groq Qwen/LLM.
+        Batches items in parallel chunks of 10 for sub-2s responses with complete, untruncated JSON.
+        """
+        if not candidates:
+            return []
+
+        candidates_to_rank = candidates[:20]
+        batches = [candidates_to_rank[i:i + 10] for i in range(0, len(candidates_to_rank), 10)]
+
+        tasks = [self._rank_single_batch(query, b) for b in batches]
+        batch_results = await asyncio.gather(*tasks, return_exceptions=True)
+
+        all_ranks = []
+        for r in batch_results:
+            if isinstance(r, list):
+                all_ranks.extend(r)
+            elif isinstance(r, Exception):
+                logger.debug("Batch Groq rank error: %s", r)
+        return all_ranks
+
+    async def _rank_single_batch(
+        self, query: str, batch: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
+        """Rank a single batch of up to 10 candidates with Groq Qwen."""
+        compact_items = []
+        for c in batch:
+            desc = (c.get("description") or "").replace("\n", " ").strip()
+            compact_items.append({
+                "id": c["id"],
+                "title": c.get("title", ""),
+                "price_uzs": c.get("price_uzs", 0),
+                "district": c.get("district", ""),
+                "rooms": c.get("rooms", 0),
+                "target_audience": c.get("target_audience", "any"),
+                "is_owner": bool(c.get("is_owner", False)),
+                "metro": c.get("metro_station") or "",
+                "description": desc[:200],
+            })
+
+        system_prompt = (
+            "Siz Toshkent ko‘chmas mulk bozorining professional mustaqil AI tahlilchisisiz (Groq Qwen). "
+            "Foydalanuvchi tabiiy tilda kvartira qidirmoqda. Siz berilgan har bir kvartira e'lonini "
+            "foydalanuvchi so'rovi talablari bilan qat'iy va xolis solishtirib chiqishingiz kerak.\n\n"
+            "BAHOLASH MEZONLARI:\n"
+            "1. 'match_score': 0 dan 100 gacha butun son.\n"
+            "   - Agar foydalanuvchi alohida/to'liq kvartira yoki oila uchun so'ragan bo'lsa, lekin e'lon sheriklikka (yigitlar/qizlar/talabalar koika/yotoqxona/подселение) bo'lsa, match_score 20 dan oshmasin va is_relevant=false bo'lsin!\n"
+            "   - Agar tuman, xonalar soni va byudjet mos kelsa: 85-99% ball bering.\n"
+            "   - Agar byudjetdan biroz oshsa (+15%) yoki xonasi 1 taga farq qilsa: 65-80% ball bering.\n"
+            "   - Agar umuman boshqa tuman yoki so'rov talabiga mutlaqo zid bo'lsa: 0-35% ball bering.\n"
+            "2. 'pros': Aynan foydalanuvchi so'roviga nisbatan 2-3 ta aniq ustunlik (o'zbek tilida, masalan: 'Chilonzorda 2 xonali to‘liq kvartira', 'Byudjetdan 500 ming so‘m tejaysiz', 'Egasidan to‘g‘ridan-to‘g‘ri').\n"
+            "3. 'cons': 1-2 ta aniq kamchilik (masalan: 'Byudjetdan 400,000 so‘m qimmat', 'Alohida kvartira emas, sheriklik joy', 'Metro masofasi ko‘rsatilmagan').\n"
+            "4. 'is_relevant': boolean (true - ko‘rishga arziydigan variant; false - so‘rovga zid yoki sheriklik joy).\n\n"
+            "QAT'IY QOIDA: Faqat va faqat toza JSON massiv qaytaring:\n"
+            "[ {\"id\": int, \"match_score\": int, \"pros\": [str], \"cons\": [str], \"is_relevant\": bool}, ... ]\n"
+            "Hech qanday qo'shimcha so'z, izoh yoki markdown yozmang."
+        )
+
+        user_content = (
+            f"Foydalanuvchi qidiruv so'rovi:\n«{query}»\n\n"
+            f"Tahlil qilinishi kerak bo'lgan kvartiralar ro'yxati:\n"
+            f"{json.dumps(compact_items, ensure_ascii=False, indent=1)}"
+        )
+
+        response_text = None
+        if self.groq_key or self.qwen_key:
+            response_text = await self._call_qwen_groq(user_content, system_prompt, max_tokens=2200)
+        if not response_text:
+            response_text = await self._call_qwen_suite(user_content, system_prompt)
+        if not response_text and self.gemini_key:
+            response_text = await self._call_gemini(user_content, system_prompt)
+
+        if response_text:
+            parsed_list = self._clean_and_parse_json_list(response_text)
+            if parsed_list:
+                return parsed_list
+
+        return []
+
+    def _clean_and_parse_json_list(self, raw_text: str) -> Optional[List[Dict[str, Any]]]:
+        """Safely extract JSON list from LLM response text."""
+        text = raw_text.strip()
+        if text.startswith("```"):
+            lines = text.split("\n")
+            if lines[0].startswith("```"):
+                lines = lines[1:]
+            if lines and lines[-1].startswith("```"):
+                lines = lines[:-1]
+            text = "\n".join(lines).strip()
+        match = re.search(r'\[.*\]', text, re.DOTALL)
+        if match:
+            text = match.group(0)
+        try:
+            val = json.loads(text)
+            if isinstance(val, list):
+                return val
+        except Exception as e:
+            logger.debug("Failed to parse LLM JSON list: %s (raw: %s)", e, text[:120])
+        return None
 
     def _clean_and_parse_json(self, raw_text: str) -> Optional[Dict[str, Any]]:
         """Safely extract JSON object from LLM response text."""

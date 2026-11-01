@@ -147,6 +147,22 @@ const onCompareClick = (e: MouseEvent) => {
         </span>
       </div>
 
+      <!-- AI Match Insights Pill & Reasons (Grounded Groq Qwen Evaluation) -->
+      <div v-if="listing.match_pros && listing.match_pros.length" class="ai-match-box">
+        <div class="ai-match-headline">
+          <span class="ai-spark">✨</span>
+          <span class="ai-score-text">{{ listing.match_percentage }}% so‘rovingizga mos</span>
+        </div>
+        <div class="ai-pros-tags">
+          <span v-for="(pro, idx) in listing.match_pros.slice(0, 2)" :key="idx" class="ai-pro-tag">
+            ✓ {{ pro }}
+          </span>
+          <span v-if="listing.match_cons && listing.match_cons.length" class="ai-con-tag">
+            ⚠️ {{ listing.match_cons[0] }}
+          </span>
+        </div>
+      </div>
+
       <!-- Bottom Status & Time -->
       <div class="card-bottom-line">
         <div class="owner-status">
@@ -504,5 +520,46 @@ const onCompareClick = (e: MouseEvent) => {
   font-family: var(--font-mono);
   font-size: 11px;
   color: var(--muted);
+}
+
+.ai-match-box {
+  margin: 10px 0 4px;
+  padding: 8px 10px;
+  background: rgba(188, 104, 75, 0.08);
+  border: 1px dashed rgba(188, 104, 75, 0.35);
+  border-radius: var(--radius-xs);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ai-match-headline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--terracotta);
+}
+
+.ai-pros-tags {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ai-pro-tag {
+  font-size: 11.5px;
+  color: #1b6a48;
+  line-height: 1.35;
+  font-weight: 500;
+}
+
+.ai-con-tag {
+  font-size: 11.5px;
+  color: #b23b3b;
+  line-height: 1.35;
+  font-weight: 500;
 }
 </style>

@@ -357,17 +357,22 @@ async def ai_apartment_match(
     result = await ai_match_service.search_and_rank_matches(session, req.query, limit=req.limit)
     formatted_results = []
     for item in result["results"]:
+        score = item.get("match_percentage", item.get("match_score", 85))
         formatted_results.append({
             "listing": to_listing_response(item["listing"]),
-            "match_score": item["match_score"],
-            "pros": item["pros"],
-            "cons": item["cons"],
+            "match_score": score,
+            "match_percentage": score,
+            "pros": item.get("pros", []),
+            "cons": item.get("cons", []),
+            "is_relevant": item.get("is_relevant", True),
         })
     return {
         "query": result["query"],
         "parsed_filters": result["parsed_filters"],
+        "parsed_criteria": result.get("parsed_criteria", result["parsed_filters"]),
         "total_matches": len(formatted_results),
         "results": formatted_results,
+        "matches": formatted_results,
     }
 
 

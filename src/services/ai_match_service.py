@@ -176,41 +176,148 @@ class AIMatchService:
         self,
         session: AsyncSession,
         query: str,
-        limit: int = 15,
+        limit: int = 20,
     ) -> Dict[str, Any]:
         """
-        Execute AI Match search: parse natural query, retrieve candidates, score similarity,
-        and provide transparent explanation breakdowns.
+        Execute AI Match search powered by Groq Qwen:
+        1. Parse natural query into semantic constraints
+        2. Retrieve best matching candidate pool
+        3. Deeply evaluate each listing via Groq LLM for genuine Uzbek pros, cons, and match percentages
+        4. Fallback smoothly to deterministic matching if LLM is unavailable
         """
         parsed = await self.parse_natural_language_query_async(query)
 
-        # Base candidate query
-        conditions = [Listing.is_active == True]
-        if parsed["district"]:
-            conditions.append(Listing.district.ilike(f"%{parsed['district']}%"))
+        # 1. Build targeted candidate query
+        user_wants_roommate = any(w in query.lower() for w in [
+            "sherik", "sherig", "koika", "yotoqxona", "roommate", "joy", "подселен", "койка"
+        ])
 
-        stmt = select(Listing).where(and_(*conditions)).limit(80)
-        candidates = (await session.execute(stmt)).scalars().all()
+        conditions = [Listing.is_active == True]
+        if not user_wants_roommate:
+            for sh_word in ["%sherik%", "%sherig%", "%koika%", "%койка%", "%подселен%", "%подслени%"]:
+                conditions.append(Listing.title.not_ilike(sh_word))
+
+        if parsed["district"]:
+            d = parsed["district"]
+            conditions.append(
+                or_(
+                    Listing.district.ilike(f"%{d}%"),
+                    Listing.title.ilike(f"%{d}%"),
+                    Listing.description.ilike(f"%{d}%"),
+                )
+            )
+
+        if parsed["rooms"] is not None:
+            r = parsed["rooms"]
+            conditions.append(Listing.rooms.in_([r, r + 1, max(1, r - 1)]))
+
+        if parsed["max_price_uzs"]:
+            # Give 25% upper headroom so AI can evaluate near-matches
+            conditions.append(Listing.price_uzs <= int(parsed["max_price_uzs"] * 1.25))
+
+        stmt = (
+            select(Listing)
+            .where(and_(*conditions))
+            .order_by(Listing.publication_date.desc().nullslast(), Listing.id.desc())
+            .limit(20)
+        )
+        candidates = list((await session.execute(stmt)).scalars().all())
+
+        # Fallback if specific conditions returned too few results
+        if len(candidates) < 8:
+            fallback_conds = [Listing.is_active == True]
+            if not user_wants_roommate:
+                for sh_word in ["%sherik%", "%sherig%", "%koika%", "%койка%", "%подселен%"]:
+                    fallback_conds.append(Listing.title.not_ilike(sh_word))
+            if parsed["district"]:
+                fallback_conds.append(Listing.district.ilike(f"%{parsed['district']}%"))
+            elif parsed["max_price_uzs"]:
+                fallback_conds.append(Listing.price_uzs <= int(parsed["max_price_uzs"] * 1.35))
+            stmt2 = select(Listing).where(and_(*fallback_conds)).order_by(Listing.id.desc()).limit(20)
+            more_candidates = (await session.execute(stmt2)).scalars().all()
+            seen_ids = {c.id for c in candidates}
+            for mc in more_candidates:
+                if mc.id not in seen_ids:
+                    candidates.append(mc)
+                    seen_ids.add(mc.id)
+
+        # If still empty (e.g. database has few listings), get general active listings
+        if not candidates:
+            stmt3 = select(Listing).where(Listing.is_active == True).order_by(Listing.id.desc()).limit(20)
+            candidates = list((await session.execute(stmt3)).scalars().all())
+
+        # 2. Invoke Groq Qwen for deep listing analysis
+        candidate_dicts = []
+        for l in candidates:
+            is_owner = False
+            if l.classification and l.classification.label == "LIKELY_OWNER":
+                is_owner = True
+            elif "maklersiz" in (l.title or "").lower() or "egasidan" in (l.title or "").lower():
+                is_owner = True
+
+            candidate_dicts.append({
+                "id": l.id,
+                "title": l.title,
+                "price_uzs": l.price_uzs,
+                "district": l.district or "",
+                "rooms": l.rooms if l.rooms is not None else 1,
+                "target_audience": l.target_audience or "any",
+                "is_owner": is_owner,
+                "metro_station": l.metro_station or "",
+                "description": l.description or "",
+            })
+
+        from src.services.free_llm_service import free_llm_service
+        llm_ranks = await free_llm_service.rank_listings_for_query(query, candidate_dicts)
+        llm_map = {item["id"]: item for item in llm_ranks if isinstance(item, dict) and "id" in item}
+
+        user_wants_roommate = any(w in query.lower() for w in ["sherik", "koika", "yotoqxona", "roommate", "joy"])
 
         scored_results = []
         for l in candidates:
-            score, pros, cons = self._calculate_match_score(l, parsed)
+            llm_eval = llm_map.get(l.id)
+            if llm_eval and isinstance(llm_eval.get("match_score"), (int, float)):
+                score = max(0, min(100, int(llm_eval["match_score"])))
+                pros = llm_eval.get("pros") or []
+                cons = llm_eval.get("cons") or []
+                is_relevant = llm_eval.get("is_relevant", True)
+            else:
+                score, pros, cons = self._calculate_match_score(l, parsed)
+                is_relevant = score >= 40
+
+            # Guard against shared room being offered when user wants full apartment
+            is_shared = (
+                "sherik" in (l.title or "").lower()
+                or "sheriklik" in (l.description or "").lower()
+                or "koika" in (l.description or "").lower()
+                or (l.rooms == 0)
+            )
+            if is_shared and not user_wants_roommate:
+                score = min(score, 25)
+                is_relevant = False
+                if not any("sheriklik" in c.lower() for c in cons):
+                    cons.append("Alohida kvartira emas, sheriklik joy")
+
             scored_results.append({
                 "listing": l,
                 "match_score": score,
+                "match_percentage": score,
                 "pros": pros,
                 "cons": cons,
+                "is_relevant": is_relevant,
             })
 
         # Sort highest match score first
-        scored_results.sort(key=lambda x: x["match_score"], reverse=True)
+        scored_results.sort(key=lambda x: (x["is_relevant"], x["match_score"]), reverse=True)
         top_matches = scored_results[:limit]
 
         return {
             "query": query,
             "parsed_filters": parsed,
+            "parsed_criteria": parsed,
             "total_matches": len(top_matches),
             "results": top_matches,
+            "matches": top_matches,
         }
 
     def _calculate_match_score(
@@ -220,6 +327,20 @@ class AIMatchService:
         score = 60  # Base score
         pros = []
         cons = []
+
+        is_shared = (
+            "sherik" in (listing.title or "").lower()
+            or "sherig" in (listing.title or "").lower()
+            or "подселен" in (listing.title or "").lower()
+            or "подслени" in (listing.title or "").lower()
+            or "койка" in (listing.title or "").lower()
+            or "sheriklik" in (listing.description or "").lower()
+            or "koika" in (listing.description or "").lower()
+            or (listing.rooms == 0)
+        )
+        if is_shared:
+            score -= 50
+            cons.append("Alohida kvartira emas, sheriklik joy")
 
         # 1. District match (+25%)
         req_district = filters.get("district")
