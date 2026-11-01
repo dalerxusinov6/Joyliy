@@ -96,3 +96,4 @@ async def test_continuous_channel_publishing_without_artificial_cap(
         # Must publish all 3 listings without being limited to 0 or 1
         assert posted == 3
         assert mock_send.call_count == 3
+

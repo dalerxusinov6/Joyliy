@@ -73,7 +73,7 @@ class FreeLLMService:
 
     async def _call_qwen_openrouter(self, message: str, system_prompt: str) -> Optional[str]:
         """Call Qwen 2.5 models on OpenRouter Free Tier."""
-        key = self.qwen_key or self.openrouter_key
+        key = self.openrouter_key or (self.qwen_key if self.qwen_key and not self.qwen_key.startswith("gsk_") else None)
         if not key:
             return None
         url = "https://openrouter.ai/api/v1/chat/completions"
@@ -174,7 +174,7 @@ class FreeLLMService:
         return None
 
     async def _call_qwen_groq(self, message: str, system_prompt: str) -> Optional[str]:
-        """Call Groq Cloud with Qwen 2.5 32B model."""
+        """Call Groq Cloud with Qwen 27B or GPT-OSS models."""
         key = self.groq_key or self.qwen_key
         if not key:
             return None
@@ -183,25 +183,28 @@ class FreeLLMService:
             "Authorization": f"Bearer {key}",
             "Content-Type": "application/json",
         }
-        payload = {
-            "model": "qwen-2.5-32b",
-            "messages": [
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": message},
-            ],
-            "temperature": 0.3,
-            "max_tokens": 900,
-        }
-        try:
-            async with httpx.AsyncClient(timeout=self.timeout) as client:
-                resp = await client.post(url, json=payload, headers=headers)
-                if resp.status_code == 200:
-                    data = resp.json()
-                    choices = data.get("choices", [])
-                    if choices:
-                        return choices[0]["message"]["content"].strip()
-        except Exception as e:
-            logger.debug("Groq Qwen error: %s", e)
+        for model in ["qwen/qwen3.8-27b", "openai/gpt-oss-120b", "openai/gpt-oss-20b"]:
+            payload = {
+                "model": model,
+                "messages": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": message},
+                ],
+                "temperature": 0.2,
+                "max_tokens": 900,
+            }
+            try:
+                async with httpx.AsyncClient(timeout=self.timeout) as client:
+                    resp = await client.post(url, json=payload, headers=headers)
+                    if resp.status_code == 200:
+                        data = resp.json()
+                        choices = data.get("choices", [])
+                        if choices:
+                            text = choices[0]["message"]["content"].strip()
+                            if text:
+                                return text
+            except Exception as e:
+                logger.debug("Groq (%s) error: %s", model, e)
         return None
 
     async def _call_qwen_hf(self, message: str, system_prompt: str) -> Optional[str]:
@@ -236,28 +239,34 @@ class FreeLLMService:
 
     async def _call_qwen_suite(self, message: str, system_prompt: str) -> Optional[str]:
         """Orchestrate calls across all available Qwen free model providers."""
-        # 1. OpenRouter Qwen Free (72B / 7B / Coder)
+        # 1. Primary: Groq Qwen/GPT-OSS if key is configured (ultra-fast < 1s inference)
+        if (self.groq_key and str(self.groq_key).startswith("gsk_")) or (self.qwen_key and str(self.qwen_key).startswith("gsk_")):
+            res = await self._call_qwen_groq(message, system_prompt)
+            if res:
+                return res
+
+        # 2. OpenRouter Qwen Free (72B / 7B / Coder)
         res = await self._call_qwen_openrouter(message, system_prompt)
         if res:
             return res
 
-        # 2. SiliconFlow Free Qwen 7B
+        # 3. SiliconFlow Free Qwen 7B
         res = await self._call_qwen_siliconflow(message, system_prompt)
         if res:
             return res
 
-        # 3. Alibaba DashScope Qwen
+        # 4. Alibaba DashScope Qwen
         res = await self._call_qwen_dashscope(message, system_prompt)
-        if res:
-            return res
-
-        # 4. Groq Qwen 2.5 32B
-        res = await self._call_qwen_groq(message, system_prompt)
         if res:
             return res
 
         # 5. Hugging Face Serverless Qwen 7B
         res = await self._call_qwen_hf(message, system_prompt)
+        if res:
+            return res
+
+        # 6. Groq fallback
+        res = await self._call_qwen_groq(message, system_prompt)
         if res:
             return res
 
@@ -422,35 +431,8 @@ class FreeLLMService:
         return None
 
     async def _call_groq(self, message: str, system_prompt: str) -> Optional[str]:
-        """Call Groq Cloud (Free Tier - Llama 3.3 70B)."""
-        key = self.groq_key
-        if not key:
-            return None
-        url = "https://api.groq.com/openai/v1/chat/completions"
-        headers = {
-            "Authorization": f"Bearer {key}",
-            "Content-Type": "application/json",
-        }
-        payload = {
-            "model": "llama-3.3-70b-versatile",
-            "messages": [
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": message},
-            ],
-            "temperature": 0.3,
-            "max_tokens": 900,
-        }
-        try:
-            async with httpx.AsyncClient(timeout=self.timeout) as client:
-                resp = await client.post(url, json=payload, headers=headers)
-                if resp.status_code == 200:
-                    data = resp.json()
-                    choices = data.get("choices", [])
-                    if choices:
-                        return choices[0]["message"]["content"].strip()
-        except Exception as e:
-            logger.warning("Groq free API call failed: %s", e)
-        return None
+        """Call Groq Cloud (Qwen 27B / GPT-OSS models)."""
+        return await self._call_qwen_groq(message, system_prompt)
 
     async def _call_openrouter(self, message: str, system_prompt: str) -> Optional[str]:
         """Call OpenRouter Free Tier (gemini-2.0-flash-lite:free or meta-llama/llama-3.2-3b-instruct:free)."""
