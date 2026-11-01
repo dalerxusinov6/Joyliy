@@ -18,7 +18,7 @@ const {
   resetAiMatch,
 } = useListings()
 
-const searchMode = ref<'ai' | 'standard'>('ai')
+const searchMode = ref<'rent' | 'buy' | 'ai'>('rent')
 const aiInput = ref('')
 
 const handleAiSearch = async () => {
@@ -52,266 +52,252 @@ const applyQuick = (type: string, val: string) => {
 </script>
 
 <template>
-  <section class="editorial-hero">
+  <section class="iconly-hero-section">
     <div class="wrap">
-      <div class="hero-grid">
-        <!-- Left: Search & Headline -->
-        <div class="hero-content">
-          <!-- Trust Pill -->
-          <div class="hero-badge">
-            <svg class="badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-            </svg>
-            <span>Toshkentda maklersiz to‘g‘ridan-to‘g‘ri ijara</span>
-          </div>
+      <!-- Atmospheric Hero Dashboard Container (Iconly Large Rounded Banner) -->
+      <div class="atmospheric-hero-card">
+        <div class="hero-inner-grid">
+          <!-- Left: Hero Headline, Tabs & Search Panel -->
+          <div class="hero-left-content">
+            <!-- Top Tag Pill -->
+            <div class="hero-badge-pill">
+              <span class="pulse-dot"></span>
+              <span>Toshkentda 0% vositachilik komissiyasi</span>
+            </div>
 
-          <h1 class="hero-title">
-            Yangi uyingizni<br />
-            <span class="hero-title-accent">vositachisiz</span> toping.
-          </h1>
+            <!-- Headline matching prompt -->
+            <h1 class="hero-heading">
+              Orzuingizdagi uyni <span class="heading-gradient">toping.</span>
+            </h1>
 
-          <p class="hero-subtitle">
-            To‘g‘ridan-to‘g‘ri xonadon egalaridan tekshirilgan e’lonlar. 0% rieltorlik komissiyasi va shaffof narxlar.
-          </p>
+            <p class="hero-subheading">
+              O‘zbekistondagi uy-joylarni sotib oling yoki ijaraga oling. Xonadon egalaridan tekshirilgan e’lonlar va sun’iy intellekt tahlili.
+            </p>
 
-          <!-- Mode Tabs -->
-          <div class="search-mode-tabs">
-            <button
-              type="button"
-              class="mode-tab-btn"
-              :class="{ active: searchMode === 'ai' }"
-              @click="searchMode = 'ai'"
-            >
-              <span class="tab-icon">🤖</span>
-              <span>AI Aqlli Qidiruv</span>
-              <span class="mode-badge">Tavsiya</span>
-            </button>
-            <button
-              type="button"
-              class="mode-tab-btn"
-              :class="{ active: searchMode === 'standard' }"
-              @click="searchMode = 'standard'"
-            >
-              <span class="tab-icon">🔍</span>
-              <span>Filtrlar bo‘yicha</span>
-            </button>
-          </div>
+            <!-- Mode Switcher Tabs (Iconly Pill Tabs) -->
+            <div class="mode-tabs-wrapper">
+              <button
+                type="button"
+                class="mode-pill-tab"
+                :class="{ active: searchMode === 'rent' }"
+                @click="searchMode = 'rent'"
+              >
+                Ijaraga olish
+              </button>
+              <button
+                type="button"
+                class="mode-pill-tab"
+                :class="{ active: searchMode === 'buy' }"
+                @click="searchMode = 'buy'"
+              >
+                Sotib olish
+              </button>
+              <button
+                type="button"
+                class="mode-pill-tab ai-tab-special"
+                :class="{ active: searchMode === 'ai' }"
+                @click="searchMode = 'ai'"
+              >
+                <span class="ai-sparkle">✨</span>
+                <span>AI Aqlli Qidiruv</span>
+                <span class="ai-chip-pill">Tezkor</span>
+              </button>
+            </div>
 
-          <!-- Search Console Card -->
-          <div class="search-card">
-            <!-- AI Mode View -->
-            <div v-if="searchMode === 'ai'" class="ai-search-console">
-              <div class="ai-input-wrap">
-                <textarea
-                  v-model="aiInput"
-                  rows="2"
-                  placeholder="Kvartirani o‘z so‘zlaringiz bilan tasvirlang... (masalan: Chilonzorda metro yaqinida 4 mln gacha 2 xonali kvartira oila uchun)"
-                  class="ai-textarea"
-                  @keydown.enter.prevent="handleAiSearch"
-                ></textarea>
-              </div>
-
-              <div class="ai-console-footer">
-                <div class="ai-chips">
-                  <span class="ai-chip-label">Misol:</span>
-                  <button type="button" class="ai-chip" @click="applyAiPrompt('Chilonzorda metro yaqinida 4 mln gacha 2 xonali')">
-                    🚇 Chilonzor metro
+            <!-- Floating White Search Console (Iconly Card Surface) -->
+            <div class="floating-search-console">
+              <!-- AI Search Interface -->
+              <div v-if="searchMode === 'ai'" class="ai-console-block">
+                <div class="ai-input-wrapper">
+                  <div class="ai-input-prefix">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="sparkle-icon">
+                      <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+                    </svg>
+                  </div>
+                  <input
+                    v-model="aiInput"
+                    type="text"
+                    placeholder="Masalan: Chilonzor metro yaqinida 4 mln gacha 2 xonali kvartira oila uchun..."
+                    class="ai-search-input"
+                    @keydown.enter.prevent="handleAiSearch"
+                  />
+                  <button
+                    type="button"
+                    class="btn-iconly-search"
+                    :disabled="isAiSearching || !aiInput.trim()"
+                    @click="handleAiSearch"
+                  >
+                    <span v-if="!isAiSearching">AI bilan topish</span>
+                    <span v-else>Tahlil qilinmoqda...</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="arrow-icon">
+                      <line x1="5" y1="12" x2="19" y2="12" />
+                      <polyline points="12 5 19 12 12 19" />
+                    </svg>
                   </button>
-                  <button type="button" class="ai-chip" @click="applyAiPrompt('Yunusobodda maklersiz oila uchun')">
-                    👨‍👩‍👧 Yunusobod oila
-                  </button>
-                  <button type="button" class="ai-chip" @click="applyAiPrompt('Mirobodda 3 xonali jihozlangan')">
-                    ✨ Mirobod
-                  </button>
                 </div>
 
-                <button
-                  type="button"
-                  class="btn-search-submit ai-btn"
-                  :disabled="isAiSearching || !aiInput.trim()"
-                  @click="handleAiSearch"
-                >
-                  <svg v-if="!isAiSearching" class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="11" cy="11" r="8" />
-                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                  </svg>
-                  <span>{{ isAiSearching ? 'Tahlil qilinmoqda...' : 'AI bilan topish 🚀' }}</span>
-                </button>
+                <!-- Quick Prompt Suggestions -->
+                <div class="ai-prompts-row">
+                  <span class="prompts-title">Misollar:</span>
+                  <div class="prompts-scroll">
+                    <button type="button" class="prompt-pill" @click="applyAiPrompt('Chilonzorda metro yaqinida 4 mln gacha 2 xonali')">
+                      🚇 Chilonzor metro 4 mln
+                    </button>
+                    <button type="button" class="prompt-pill" @click="applyAiPrompt('Yunusobodda maklersiz oila uchun')">
+                      👨‍👩‍👧 Yunusobod oila
+                    </button>
+                    <button type="button" class="prompt-pill" @click="applyAiPrompt('Mirobodda 3 xonali jihozlangan')">
+                      ✨ Mirobod jihozlangan
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Standard Filters Interface (Rent & Buy) -->
+              <div v-else class="standard-console-block">
+                <div class="console-fields-row">
+                  <!-- District -->
+                  <div class="field-item">
+                    <label class="field-lbl">Tuman</label>
+                    <div class="field-select-wrap">
+                      <select v-model="filterDistrict" class="iconly-select">
+                        <option value="">Barcha tumanlar</option>
+                        <option v-for="d in availableDistricts" :key="d" :value="d">{{ d }}</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <!-- Rooms -->
+                  <div class="field-item">
+                    <label class="field-lbl">Xonalar soni</label>
+                    <div class="field-select-wrap">
+                      <select v-model="filterRooms" class="iconly-select">
+                        <option value="">Istalgan</option>
+                        <option value="1">1 xonali</option>
+                        <option value="2">2 xonali</option>
+                        <option value="3">3 xonali</option>
+                        <option value="4">4+ xonali</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <!-- Price -->
+                  <div class="field-item">
+                    <label class="field-lbl">Maksimal byudjet</label>
+                    <div class="field-select-wrap">
+                      <select v-model="filterMaxPrice" class="iconly-select">
+                        <option value="">Istalgan narx</option>
+                        <option value="3000000">3 000 000 so‘m</option>
+                        <option value="4000000">4 000 000 so‘m</option>
+                        <option value="6000000">6 000 000 so‘m</option>
+                        <option value="8000000">8 000 000 so‘m</option>
+                        <option value="12000000">12 000 000 so‘m</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <!-- Audience -->
+                  <div class="field-item">
+                    <label class="field-lbl">Kim uchun</label>
+                    <div class="field-select-wrap">
+                      <select v-model="filterAudience" class="iconly-select">
+                        <option value="all">Barchasi</option>
+                        <option value="family">Oila uchun</option>
+                        <option value="female">Qizlar uchun</option>
+                        <option value="male">Yigitlar uchun</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <!-- Action Buttons -->
+                  <div class="field-actions">
+                    <button
+                      type="button"
+                      class="btn-iconly-filter"
+                      @click="$emit('openFilters')"
+                      title="Qo‘shimcha filtrlar"
+                    >
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="filter-icon">
+                        <line x1="4" y1="21" x2="4" y2="14" />
+                        <line x1="4" y1="10" x2="4" y2="3" />
+                        <line x1="12" y1="21" x2="12" y2="12" />
+                        <line x1="12" y1="8" x2="12" y2="3" />
+                        <line x1="20" y1="21" x2="20" y2="16" />
+                        <line x1="20" y1="12" x2="20" y2="3" />
+                        <line x1="1" y1="14" x2="7" y2="14" />
+                        <line x1="9" y1="8" x2="15" y2="8" />
+                        <line x1="17" y1="16" x2="23" y2="16" />
+                      </svg>
+                    </button>
+
+                    <button type="button" class="btn-iconly-submit" @click="onSearch">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="search-icon">
+                        <circle cx="11" cy="11" r="8" />
+                        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                      </svg>
+                      <span>Qidirish</span>
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <!-- Standard Mode View -->
-            <template v-else>
-              <div class="search-fields">
-                <!-- District -->
-                <div class="field-box field-district">
-                  <div class="field-header">
-                    <svg class="f-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                      <circle cx="12" cy="10" r="3" />
-                    </svg>
-                    <label class="field-title">Tuman</label>
-                  </div>
-                  <select v-model="filterDistrict" class="field-select">
-                    <option value="">Barcha tumanlar</option>
-                    <option v-for="d in availableDistricts" :key="d" :value="d">{{ d }}</option>
-                  </select>
-                </div>
-
-                <!-- Rooms -->
-                <div class="field-box">
-                  <div class="field-header">
-                    <svg class="f-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                      <polyline points="9 22 9 12 15 12 15 22" />
-                    </svg>
-                    <label class="field-title">Xonalar</label>
-                  </div>
-                  <select v-model="filterRooms" class="field-select">
-                    <option value="">Istalgan</option>
-                    <option value="1">1 xonali</option>
-                    <option value="2">2 xonali</option>
-                    <option value="3">3 xonali</option>
-                    <option value="4">4+ xonali</option>
-                  </select>
-                </div>
-
-                <!-- Budget -->
-                <div class="field-box">
-                  <div class="field-header">
-                    <svg class="f-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                      <rect x="2" y="5" width="20" height="14" rx="2" />
-                      <line x1="2" y1="10" x2="22" y2="10" />
-                    </svg>
-                    <label class="field-title">Maksimal narx</label>
-                  </div>
-                  <select v-model="filterMaxPrice" class="field-select">
-                    <option value="">Istalgan narx</option>
-                    <option value="3000000">3 000 000 so‘m</option>
-                    <option value="4000000">4 000 000 so‘m</option>
-                    <option value="6000000">6 000 000 so‘m</option>
-                    <option value="8000000">8 000 000 so‘m</option>
-                    <option value="12000000">12 000 000 so‘m</option>
-                  </select>
-                </div>
-
-                <!-- Audience -->
-                <div class="field-box">
-                  <div class="field-header">
-                    <svg class="f-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                      <circle cx="9" cy="7" r="4" />
-                      <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                    </svg>
-                    <label class="field-title">Kim uchun</label>
-                  </div>
-                  <select v-model="filterAudience" class="field-select">
-                    <option value="all">Barchasi</option>
-                    <option value="family">Oila uchun</option>
-                    <option value="female">Qizlar uchun</option>
-                    <option value="male">Yigitlar uchun</option>
-                  </select>
-                </div>
+            <!-- Active AI Search Filter Status -->
+            <div v-if="aiSearchActive" class="ai-active-status">
+              <div class="ai-status-left">
+                <span class="ai-badge-live">🤖 Groq Qwen AI</span>
+                <span class="ai-query-text">«{{ aiSearchQuery }}»</span>
               </div>
-
-              <!-- Action Buttons -->
-              <div class="search-actions">
-                <button
-                  type="button"
-                  class="btn-filters-toggle"
-                  @click="$emit('openFilters')"
-                  title="Barcha filtrlarni ochish"
-                >
-                  <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                    <line x1="4" y1="21" x2="4" y2="14" />
-                    <line x1="4" y1="10" x2="4" y2="3" />
-                    <line x1="12" y1="21" x2="12" y2="12" />
-                    <line x1="12" y1="8" x2="12" y2="3" />
-                    <line x1="20" y1="21" x2="20" y2="16" />
-                    <line x1="20" y1="12" x2="20" y2="3" />
-                    <line x1="1" y1="14" x2="7" y2="14" />
-                    <line x1="9" y1="8" x2="15" y2="8" />
-                    <line x1="17" y1="16" x2="23" y2="16" />
-                  </svg>
-                  <span>Filtrlar</span>
-                </button>
-
-                <button type="button" class="btn-search-submit" @click="onSearch">
-                  <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="11" cy="11" r="8" />
-                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                  </svg>
-                  <span>Qidirish</span>
-                </button>
-              </div>
-            </template>
-          </div>
-
-          <!-- Active AI Indicator Banner -->
-          <div v-if="aiSearchActive" class="ai-active-indicator">
-            <div class="ind-left">
-              <span class="ind-badge">🎯 AI Match</span>
-              <span class="ind-query">«{{ aiSearchQuery }}»</span>
-            </div>
-            <button type="button" class="ind-reset" @click="resetAiMatch">
-              Barcha e’lonlarga qaytish ✕
-            </button>
-          </div>
-
-          <!-- Quick Filter Chips -->
-          <div class="quick-chips">
-            <span class="chips-label">Ommabop:</span>
-            <div class="chips-list">
-              <button type="button" class="chip-btn" @click="applyQuick('district', 'Chilonzor')">Chilonzor</button>
-              <button type="button" class="chip-btn" @click="applyQuick('district', 'Yunusobod')">Yunusobod</button>
-              <button type="button" class="chip-btn" @click="applyQuick('district', 'Mirzo Ulug‘bek')">Mirzo Ulug‘bek</button>
-              <button type="button" class="chip-btn" @click="applyQuick('rooms', '1')">1 xonali</button>
-              <button type="button" class="chip-btn" @click="applyQuick('audience', 'family')">Oila uchun</button>
+              <button type="button" class="ai-reset-btn" @click="resetAiMatch">
+                Filtrni tozalash ✕
+              </button>
             </div>
           </div>
-        </div>
 
-        <!-- Right: Modern Editorial Photography Showcase -->
-        <div class="hero-visual">
-          <div class="visual-card">
-            <img
-              src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80"
-              alt="Toshkent zamonaviy xonadon interyeri"
-              class="visual-photo"
-              loading="eager"
-            />
-            <div class="visual-gradient-overlay"></div>
+          <!-- Right: Hero Visual Showcase (Atmospheric Graphic matching Image 1) -->
+          <div class="hero-right-visual">
+            <div class="visual-stack">
+              <!-- Background Architectural Photo with Glass Overlay -->
+              <div class="visual-photo-card">
+                <img
+                  src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80"
+                  alt="Toshkent premium xonadon"
+                  class="visual-img"
+                  loading="eager"
+                />
+                <div class="visual-photo-glass-bottom">
+                  <div class="spec-col">
+                    <span class="spec-label">Maydon</span>
+                    <span class="spec-val">85 m²</span>
+                  </div>
+                  <div class="spec-sep"></div>
+                  <div class="spec-col">
+                    <span class="spec-label">Xonalar</span>
+                    <span class="spec-val">3 xona</span>
+                  </div>
+                  <div class="spec-sep"></div>
+                  <div class="spec-col">
+                    <span class="spec-label">Qavat</span>
+                    <span class="spec-val">4 / 9</span>
+                  </div>
+                </div>
+              </div>
 
-            <!-- Floating Pill 1: Verified Owner -->
-            <div class="floating-badge badge-top">
-              <div class="badge-icon-wrap">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="check-icon">
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
+              <!-- Floating Circular Score Indicator Badge (Matching 9.4 Ring Badge in Image 1) -->
+              <div class="floating-score-badge">
+                <div class="score-ring">
+                  <span class="score-number">9.4</span>
+                </div>
+                <div class="score-meta">
+                  <span class="score-title">Moslik darajasi</span>
+                  <span class="score-sub">Ajoyib joylashuv</span>
+                </div>
               </div>
-              <div class="badge-texts">
-                <span class="badge-h">100% Egasidan</span>
-                <span class="badge-s">0% vositachilik to‘lovi</span>
-              </div>
-            </div>
 
-            <!-- Floating Card 2: Featured Apartment Snapshot -->
-            <div class="floating-listing-card">
-              <div class="fl-header">
-                <span class="fl-district">Mirzo Ulug‘bek tumani</span>
-                <span class="fl-status">
-                  <span class="fl-pulse"></span>
-                  Bo‘sh
-                </span>
-              </div>
-              <div class="fl-price">5 500 000 so‘m<span>/oy</span></div>
-              <div class="fl-meta">
-                <span>3 xonali</span>
-                <span class="dot">·</span>
-                <span>85 m²</span>
-                <span class="dot">·</span>
-                <span>Metroga 4 daqiqa</span>
+              <!-- Floating Pill Tags (Matching "Fair Price" & "Good Location" from Image 1) -->
+              <div class="floating-pill-fair">
+                <span class="pill-dot">🟢</span>
+                <span>Fair Price / Adolatli narx</span>
               </div>
             </div>
           </div>
@@ -322,567 +308,641 @@ const applyQuick = (type: string, val: string) => {
 </template>
 
 <style scoped>
-.editorial-hero {
-  padding: 56px 0 72px;
-  position: relative;
+.iconly-hero-section {
+  padding: 24px 0 32px;
 }
 
-.hero-grid {
+@media (min-width: 768px) {
+  .iconly-hero-section {
+    padding: 32px 0 44px;
+  }
+}
+
+/* Atmospheric Hero Card (Inspired by Image 1) */
+.atmospheric-hero-card {
+  background: var(--hero-gradient);
+  border-radius: var(--radius-hero);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 16px 48px -8px rgba(40, 120, 200, 0.12), 0 4px 16px rgba(0, 0, 0, 0.02);
+  padding: 28px 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+:root[data-theme="dark"] .atmospheric-hero-card {
+  background: linear-gradient(135deg, #161B22 0%, #1A2332 60%, #151D29 100%);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 16px 48px -8px rgba(0, 0, 0, 0.4);
+}
+
+@media (min-width: 768px) {
+  .atmospheric-hero-card {
+    padding: 44px 36px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .atmospheric-hero-card {
+    padding: 52px 48px;
+  }
+}
+
+.hero-inner-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 48px;
+  gap: 36px;
   align-items: center;
 }
 
 @media (min-width: 1024px) {
-  .hero-grid {
+  .hero-inner-grid {
     grid-template-columns: 1.15fr 0.85fr;
-    gap: 56px;
+    gap: 48px;
   }
 }
 
-/* Left Content */
-.hero-content {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.hero-badge {
+/* Badge Pill */
+.hero-badge-pill {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  align-self: flex-start;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.9);
   padding: 6px 14px;
-  background: var(--surf);
-  border: 1px solid var(--sand);
-  border-radius: 999px;
-  font-size: 13px;
+  border-radius: var(--radius-full);
+  font-size: 12.5px;
   font-weight: 600;
-  color: var(--ink);
-  box-shadow: var(--sh-sm);
+  color: var(--blue-deep);
+  box-shadow: 0 2px 8px rgba(40, 120, 200, 0.08);
+  margin-bottom: 18px;
 }
 
-.badge-icon {
-  width: 15px;
-  height: 15px;
-  color: var(--terracotta);
+:root[data-theme="dark"] .hero-badge-pill {
+  background: rgba(56, 139, 253, 0.15);
+  border-color: rgba(56, 139, 253, 0.3);
+  color: #58A6FF;
 }
 
-.hero-title {
+.pulse-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10B981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+}
+
+/* Headings */
+.hero-heading {
   font-family: var(--font-sans);
-  font-size: clamp(34px, 4.4vw, 54px);
+  font-size: clamp(32px, 4.4vw, 54px);
   font-weight: 800;
-  line-height: 1.12;
   letter-spacing: -0.035em;
-  color: var(--ink);
-  margin: 0;
+  line-height: 1.12;
+  color: var(--text-primary);
+  margin: 0 0 14px;
 }
 
-.hero-title-accent {
-  color: var(--terracotta);
+.heading-gradient {
+  color: var(--blue-primary);
+  background: linear-gradient(135deg, #2878C8 0%, #175B9B 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-.hero-subtitle {
-  font-size: 17px;
-  line-height: 1.6;
-  color: var(--muted);
+.hero-subheading {
+  font-size: clamp(14.5px, 1.2vw, 16.5px);
+  color: var(--text-secondary);
+  line-height: 1.55;
+  margin: 0 0 28px;
   max-width: 540px;
-  margin: 0;
 }
 
-/* Search Card */
-.search-card {
-  margin-top: 8px;
-  background: var(--surf);
-  border: 1px solid var(--sand);
-  border-radius: 16px;
-  padding: 16px;
-  box-shadow: 0 10px 30px -10px rgba(32, 38, 32, 0.08);
+/* Mode Switcher Tabs */
+.mode-tabs-wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 5px;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  margin-bottom: 20px;
 }
 
-.search-fields {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+:root[data-theme="dark"] .mode-tabs-wrapper {
+  background: rgba(22, 27, 34, 0.7);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
-@media (max-width: 560px) {
-  .field-district {
-    grid-column: span 2;
-  }
-}
-
-@media (min-width: 900px) {
-  .search-fields {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-
-.field-box {
-  background: var(--bg);
-  border: 1px solid var(--sand);
-  border-radius: 12px;
-  padding: 12px 14px;
-  min-height: 60px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 4px;
-  transition: all 0.18s ease;
-}
-
-.field-box:focus-within {
-  border-color: var(--terracotta);
-  background: var(--surf);
-}
-
-.field-header {
-  display: flex;
+.mode-pill-tab {
+  font-family: var(--font-sans);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  padding: 8px 18px;
+  border-radius: var(--radius-full);
+  transition: all 0.2s var(--ease);
+  display: inline-flex;
   align-items: center;
   gap: 6px;
 }
 
-.f-icon {
-  width: 15px;
-  height: 15px;
-  color: var(--terracotta);
-  flex-shrink: 0;
+.mode-pill-tab:hover {
+  color: var(--text-primary);
 }
 
-.field-title {
-  font-size: 12px;
+.mode-pill-tab.active {
+  background: #17191D;
+  color: #FFFFFF;
+  box-shadow: 0 3px 10px rgba(23, 25, 29, 0.18);
+}
+
+:root[data-theme="dark"] .mode-pill-tab.active {
+  background: var(--blue-primary);
+}
+
+.ai-tab-special {
+  position: relative;
+}
+
+.ai-sparkle {
+  font-size: 14px;
+}
+
+.ai-chip-pill {
+  font-size: 10px;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--muted);
+  background: rgba(40, 120, 200, 0.18);
+  color: var(--blue-primary);
+  padding: 2px 7px;
+  border-radius: var(--radius-full);
 }
 
-.field-select {
-  width: 100%;
-  border: none;
-  background: transparent;
-  padding: 3px 0 0;
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--ink);
-  outline: none;
-  cursor: pointer;
+.mode-pill-tab.active .ai-chip-pill {
+  background: rgba(255, 255, 255, 0.22);
+  color: #ffffff;
 }
 
-.search-actions {
+/* Floating White Search Console */
+.floating-search-console {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-radius: var(--radius-card);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 0 12px 36px rgba(40, 120, 200, 0.09), 0 2px 10px rgba(0, 0, 0, 0.03);
+  padding: 16px;
+  transition: all 0.25s var(--ease);
+}
+
+:root[data-theme="dark"] .floating-search-console {
+  background: rgba(22, 27, 34, 0.92);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
+}
+
+@media (min-width: 768px) {
+  .floating-search-console {
+    padding: 18px 22px;
+  }
+}
+
+/* AI Mode Console */
+.ai-console-block {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ai-input-wrapper {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-top: 16px;
+  background: var(--surface-subtle);
+  border: 1.5px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  padding: 5px 6px 5px 16px;
+  transition: all 0.2s var(--ease);
 }
 
-.btn-filters-toggle {
+.ai-input-wrapper:focus-within {
+  border-color: var(--blue-primary);
+  background: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(40, 120, 200, 0.15);
+}
+
+:root[data-theme="dark"] .ai-input-wrapper:focus-within {
+  background: #1C222B;
+}
+
+.ai-input-prefix {
+  display: flex;
+  align-items: center;
+  color: var(--blue-primary);
+  margin-right: 10px;
+}
+
+.sparkle-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.ai-search-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 14.5px;
+  color: var(--text-primary);
+  min-width: 0;
+}
+
+.ai-search-input::placeholder {
+  color: var(--text-secondary);
+}
+
+.btn-iconly-search {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 0 20px;
-  height: 50px;
-  background: var(--bg);
-  border: 1px solid var(--sand);
-  border-radius: 12px;
-  font-size: 15px;
+  height: 44px;
+  padding: 0 22px;
+  border-radius: var(--radius-full);
+  background: #17191D;
+  color: #FFFFFF;
+  font-size: 13.5px;
+  font-weight: 700;
+  border: none;
+  white-space: nowrap;
+  box-shadow: 0 4px 14px rgba(23, 25, 29, 0.2);
+  transition: all 0.2s var(--ease);
+}
+
+:root[data-theme="dark"] .btn-iconly-search {
+  background: var(--blue-primary);
+}
+
+.btn-iconly-search:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(23, 25, 29, 0.28);
+}
+
+.btn-iconly-search:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.arrow-icon {
+  width: 15px;
+  height: 15px;
+}
+
+/* AI Prompts Row */
+.ai-prompts-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 4px;
+}
+
+.prompts-title {
+  font-size: 12px;
   font-weight: 600;
-  color: var(--ink);
-  transition: all 0.18s var(--ease);
+  color: var(--text-secondary);
 }
 
-.btn-filters-toggle:hover {
-  border-color: var(--ink);
+.prompts-scroll {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
 }
 
-.btn-search-submit {
-  flex: 1;
-  display: inline-flex;
+.prompts-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.prompt-pill {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: rgba(40, 120, 200, 0.08);
+  border: 1px solid rgba(40, 120, 200, 0.12);
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.prompt-pill:hover {
+  background: rgba(40, 120, 200, 0.15);
+  color: var(--blue-deep);
+}
+
+/* Standard Console Grid */
+.console-fields-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+@media (min-width: 640px) {
+  .console-fields-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .console-fields-row {
+    grid-template-columns: 1.1fr 1fr 1.2fr 1fr auto;
+    align-items: flex-end;
+  }
+}
+
+.field-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.field-lbl {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  padding-left: 4px;
+}
+
+.field-select-wrap {
+  position: relative;
+}
+
+.iconly-select {
+  width: 100%;
+  height: 44px;
+  padding: 0 14px;
+  background: var(--surface-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 13.5px;
+  font-weight: 600;
+  outline: none;
+  transition: all 0.18s ease;
+}
+
+.iconly-select:focus {
+  border-color: var(--blue-primary);
+  background: #FFFFFF;
+}
+
+.field-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-iconly-filter {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-subtle);
+  background: var(--surface);
+  color: var(--text-primary);
+  display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  height: 50px;
-  background: var(--terracotta);
-  color: #ffffff;
-  border: none;
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 700;
-  letter-spacing: 0.01em;
-  transition: all 0.18s var(--ease);
-  box-shadow: 0 4px 14px rgba(188, 104, 75, 0.28);
+  transition: all 0.18s ease;
 }
 
-.btn-search-submit:hover {
-  background: var(--terracotta-hover);
-  transform: translateY(-1px);
+.btn-iconly-filter:hover {
+  border-color: var(--blue-primary);
+  color: var(--blue-primary);
 }
 
-.btn-icon {
+.filter-icon {
   width: 18px;
   height: 18px;
 }
 
-/* Quick Chips */
-.quick-chips {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 6px;
-}
-
-.chips-label {
-  font-size: 13.5px;
-  color: var(--muted);
-  font-weight: 600;
-}
-
-.chips-list {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.chip-btn {
-  padding: 8px 16px;
-  background: var(--surf);
-  border: 1px solid var(--sand);
-  border-radius: 999px;
-  font-size: 13.5px;
-  font-weight: 600;
-  color: var(--ink);
-  min-height: 38px;
-  transition: all 0.15s;
-}
-
-.chip-btn:hover {
-  border-color: var(--terracotta);
-  color: var(--terracotta);
-}
-
-/* Right Visual */
-.hero-visual {
-  position: relative;
-}
-
-.visual-card {
-  position: relative;
-  width: 100%;
-  height: 460px;
-  border-radius: 20px;
-  overflow: hidden;
-  border: 1px solid var(--sand);
-  box-shadow: 0 20px 40px -15px rgba(32, 38, 32, 0.12);
-}
-
-.visual-photo {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.6s var(--ease);
-}
-
-.visual-card:hover .visual-photo {
-  transform: scale(1.025);
-}
-
-.visual-gradient-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(32, 38, 32, 0.1) 0%, rgba(32, 38, 32, 0.45) 100%);
-  pointer-events: none;
-}
-
-/* Floating Elements */
-.floating-badge {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  background: rgba(255, 255, 255, 0.94);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  border-radius: 12px;
-  padding: 10px 14px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-  z-index: 2;
-}
-
-.badge-icon-wrap {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: #10b981;
-  display: flex;
+.btn-iconly-submit {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: #ffffff;
+  gap: 6px;
+  height: 44px;
+  padding: 0 22px;
+  border-radius: var(--radius-full);
+  background: #17191D;
+  color: #FFFFFF;
+  font-size: 13.5px;
+  font-weight: 700;
+  border: none;
+  white-space: nowrap;
+  box-shadow: 0 4px 14px rgba(23, 25, 29, 0.18);
+  transition: all 0.2s var(--ease);
 }
 
-.check-icon {
+:root[data-theme="dark"] .btn-iconly-submit {
+  background: var(--blue-primary);
+}
+
+.btn-iconly-submit:hover {
+  transform: translateY(-1px);
+}
+
+.search-icon {
   width: 16px;
   height: 16px;
 }
 
-.badge-texts {
-  display: flex;
-  flex-direction: column;
-}
-
-.badge-h {
-  font-size: 13px;
-  font-weight: 700;
-  color: #17231d;
-  line-height: 1.2;
-}
-
-.badge-s {
-  font-size: 11px;
-  color: #64748b;
-  line-height: 1.2;
-}
-
-.floating-listing-card {
-  position: absolute;
-  bottom: 20px;
-  right: 20px;
-  left: 20px;
-  max-width: 340px;
-  margin-left: auto;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  border-radius: 14px;
-  padding: 14px 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-  z-index: 2;
-}
-
-.fl-header {
+/* Active Status Pill */
+.ai-active-status {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 4px;
+  background: rgba(40, 120, 200, 0.1);
+  border: 1px solid rgba(40, 120, 200, 0.2);
+  border-radius: var(--radius-full);
+  padding: 8px 16px;
+  margin-top: 16px;
+  font-size: 13px;
 }
 
-.fl-district {
-  font-size: 12px;
-  font-weight: 600;
-  color: #64748b;
-}
-
-.fl-status {
-  display: inline-flex;
+.ai-status-left {
+  display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 8px;
+}
+
+.ai-badge-live {
+  background: var(--blue-primary);
+  color: #ffffff;
   font-size: 11px;
   font-weight: 700;
-  color: #059669;
-  background: #ecfdf5;
   padding: 2px 8px;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
 }
 
-.fl-pulse {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #10b981;
-  animation: pulse 1.5s infinite;
+.ai-query-text {
+  color: var(--blue-deep);
+  font-weight: 600;
 }
 
-@keyframes pulse {
-  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
-  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-}
-
-.fl-price {
-  font-size: 18px;
-  font-weight: 800;
-  color: #0f172a;
-  line-height: 1.2;
-}
-
-.fl-price span {
+.ai-reset-btn {
+  color: var(--blue-deep);
   font-size: 12px;
-  font-weight: 500;
-  color: #64748b;
+  font-weight: 700;
+  border: none;
+  background: none;
 }
 
-.fl-meta {
+/* Right: Visual Showcase */
+.hero-right-visual {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .hero-right-visual {
+    display: block;
+    position: relative;
+  }
+}
+
+.visual-stack {
+  position: relative;
+}
+
+.visual-photo-card {
+  position: relative;
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  box-shadow: 0 20px 48px -12px rgba(40, 120, 200, 0.25);
+  border: 3px solid rgba(255, 255, 255, 0.95);
+  aspect-ratio: 4/3;
+}
+
+.visual-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.visual-photo-glass-bottom {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  right: 12px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: var(--radius-inner);
+  padding: 10px 18px;
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-top: 6px;
-  font-size: 12px;
-  color: #64748b;
+  justify-content: space-around;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 
-.dot {
-  color: #cbd5e1;
+:root[data-theme="dark"] .visual-photo-glass-bottom {
+  background: rgba(22, 27, 34, 0.85);
 }
 
-@media (max-width: 640px) {
-  .visual-card {
-    height: 320px;
-  }
-  .floating-listing-card {
-    max-width: 100%;
-    left: 12px;
-    right: 12px;
-    bottom: 12px;
-  }
-}
-
-/* AI Mode Tabs & Search Console */
-.search-mode-tabs {
-  display: inline-flex;
-  gap: 6px;
-  background: var(--sand-light, #f4f0eb);
-  padding: 4px;
-  border-radius: 12px;
-  align-self: flex-start;
-  margin-bottom: -10px;
-}
-
-.mode-tab-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
-  border-radius: 8px;
-  border: none;
-  background: transparent;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--ink-light, #72746b);
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.mode-tab-btn.active {
-  background: #ffffff;
-  color: #BC684B;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-}
-
-.mode-badge {
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  background: #BC684B;
-  color: #ffffff;
-  padding: 1px 6px;
-  border-radius: 10px;
-}
-
-.ai-search-console {
+.spec-col {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  align-items: center;
 }
 
-.ai-input-wrap {
-  width: 100%;
+.spec-label {
+  font-size: 11px;
+  color: var(--text-secondary);
 }
 
-.ai-textarea {
-  width: 100%;
-  padding: 12px 14px;
-  border: 1px solid var(--sand, #ebe5db);
-  border-radius: 10px;
-  font-family: inherit;
-  font-size: 14px;
-  line-height: 1.45;
-  resize: none;
-  outline: none;
-  transition: border-color 0.2s;
-  background: #ffffff;
+.spec-val {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text-primary);
 }
 
-.ai-textarea:focus {
-  border-color: #BC684B;
+.spec-sep {
+  width: 1px;
+  height: 20px;
+  background: var(--border-subtle);
 }
 
-.ai-console-footer {
+/* Floating Circular Score Badge (Image 1 Signature Element) */
+.floating-score-badge {
+  position: absolute;
+  top: -16px;
+  right: -16px;
+  background: #FFFFFF;
+  border-radius: var(--radius-full);
+  padding: 6px 14px 6px 6px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
+  gap: 10px;
+  box-shadow: 0 10px 28px rgba(40, 120, 200, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.9);
 }
 
-.ai-chips {
+:root[data-theme="dark"] .floating-score-badge {
+  background: #1C222B;
+}
+
+.score-ring {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 3px solid #10B981;
   display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.score-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.score-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.score-sub {
+  font-size: 10.5px;
+  color: var(--text-secondary);
+}
+
+/* Floating Pill Tag */
+.floating-pill-fair {
+  position: absolute;
+  bottom: -14px;
+  left: 20px;
+  background: #FEF3C7;
+  color: #92400E;
+  border: 1px solid #FDE68A;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 700;
+  display: inline-flex;
   align-items: center;
   gap: 6px;
-  flex-wrap: wrap;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
 }
 
-.ai-chip-label {
-  font-size: 12px;
-  color: #888;
-}
-
-.ai-chip {
-  padding: 4px 10px;
-  border-radius: 16px;
-  border: 1px solid var(--sand, #ebe5db);
-  background: var(--sand-light, #f8f6f2);
-  font-size: 11.5px;
-  cursor: pointer;
-  color: var(--ink, #1c1c1b);
-  transition: all 0.15s;
-}
-
-.ai-chip:hover {
-  background: #BC684B;
-  color: #ffffff;
-  border-color: #BC684B;
-}
-
-.ai-btn {
-  margin-left: auto;
-  white-space: nowrap;
-}
-
-.ai-active-indicator {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 16px;
-  background: #fdf5f2;
-  border: 1px solid #ffd4b8;
-  border-radius: 10px;
-  font-size: 13px;
-  margin-top: -6px;
-}
-
-.ind-badge {
-  font-weight: 700;
-  color: #BC684B;
-  margin-right: 8px;
-}
-
-.ind-query {
-  font-style: italic;
-  color: #333;
-}
-
-.ind-reset {
-  background: none;
-  border: none;
-  color: #BC684B;
-  font-weight: 600;
-  font-size: 12px;
-  cursor: pointer;
+.pill-dot {
+  font-size: 10px;
 }
 </style>

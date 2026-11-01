@@ -30,16 +30,16 @@ await useAsyncData('listings_ssr', async () => {
   return true
 })
 
-// Editorial categories
+// Curated categories matching Iconly pill tabs
 const categories = [
-  { key: '', title: 'Barcha takliflar' },
-  { key: 'mk', title: '🏠 Maklersiz e’lonlar' },
+  { key: '', title: 'Barchasi' },
+  { key: 'mk', title: '🏠 Maklersiz' },
   { key: 'fair_cheap', title: '🟢 Bozordan arzon' },
-  { key: '3days', title: 'Oxirgi 3 kun' },
+  { key: '3days', title: '⚡️ Yangi e’lonlar' },
   { key: '1', title: '1 xonali' },
   { key: '2', title: '2 xonali' },
   { key: '3', title: '3 xonali' },
-  { key: 'room', title: '👥 Sheriklik uchun' },
+  { key: 'room', title: '👥 Sheriklik' },
 ]
 
 // Audience options
@@ -114,157 +114,144 @@ const formatPrice = (val: number) => {
 </script>
 
 <template>
-  <div class="editorial-home">
-    <!-- Hero with Architectural Console -->
+  <div class="iconly-homepage">
+    <!-- Hero with Atmospheric Dashboard Banner & Console -->
     <HeroSearch @openFilters="showFilters = true" />
 
-    <!-- Curated Category Tabs Bar -->
+    <!-- Curated Category Strip (Pill Tabs matching Image 2) -->
     <div class="wrap">
-      <div class="category-strip">
-        <div class="category-scroll">
+      <div class="category-pill-container">
+        <div class="category-pill-scroll">
           <button
             v-for="cat in categories"
             :key="cat.key"
             type="button"
-            class="cat-tab"
+            class="category-pill-btn"
             :class="{ active: filterCategory === cat.key }"
             @click="selectCategory(cat.key)"
           >
-            <span class="cat-name">{{ cat.title }}</span>
+            <span>{{ cat.title }}</span>
           </button>
         </div>
       </div>
     </div>
 
-    <!-- Main Catalog Section -->
+    <!-- Main Catalog Section: Tanlangan takliflar -->
     <div class="wrap">
       <section id="katalog" class="catalog-section">
-        <!-- Catalog Header -->
-        <div class="catalog-header">
-          <div class="header-left">
-            <h2 class="catalog-title">
-              Saralangan xonadonlar
+        <!-- Section Header -->
+        <div class="section-heading-bar">
+          <div class="heading-left">
+            <h2 class="section-title">
+              Tanlangan takliflar
             </h2>
-            <p class="catalog-count-note">
-              {{ isLoading ? 'Yuklanmoqda...' : `${filteredListings.length} ta tekshirilgan e’lon mavjud` }}
+            <p class="section-subtitle">
+              Siz uchun saralangan eng yaxshi uy-joylar.
             </p>
           </div>
 
           <!-- Catalog Actions -->
-          <div class="header-right">
-            <button class="btn map-view-btn" type="button" @click="showMap = true">
-              <svg class="i" viewBox="0 0 24 24">
+          <div class="heading-actions">
+            <button class="btn-map-action" type="button" @click="showMap = true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="action-icon">
                 <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" />
                 <line x1="8" y1="2" x2="8" y2="18" />
                 <line x1="16" y1="6" x2="16" y2="22" />
               </svg>
-              <span>Xaritada ko‘rish</span>
+              <span>Xarita</span>
             </button>
 
-            <button v-if="hasActiveFilters" class="btn clear-filter-btn" type="button" @click="clearFilters">
-              <span>Filtrlarni tozalash</span>
+            <button v-if="hasActiveFilters" class="btn-clear-action" type="button" @click="clearFilters">
+              <span>Tozalash ✕</span>
             </button>
           </div>
         </div>
 
-        <!-- Audience Filter Strip -->
-        <div class="audience-strip">
-          <span class="audience-title">Ijarachilar toifasi:</span>
-          <div class="audience-pills">
+        <!-- Audience Filter Pill Strip -->
+        <div class="audience-pill-row">
+          <span class="aud-lbl">Ijarachilar toifasi:</span>
+          <div class="aud-scroll">
             <button
               v-for="aud in audienceOptions"
               :key="aud.key"
               type="button"
-              class="aud-btn"
+              class="aud-pill-btn"
               :class="{ active: filterAudience === aud.key }"
               @click="filterAudience = aud.key"
             >
-              <span class="aud-icon">
-                <svg v-if="aud.type === 'all'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="svg-i">
-                  <circle cx="12" cy="12" r="10" />
-                  <line x1="2" y1="12" x2="22" y2="12" />
-                  <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-                </svg>
-                <svg v-else-if="aud.type === 'family'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="svg-i">
-                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                  <circle cx="9" cy="7" r="4" />
-                  <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                  <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                </svg>
-                <svg v-else-if="aud.type === 'female'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="svg-i">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                  <circle cx="12" cy="7" r="4" />
-                </svg>
-                <svg v-else-if="aud.type === 'male'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="svg-i">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                  <circle cx="12" cy="7" r="4" />
-                </svg>
-              </span>
-              <span class="aud-name">{{ aud.title }}</span>
-              <span class="aud-count" v-if="getAudienceCount(aud.key) > 0">
+              <span>{{ aud.title }}</span>
+              <span class="aud-pill-count" v-if="getAudienceCount(aud.key) > 0">
                 {{ getAudienceCount(aud.key) }}
               </span>
             </button>
           </div>
         </div>
 
-        <!-- Dominant Featured Showcase (1 visually dominant hero card) -->
-        <div v-if="dominantFeatured" class="featured-showcase" @click="onSelectListing(dominantFeatured)">
-          <div class="featured-media">
+        <!-- Dominant Featured Showcase Card (Matching Image 2 Mobile Hero / Desktop Spec Overlay) -->
+        <div v-if="dominantFeatured" class="iconly-featured-card" @click="onSelectListing(dominantFeatured)">
+          <div class="featured-media-frame">
             <img
               v-if="dominantFeatured.image_urls && dominantFeatured.image_urls.length"
               :src="dominantFeatured.image_urls[0]"
               :alt="dominantFeatured.title"
-              class="featured-img"
+              class="featured-photo"
             />
             <div v-else class="featured-placeholder">
-              <span>Tanlangan turar joy</span>
+              <span>Joyliy Tanlangan Xonadon</span>
             </div>
-            <div class="featured-badge-bar">
-              <span class="featured-pill">Tanlangan e’lon</span>
-              <span v-if="dominantFeatured.is_owner" class="featured-owner-pill">100% Maklersiz</span>
+
+            <!-- Top Left Tag -->
+            <div class="featured-top-left-tag">
+              <span class="hot-rent-pill">🔥 Qaynoq taklif</span>
+              <span v-if="dominantFeatured.is_owner" class="owner-pill">Maklersiz</span>
+            </div>
+
+            <!-- Bottom Floating Frosted Glass Specs Overlay (Exactly matching Image 2!) -->
+            <div class="featured-frosted-specs-overlay">
+              <div class="frosted-spec-cell">
+                <span class="f-lbl">Maydon</span>
+                <span class="f-val">{{ dominantFeatured.area }} m²</span>
+              </div>
+              <div class="frosted-spec-div"></div>
+              <div class="frosted-spec-cell">
+                <span class="f-lbl">Xonalar</span>
+                <span class="f-val">{{ dominantFeatured.rooms }} xona</span>
+              </div>
+              <div class="frosted-spec-div"></div>
+              <div class="frosted-spec-cell">
+                <span class="f-lbl">Qavat</span>
+                <span class="f-val">{{ dominantFeatured.floor || '3/9' }}</span>
+              </div>
             </div>
           </div>
 
-          <div class="featured-info">
-            <div class="featured-top-meta">
-              <span class="featured-location-tag">
-                <svg class="i" viewBox="0 0 24 24" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle;">
-                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                  <circle cx="12" cy="10" r="3" />
-                </svg>
-                <span>{{ dominantFeatured.district }} · Metroga {{ dominantFeatured.metro_minutes || 5 }} daqiqa</span>
-              </span>
+          <div class="featured-content-plate">
+            <div class="featured-price-row">
+              <div>
+                <span class="f-price-value">{{ formatPrice(dominantFeatured.price_uzs) }}</span>
+                <span class="f-price-period">/ oy</span>
+              </div>
+              <div class="f-score-indicator" title="Sifat ko‘rsatkichi">
+                <span>9.4</span>
+              </div>
             </div>
 
-            <h3 class="featured-title">
+            <h3 class="f-card-title">
               {{ dominantFeatured.title }}
             </h3>
 
-            <div class="featured-specs-row">
-              <div class="spec-block">
-                <span class="spec-k">Maydon</span>
-                <span class="spec-v">{{ dominantFeatured.area }} m²</span>
-              </div>
-              <div class="spec-block">
-                <span class="spec-k">Xonalar</span>
-                <span class="spec-v">{{ dominantFeatured.rooms }} xona</span>
-              </div>
-              <div class="spec-block">
-                <span class="spec-k">Qavat</span>
-                <span class="spec-v">{{ dominantFeatured.floor || '3/9' }}</span>
-              </div>
+            <div class="f-location-row">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="pin-mini">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+              <span>{{ dominantFeatured.district }} · Metroga {{ dominantFeatured.metro_minutes || 5 }} daqiqa</span>
             </div>
 
-            <div class="featured-bottom-bar">
-              <div class="featured-price">
-                <span class="f-price">{{ formatPrice(dominantFeatured.price_uzs) }}</span>
-                <span class="f-period">/ oy</span>
-              </div>
-
-              <button class="btn p inspect-btn" type="button">
+            <div class="f-action-bar">
+              <button class="btn btn-dark inspect-cta" type="button">
                 <span>Batafsil ko‘rish</span>
-                <svg class="i" viewBox="0 0 24 24">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="arrow-mini">
                   <line x1="5" y1="12" x2="19" y2="12" />
                   <polyline points="12 5 19 12 12 19" />
                 </svg>
@@ -273,8 +260,8 @@ const formatPrice = (val: number) => {
           </div>
         </div>
 
-        <!-- Remaining Listings Architectural Grid -->
-        <div v-if="remainingListings.length" class="grid g4 catalog-grid">
+        <!-- Remaining Listings Grid (3-column responsive cards) -->
+        <div v-if="remainingListings.length" class="grid catalog-listings-grid">
           <ListingCard
             v-for="item in remainingListings"
             :key="item.id"
@@ -284,117 +271,107 @@ const formatPrice = (val: number) => {
         </div>
 
         <!-- Empty State -->
-        <div v-else-if="!dominantFeatured" class="empty-monograph">
-          <span class="numeral-accent">00</span>
+        <div v-else-if="!dominantFeatured" class="empty-state-card">
+          <div class="empty-icon-wrap">🔍</div>
           <h3>Hech qanday e’lon topilmadi</h3>
-          <p>Tanlangan filtrlarga mos xonadonlar mavjud emas. Filtrlarni o‘zgartirib qayta urinib ko‘ring.</p>
-          <button class="btn p" type="button" @click="clearFilters">Filtrlarni tozalash</button>
+          <p>Tanlangan filtrlarga mos xonadonlar topilmadi. Filtrlarni tozalab qayta urinib ko‘ring.</p>
+          <button class="btn btn-dark" type="button" @click="clearFilters">Filtrlarni tozalash</button>
         </div>
       </section>
 
-      <!-- Neighborhood Exploration Section (District Index) -->
-      <section class="neighborhood-section">
-        <div class="section-title-wrap">
-          <h2 class="section-title">
-            Toshkent tumanlari
-          </h2>
-          <p class="section-subtitle">
-            O‘zingizga ma’qul hududdagi xonadonlarni o‘rganing.
-          </p>
+      <!-- Popular Districts in Tashkent Section -->
+      <section id="tumanlar" class="districts-section">
+        <div class="section-heading-bar">
+          <div class="heading-left">
+            <h2 class="section-title">
+              Toshkentning mashhur hududlari
+            </h2>
+            <p class="section-subtitle">
+              Har bir tumanning o‘ziga xos infratuzilmasi va narx darajasi.
+            </p>
+          </div>
         </div>
 
-        <div class="districts-index-grid">
+        <div class="districts-grid">
           <button
-            v-for="d in availableDistricts.slice(0, 8)"
+            v-for="d in availableDistricts.slice(0, 6)"
             :key="d"
             type="button"
-            class="district-index-card"
+            class="district-pill-card"
             :class="{ active: filterDistrict === d }"
             @click="filterDistrict = filterDistrict === d ? '' : d"
           >
-            <div class="district-top">
-              <span class="district-count">{{ getDistrictCount(d) }} ta e’lon</span>
+            <div class="district-info-left">
+              <span class="district-name-bold">{{ d }}</span>
+              <span class="district-count-tag">{{ getDistrictCount(d) }} ta xonadon</span>
             </div>
-            <h4 class="district-heading">{{ d }}</h4>
-            <div class="district-bottom">
-              <span class="district-link-text">Katalogda ko‘rish →</span>
+            <div class="district-arrow-circle">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="d-arr">
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
             </div>
           </button>
         </div>
       </section>
 
-      <!-- Brand Story / Philosophy Section (Falsafa) -->
-      <section id="falsafa" class="philosophy-section">
-        <div class="philosophy-masthead">
-          <h2 class="philosophy-heading">
-            Uy ijarasi sokin, shaffof va vositachisiz bo‘lishi lozim.
-          </h2>
+      <!-- Why Joyliy.uz Trust Section -->
+      <section class="why-joyliy-section">
+        <div class="why-heading-wrap">
+          <h2 class="section-title">Nega aynan Joyliy.uz?</h2>
+          <p class="section-subtitle">O‘zbekiston uy-joy ijarasidagi yangi avlod intellektual standarti.</p>
         </div>
 
-        <div class="philosophy-grid">
-          <!-- Pillar 1 -->
-          <div class="philosophy-col">
-            <div class="col-icon-wrap">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="p-icon">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-              </svg>
+        <div class="why-cards-grid">
+          <div class="why-card">
+            <div class="why-icon-circle">
+              <span class="icon-emoji">🤝</span>
             </div>
-            <h3 class="col-title">To‘g‘ridan-to‘g‘ri aloqa</h3>
-            <p class="col-text">
-              Hech qanday makler va keraksiz 50% vositachilik to‘lovisiz. Ijarachi va mulk egasi o‘rtasida shaffof, qulay muloqot o‘rnatiladi.
+            <h4 class="why-card-title">0% Vositachilik to‘lovi</h4>
+            <p class="why-card-desc">
+              Hech qanday makler va ortiqcha 50% komissiyasiz. Mulk egasi bilan to‘g‘ridan-to‘g‘ri shaffof shartnoma tuzing.
             </p>
           </div>
 
-          <!-- Pillar 2 -->
-          <div class="philosophy-col">
-            <div class="col-icon-wrap">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="p-icon">
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
+          <div class="why-card">
+            <div class="why-icon-circle">
+              <span class="icon-emoji">🤖</span>
             </div>
-            <h3 class="col-title">Saralangan tozalik</h3>
-            <p class="col-text">
-              Dublikatlar va soxta fotosuratlar doimiy filtrlanadi. Har bir e’londa asl manba, haqiqiy narx va maydon ochiq ko‘rsatiladi.
+            <h4 class="why-card-title">Groq Qwen AI Tahlili</h4>
+            <p class="why-card-desc">
+              Har bir e’lon sun’iy intellekt tomonidan tahlil qilinib, haqiqiy bozor narxi va xavf darajasi baholanadi.
             </p>
           </div>
 
-          <!-- Pillar 3 -->
-          <div class="philosophy-col">
-            <div class="col-icon-wrap">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="p-icon">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                <circle cx="9" cy="7" r="4" />
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-              </svg>
+          <div class="why-card">
+            <div class="why-icon-circle">
+              <span class="icon-emoji">🛡</span>
             </div>
-            <h3 class="col-title">Maqsadli qulaylik</h3>
-            <p class="col-text">
-              Oila uchun alohida, talabalar, xonadoshlar va qizlar uchun moslashtirilgan aqlli tahlil yordamida o‘z uyingizni tezroq topasiz.
+            <h4 class="why-card-title">100% Tekshirilgan E’lonlar</h4>
+            <p class="why-card-desc">
+              Har kuni yangilanuvchi avtomatlashtirilgan filtrlar soxta e’lonlar va firibgarlik holatlarini bartaraf etadi.
             </p>
           </div>
         </div>
       </section>
 
-      <!-- Owner Conversion Section -->
-      <section class="owner-conversion-section">
-        <div class="conversion-panel">
-          <div class="conversion-left">
-            <h2 class="conversion-title">
-              Kvartirangizni vositachisiz ijaraga bering.
-            </h2>
-            <p class="conversion-lead">
-              E’loningizni Joyliy platformasida bepul chop eting. Munosib ijarachilar bilan to‘g‘ridan-to‘g‘ri bog‘lanib, vaqtingizni va vositachilik xarajatlarini tejang.
+      <!-- Call-to-action for Landlords -->
+      <section class="landlord-cta-section">
+        <div class="landlord-cta-card">
+          <div class="cta-text-side">
+            <span class="cta-pill-badge">Mulk egalari uchun</span>
+            <h3 class="cta-title">Xonadoningizni tez va ishonchli ijaraga bering</h3>
+            <p class="cta-desc">
+              E’loningizni 2 daqiqada bepul joylashtiring va minglab talabgorlar bilan vositachisiz bog‘laning.
             </p>
-          </div>
-          <div class="conversion-right">
-            <button class="btn p conversion-btn" type="button" @click="showPostAd = true">
-              <span>E’lonni joylashtirish</span>
-              <svg class="i" viewBox="0 0 24 24">
-                <line x1="5" y1="12" x2="19" y2="12" />
-                <polyline points="12 5 19 12 12 19" />
-              </svg>
+            <button class="btn btn-dark cta-main-btn" @click="showPostAd = true">
+              Bepul e’lon berish →
             </button>
+          </div>
+          <div class="cta-visual-side">
+            <div class="cta-stat-pill">
+              <span class="stat-number">10,000+</span>
+              <span class="stat-desc">Oylik faol qidiruvchilar</span>
+            </div>
           </div>
         </div>
       </section>
@@ -403,591 +380,654 @@ const formatPrice = (val: number) => {
 </template>
 
 <style scoped>
-.editorial-home {
-  padding-bottom: 40px;
-}
-
-/* Category Strip */
-.category-strip {
-  border-top: 1px solid var(--sand);
-  border-bottom: 1px solid var(--sand);
-  padding: 12px 0;
-  margin-bottom: 40px;
-}
-
-.category-scroll {
+.iconly-homepage {
   display: flex;
-  gap: 10px;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Category Pill Tabs (Matching Image 2) */
+.category-pill-container {
+  padding: 8px 0 16px;
+}
+
+.category-pill-scroll {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   overflow-x: auto;
   scrollbar-width: none;
+  padding: 4px 2px;
 }
 
-.category-scroll::-webkit-scrollbar {
+.category-pill-scroll::-webkit-scrollbar {
   display: none;
 }
 
-.cat-tab {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 18px;
-  border-radius: 10px;
-  border: 1px solid var(--sand);
-  background: var(--surf);
-  color: var(--ink);
-  font-size: 14px;
+.category-pill-btn {
+  font-family: var(--font-sans);
+  font-size: 13.5px;
   font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  padding: 8px 18px;
+  border-radius: var(--radius-full);
   white-space: nowrap;
-  min-height: 42px;
-  transition: all 0.2s ease;
-  cursor: pointer;
+  transition: all 0.18s var(--ease);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
 }
 
-.cat-code {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  color: var(--terracotta);
+.category-pill-btn:hover {
+  color: var(--text-primary);
+  border-color: rgba(23, 25, 29, 0.15);
 }
 
-.cat-tab:hover {
-  border-color: var(--ink);
+.category-pill-btn.active {
+  background: #17191D;
+  color: #FFFFFF;
+  border-color: #17191D;
+  box-shadow: 0 4px 12px rgba(23, 25, 29, 0.15);
 }
 
-.cat-tab.active {
-  background: var(--ink);
-  color: var(--ivory);
-  border-color: var(--ink);
-}
-
-.cat-tab.active .cat-code {
-  color: var(--terracotta);
+:root[data-theme="dark"] .category-pill-btn.active {
+  background: var(--blue-primary);
+  border-color: var(--blue-primary);
 }
 
 /* Catalog Section */
 .catalog-section {
-  padding: 20px 0 60px;
+  padding: 16px 0 36px;
 }
 
-.catalog-header {
+.section-heading-bar {
   display: flex;
-  justify-content: space-between;
   align-items: flex-end;
-  margin-bottom: 24px;
-  gap: 20px;
+  justify-content: space-between;
+  margin-bottom: 20px;
   flex-wrap: wrap;
-}
-
-.catalog-title {
-  font-size: clamp(28px, 4vw, 44px);
-  margin: 6px 0 4px;
-}
-
-.catalog-count-note {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  color: var(--muted);
-  margin: 0;
-}
-
-.header-right {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
-.map-view-btn {
-  background: var(--surf);
-  border-color: var(--sand);
-}
-
-.map-view-btn:hover {
-  border-color: var(--ink);
-}
-
-.clear-filter-btn {
-  color: var(--terracotta);
-  border-color: var(--terracotta);
-  background: var(--terracotta-subtle);
-}
-
-/* Audience Strip */
-.audience-strip {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin-bottom: 32px;
-  padding: 14px 18px;
-  background: var(--surf);
-  border: 1px solid var(--sand);
-  border-radius: 14px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
-}
-
-.audience-strip::-webkit-scrollbar {
-  display: none;
-}
-
-.audience-title {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--muted);
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.audience-pills {
-  display: flex;
-  gap: 10px;
-}
-
-.aud-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 9px 16px;
-  border-radius: 10px;
-  border: 1px solid var(--sand);
-  background: var(--ivory);
-  color: var(--ink);
-  font-size: 13.5px;
-  font-weight: 600;
-  min-height: 42px;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.18s ease;
-}
-
-.aud-btn .svg-i {
-  width: 15px;
-  height: 15px;
-  flex-shrink: 0;
-}
-
-.aud-btn:hover {
-  border-color: var(--ink);
-}
-
-.aud-btn.active {
-  background: var(--terracotta);
-  border-color: var(--terracotta);
-  color: #FFFFFF;
-}
-
-.aud-count {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 700;
-  padding: 2px 7px;
-  border-radius: 6px;
-  background: rgba(0, 0, 0, 0.08);
-}
-
-.aud-btn.active .aud-count {
-  background: rgba(255, 255, 255, 0.25);
-  color: #FFFFFF;
-}
-
-/* Featured Showcase (Visually Dominant Hero Item) */
-.featured-showcase {
-  display: grid;
-  grid-template-columns: 1fr;
-  background: var(--surf);
-  border: 1px solid var(--sand);
-  border-radius: var(--radius-xs);
-  overflow: hidden;
-  margin-bottom: 36px;
-  box-shadow: var(--sh-card);
-  cursor: pointer;
-  transition: all 0.25s var(--ease);
-}
-
-.featured-showcase:hover {
-  border-color: var(--ink);
-  box-shadow: var(--sh-hover);
-  transform: translateY(-2px);
-}
-
-.featured-media {
-  position: relative;
-  aspect-ratio: 16/10;
-  background: var(--sand-light);
-  overflow: hidden;
-}
-
-.featured-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.6s var(--ease);
-}
-
-.featured-showcase:hover .featured-img {
-  transform: scale(1.02);
-}
-
-.featured-badge-bar {
-  position: absolute;
-  top: 16px;
-  left: 16px;
-  display: flex;
-  gap: 8px;
-}
-
-.featured-pill {
-  background: var(--ink);
-  color: var(--ivory);
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  padding: 4px 10px;
-  border-radius: var(--radius-xs);
-  font-weight: 700;
-}
-
-.featured-owner-pill {
-  background: var(--terracotta);
-  color: #FFFFFF;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  padding: 4px 10px;
-  border-radius: var(--radius-xs);
-  font-weight: 700;
-}
-
-.featured-info {
-  padding: 28px 32px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.featured-top-meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-}
-
-.featured-index-num {
-  font-family: var(--font-serif);
-  font-style: italic;
-  font-size: 20px;
-  color: var(--terracotta);
-}
-
-.featured-title {
-  font-family: var(--font-serif);
-  font-size: clamp(20px, 2.5vw, 28px);
-  line-height: 1.25;
-  color: var(--ink);
-  margin: 0 0 20px;
-  font-weight: 500;
-}
-
-.featured-specs-row {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
   gap: 12px;
-  padding: 16px 0;
-  border-top: 1px solid var(--sand-light);
-  border-bottom: 1px solid var(--sand-light);
-  margin-bottom: 24px;
-}
-
-.spec-block {
-  display: flex;
-  flex-direction: column;
-}
-
-.spec-k {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-.spec-v {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--ink);
-  margin-top: 2px;
-}
-
-.featured-bottom-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-}
-
-.featured-price {
-  display: flex;
-  align-items: baseline;
-  gap: 4px;
-}
-
-.f-price {
-  font-size: 24px;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  color: var(--ink);
-  font-feature-settings: "tnum";
-}
-
-.f-period {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  color: var(--muted);
-}
-
-.inspect-btn {
-  padding: 0 22px;
-}
-
-/* Empty Monograph */
-.empty-monograph {
-  text-align: center;
-  padding: 64px 20px;
-  border: 1px dashed var(--sand);
-  border-radius: var(--radius-xs);
-  background: var(--surf);
-}
-
-.empty-monograph h3 {
-  font-family: var(--font-serif);
-  font-size: 22px;
-  margin: 12px 0 8px;
-}
-
-.empty-monograph p {
-  color: var(--muted);
-  max-width: 440px;
-  margin: 0 auto 24px;
-  font-size: 14.5px;
-}
-
-/* Neighborhoods Section */
-.neighborhood-section {
-  padding: 60px 0;
-  border-top: 1px solid var(--sand);
-}
-
-.section-title-wrap {
-  margin-bottom: 32px;
 }
 
 .section-title {
-  font-size: clamp(28px, 4vw, 44px);
-  margin: 6px 0 8px;
+  font-family: var(--font-sans);
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: var(--text-primary);
+  margin: 0 0 4px;
 }
 
 .section-subtitle {
-  color: var(--muted);
+  font-size: 14px;
+  color: var(--text-secondary);
   margin: 0;
-  font-size: 15px;
 }
 
-.districts-index-grid {
-  display: grid;
-  gap: 16px;
-  grid-template-columns: repeat(2, 1fr);
-}
-
-.district-index-card {
-  background: var(--surf);
-  border: 1px solid var(--sand);
-  border-radius: var(--radius-xs);
-  padding: 20px;
-  text-align: left;
+.heading-actions {
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  min-height: 120px;
+  align-items: center;
+  gap: 8px;
 }
 
-.district-index-card:hover {
-  border-color: var(--ink);
-  background: var(--sand-light);
-}
-
-.district-index-card.active {
-  border-color: var(--terracotta);
-  background: var(--terracotta-subtle);
-}
-
-.district-top {
-  display: flex;
-  justify-content: space-between;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.1em;
-}
-
-.district-code {
-  color: var(--muted);
-}
-
-.district-count {
-  color: var(--terracotta);
-  font-weight: 700;
-}
-
-.district-heading {
-  margin: 12px 0;
-  font-family: var(--font-serif);
-  font-size: 20px;
+.btn-map-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 38px;
+  padding: 0 16px;
+  border-radius: var(--radius-full);
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  font-size: 13px;
   font-weight: 600;
-  color: var(--ink);
+  transition: all 0.18s ease;
 }
 
-.district-bottom {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--muted);
+.btn-map-action:hover {
+  border-color: var(--blue-primary);
+  color: var(--blue-primary);
 }
 
-/* Philosophy Section */
-.philosophy-section {
-  padding: 72px 0;
-  border-top: 1px solid var(--sand);
+.action-icon {
+  width: 15px;
+  height: 15px;
 }
 
-.philosophy-masthead {
-  max-width: 760px;
-  margin-bottom: 48px;
+.btn-clear-action {
+  height: 38px;
+  padding: 0 14px;
+  border-radius: var(--radius-full);
+  background: rgba(239, 68, 68, 0.1);
+  color: #DC2626;
+  font-size: 12.5px;
+  font-weight: 700;
+  border: none;
+  transition: opacity 0.15s ease;
 }
 
-.philosophy-heading {
-  font-size: clamp(30px, 4.5vw, 48px);
-  line-height: 1.15;
-  margin-top: 10px;
+.btn-clear-action:hover {
+  opacity: 0.85;
 }
 
-.philosophy-grid {
+/* Audience Filter Row */
+.audience-pill-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 24px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.audience-pill-row::-webkit-scrollbar {
+  display: none;
+}
+
+.aud-lbl {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.aud-scroll {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.aud-pill-btn {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  padding: 5px 12px;
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+
+.aud-pill-btn:hover {
+  color: var(--text-primary);
+}
+
+.aud-pill-btn.active {
+  background: var(--blue-pale);
+  color: var(--blue-deep);
+  border-color: rgba(40, 120, 200, 0.3);
+}
+
+.aud-pill-count {
+  font-size: 10.5px;
+  font-weight: 700;
+  background: rgba(23, 25, 29, 0.08);
+  padding: 1px 6px;
+  border-radius: var(--radius-full);
+}
+
+/* Dominant Featured Card (Iconly Hero Card with Floating Specs Overlay) */
+.iconly-featured-card {
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  padding: 14px;
+  margin-bottom: 28px;
   display: grid;
-  gap: 36px;
   grid-template-columns: 1fr;
+  gap: 20px;
+  cursor: pointer;
+  box-shadow: 0 8px 30px rgba(40, 120, 200, 0.06);
+  transition: all 0.25s var(--ease);
 }
 
-.philosophy-col {
+@media (min-width: 900px) {
+  .iconly-featured-card {
+    grid-template-columns: 1.2fr 1fr;
+    padding: 18px;
+    gap: 28px;
+    align-items: center;
+  }
+}
+
+.iconly-featured-card:hover {
+  border-color: rgba(40, 120, 200, 0.35);
+  box-shadow: 0 18px 44px rgba(40, 120, 200, 0.12);
+  transform: translateY(-2px);
+}
+
+.featured-media-frame {
+  position: relative;
+  aspect-ratio: 16/10;
+  border-radius: var(--radius-inner);
+  overflow: hidden;
+  background: var(--surface-subtle);
+}
+
+.featured-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.featured-top-left-tag {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  gap: 6px;
+  z-index: 3;
+}
+
+.hot-rent-pill {
+  background: #17191D;
+  color: #FFFFFF;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.owner-pill {
+  background: #10B981;
+  color: #FFFFFF;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+}
+
+/* Frosted Specs Overlay across Bottom of Image (Signature Image 2 Style!) */
+.featured-frosted-specs-overlay {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  right: 12px;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: var(--radius-md);
+  padding: 10px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+
+:root[data-theme="dark"] .featured-frosted-specs-overlay {
+  background: rgba(22, 27, 34, 0.88);
+}
+
+.frosted-spec-cell {
   display: flex;
   flex-direction: column;
-  padding-top: 24px;
-  border-top: 1px solid var(--sand);
+  align-items: center;
 }
 
-.col-icon-wrap {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  background: var(--terracotta-subtle);
-  color: var(--terracotta);
+.f-lbl {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.f-val {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.frosted-spec-div {
+  width: 1px;
+  height: 22px;
+  background: var(--border-subtle);
+}
+
+.featured-content-plate {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 6px 4px;
+}
+
+.featured-price-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.f-price-value {
+  font-family: var(--font-sans);
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+}
+
+.f-price-period {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-left: 3px;
+}
+
+.f-score-indicator {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 3px solid #10B981;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 8px;
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--text-primary);
 }
 
-.p-icon {
-  width: 22px;
-  height: 22px;
+.f-card-title {
+  font-family: var(--font-sans);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.35;
+  margin: 0;
 }
 
-.svg-i {
+.f-location-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.pin-mini {
+  width: 15px;
+  height: 15px;
+  color: var(--blue-primary);
+}
+
+.f-action-bar {
+  margin-top: 8px;
+}
+
+.inspect-cta {
+  height: 42px;
+  padding: 0 20px;
+  border-radius: var(--radius-full);
+}
+
+.arrow-mini {
   width: 14px;
   height: 14px;
-  display: inline-block;
-  vertical-align: middle;
 }
 
-.col-title {
-  font-family: var(--font-serif);
-  font-size: 21px;
-  font-weight: 600;
-  color: var(--ink);
-  margin: 14px 0 10px;
+/* Empty State Card */
+.empty-state-card {
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  padding: 48px 24px;
+  text-align: center;
+  max-width: 480px;
+  margin: 40px auto;
 }
 
-.col-text {
-  color: var(--muted);
-  font-size: 14.5px;
-  line-height: 1.65;
-  margin: 0;
+.empty-icon-wrap {
+  font-size: 36px;
+  margin-bottom: 12px;
 }
 
-/* Owner Conversion Section */
-.owner-conversion-section {
-  padding: 40px 0 60px;
+/* Popular Districts Section */
+.districts-section {
+  padding: 36px 0;
 }
 
-.conversion-panel {
-  background: var(--ink);
-  color: var(--ivory);
-  border-radius: var(--radius-xs);
-  padding: 48px 40px;
+.districts-grid {
   display: grid;
-  gap: 32px;
-  align-items: center;
-}
-
-.conversion-eyebrow {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.15em;
-  color: var(--terracotta);
-}
-
-.conversion-title {
-  color: var(--ivory);
-  font-size: clamp(28px, 4vw, 44px);
-  margin: 12px 0 16px;
-}
-
-.conversion-lead {
-  color: #B5BAB5;
-  font-size: 15.5px;
-  line-height: 1.65;
-  margin: 0;
-  max-width: 640px;
-}
-
-.conversion-btn {
-  background: var(--terracotta) !important;
-  color: #FFFFFF !important;
-  border-color: var(--terracotta) !important;
-  padding: 16px 32px;
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  width: fit-content;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
 }
 
 @media (min-width: 768px) {
-  .districts-index-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
-  .philosophy-grid {
+  .districts-grid {
     grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
   }
 }
 
-@media (min-width: 1024px) {
-  .featured-showcase {
-    grid-template-columns: 1.15fr 0.85fr;
+.district-pill-card {
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.2s var(--ease);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.district-pill-card:hover {
+  border-color: var(--blue-primary);
+  box-shadow: 0 8px 24px rgba(40, 120, 200, 0.1);
+  transform: translateY(-2px);
+}
+
+.district-pill-card.active {
+  background: var(--blue-pale);
+  border-color: var(--blue-primary);
+}
+
+.district-info-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+}
+
+.district-name-bold {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.district-count-tag {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.district-arrow-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--surface-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+}
+
+.district-pill-card:hover .district-arrow-circle {
+  background: var(--blue-primary);
+  color: #FFFFFF;
+}
+
+.d-arr {
+  width: 14px;
+  height: 14px;
+}
+
+/* Why Joyliy Section */
+.why-joyliy-section {
+  padding: 40px 0;
+}
+
+.why-heading-wrap {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.why-cards-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+@media (min-width: 768px) {
+  .why-cards-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
   }
-  .conversion-panel {
-    grid-template-columns: 1fr auto;
+}
+
+.why-card {
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  padding: 28px 24px;
+  box-shadow: 0 4px 18px rgba(23, 25, 29, 0.03);
+  transition: all 0.2s var(--ease);
+}
+
+.why-card:hover {
+  border-color: rgba(40, 120, 200, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(40, 120, 200, 0.08);
+}
+
+.why-icon-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  background: var(--blue-pale);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+
+.icon-emoji {
+  font-size: 22px;
+}
+
+.why-card-title {
+  font-family: var(--font-sans);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 8px;
+}
+
+.why-card-desc {
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* Landlord CTA Banner */
+.landlord-cta-section {
+  padding: 32px 0 48px;
+}
+
+.landlord-cta-card {
+  background: var(--hero-gradient);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: var(--radius-hero);
+  padding: 36px 28px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  align-items: center;
+  box-shadow: 0 12px 36px rgba(40, 120, 200, 0.08);
+}
+
+:root[data-theme="dark"] .landlord-cta-card {
+  background: linear-gradient(135deg, #161B22 0%, #1A2332 100%);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+@media (min-width: 768px) {
+  .landlord-cta-card {
+    grid-template-columns: 1.4fr 0.6fr;
+    padding: 44px 40px;
   }
+}
+
+.cta-pill-badge {
+  display: inline-block;
+  background: rgba(40, 120, 200, 0.15);
+  color: var(--blue-deep);
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  margin-bottom: 12px;
+}
+
+.cta-title {
+  font-family: var(--font-sans);
+  font-size: clamp(22px, 2.5vw, 32px);
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0 0 10px;
+  letter-spacing: -0.02em;
+}
+
+.cta-desc {
+  font-size: 14.5px;
+  color: var(--text-secondary);
+  margin: 0 0 20px;
+  max-width: 520px;
+  line-height: 1.5;
+}
+
+.cta-main-btn {
+  height: 44px;
+  padding: 0 24px;
+}
+
+.cta-visual-side {
+  display: flex;
+  justify-content: center;
+}
+
+.cta-stat-pill {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  border-radius: var(--radius-card);
+  padding: 20px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 8px 24px rgba(40, 120, 200, 0.1);
+}
+
+:root[data-theme="dark"] .cta-stat-pill {
+  background: rgba(22, 27, 34, 0.9);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.stat-number {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--blue-primary);
+  letter-spacing: -0.02em;
+}
+
+.stat-desc {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 600;
 }
 </style>

@@ -175,9 +175,9 @@ const scrollToResults = () => {
       {{ toastMessage }}
     </div>
 
-    <!-- Mobile Bottom Navigation -->
+    <!-- Mobile Bottom Navigation (Floating Pill Capsule - Iconly Mobile Reference) -->
     <nav class="bn" aria-label="Mobil navigatsiya">
-      <button type="button" class="on" @click="scrollToResults">
+      <button type="button" :class="{ on: !showMap && !showRoommates && !showCompare && !showSaved }" @click="scrollToResults">
         <svg class="i" viewBox="0 0 24 24">
           <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
           <polyline points="9 22 9 12 15 12 15 22" />
@@ -185,7 +185,7 @@ const scrollToResults = () => {
         <span>Bosh sahifa</span>
       </button>
 
-      <button type="button" @click="showMap = true">
+      <button type="button" :class="{ on: showMap }" @click="showMap = true">
         <svg class="i" viewBox="0 0 24 24">
           <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" />
           <line x1="8" y1="2" x2="8" y2="18" />
@@ -194,7 +194,7 @@ const scrollToResults = () => {
         <span>Xarita</span>
       </button>
 
-      <button type="button" @click="showRoommates = true">
+      <button type="button" :class="{ on: showRoommates }" @click="showRoommates = true">
         <svg class="i" viewBox="0 0 24 24">
           <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
           <circle cx="9" cy="7" r="4" />
@@ -204,12 +204,12 @@ const scrollToResults = () => {
         <span>Hamxona</span>
       </button>
 
-      <button type="button" @click="showCompare = true">
-        <span style="font-size: 16px;">⚖️</span>
+      <button type="button" :class="{ on: showCompare }" @click="showCompare = true">
+        <span style="font-size: 15px;">⚖️</span>
         <span>Taqqoslash {{ compareList.length ? `(${compareList.length})` : '' }}</span>
       </button>
 
-      <button type="button" @click="showSaved = true">
+      <button type="button" :class="{ on: showSaved }" @click="showSaved = true">
         <svg class="i" viewBox="0 0 24 24">
           <path d="M12 21s-8-5-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 6-8 11-8 11z" />
         </svg>
@@ -238,18 +238,18 @@ main {
   display: flex;
   align-items: center;
   gap: 16px;
-  background: var(--ink, #181C18);
+  background: #17191D;
   color: #ffffff;
   padding: 8px 10px 8px 16px;
   border-radius: var(--radius-full, 9999px);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 12px 32px rgba(23, 25, 29, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   white-space: nowrap;
 }
 
 @media (max-width: 640px) {
   .floating-compare-bar {
-    bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+    bottom: calc(88px + env(safe-area-inset-bottom, 0px));
     left: 16px;
     right: 16px;
     transform: none;
@@ -264,11 +264,11 @@ main {
 }
 
 .fc-pill {
-  background: var(--terracotta, #C85A32);
+  background: var(--blue-primary, #2878C8);
   color: #ffffff;
   font-size: 11px;
   font-weight: 700;
-  padding: 2px 7px;
+  padding: 2px 8px;
   border-radius: 999px;
   font-family: var(--font-mono);
 }
@@ -285,7 +285,7 @@ main {
 }
 
 .fc-btn-view {
-  background: var(--terracotta, #C85A32);
+  background: var(--blue-primary, #2878C8);
   color: #ffffff;
   border: none;
   font-size: 12.5px;

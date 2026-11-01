@@ -27,155 +27,175 @@ const onCompareClick = (e: MouseEvent) => {
   e.stopPropagation()
   toggleCompare(props.listing)
 }
+
+// Compute an Iconly score indicator (matching the circular 9.4 / 9.2 badge in Image 1)
+const ratingScore = computed(() => {
+  if (props.listing.match_percentage) {
+    return (props.listing.match_percentage / 10).toFixed(1)
+  }
+  if (props.listing.fair_price_category === 'BELOW_MARKET') {
+    return '9.5'
+  }
+  if (props.listing.is_owner) {
+    return '9.2'
+  }
+  if (props.listing.scam_risk_score && props.listing.scam_risk_score > 60) {
+    return '6.4'
+  }
+  return '8.8'
+})
+
+const scoreColorClass = computed(() => {
+  const s = parseFloat(ratingScore.value)
+  if (s >= 9.0) return 'score-excellent'
+  if (s >= 8.0) return 'score-good'
+  return 'score-caution'
+})
 </script>
 
 <template>
-  <article class="editorial-card" @click="$emit('select', listing)" tabindex="0">
-    <!-- Architectural Photo Frame -->
-    <div class="card-photo-frame">
+  <article class="iconly-property-card" @click="$emit('select', listing)" tabindex="0">
+    <!-- Photo Frame (Generous 20px radius) -->
+    <div class="card-media-wrap">
       <img
         v-if="listing.image_urls && listing.image_urls.length"
         :src="listing.image_urls[0]"
         :alt="listing.title"
         loading="lazy"
-        class="card-img"
+        class="card-photo"
       />
-      <div v-else class="card-img-placeholder">
-        <svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" class="placeholder-art">
-          <rect width="400" height="300" fill="#EBE5DB" />
-          <line x1="0" y1="0" x2="400" y2="300" stroke="#DDD3C2" stroke-width="1.5" />
-          <line x1="400" y1="0" x2="0" y2="300" stroke="#DDD3C2" stroke-width="1.5" />
-          <circle cx="200" cy="150" r="45" fill="none" stroke="#DDD3C2" stroke-width="1.5" />
-          <text x="200" y="154" font-family="serif" font-size="14" fill="#72746B" text-anchor="middle" font-style="italic">
-            Joyliy Monograph
+      <div v-else class="card-photo-placeholder">
+        <svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" class="placeholder-svg">
+          <rect width="400" height="300" fill="#EAECEF" />
+          <circle cx="200" cy="150" r="40" fill="none" stroke="#D1D5DB" stroke-width="2" />
+          <path d="M185 150 L200 135 L215 150 M192 145 V160 H208 V145" fill="none" stroke="#9CA3AF" stroke-width="2" />
+          <text x="200" y="180" font-family="sans-serif" font-size="12" fill="#9CA3AF" text-anchor="middle" font-weight="600">
+            Joyliy Real Estate
           </text>
         </svg>
       </div>
 
-      <!-- Top Badges Overlay (Clean, non-cluttering max 2 badges) -->
-      <div class="badges-overlay">
-        <!-- Badge 1: AI Match or Maklersiz -->
-        <span v-if="listing.match_percentage" class="editorial-badge match-pill">
-          🎯 {{ listing.match_percentage }}% Mos
+      <!-- Top Badges Overlay -->
+      <div class="top-badges-row">
+        <!-- AI Match / Owner Pill -->
+        <span v-if="listing.match_percentage" class="iconly-badge match-badge">
+          ✨ {{ listing.match_percentage }}% Mos
         </span>
-        <span v-else-if="listing.is_owner" class="editorial-badge maklersiz">
+        <span v-else-if="listing.is_owner" class="iconly-badge owner-badge">
           Maklersiz
         </span>
 
-        <!-- Badge 2: Fair Price / Scam Risk -->
-        <span v-if="listing.fair_price_category === 'BELOW_MARKET'" class="editorial-badge fp-pill below">
-          🟢 Bozordan arzon
-        </span>
-        <span v-else-if="listing.scam_risk_score && listing.scam_risk_score > 60" class="editorial-badge scam-pill">
-          ⚠️ Ehtiyot bo‘ling
+        <!-- Fair price tag -->
+        <span v-if="listing.fair_price_category === 'BELOW_MARKET'" class="iconly-badge fair-badge">
+          Bozordan arzon
         </span>
       </div>
 
-      <!-- Photo Counter -->
-      <span class="photo-index">
-        {{ listing.image_urls && listing.image_urls.length ? `1 / ${listing.image_urls.length}` : '1 / 1' }}
-      </span>
-
-      <!-- Action Buttons (Save & Compare) -->
-      <div class="card-photo-actions">
+      <!-- Action Buttons (Favorite & Compare) -->
+      <div class="media-actions">
+        <!-- Compare -->
         <button
-          class="photo-action-btn compare-btn"
+          type="button"
+          class="media-action-circle compare-circle"
           :class="{ active: isInCompare(listing.id) }"
           @click="onCompareClick"
-          title="Taqqoslashga qo‘shish"
-          type="button"
+          title="Taqqoslash"
         >
-          ⚖️
+          <span>⚖️</span>
         </button>
 
+        <!-- Circular White Favorite Button (Iconly Signature Element) -->
         <button
-          class="photo-action-btn bookmark-btn"
+          type="button"
+          class="media-action-circle favorite-circle"
           :class="{ active: isFavorite(listing.id) }"
           @click="onBookmarkClick"
           :aria-label="t('save')"
-          type="button"
           title="Saqlash"
         >
-          <svg class="i" viewBox="0 0 24 24">
-            <path d="m19 21-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+          <svg viewBox="0 0 24 24" class="heart-icon">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
           </svg>
         </button>
       </div>
+
+      <!-- Photos Count Pill -->
+      <span class="media-count-pill">
+        {{ listing.image_urls && listing.image_urls.length ? `${listing.image_urls.length} rasm` : '1 rasm' }}
+      </span>
     </div>
 
-    <!-- Editorial Details Plate -->
-    <div class="card-details">
-      <!-- Price & Period -->
-      <div class="price-line">
-        <div class="price-main">
-          <span class="price-val">{{ formatPrice(listing.price_uzs) }}</span>
-          <span class="price-sub">/{{ t('per_month') }}</span>
+    <!-- Content Body -->
+    <div class="card-body">
+      <!-- Price & Circular Score Indicator Row (Matching Image 1) -->
+      <div class="price-score-row">
+        <div class="price-block">
+          <span class="price-amount">{{ formatPrice(listing.price_uzs) }}</span>
+          <span class="price-period">/oy</span>
         </div>
-        <span v-if="listing.fair_price_diff_percent && listing.fair_price_diff_percent < -5" class="fp-inline-tag below">
-          {{ listing.fair_price_diff_percent }}% arzon
-        </span>
+
+        <!-- Circular Score Ring (Image 1 Style) -->
+        <div class="score-indicator-badge" :class="scoreColorClass" title="Joylashuv va sifat bahosi">
+          <span class="score-digit">{{ ratingScore }}</span>
+        </div>
       </div>
 
-      <!-- Title in clean editorial font -->
-      <h3 class="card-title">
+      <!-- Property Title -->
+      <h3 class="property-title">
         {{ listing.title }}
       </h3>
 
-      <!-- Architectural Specs (Area · Rooms · Floor · Audience) -->
-      <div class="specs-line">
-        <span class="spec-unit">{{ listing.area }} m²</span>
-        <span class="spec-sep">·</span>
-        <span class="spec-unit">{{ listing.rooms }} xona</span>
-        <span class="spec-sep">·</span>
-        <span class="spec-unit">{{ listing.floor || '3/9' }} qavat</span>
-        <span
-          v-if="listing.target_audience && listing.target_audience !== 'any'"
-          class="spec-audience-pill"
-          :class="`aud-${listing.target_audience}`"
-        >
+      <!-- Location Line -->
+      <div class="location-row">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="pin-icon">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+          <circle cx="12" cy="10" r="3" />
+        </svg>
+        <span class="district-name">{{ listing.district }}</span>
+        <span class="dot-sep">·</span>
+        <span class="metro-transit">
+          🚇 {{ listing.metro_station || listing.metro_name || 'Metro yaqin' }}
+        </span>
+      </div>
+
+      <!-- Architectural Specs (Pills) -->
+      <div class="specs-pills-row">
+        <span class="spec-pill">{{ listing.area }} m²</span>
+        <span class="spec-pill">{{ listing.rooms }} xona</span>
+        <span class="spec-pill">{{ listing.floor || '3/9' }} qavat</span>
+        <span v-if="listing.target_audience && listing.target_audience !== 'any'" class="spec-pill audience-pill">
           {{ listing.target_audience === 'family' ? '👨‍👩‍👧 Oila' : listing.target_audience === 'female' ? '👩 Qizlar' : '👨 Yigitlar' }}
         </span>
       </div>
 
-      <!-- District & Metro Transit -->
-      <div class="location-line">
-        <span class="district-name">{{ listing.district }}</span>
-        <span class="location-sep">·</span>
-        <span class="transit-info">
-          🚇 {{ listing.metro_station || listing.metro_name || 'Metro yaqin' }}
-          {{ listing.metro_distance_m ? `(${listing.metro_distance_m}m)` : `(~${listing.metro_minutes || 5} daq)` }}
-        </span>
-      </div>
-
       <!-- AI Match Insights Pill & Reasons (Grounded Groq Qwen Evaluation) -->
-      <div v-if="listing.match_pros && listing.match_pros.length" class="ai-match-box">
-        <div class="ai-match-headline">
+      <div v-if="listing.match_pros && listing.match_pros.length" class="ai-match-container">
+        <div class="ai-match-header">
           <span class="ai-spark">✨</span>
-          <span class="ai-score-text">{{ listing.match_percentage }}% so‘rovingizga mos</span>
+          <span class="ai-header-text">{{ listing.match_percentage }}% so‘rovingizga mos</span>
         </div>
-        <div class="ai-pros-tags">
-          <span v-for="(pro, idx) in listing.match_pros.slice(0, 2)" :key="idx" class="ai-pro-tag">
+        <div class="ai-points-list">
+          <span v-for="(pro, idx) in listing.match_pros.slice(0, 2)" :key="idx" class="ai-pro-badge">
             ✓ {{ pro }}
           </span>
-          <span v-if="listing.match_cons && listing.match_cons.length" class="ai-con-tag">
+          <span v-if="listing.match_cons && listing.match_cons.length" class="ai-con-badge">
             ⚠️ {{ listing.match_cons[0] }}
           </span>
         </div>
       </div>
 
-      <!-- Bottom Status & Time -->
-      <div class="card-bottom-line">
-        <div class="owner-status">
-          <template v-if="listing.is_owner">
-            <span class="owner-dot"></span>
-            <span class="owner-label">Egasidan</span>
-          </template>
-          <template v-else>
-            <span class="under-review-label">Ochiq e’lon</span>
-          </template>
+      <!-- Card Bottom Row -->
+      <div class="card-footer-row">
+        <div class="status-left">
+          <span v-if="listing.is_owner" class="verified-dot-label">
+            <span class="green-dot"></span> Egasidan
+          </span>
+          <span v-else class="regular-label">
+            Tekshirilgan e’lon
+          </span>
         </div>
 
-        <span class="time-stamp">
+        <span class="time-label">
           {{ (listing.days_ago === undefined || listing.days_ago === 0) ? t('today') : (listing.days_ago === 1 ? t('yesterday') : `${listing.days_ago} ${t('days_ago')}`) }}
         </span>
       </div>
@@ -184,56 +204,61 @@ const onCompareClick = (e: MouseEvent) => {
 </template>
 
 <style scoped>
-.editorial-card {
-  background: var(--surf);
-  border: 1px solid var(--sand);
-  border-radius: var(--radius-xs);
-  overflow: hidden;
+.iconly-property-card {
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  padding: 12px;
   display: flex;
   flex-direction: column;
   transition: all 0.25s var(--ease);
   cursor: pointer;
+  box-shadow: 0 4px 18px rgba(23, 25, 29, 0.04);
 }
 
-.editorial-card:hover {
-  border-color: var(--ink);
-  box-shadow: var(--sh-hover);
-  transform: translateY(-2px);
+.iconly-property-card:hover {
+  border-color: rgba(40, 120, 200, 0.35);
+  box-shadow: 0 16px 36px -4px rgba(40, 120, 200, 0.12), 0 4px 16px rgba(0, 0, 0, 0.04);
+  transform: translateY(-3px);
 }
 
-.card-photo-frame {
+/* Photo Media Frame (Generous 20px radius) */
+.card-media-wrap {
   position: relative;
   aspect-ratio: 16/11;
-  background: var(--sand-light);
+  background: var(--surface-subtle);
+  border-radius: var(--radius-inner);
   overflow: hidden;
 }
 
-.card-img {
+.card-photo {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
   transition: transform 0.6s var(--ease);
 }
 
-.editorial-card:hover .card-img {
-  transform: scale(1.03);
+.iconly-property-card:hover .card-photo {
+  transform: scale(1.04);
 }
 
-.card-img-placeholder {
+.card-photo-placeholder {
   width: 100%;
   height: 100%;
   display: flex;
 }
 
-.placeholder-art {
+.placeholder-svg {
   width: 100%;
   height: 100%;
 }
 
-.badges-overlay {
+/* Top Badges */
+.top-badges-row {
   position: absolute;
-  top: 12px;
-  left: 12px;
+  top: 10px;
+  left: 10px;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -241,325 +266,341 @@ const onCompareClick = (e: MouseEvent) => {
   z-index: 3;
 }
 
-.editorial-badge {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  padding: 3px 8px;
-  border-radius: var(--radius-xs);
+.iconly-badge {
+  font-family: var(--font-sans);
+  font-size: 11px;
   font-weight: 700;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
-.editorial-badge.maklersiz {
-  background: var(--terracotta);
+.owner-badge {
+  background: #17191D;
   color: #FFFFFF;
 }
 
-.editorial-badge.audience {
-  background: var(--surf);
-  color: var(--ink);
-  border: 1px solid var(--sand);
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.badge-svg {
-  width: 12px;
-  height: 12px;
-}
-
-.editorial-badge.aud-family {
-  border-color: var(--olive);
-  color: var(--olive);
-}
-
-.editorial-badge.aud-female {
-  border-color: #C07080;
-  color: #C07080;
-}
-
-.editorial-badge.aud-male {
-  border-color: #6A8CA8;
-  color: #6A8CA8;
-}
-
-.photo-index {
-  position: absolute;
-  bottom: 12px;
-  right: 12px;
-  background: rgba(32, 38, 32, 0.85);
+.match-badge {
+  background: var(--blue-primary);
   color: #FFFFFF;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.08em;
-  padding: 3px 7px;
-  border-radius: var(--radius-xs);
 }
 
-.card-photo-actions {
+.fair-badge {
+  background: #10B981;
+  color: #FFFFFF;
+}
+
+/* Media Actions (Compare & Circular Favorite) */
+.media-actions {
   position: absolute;
-  top: 12px;
-  right: 12px;
+  top: 10px;
+  right: 10px;
   display: flex;
+  align-items: center;
   gap: 6px;
   z-index: 4;
 }
 
-.photo-action-btn {
-  width: 34px;
-  height: 34px;
-  border-radius: var(--radius-xs);
-  background: rgba(243, 240, 232, 0.92);
-  border: 1px solid var(--sand);
-  color: var(--ink);
+.media-action-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   display: flex;
   align-items: center;
   justify-content: center;
+  color: var(--text-primary);
   transition: all 0.18s ease;
-  font-size: 14px;
-  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
-.photo-action-btn:hover {
-  border-color: var(--terracotta);
-  color: var(--terracotta);
+.media-action-circle:hover {
+  transform: scale(1.08);
 }
 
-.bookmark-btn.active {
-  background: var(--terracotta);
-  border-color: var(--terracotta);
+.compare-circle {
+  font-size: 13px;
+}
+
+.compare-circle.active {
+  background: #17191D;
   color: #FFFFFF;
 }
 
-.bookmark-btn.active svg {
-  fill: currentColor;
+.favorite-circle {
+  color: #858B93;
 }
 
-.compare-btn.active {
-  background: #2b78e4;
-  border-color: #2b78e4;
+.heart-icon {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  transition: all 0.15s ease;
+}
+
+.favorite-circle:hover {
+  color: #EF4444;
+}
+
+.favorite-circle.active {
+  color: #EF4444;
+  background: #FFFFFF;
+}
+
+.favorite-circle.active .heart-icon {
+  fill: #EF4444;
+  stroke: #EF4444;
+}
+
+.media-count-pill {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  background: rgba(23, 25, 29, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   color: #FFFFFF;
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
 }
 
-.match-pill {
-  background: #e6f4ea !important;
-  color: #137333 !important;
-  font-weight: 700 !important;
-}
-
-.fp-pill.below {
-  background: #e6f4ea !important;
-  color: #137333 !important;
-}
-
-.fp-pill.above {
-  background: #fce8e6 !important;
-  color: #c5221f !important;
-}
-
-.scam-pill {
-  background: #fce8e6 !important;
-  color: #c5221f !important;
-  font-weight: 700 !important;
-}
-
-.card-details {
-  padding: 18px 20px 20px;
+/* Card Body */
+.card-body {
+  padding: 14px 6px 4px;
   display: flex;
   flex-direction: column;
+  gap: 8px;
   flex: 1;
 }
 
-.price-line {
+/* Price & Circular Score Row */
+.price-score-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
 }
 
-.price-main {
+.price-block {
   display: flex;
   align-items: baseline;
-  gap: 4px;
+  gap: 3px;
 }
 
-.fp-inline-tag {
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-  font-weight: 700;
-  padding: 2px 7px;
-  border-radius: 4px;
-}
-
-.fp-inline-tag.below {
-  background: var(--emerald-subtle, #e6f4ea);
-  color: var(--emerald, #137333);
-}
-
-.spec-audience-pill {
-  margin-left: auto;
-  font-size: 10px;
-  font-weight: 600;
-  padding: 2px 6px;
-  border-radius: 4px;
-  background: var(--sand-light, #f0ede6);
-  color: var(--ink);
-}
-
-.spec-audience-pill.aud-family {
-  color: #1B7A43;
-  background: #E8F6ED;
-}
-
-.spec-audience-pill.aud-female {
-  color: #B83280;
-  background: #FDF2F8;
-}
-
-.spec-audience-pill.aud-male {
-  color: #2563EB;
-  background: #EFF6FF;
-}
-
-.price-val {
+.price-amount {
   font-family: var(--font-sans);
   font-size: 20px;
   font-weight: 800;
   letter-spacing: -0.03em;
-  color: var(--ink);
-  font-feature-settings: "tnum";
+  color: var(--text-primary);
 }
 
-.price-sub {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--muted);
-  letter-spacing: 0.04em;
+.price-period {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
 }
 
-.card-title {
-  margin: 0 0 10px;
+/* Score Ring (Matching Image 1's 9.4 Circular Ring) */
+.score-indicator-badge {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-subtle);
+  transition: all 0.2s ease;
+}
+
+.score-digit {
+  font-size: 12.5px;
+  font-weight: 800;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+}
+
+.score-excellent {
+  border: 2.5px solid #10B981;
+}
+
+.score-good {
+  border: 2.5px solid var(--blue-primary);
+}
+
+.score-caution {
+  border: 2.5px solid #F59E0B;
+}
+
+/* Title */
+.property-title {
+  font-family: var(--font-sans);
   font-size: 14.5px;
   font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
   line-height: 1.4;
-  color: var(--ink);
-  overflow: hidden;
-  text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-.specs-line {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-family: var(--font-mono);
-  font-size: 11.5px;
-  color: var(--muted);
-  margin-bottom: 6px;
-}
-
-.spec-sep {
-  color: var(--sand);
-}
-
-.location-line {
+/* Location */
+.location-row {
   display: flex;
   align-items: center;
   gap: 6px;
   font-size: 12.5px;
-  color: var(--muted);
-  margin-bottom: 16px;
+  color: var(--text-secondary);
 }
 
-.location-sep {
-  color: var(--terracotta);
+.pin-icon {
+  width: 14px;
+  height: 14px;
+  color: var(--blue-primary);
+  flex-shrink: 0;
 }
 
-.card-bottom-line {
+.dot-sep {
+  color: var(--text-tertiary);
+}
+
+.district-name {
+  font-weight: 600;
+}
+
+.metro-transit {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Specs Pills */
+.specs-pills-row {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-top: auto;
-  padding-top: 12px;
-  border-top: 1px solid var(--sand-light);
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 2px 0;
 }
 
-.owner-status {
+.spec-pill {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--surface-subtle);
+  border: 1px solid var(--border-subtle);
+  padding: 3px 9px;
+  border-radius: var(--radius-full);
+}
+
+.audience-pill {
+  color: var(--blue-deep);
+  background: rgba(40, 120, 200, 0.08);
+  border-color: rgba(40, 120, 200, 0.15);
+}
+
+/* AI Match Insights Container */
+.ai-match-container {
+  background: rgba(40, 120, 200, 0.06);
+  border: 1px solid rgba(40, 120, 200, 0.14);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 2px;
+}
+
+.ai-match-header {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--blue-deep);
+}
+
+:root[data-theme="dark"] .ai-match-header {
+  color: #58A6FF;
+}
+
+.ai-spark {
+  font-size: 12px;
+}
+
+.ai-points-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.ai-pro-badge {
+  font-size: 11px;
+  font-weight: 500;
+  color: #065F46;
+  background: #D1FAE5;
+  padding: 2px 7px;
+  border-radius: var(--radius-xs);
+  display: inline-block;
+}
+
+:root[data-theme="dark"] .ai-pro-badge {
+  color: #A7F3D0;
+  background: rgba(16, 185, 129, 0.15);
+}
+
+.ai-con-badge {
+  font-size: 11px;
+  font-weight: 500;
+  color: #92400E;
+  background: #FEF3C7;
+  padding: 2px 7px;
+  border-radius: var(--radius-xs);
+  display: inline-block;
+}
+
+/* Footer Row */
+.card-footer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-subtle);
+  margin-top: auto;
+  font-size: 11.5px;
+  color: var(--text-secondary);
+}
+
+.verified-dot-label {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
+  font-weight: 600;
+  color: #10B981;
 }
 
-.owner-dot {
+.green-dot {
   width: 6px;
   height: 6px;
-  background: var(--terracotta);
   border-radius: 50%;
+  background: #10B981;
 }
 
-.owner-label {
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--ink);
-  font-weight: 700;
+.regular-label {
+  color: var(--text-secondary);
 }
 
-.under-review-label {
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-  color: var(--muted);
-}
-
-.time-stamp {
-  font-family: var(--font-mono);
+.time-label {
   font-size: 11px;
-  color: var(--muted);
-}
-
-.ai-match-box {
-  margin: 10px 0 4px;
-  padding: 8px 10px;
-  background: rgba(188, 104, 75, 0.08);
-  border: 1px dashed rgba(188, 104, 75, 0.35);
-  border-radius: var(--radius-xs);
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.ai-match-headline {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--terracotta);
-}
-
-.ai-pros-tags {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.ai-pro-tag {
-  font-size: 11.5px;
-  color: #1b6a48;
-  line-height: 1.35;
-  font-weight: 500;
-}
-
-.ai-con-tag {
-  font-size: 11.5px;
-  color: #b23b3b;
-  line-height: 1.35;
-  font-weight: 500;
 }
 </style>

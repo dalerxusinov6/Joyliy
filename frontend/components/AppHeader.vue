@@ -43,52 +43,51 @@ const onLangChange = (lang: string) => {
 </script>
 
 <template>
-  <header class="editorial-header">
+  <header class="iconly-header">
     <div class="wrap hd">
-      <!-- Left: Architectural Brand Wordmark -->
+      <!-- Left: Logo & Wordmark -->
       <NuxtLink to="/" class="brand-link">
-        <div class="brand-logo-mark" style="background-color: #BC684B !important; color: #ffffff !important;">
+        <div class="brand-logo-mark">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="logo-icon">
             <path d="M3 10.5 12 3l9 7.5V20a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 20v-9.5z" />
-            <circle cx="12" cy="13" r="2" fill="currentColor" />
+            <circle cx="12" cy="13" r="2.2" fill="currentColor" />
           </svg>
         </div>
         <div class="brand-identity">
-          <span class="brand-name">Joyliy</span>
+          <span class="brand-name">Joyliy<span class="brand-tld">.uz</span></span>
         </div>
       </NuxtLink>
 
-      <!-- Center: Clean Navigation -->
-      <nav class="d editorial-nav">
-        <a href="#katalog" class="nav-item">Katalog</a>
+      <!-- Center: Clean Floating Pill Navigation -->
+      <nav class="d iconly-nav">
+        <a href="#katalog" class="nav-item">Bosh sahifa</a>
         <a href="#katalog" class="nav-item" @click.prevent="$emit('filterMaklersiz')">Maklersiz</a>
-        <a href="#xarita" class="nav-item" @click.prevent="$emit('openMap')">🗺 Xarita</a>
-        <a href="#hamxona" class="nav-item" @click.prevent="$emit('openRoommates')">👥 Hamxona</a>
+        <a href="#xarita" class="nav-item" @click.prevent="$emit('openMap')">Xarita</a>
+        <a href="#hamxona" class="nav-item" @click.prevent="$emit('openRoommates')">Hamxona</a>
         <a href="#taqqoslash" class="nav-item" @click.prevent="$emit('openCompare')">
-          ⚖️ Taqqoslash
+          Taqqoslash
           <span v-if="compareList.length" class="badge-mini">{{ compareList.length }}</span>
         </a>
-        <a href="#tumanlar" class="nav-item" @click.prevent="$emit('openNeighborhoods')">🏙 Tumanlar</a>
+        <a href="#tumanlar" class="nav-item" @click.prevent="$emit('openNeighborhoods')">Tumanlar</a>
       </nav>
 
       <span class="sp"></span>
 
-      <!-- Right: Controls & CTA -->
+      <!-- Right: Controls & Dark CTA Pill -->
       <div class="header-right">
-        <!-- Language Switcher -->
-        <div class="lang-group opt">
+        <!-- Language Switcher Pill -->
+        <div class="lang-pill">
           <button
             type="button"
-            class="lang-btn"
+            class="lang-choice"
             :class="{ active: currentLang === 'uz' }"
             @click="onLangChange('uz')"
           >
             UZ
           </button>
-          <span class="lang-slash">/</span>
           <button
             type="button"
-            class="lang-btn"
+            class="lang-choice"
             :class="{ active: currentLang === 'ru' }"
             @click="onLangChange('ru')"
           >
@@ -98,7 +97,7 @@ const onLangChange = (lang: string) => {
 
         <!-- Theme Toggle -->
         <button
-          class="ib theme-btn opt"
+          class="ib theme-btn"
           @click="toggleTheme"
           :aria-label="isDark ? 'Yorug‘ rejim' : 'Qorong‘i rejim'"
           title="Rejimni almashtirish"
@@ -117,7 +116,7 @@ const onLangChange = (lang: string) => {
           </svg>
         </button>
 
-        <!-- Saved Listings (Visible on tablet/desktop, mobile has bottom bar) -->
+        <!-- Saved Listings -->
         <button
           class="ib saved-btn desktop-only"
           @click="$emit('openFavorites')"
@@ -130,7 +129,7 @@ const onLangChange = (lang: string) => {
           <span v-if="favCount > 0" class="fav-count">{{ favCount }}</span>
         </button>
 
-        <!-- Profile (Visible on tablet/desktop, mobile has bottom bar) -->
+        <!-- Profile -->
         <button
           class="profile-btn desktop-only"
           @click="$emit('openProfile')"
@@ -147,8 +146,8 @@ const onLangChange = (lang: string) => {
           </svg>
         </button>
 
-        <!-- Terracotta CTA -->
-        <button class="btn p cta-post" @click="$emit('openNew')" title="E’lon joylash">
+        <!-- Iconly Black Capsule CTA Button -->
+        <button class="btn btn-dark cta-post" @click="$emit('openNew')" title="E’lon berish">
           <svg class="cta-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <line x1="12" y1="5" x2="12" y2="19" />
             <line x1="5" y1="12" x2="19" y2="12" />
@@ -162,8 +161,19 @@ const onLangChange = (lang: string) => {
 </template>
 
 <style scoped>
-.editorial-header {
-  border-bottom: 1px solid var(--sand);
+.iconly-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(243, 244, 245, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border-subtle);
+  transition: all 0.25s ease;
+}
+
+:root[data-theme="dark"] .iconly-header {
+  background: rgba(14, 18, 23, 0.88);
 }
 
 .brand-link {
@@ -173,26 +183,26 @@ const onLangChange = (lang: string) => {
 }
 
 .brand-logo-mark {
-  width: 32px;
-  height: 32px;
-  background: var(--terracotta);
+  width: 36px;
+  height: 36px;
+  background: var(--blue-gradient);
   color: #ffffff;
-  border-radius: 8px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(188, 104, 75, 0.25);
-  transition: all 0.18s var(--ease);
+  box-shadow: 0 4px 14px rgba(40, 120, 200, 0.3);
+  transition: all 0.2s var(--ease);
 }
 
 .brand-link:hover .brand-logo-mark {
-  background: var(--terracotta-hover);
   transform: scale(1.05);
+  box-shadow: 0 6px 18px rgba(40, 120, 200, 0.4);
 }
 
 .logo-icon {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   color: #ffffff;
 }
 
@@ -205,58 +215,60 @@ const onLangChange = (lang: string) => {
   font-family: var(--font-sans);
   font-size: 20px;
   font-weight: 800;
-  letter-spacing: -0.02em;
-  color: var(--ink);
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
   line-height: 1;
 }
 
-.editorial-nav {
+.brand-tld {
+  color: var(--blue-primary);
+  font-weight: 700;
+}
+
+.iconly-nav {
   display: none;
-  gap: 28px;
-  margin-left: 36px;
+  align-items: center;
+  gap: 6px;
+  margin-left: 28px;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 4px 6px;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+:root[data-theme="dark"] .iconly-nav {
+  background: rgba(22, 27, 34, 0.6);
+  border-color: rgba(255, 255, 255, 0.08);
 }
 
 .nav-item {
-  color: var(--ink);
-  font-size: 14px;
+  color: var(--text-secondary);
+  font-size: 13.5px;
   font-weight: 600;
+  padding: 7px 14px;
+  border-radius: var(--radius-full);
+  transition: all 0.18s var(--ease);
   position: relative;
-  padding: 6px 0;
-  transition: color 0.18s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .nav-item:hover {
-  color: var(--terracotta);
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.8);
 }
 
-.nav-item::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: var(--terracotta);
-  transform: scaleX(0);
-  transform-origin: right;
-  transition: transform 0.25s var(--ease);
-}
-
-.nav-item:hover::after {
-  transform: scaleX(1);
-  transform-origin: left;
+:root[data-theme="dark"] .nav-item:hover {
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .header-right {
   display: flex;
   align-items: center;
-  gap: 8px;
-}
-
-@media (min-width: 768px) {
-  .header-right {
-    gap: 12px;
-  }
+  gap: 10px;
 }
 
 .desktop-only {
@@ -269,83 +281,91 @@ const onLangChange = (lang: string) => {
   }
 }
 
-.lang-group {
+/* Language Pill Switcher */
+.lang-pill {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  border: 1px solid var(--sand);
-  padding: 0 8px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  padding: 3px;
   height: 36px;
-  border-radius: 8px;
-  background: var(--surf);
+}
+
+:root[data-theme="dark"] .lang-pill {
+  background: rgba(22, 27, 34, 0.8);
+}
+
+.lang-choice {
+  font-family: var(--font-sans);
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  transition: all 0.18s ease;
+}
+
+.lang-choice.active {
+  background: #17191D;
+  color: #FFFFFF;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+:root[data-theme="dark"] .lang-choice.active {
+  background: var(--blue-primary);
+  color: #FFFFFF;
 }
 
 .theme-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  border: 1px solid var(--sand);
-  background: var(--surf);
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-subtle);
+  background: var(--surface);
+  color: var(--text-primary);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--ink);
   transition: all 0.18s var(--ease);
 }
 
 .theme-btn:hover {
-  border-color: var(--ink);
-}
-
-.lang-btn {
-  color: var(--muted);
-  font-weight: 600;
-  padding: 0 2px;
-  transition: color 0.15s ease;
-}
-
-.lang-btn.active {
-  color: var(--terracotta);
-  font-weight: 800;
-}
-
-.lang-slash {
-  color: var(--sand);
+  border-color: var(--blue-primary);
+  color: var(--blue-primary);
 }
 
 .badge-mini {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: var(--terracotta);
+  background: var(--blue-primary);
   color: #fff;
   font-size: 10px;
   font-weight: 700;
-  width: 16px;
-  height: 16px;
+  width: 17px;
+  height: 17px;
   border-radius: 50%;
-  margin-left: 4px;
 }
 
 .saved-btn {
   position: relative;
   width: 38px;
   height: 38px;
-  border-radius: 8px;
-  border: 1px solid var(--sand);
-  background: var(--surf);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-subtle);
+  background: var(--surface);
   display: flex;
   align-items: center;
   justify-content: center;
+  color: var(--text-primary);
 }
 
 .fav-count {
   position: absolute;
-  top: -4px;
-  right: -4px;
-  background: var(--terracotta);
+  top: -3px;
+  right: -3px;
+  background: #EF4444;
   color: #fff;
   font-family: var(--font-mono);
   font-size: 10px;
@@ -361,10 +381,10 @@ const onLangChange = (lang: string) => {
 .profile-btn {
   width: 38px;
   height: 38px;
-  border-radius: 8px;
-  border: 1px solid var(--sand);
-  background: var(--surf);
-  color: var(--ink);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-subtle);
+  background: var(--surface);
+  color: var(--text-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -372,47 +392,53 @@ const onLangChange = (lang: string) => {
 }
 
 .profile-btn:hover {
-  border-color: var(--ink);
+  border-color: var(--blue-primary);
 }
 
 .user-avatar {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 8px;
+  border-radius: 50%;
 }
 
 .user-initial {
   font-family: var(--font-sans);
   font-weight: 700;
-  color: var(--terracotta);
-  font-size: 15px;
+  color: var(--blue-primary);
+  font-size: 14px;
 }
 
 .cta-post {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 5px;
-  height: 36px;
-  padding: 0 12px;
+  gap: 6px;
+  height: 38px;
+  padding: 0 16px;
   font-size: 13px;
   font-weight: 700;
-  border-radius: 8px;
+  border-radius: var(--radius-full);
   white-space: nowrap;
-  background: var(--terracotta);
+  background: #17191D;
   color: #ffffff;
   border: none;
+  box-shadow: 0 4px 12px rgba(23, 25, 29, 0.15);
   transition: all 0.18s var(--ease);
 }
 
+:root[data-theme="dark"] .cta-post {
+  background: var(--blue-primary);
+}
+
 .cta-post:hover {
-  background: var(--terracotta-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(23, 25, 29, 0.22);
 }
 
 .cta-plus {
-  width: 13px;
-  height: 13px;
+  width: 14px;
+  height: 14px;
   flex-shrink: 0;
 }
 
@@ -426,10 +452,9 @@ const onLangChange = (lang: string) => {
 
 @media (min-width: 768px) {
   .cta-post {
-    height: 40px;
-    padding: 0 18px;
+    height: 42px;
+    padding: 0 20px;
     font-size: 13.5px;
-    border-radius: 10px;
   }
   .cta-text-full {
     display: inline;
@@ -440,8 +465,8 @@ const onLangChange = (lang: string) => {
 }
 
 @media (min-width: 1024px) {
-  .editorial-nav {
-    display: flex;
+  .iconly-nav {
+    display: inline-flex;
   }
 }
 </style>
