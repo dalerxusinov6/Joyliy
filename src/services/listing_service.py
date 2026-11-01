@@ -29,15 +29,43 @@ class ListingService:
         self, session: AsyncSession, item: RawListingItem
     ) -> Tuple[Listing, bool]:
         """
-        Idempotently ingest a raw listing.
+        Idempotently ingest a raw listing with multi-layer duplicate detection:
+        1. Primary: source and source_id
+        2. Primary: Canonical URL (raw and normalized)
+        3. Secondary: Content hash (normalized title + district + price + rooms)
         Returns (listing, is_new: bool).
         """
-        # Step 1: Check existing by canonical URL or source_id
-        stmt = select(Listing).where(Listing.canonical_url == item.canonical_url)
-        result = await session.execute(stmt)
-        existing = result.scalar_one_or_none()
+        from src.providers.parser import canonicalize_url
+        from src.services.queue_service import compute_content_hash, compute_image_fingerprint, queue_service
 
+        c_hash = compute_content_hash(item.title, item.district, item.price_uzs, item.rooms)
+        img_fp = compute_image_fingerprint(item.image_urls)
         now = datetime.now(timezone.utc)
+        existing = None
+
+        # 1. Primary check: source and source_id
+        if item.source_id:
+            stmt = select(Listing).where(
+                and_(
+                    Listing.source == item.source,
+                    Listing.source_id == str(item.source_id),
+                )
+            )
+            existing = (await session.execute(stmt)).scalars().first()
+
+        # 2. Primary check: canonical URL (raw, clean, and normalized path)
+        if not existing and item.canonical_url:
+            from src.providers.parser import canonicalize_url, normalize_url_path
+            clean_url = canonicalize_url(item.canonical_url)
+            norm_url = normalize_url_path(item.canonical_url)
+            stmt = select(Listing).where(
+                or_(
+                    Listing.canonical_url == item.canonical_url,
+                    Listing.canonical_url == clean_url,
+                    Listing.canonical_url == norm_url,
+                )
+            )
+            existing = (await session.execute(stmt)).scalars().first()
 
         if existing:
             # Update last_seen timestamp and price if changed
@@ -47,6 +75,12 @@ class ListingService:
                 existing.price_raw = item.price_raw
             if item.image_urls and not existing.image_urls:
                 existing.image_urls = item.image_urls
+            if not existing.source_id and item.source_id:
+                existing.source_id = str(item.source_id)
+            if not existing.content_hash and c_hash:
+                existing.content_hash = c_hash
+            if not existing.image_fingerprint and img_fp:
+                existing.image_fingerprint = img_fp
             await session.commit()
             return existing, False
 
@@ -190,8 +224,12 @@ class ListingService:
         total_res = await session.execute(count_stmt)
         total = total_res.scalar_one()
 
-        # Query paginated page
-        stmt = stmt.order_by(desc(Listing.first_seen_at)).limit(limit).offset(offset)
+        # Query paginated page, always prioritizing newest publication and ingestion
+        stmt = stmt.order_by(
+            desc(Listing.publication_date).nullslast(),
+            desc(Listing.first_seen_at),
+            desc(Listing.id),
+        ).limit(limit).offset(offset)
         res = await session.execute(stmt)
         listings = res.scalars().all()
 

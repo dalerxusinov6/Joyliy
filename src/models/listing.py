@@ -203,6 +203,7 @@ class ChannelPostHistory(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     listing_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True, index=True)
+    source_id: Mapped[Optional[str]] = mapped_column(String(128), nullable=True, index=True)
     canonical_url: Mapped[Optional[str]] = mapped_column(String(1024), nullable=True, index=True)
     title: Mapped[str] = mapped_column(String(512), nullable=False)
     normalized_title: Mapped[str] = mapped_column(String(512), nullable=False, index=True)

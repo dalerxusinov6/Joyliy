@@ -32,9 +32,21 @@ def canonicalize_url(raw_url: str) -> str:
     if not raw_url:
         return ""
     parsed = urllib.parse.urlparse(raw_url)
-    # Always normalize base path without query and fragment
     clean_url = urllib.parse.urlunparse((parsed.scheme, parsed.netloc, parsed.path, "", "", ""))
     return clean_url.rstrip("/")
+
+
+def normalize_url_path(url: str) -> str:
+    """Normalize language path prefixes (/oz/, /d/oz/) for cross-lingual duplicate matching."""
+    if not url:
+        return ""
+    parsed = urllib.parse.urlparse(url)
+    path = parsed.path
+    if path.startswith("/d/oz/"):
+        path = "/d/" + path[6:]
+    elif path.startswith("/oz/"):
+        path = "/" + path[4:]
+    return urllib.parse.urlunparse((parsed.scheme, parsed.netloc, path, "", "", "")).rstrip("/")
 
 
 def extract_source_id_from_url(url: str) -> Optional[str]:
@@ -540,10 +552,12 @@ def parse_olx_api_offer(offer: Dict[str, Any]) -> RawListingItem:
         "is_business": offer.get("business"),
     }
 
+    clean_url = canonicalize_url(url) if url else f"https://www.olx.uz/d/obyavlenie/-ID{oid}.html"
+
     return RawListingItem(
         source="olx_uz",
         source_id=oid,
-        canonical_url=url,
+        canonical_url=clean_url,
         title=title,
         price_raw=price_raw,
         price_uzs=price_uzs,

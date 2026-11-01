@@ -1,11 +1,16 @@
-"""Free AI / LLM Integration Service.
+"""Free AI / LLM Integration Service with Qwen and Multi-Tier Free Model Support.
 
 Connects to free model providers in priority order:
-1. Google Gemini Free Tier (Gemini 2.0 Flash / 1.5 Flash via GEMINI_API_KEY or GOOGLE_API_KEY at aistudio.google.com)
-2. Groq Cloud Free Tier (Llama 3.3 70B / Llama 3.1 8B via GROQ_API_KEY at console.groq.com)
-3. OpenRouter Free Tier (Gemini / Llama free models via OPENROUTER_API_KEY at openrouter.ai)
-4. Pollinations AI Public Endpoint (polite free gateway)
-5. Grounded Uzbekistan Real Estate Knowledge & Heuristic Reasoning Engine (instant, 100% reliable)
+1. Qwen 2.5 Free Suite:
+   - OpenRouter Free Tier (qwen/qwen-2.5-72b-instruct:free, qwen/qwen-2.5-7b-instruct:free, qwen/qwen-2.5-coder-32b-instruct:free)
+   - SiliconFlow Free Tier (Qwen/Qwen2.5-7B-Instruct via SILICONFLOW_API_KEY)
+   - Alibaba DashScope Free Tier (qwen-plus / qwen-turbo via DASHSCOPE_API_KEY)
+   - Groq Cloud Free Tier (qwen-2.5-32b via GROQ_API_KEY)
+   - Hugging Face Free Serverless (Qwen/Qwen2.5-7B-Instruct via HF_TOKEN)
+2. Google Gemini Free Tier (Gemini 2.0 Flash / 1.5 Flash via GEMINI_API_KEY or GOOGLE_API_KEY)
+3. Groq Cloud Free Tier (Llama 3.3 70B via GROQ_API_KEY)
+4. Pollinations AI Public Endpoint (polite zero-key free gateway)
+5. Grounded Qwen-Aligned Uzbekistan Real Estate Knowledge & Heuristic Reasoning Engine (instant, 100% reliable)
 """
 
 from __future__ import annotations
@@ -23,7 +28,7 @@ logger = logging.getLogger(__name__)
 
 JOYLIY_SYSTEM_PROMPT = (
     "Siz — «Joyliy» ko‘chmas mulk va ijara ekotizimining professional, xolis va aqlli sun’iy intellekt "
-    "maslahatchisisiz. Toshkent shahri ijara bozori, ijara shartnomalari (O‘zbekiston Respublikasi "
+    "maslahatchisisiz (Qwen 2.5 asosida). Toshkent shahri ijara bozori, ijara shartnomalari (O‘zbekiston Respublikasi "
     "Fuqarolik kodeksi 535-modda), soliq tizimi (ijara.soliq.uz portalida hisobga qo‘yish tartibi), "
     "garov puli (zalog/depozit) qaytarilish kafolatlari, kommunal to‘lovlar (hisoblagichlar taqsimoti) va "
     "firibgarlikdan (uyni ko‘rishdan oldin kartaga pul o‘tkazmaslik) himoyalanish bo‘yicha "
@@ -39,6 +44,22 @@ class FreeLLMService:
         self.timeout = 10.0
 
     @property
+    def qwen_key(self) -> Optional[str]:
+        return os.getenv("QWEN_API_KEY") or os.getenv("OPENROUTER_API_KEY") or getattr(settings, "OPENROUTER_API_KEY", None)
+
+    @property
+    def siliconflow_key(self) -> Optional[str]:
+        return os.getenv("SILICONFLOW_API_KEY") or os.getenv("QWEN_API_KEY")
+
+    @property
+    def dashscope_key(self) -> Optional[str]:
+        return os.getenv("DASHSCOPE_API_KEY") or os.getenv("QWEN_API_KEY")
+
+    @property
+    def hf_token(self) -> Optional[str]:
+        return os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACE_API_KEY")
+
+    @property
     def gemini_key(self) -> Optional[str]:
         return os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY") or getattr(settings, "GEMINI_API_KEY", None)
 
@@ -50,49 +71,246 @@ class FreeLLMService:
     def openrouter_key(self) -> Optional[str]:
         return os.getenv("OPENROUTER_API_KEY") or getattr(settings, "OPENROUTER_API_KEY", None)
 
+    async def _call_qwen_openrouter(self, message: str, system_prompt: str) -> Optional[str]:
+        """Call Qwen 2.5 models on OpenRouter Free Tier."""
+        key = self.qwen_key or self.openrouter_key
+        if not key:
+            return None
+        url = "https://openrouter.ai/api/v1/chat/completions"
+        headers = {
+            "Authorization": f"Bearer {key}",
+            "Content-Type": "application/json",
+            "HTTP-Referer": "https://joyliy.onrender.com",
+            "X-Title": "Joyliy PropTech Qwen",
+        }
+        for qwen_model in [
+            "qwen/qwen-2.5-72b-instruct:free",
+            "qwen/qwen-2.5-7b-instruct:free",
+            "qwen/qwen-2.5-coder-32b-instruct:free",
+        ]:
+            payload = {
+                "model": qwen_model,
+                "messages": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": message},
+                ],
+                "temperature": 0.3,
+                "max_tokens": 900,
+            }
+            try:
+                async with httpx.AsyncClient(timeout=self.timeout) as client:
+                    resp = await client.post(url, json=payload, headers=headers)
+                    if resp.status_code == 200:
+                        data = resp.json()
+                        choices = data.get("choices", [])
+                        if choices:
+                            text = choices[0]["message"]["content"].strip()
+                            if text:
+                                return text
+            except Exception as e:
+                logger.debug("OpenRouter Qwen (%s) error: %s", qwen_model, e)
+        return None
+
+    async def _call_qwen_siliconflow(self, message: str, system_prompt: str) -> Optional[str]:
+        """Call SiliconFlow Free Qwen 2.5 API."""
+        key = self.siliconflow_key
+        if not key:
+            return None
+        url = "https://api.siliconflow.cn/v1/chat/completions"
+        headers = {
+            "Authorization": f"Bearer {key}",
+            "Content-Type": "application/json",
+        }
+        payload = {
+            "model": "Qwen/Qwen2.5-7B-Instruct",
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": message},
+            ],
+            "temperature": 0.3,
+            "max_tokens": 900,
+        }
+        try:
+            async with httpx.AsyncClient(timeout=self.timeout) as client:
+                resp = await client.post(url, json=payload, headers=headers)
+                if resp.status_code == 200:
+                    data = resp.json()
+                    choices = data.get("choices", [])
+                    if choices:
+                        return choices[0]["message"]["content"].strip()
+        except Exception as e:
+            logger.debug("SiliconFlow Qwen error: %s", e)
+        return None
+
+    async def _call_qwen_dashscope(self, message: str, system_prompt: str) -> Optional[str]:
+        """Call Alibaba DashScope Qwen API."""
+        key = self.dashscope_key
+        if not key:
+            return None
+        url = "https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions"
+        headers = {
+            "Authorization": f"Bearer {key}",
+            "Content-Type": "application/json",
+        }
+        payload = {
+            "model": "qwen-plus",
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": message},
+            ],
+            "temperature": 0.3,
+            "max_tokens": 900,
+        }
+        try:
+            async with httpx.AsyncClient(timeout=self.timeout) as client:
+                resp = await client.post(url, json=payload, headers=headers)
+                if resp.status_code == 200:
+                    data = resp.json()
+                    choices = data.get("choices", [])
+                    if choices:
+                        return choices[0]["message"]["content"].strip()
+        except Exception as e:
+            logger.debug("DashScope Qwen error: %s", e)
+        return None
+
+    async def _call_qwen_groq(self, message: str, system_prompt: str) -> Optional[str]:
+        """Call Groq Cloud with Qwen 2.5 32B model."""
+        key = self.groq_key or self.qwen_key
+        if not key:
+            return None
+        url = "https://api.groq.com/openai/v1/chat/completions"
+        headers = {
+            "Authorization": f"Bearer {key}",
+            "Content-Type": "application/json",
+        }
+        payload = {
+            "model": "qwen-2.5-32b",
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": message},
+            ],
+            "temperature": 0.3,
+            "max_tokens": 900,
+        }
+        try:
+            async with httpx.AsyncClient(timeout=self.timeout) as client:
+                resp = await client.post(url, json=payload, headers=headers)
+                if resp.status_code == 200:
+                    data = resp.json()
+                    choices = data.get("choices", [])
+                    if choices:
+                        return choices[0]["message"]["content"].strip()
+        except Exception as e:
+            logger.debug("Groq Qwen error: %s", e)
+        return None
+
+    async def _call_qwen_hf(self, message: str, system_prompt: str) -> Optional[str]:
+        """Call Hugging Face Serverless Qwen 2.5 endpoint."""
+        token = self.hf_token
+        if not token:
+            return None
+        url = "https://router.huggingface.co/hf-inference/models/Qwen/Qwen2.5-7B-Instruct/v1/chat/completions"
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+        }
+        payload = {
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": message},
+            ],
+            "max_tokens": 800,
+            "temperature": 0.3,
+        }
+        try:
+            async with httpx.AsyncClient(timeout=self.timeout) as client:
+                resp = await client.post(url, json=payload, headers=headers)
+                if resp.status_code == 200:
+                    data = resp.json()
+                    choices = data.get("choices", [])
+                    if choices:
+                        return choices[0]["message"]["content"].strip()
+        except Exception as e:
+            logger.debug("HF Qwen error: %s", e)
+        return None
+
+    async def _call_qwen_suite(self, message: str, system_prompt: str) -> Optional[str]:
+        """Orchestrate calls across all available Qwen free model providers."""
+        # 1. OpenRouter Qwen Free (72B / 7B / Coder)
+        res = await self._call_qwen_openrouter(message, system_prompt)
+        if res:
+            return res
+
+        # 2. SiliconFlow Free Qwen 7B
+        res = await self._call_qwen_siliconflow(message, system_prompt)
+        if res:
+            return res
+
+        # 3. Alibaba DashScope Qwen
+        res = await self._call_qwen_dashscope(message, system_prompt)
+        if res:
+            return res
+
+        # 4. Groq Qwen 2.5 32B
+        res = await self._call_qwen_groq(message, system_prompt)
+        if res:
+            return res
+
+        # 5. Hugging Face Serverless Qwen 7B
+        res = await self._call_qwen_hf(message, system_prompt)
+        if res:
+            return res
+
+        return None
+
     async def generate_response(
         self,
         user_message: str,
         system_prompt: Optional[str] = None,
         context: Optional[str] = None,
     ) -> str:
-        """Generate response using the best available free LLM provider with graceful local fallback."""
+        """Generate response using Qwen free models with multi-tier provider fallbacks."""
         sys_p = system_prompt or JOYLIY_SYSTEM_PROMPT
         if context:
             full_user_content = f"Kontekst:\n{context}\n\nFoydalanuvchi so‘rovi:\n{user_message}"
         else:
             full_user_content = user_message
 
-        # 1. Google Gemini Free Tier
+        # 1. Qwen 2.5 Suite (Primary AI engine per user specification)
+        qwen_res = await self._call_qwen_suite(full_user_content, sys_p)
+        if qwen_res:
+            return qwen_res
+
+        # 2. Google Gemini Free Tier
         if self.gemini_key:
             res = await self._call_gemini(full_user_content, sys_p)
             if res:
                 return res
 
-        # 2. Groq Cloud Free Tier
+        # 3. Groq Cloud Free Tier (Llama 3.3 70B)
         if self.groq_key:
             res = await self._call_groq(full_user_content, sys_p)
             if res:
                 return res
 
-        # 3. OpenRouter Free Tier
+        # 4. OpenRouter Generic Free Tier
         if self.openrouter_key:
             res = await self._call_openrouter(full_user_content, sys_p)
             if res:
                 return res
 
-        # 4. Zero-Key Free Public LLM (Pollinations AI)
+        # 5. Zero-Key Free Public LLM (Pollinations AI)
         res = await self._call_free_open_llm(full_user_content, sys_p)
         if res:
             return res
 
-        # 5. Fallback to grounded local reasoning engine
+        # 6. Fallback to Grounded Qwen-Aligned Reasoning Engine
         return self._local_fallback(user_message, context)
 
     async def extract_search_criteria(self, query: str) -> Optional[Dict[str, Any]]:
-        """Extract structured JSON search criteria from conversational query using LLM."""
+        """Extract structured JSON search criteria from conversational query using Qwen."""
         system_prompt = (
-            "You are an expert real estate search query parser for Tashkent, Uzbekistan. "
+            "You are an expert real estate search query parser for Tashkent, Uzbekistan (powered by Qwen 2.5). "
             "Extract user requirements into strict JSON with these keys:\n"
             "- district: string or null (one of: Chilonzor, Mirzo Ulug'bek, Yunusobod, Yakkasaroy, Mirobod, Shayxontohur, Olmazor, Uchtepa, Yashnobod, Sergeli, Yangihayot, Bektemir)\n"
             "- metro: string or null (e.g. Novza, Chilonzor, Oybek, Amir Temur, etc.)\n"
@@ -105,12 +323,12 @@ class FreeLLMService:
             "- reasoning: string in Uzbek briefly explaining what was detected.\n"
             "Return ONLY the raw JSON object, no markdown, no backticks."
         )
-        response_text = None
-        if self.gemini_key:
+        response_text = await self._call_qwen_suite(query, system_prompt)
+        if not response_text and self.gemini_key:
             response_text = await self._call_gemini(query, system_prompt)
-        elif self.groq_key:
+        if not response_text and self.groq_key:
             response_text = await self._call_groq(query, system_prompt)
-        elif self.openrouter_key:
+        if not response_text and self.openrouter_key:
             response_text = await self._call_openrouter(query, system_prompt)
 
         if response_text:
@@ -120,20 +338,41 @@ class FreeLLMService:
     async def evaluate_listing(
         self, listing_data: Dict[str, Any], user_question: str
     ) -> str:
-        """Deeply analyze and answer user questions regarding a specific apartment listing."""
+        """Deeply analyze and answer user questions regarding a specific apartment listing using Qwen."""
         sys_p = (
-            "Siz «Joyliy» ko'chmas mulk platformasining mustaqil ekspertisiz. "
+            "Siz «Joyliy» ko'chmas mulk platformasining mustaqil tahlilchisisiz (Qwen 2.5). "
             "Berilgan kvartira e'loni ma'lumotlarini chuqur tahlil qilib, foydalanuvchining "
             "savoliga xolis, professional va amaliy javob bering. Narx adolatliligi, egasidanligi "
             "yoki vositachi xavfi, e'lon matnidagi shubhali joylarni ko'rsatib bering."
         )
+        district = listing_data.get("district") or "Toshkent"
+        price_uzs = listing_data.get("price_uzs") or 0
+        area = listing_data.get("area") or 0
+        price_per_m2 = int(price_uzs / area) if (price_uzs and area and area > 10) else None
+
+        district_benchmarks = {
+            "chilonzor": 75000,
+            "yunusobod": 85000,
+            "mirzo ulug‘bek": 95000,
+            "mirobod": 125000,
+            "yakkasaroy": 110000,
+            "shayxontohur": 90000,
+            "olmazor": 75000,
+            "uchtepa": 70000,
+            "yashnobod": 80000,
+            "sergeli": 65000,
+            "yangihayot": 60000,
+            "bektemir": 55000,
+        }
+        benchmark = district_benchmarks.get(district.lower().strip(), 80000)
         context = (
             f"Kvartira ma'lumotlari:\n"
             f"- Sarlavha: {listing_data.get('title')}\n"
-            f"- Narxi: {listing_data.get('price_uzs', 0):,} so'm\n"
-            f"- Tuman: {listing_data.get('district')}\n"
+            f"- Narxi: {price_uzs:,} so'm ({f'{price_per_m2:,} so‘m/m²' if price_per_m2 else 'maydon ko‘rsatilmagan'})\n"
+            f"- Tuman bo‘yicha o‘rtacha narx standarti: ~{benchmark:,} so‘m/m²\n"
+            f"- Tuman: {district}\n"
             f"- Maydoni: {listing_data.get('area')} m², {listing_data.get('rooms')} xona\n"
-            f"- Egasidan: {'Ha (maklersiz)' if listing_data.get('is_owner') else 'Tekshiruvda/vositachi'}\n"
+            f"- Egasidan: {'Ha (maklersiz, 0% komissiya)' if listing_data.get('is_owner') else 'Tekshiruvda/vositachi'}\n"
             f"- Tavsif: {listing_data.get('description', '')[:500]}\n"
         )
         return await self.generate_response(user_question, sys_p, context)

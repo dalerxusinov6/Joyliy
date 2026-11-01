@@ -135,6 +135,7 @@ def _sync_schema_migration(connection) -> None:
     if "channel_posts" in tables:
         cols = {c["name"] for c in insp.get_columns("channel_posts")}
         for col, ctype in [
+            ("source_id", "VARCHAR(128)"),
             ("content_hash", "VARCHAR(64)"),
             ("image_fingerprint", "VARCHAR(64)"),
             ("telegram_message_id", "BIGINT"),

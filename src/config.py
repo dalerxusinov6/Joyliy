@@ -92,7 +92,23 @@ class Settings(BaseSettings):
         description="Secret key for signing auth tokens",
     )
 
-    # AI / LLM Keys (Free tier options: Gemini 2.0 Flash, Groq Cloud, OpenRouter)
+    # AI / LLM Keys (Qwen 2.5 Free Suite, Gemini 2.0 Flash, Groq Cloud, OpenRouter)
+    QWEN_API_KEY: Optional[str] = Field(
+        default=None,
+        description="Qwen / OpenRouter API Key for Qwen 2.5 models",
+    )
+    SILICONFLOW_API_KEY: Optional[str] = Field(
+        default=None,
+        description="SiliconFlow API Key for free Qwen 2.5 7B",
+    )
+    DASHSCOPE_API_KEY: Optional[str] = Field(
+        default=None,
+        description="Alibaba DashScope API Key for Qwen models",
+    )
+    HF_TOKEN: Optional[str] = Field(
+        default=None,
+        description="Hugging Face Token for serverless inference",
+    )
     GEMINI_API_KEY: Optional[str] = Field(
         default=None,
         description="Google Gemini API Key (Free tier at aistudio.google.com)",

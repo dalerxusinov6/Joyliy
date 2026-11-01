@@ -298,6 +298,7 @@ class NotificationService:
 
                     c_post = ChannelPostHistory(
                         listing_id=listing.id,
+                        source_id=str(listing.source_id) if listing.source_id else None,
                         canonical_url=listing.canonical_url,
                         title=listing.title,
                         normalized_title=queue_service.normalize_text_key(listing.title),
@@ -391,8 +392,8 @@ class NotificationService:
         force: bool = False,
     ) -> int:
         """
-        Feed discovered listings into persistent queue.
-        If force=True (e.g. admin manual command or unit test), immediately publishes next eligible queue item.
+        Feed discovered listings into persistent queue and publish new unique listings directly to the Telegram channel.
+        Eliminates artificial rate caps on newly discovered listings while enforcing strict zero duplicates.
         """
         from src.services.queue_service import queue_service
         from src.services.channel_scheduler import channel_scheduler
@@ -435,18 +436,46 @@ class NotificationService:
                     break
             return published_cnt
 
-        # Under regular operation, publishing is executed exclusively at the 10 daily slots by ChannelScheduler
-        return 0
+        # 3. Continuous publishing for new listings if channel posting is enabled and bot configured
+        if not settings.CHANNEL_POSTING_ENABLED or not self.bot:
+            logger.info("Channel posting skipped (enabled=%s, bot_configured=%s)", settings.CHANNEL_POSTING_ENABLED, bool(self.bot))
+            return 0
 
-        # 4. Dispatch each candidate to the channel
+        # Items to publish: prioritize newly discovered listings
+        candidates: List[Listing] = list(new_listings) if new_listings else []
+        if not candidates:
+            # If no new listings, check pending queue items (up to batch_limit or 5)
+            limit = batch_limit or 5
+            pending_items = []
+            for _ in range(limit):
+                q_it = await queue_service.get_next_eligible_item(session)
+                if q_it and q_it.listing:
+                    pending_items.append(q_it.listing)
+                else:
+                    break
+            candidates = pending_items
+
+        if not candidates:
+            return 0
+
         posted_count = 0
+        approved_in_batch: List[Listing] = []
         for listing in candidates:
             try:
+                # Double-check duplicate against in-batch candidates and persistent records
+                is_dup, dup_reason = await queue_service.is_duplicate(
+                    session, listing, in_memory_candidates=approved_in_batch
+                )
+                if is_dup:
+                    logger.info("Skipping duplicate listing #%d during channel broadcast: %s", listing.id, dup_reason)
+                    continue
+
                 sent = await self.send_to_channel(listing, session=session)
                 if sent:
                     posted_count += 1
+                    approved_in_batch.append(listing)
                     logger.info("Successfully posted listing #%d to channel %s", listing.id, settings.CHANNEL_ID)
-                    await asyncio.sleep(2.0)  # Gentle pacing between messages
+                    await asyncio.sleep(2.5)  # Polite pacing between messages
             except Exception as post_err:
                 logger.error("Error broadcasting listing %d: %s", listing.id, post_err)
 

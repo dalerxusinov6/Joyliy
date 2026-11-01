@@ -98,6 +98,9 @@ class QueueService:
         if listing.posted_to_channel_at is not None:
             return True, f"Listing #{listing.id} was already marked as posted to channel"
 
+        from src.providers.parser import canonicalize_url, normalize_url_path
+        clean_url = canonicalize_url(listing.canonical_url) if listing.canonical_url else ""
+        norm_url = normalize_url_path(listing.canonical_url) if listing.canonical_url else ""
         norm_t = normalize_title(listing.title)
         c_hash = compute_content_hash(listing.title, listing.district, listing.price_uzs, listing.rooms)
         img_fp = compute_image_fingerprint(listing.image_urls)
@@ -109,12 +112,21 @@ class QueueService:
             for c in in_memory_candidates:
                 if c.id == listing.id:
                     return True, f"Matches in-batch listing #{c.id}"
-                if c.canonical_url and listing.canonical_url and c.canonical_url.strip() == listing.canonical_url.strip():
-                    return True, f"Primary match: URL matches in-batch listing #{c.id}"
-                if getattr(c, "source_id", None) and getattr(listing, "source_id", None) and c.source_id == listing.source_id:
-                    return True, f"Primary match: source_id matches in-batch listing #{c.id}"
-                c_norm = normalize_title(c.title)
-                if norm_t and c_norm and norm_t == c_norm:
+                if getattr(c, "source_id", None) and getattr(listing, "source_id", None) and str(c.source_id) == str(listing.source_id):
+                    return True, f"Primary match: source_id '{listing.source_id}' matches in-batch listing #{c.id}"
+                if c.canonical_url and listing.canonical_url:
+                    c_clean = canonicalize_url(c.canonical_url)
+                    l_clean = clean_url
+                    c_norm = normalize_url_path(c.canonical_url)
+                    l_norm = norm_url
+                    if (
+                        c.canonical_url.strip() == listing.canonical_url.strip()
+                        or (c_clean and c_clean == l_clean)
+                        or (c_norm and c_norm == l_norm)
+                    ):
+                        return True, f"Primary match: URL matches in-batch listing #{c.id}"
+                c_norm_title = normalize_title(c.title)
+                if norm_t and c_norm_title and norm_t == c_norm_title:
                     if not listing.district or not c.district or listing.district == c.district:
                         return True, f"Secondary match: Title matches in-batch listing #{c.id}"
                 c_hash_other = compute_content_hash(c.title, c.district, c.price_uzs, c.rooms)
@@ -123,17 +135,44 @@ class QueueService:
                 if img_fp and getattr(c, "image_fingerprint", None) and img_fp == c.image_fingerprint:
                     return True, f"Secondary match: Image fingerprint matches in-batch listing #{c.id}"
 
-        # C. Check ChannelPublishQueue (published, publishing, or pending)
+        # C. Check ChannelPublishQueue (published, publishing, or pending duplicates)
         q_or_conditions = [
-            ChannelPublishQueue.listing_id == listing.id,
-            ChannelPublishQueue.canonical_url == listing.canonical_url,
-            ChannelPublishQueue.content_hash == c_hash,
+            and_(
+                ChannelPublishQueue.listing_id == listing.id,
+                ChannelPublishQueue.status == QueueStatus.PUBLISHED,
+            ),
+            and_(
+                ChannelPublishQueue.content_hash == c_hash,
+                ChannelPublishQueue.listing_id != listing.id,
+            ),
         ]
+        if listing.canonical_url:
+            q_or_conditions.append(
+                and_(
+                    ChannelPublishQueue.canonical_url == listing.canonical_url,
+                    ChannelPublishQueue.listing_id != listing.id,
+                )
+            )
+        if clean_url:
+            q_or_conditions.append(
+                and_(
+                    ChannelPublishQueue.canonical_url == clean_url,
+                    ChannelPublishQueue.listing_id != listing.id,
+                )
+            )
+        if norm_url:
+            q_or_conditions.append(
+                and_(
+                    ChannelPublishQueue.canonical_url == norm_url,
+                    ChannelPublishQueue.listing_id != listing.id,
+                )
+            )
         if listing.source_id:
             q_or_conditions.append(
                 and_(
                     ChannelPublishQueue.source_id.is_not(None),
-                    ChannelPublishQueue.source_id == listing.source_id,
+                    ChannelPublishQueue.source_id == str(listing.source_id),
+                    ChannelPublishQueue.listing_id != listing.id,
                 )
             )
         if img_fp:
@@ -141,6 +180,7 @@ class QueueService:
                 and_(
                     ChannelPublishQueue.image_fingerprint.is_not(None),
                     ChannelPublishQueue.image_fingerprint == img_fp,
+                    ChannelPublishQueue.listing_id != listing.id,
                 )
             )
 
@@ -155,17 +195,32 @@ class QueueService:
             return True, f"Matches existing queue entry #{q_match.id} (status: {q_match.status})"
 
         # D. Check ChannelPostHistory table
-        h_stmt = select(ChannelPostHistory).where(
-            or_(
-                ChannelPostHistory.listing_id == listing.id,
-                ChannelPostHistory.canonical_url == listing.canonical_url,
-                ChannelPostHistory.content_hash == c_hash,
+        h_or_conditions = [
+            ChannelPostHistory.listing_id == listing.id,
+            ChannelPostHistory.content_hash == c_hash,
+        ]
+        if listing.canonical_url:
+            h_or_conditions.append(ChannelPostHistory.canonical_url == listing.canonical_url)
+        if clean_url:
+            h_or_conditions.append(ChannelPostHistory.canonical_url == clean_url)
+        if norm_url:
+            h_or_conditions.append(ChannelPostHistory.canonical_url == norm_url)
+        if listing.source_id:
+            h_or_conditions.append(
+                and_(
+                    ChannelPostHistory.source_id.is_not(None),
+                    ChannelPostHistory.source_id == str(listing.source_id),
+                )
+            )
+        if img_fp:
+            h_or_conditions.append(
                 and_(
                     ChannelPostHistory.image_fingerprint.is_not(None),
                     ChannelPostHistory.image_fingerprint == img_fp,
-                ) if img_fp else False,
+                )
             )
-        )
+
+        h_stmt = select(ChannelPostHistory).where(or_(*h_or_conditions))
         h_res = await session.execute(h_stmt)
         h_match = h_res.scalars().first()
         if h_match:
@@ -211,6 +266,7 @@ class QueueService:
         # F. Check previously posted listings in listings table
         p_stmt = select(
             Listing.id,
+            Listing.source_id,
             Listing.canonical_url,
             Listing.title,
             Listing.district,
@@ -223,8 +279,10 @@ class QueueService:
         )
         p_res = await session.execute(p_stmt)
         posted_rows = p_res.fetchall()
-        for p_id, p_url, p_title, p_dist, p_rooms, p_price, p_phone in posted_rows:
-            if p_url and listing.canonical_url and p_url.strip() == listing.canonical_url.strip():
+        for p_id, p_src_id, p_url, p_title, p_dist, p_rooms, p_price, p_phone in posted_rows:
+            if listing.source_id and p_src_id and str(listing.source_id) == str(p_src_id):
+                return True, f"Primary match: source_id '{listing.source_id}' matches posted listing #{p_id}"
+            if p_url and listing.canonical_url and (p_url.strip() == listing.canonical_url.strip() or (norm_url and p_url.strip() == norm_url.strip())):
                 return True, f"Primary match: URL matches posted listing #{p_id}"
             p_norm = normalize_title(p_title)
             if norm_t and p_norm and norm_t == p_norm:
@@ -256,14 +314,20 @@ class QueueService:
         listing.image_fingerprint = img_fp
 
         # Check existing queue item for this listing
+        q_exist_conds = [
+            ChannelPublishQueue.listing_id == listing.id,
+            ChannelPublishQueue.canonical_url == listing.canonical_url,
+        ]
+        if listing.source_id:
+            q_exist_conds.append(
+                and_(
+                    ChannelPublishQueue.source_id.is_not(None),
+                    ChannelPublishQueue.source_id == str(listing.source_id),
+                )
+            )
         existing_q = (
             await session.execute(
-                select(ChannelPublishQueue).where(
-                    or_(
-                        ChannelPublishQueue.listing_id == listing.id,
-                        ChannelPublishQueue.canonical_url == listing.canonical_url,
-                    )
-                )
+                select(ChannelPublishQueue).where(or_(*q_exist_conds))
             )
         ).scalars().first()
 
@@ -406,6 +470,7 @@ class QueueService:
         # Insert ChannelPostHistory
         post_record = ChannelPostHistory(
             listing_id=queue_item.listing_id,
+            source_id=queue_item.source_id,
             canonical_url=queue_item.canonical_url,
             title=queue_item.title,
             normalized_title=queue_item.normalized_title,
@@ -422,14 +487,18 @@ class QueueService:
         session.add(post_record)
 
         # Retires any other unposted duplicate listings in the database
+        retire_conditions = [
+            Listing.content_hash == queue_item.content_hash,
+            Listing.canonical_url == queue_item.canonical_url,
+        ]
+        if queue_item.source_id:
+            retire_conditions.append(Listing.source_id == str(queue_item.source_id))
+
         retire_stmt = (
             update(Listing)
             .where(
                 Listing.posted_to_channel_at.is_(None),
-                or_(
-                    Listing.content_hash == queue_item.content_hash,
-                    Listing.canonical_url == queue_item.canonical_url,
-                ),
+                or_(*retire_conditions),
             )
             .values(posted_to_channel_at=now, is_active=False)
         )
