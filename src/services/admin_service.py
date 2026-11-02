@@ -27,6 +27,7 @@ from sqlalchemy import (
     desc,
     func,
     or_,
+    and_,
     select,
     update,
 )
@@ -451,6 +452,13 @@ class AdminService:
             select(func.count(Listing.id)).where(Listing.is_active == False)
         ) or 0
 
+        # Roommate Profiles Metrics
+        total_roommates = await session.scalar(select(func.count(RoommateProfile.id))) or 0
+        pending_roommates = await session.scalar(
+            select(func.count(RoommateProfile.id)).where(RoommateProfile.is_active == False)
+        ) or 0
+        active_roommates = max(0, total_roommates - pending_roommates)
+
         summary_dict = {
             "total_listings": total_listings,
             "active_listings": active_listings,
@@ -461,6 +469,8 @@ class AdminService:
             "updates_today": updates_today,
             "total_users": total_users,
             "active_sources": 3,
+            "total_roommates": total_roommates,
+            "pending_roommates": pending_roommates,
         }
         listings_dict = {
             "total": total_listings,
@@ -477,6 +487,11 @@ class AdminService:
             "status": "success",
             "summary": summary_dict,
             "listings": listings_dict,
+            "roommates": {
+                "total": total_roommates,
+                "pending": pending_roommates,
+                "active": active_roommates,
+            },
             "growth": {
                 "daily": growth_chart,
                 "weekly": growth_chart,
@@ -1372,6 +1387,188 @@ class AdminService:
             })
 
         return result
+
+    # -------------------------------------------------------------
+    # 13. Roommate Profiles Management & Moderation
+    # -------------------------------------------------------------
+
+    async def get_roommates_list(
+        self,
+        session: AsyncSession,
+        status: str = "all",
+        search: Optional[str] = None,
+        gender: Optional[str] = None,
+        district: Optional[str] = None,
+        limit: int = 50,
+        offset: int = 0,
+    ) -> Dict[str, Any]:
+        """Query roommate profiles with full administrative status counts and filtering."""
+        from src.services.roommate_service import roommate_service
+        await roommate_service.seed_initial_roommates_if_empty(session)
+
+        # Global counts
+        total_count = await session.scalar(select(func.count(RoommateProfile.id))) or 0
+        pending_count = await session.scalar(
+            select(func.count(RoommateProfile.id)).where(RoommateProfile.is_active == False)
+        ) or 0
+        active_count = await session.scalar(
+            select(func.count(RoommateProfile.id)).where(RoommateProfile.is_active == True)
+        ) or 0
+
+        conditions = []
+        if status == "pending":
+            conditions.append(RoommateProfile.is_active == False)
+        elif status == "active":
+            conditions.append(RoommateProfile.is_active == True)
+        elif status == "inactive":
+            conditions.append(RoommateProfile.is_active == False)
+
+        if gender and gender != "all":
+            conditions.append(RoommateProfile.gender == gender)
+
+        if search:
+            s = f"%{search.strip().lower()}%"
+            conditions.append(
+                or_(
+                    func.lower(RoommateProfile.name).like(s),
+                    func.lower(RoommateProfile.contact_telegram).like(s),
+                    func.lower(RoommateProfile.occupation).like(s),
+                    func.lower(RoommateProfile.bio).like(s),
+                )
+            )
+
+        stmt = select(RoommateProfile)
+        if conditions:
+            stmt = stmt.where(and_(*conditions))
+
+        stmt = stmt.order_by(desc(RoommateProfile.created_at)).offset(offset).limit(limit)
+        items = (await session.execute(stmt)).scalars().all()
+
+        if district and district != "all":
+            d_clean = district.strip().lower()
+            items = [
+                p for p in items
+                if any(d_clean in (dist or "").lower() for dist in (p.preferred_districts or []))
+            ]
+
+        formatted = []
+        for p in items:
+            formatted.append({
+                "id": p.id,
+                "name": p.name,
+                "age": p.age,
+                "gender": p.gender,
+                "budget_uzs": p.budget_uzs,
+                "budget_formatted": f"{p.budget_uzs:,}".replace(",", " ") + " so‘m/oy",
+                "preferred_districts": p.preferred_districts or [],
+                "preferred_district": (p.preferred_districts[0] if p.preferred_districts else "Toshkent"),
+                "occupation": p.occupation,
+                "lifestyle_tags": p.lifestyle_tags if (p.lifestyle_tags and len(p.lifestyle_tags) > 0) else [
+                    "Toza tartib",
+                    "Chekmaydi" if not p.smoking_allowed else "Chekadi",
+                    "Uy hayvonlari yo‘q" if not p.pets_allowed else "Hayvonlar mumkin",
+                ],
+                "lifestyle_cleanliness": p.lifestyle_cleanliness,
+                "lifestyle_sleep": p.lifestyle_sleep,
+                "smoking_allowed": p.smoking_allowed,
+                "pets_allowed": p.pets_allowed,
+                "bio": p.bio,
+                "about": p.bio,
+                "move_in_date": p.move_in_date,
+                "contact_telegram": p.contact_telegram,
+                "is_verified": p.is_verified,
+                "is_active": p.is_active,
+                "created_at": p.created_at.isoformat() if p.created_at else None,
+            })
+
+        return {
+            "success": True,
+            "total": total_count,
+            "pending_count": pending_count,
+            "active_count": active_count,
+            "filtered_total": len(formatted),
+            "items": formatted,
+        }
+
+    async def approve_roommate(
+        self,
+        session: AsyncSession,
+        profile_id: int,
+        admin_id: Optional[int] = None,
+    ) -> Optional[Dict[str, Any]]:
+        """Approve roommate profile, setting is_active=True and is_verified=True."""
+        prof = await session.get(RoommateProfile, profile_id)
+        if not prof:
+            return None
+
+        prof.is_active = True
+        prof.is_verified = True
+
+        audit = AdminAuditLog(
+            admin_id=admin_id or 1,
+            action="roommate_approved",
+            details={"profile_id": prof.id, "name": prof.name, "contact_telegram": prof.contact_telegram},
+        )
+        session.add(audit)
+        await session.commit()
+        await session.refresh(prof)
+        return {
+            "id": prof.id,
+            "name": prof.name,
+            "is_active": True,
+            "is_verified": True,
+            "message": "Hamxona anketasi muvaffaqiyatli tasdiqlandi va saytda faollashtirildi",
+        }
+
+    async def reject_roommate(
+        self,
+        session: AsyncSession,
+        profile_id: int,
+        admin_id: Optional[int] = None,
+        reason: Optional[str] = None,
+    ) -> Optional[Dict[str, Any]]:
+        """Reject/deactivate roommate profile."""
+        prof = await session.get(RoommateProfile, profile_id)
+        if not prof:
+            return None
+
+        prof.is_active = False
+
+        audit = AdminAuditLog(
+            admin_id=admin_id or 1,
+            action="roommate_rejected",
+            details={"profile_id": prof.id, "name": prof.name, "reason": reason or "Moderation rejected"},
+        )
+        session.add(audit)
+        await session.commit()
+        await session.refresh(prof)
+        return {
+            "id": prof.id,
+            "name": prof.name,
+            "is_active": False,
+            "message": "Hamxona anketasi nofaol qilindi / rad etildi",
+        }
+
+    async def delete_roommate(
+        self,
+        session: AsyncSession,
+        profile_id: int,
+        admin_id: Optional[int] = None,
+    ) -> bool:
+        """Permanently delete a roommate profile."""
+        prof = await session.get(RoommateProfile, profile_id)
+        if not prof:
+            return False
+
+        audit = AdminAuditLog(
+            admin_id=admin_id or 1,
+            action="roommate_deleted",
+            details={"profile_id": prof.id, "name": prof.name},
+        )
+        session.add(audit)
+        await session.delete(prof)
+        await session.commit()
+        return True
 
 
 # Singleton instance

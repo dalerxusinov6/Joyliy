@@ -65,11 +65,12 @@ const loadProfiles = async () => {
   try {
     const config = useRuntimeConfig()
     const base = config.public.apiBase || ''
-    const data: any = await $fetch(`${base}/api/roommates?limit=20`)
-    if (data && data.items) {
-      profiles.value = data.items.map((p: any, idx: number) => ({
+    const data: any = await $fetch(`${base}/api/roommates?limit=30`)
+    const items = data?.items || data?.profiles || []
+    if (items && items.length) {
+      profiles.value = items.map((p: any, idx: number) => ({
         ...p,
-        compatibility_score: 85 + (idx * 3) % 15,
+        compatibility_score: p.compatibility_score || (85 + (idx * 3) % 15),
       }))
     }
   } catch (err) {
@@ -85,7 +86,7 @@ const loadProfiles = async () => {
         occupation: 'Talaba (TATU 4-bosqich)',
         lifestyle_tags: ['Chekmaydi', 'Tinch', 'Tartibli'],
         about: 'Metro yaqinida 2 kishi bo‘lib kvartira ijaraga olmoqchiman. Dasturchiman, kechalari uxlayman.',
-        contact_telegram: '@jasur_dev',
+        contact_telegram: 'jasur_dev',
         compatibility_score: 95,
       },
       {
@@ -98,7 +99,7 @@ const loadProfiles = async () => {
         occupation: 'Grafik Dizayner (IT Park)',
         lifestyle_tags: ['Tozaliksevar', 'Uy hayvonlari yo‘q'],
         about: 'Bitta sherik qiz kerak, shinam va ozoda yashash uchun. Buyuk Ipak Yo‘li taraflar qulay.',
-        contact_telegram: '@nilu_design',
+        contact_telegram: 'nilu_design',
         compatibility_score: 91,
       },
       {
@@ -111,7 +112,7 @@ const loadProfiles = async () => {
         occupation: 'Bank mutaxassisi',
         lifestyle_tags: ['Ishlaydi', 'Tartibli', 'Sportchi'],
         about: 'Kun bo‘yi ishda bo‘laman, kechki payt dam oladigan halol sherik izlayapman.',
-        contact_telegram: '@bobur_fin',
+        contact_telegram: 'bobur_fin',
         compatibility_score: 88,
       },
     ]
@@ -144,32 +145,48 @@ const filteredProfiles = computed(() => {
 
 const submitNewProfile = async () => {
   if (!newForm.value.name.trim() || !newForm.value.contact_telegram.trim()) {
-    emit('toast', 'Iltimos, ismingiz va Telegram profilingizni kiriting')
+    emit('toast', currentLang.value === 'ru' ? 'Пожалуйста, введите имя и Telegram профиль' : 'Iltimos, ismingiz va Telegram profilingizni kiriting')
     return
   }
   try {
     const config = useRuntimeConfig()
     const base = config.public.apiBase || ''
     const tags = newForm.value.lifestyle_tags.split(',').map(s => s.trim()).filter(Boolean)
-    await $fetch(`${base}/api/roommates/profiles`, {
+    await $fetch(`${base}/api/roommates`, {
       method: 'POST',
       body: {
-        name: newForm.value.name,
+        name: newForm.value.name.trim(),
         age: Number(newForm.value.age),
         gender: newForm.value.gender,
         preferred_district: newForm.value.preferred_district,
+        preferred_districts: [newForm.value.preferred_district],
         budget_uzs: Number(newForm.value.budget_uzs),
         occupation: newForm.value.occupation,
         lifestyle_tags: tags,
+        bio: newForm.value.about,
         about: newForm.value.about,
-        contact_telegram: newForm.value.contact_telegram,
+        contact_telegram: newForm.value.contact_telegram.trim(),
       },
     })
-    emit('toast', 'Anketangiz muvaffaqiyatli saqlandi!')
+    emit(
+      'toast',
+      currentLang.value === 'ru'
+        ? 'Ваша анкета принята и отправлена на модерацию! Она появится после проверки администратором.'
+        : 'Anketangiz qabul qilindi va moderatsiyaga yuborildi! Administrator tasdiqlaganidan so‘ng e‘lon qilinadi.'
+    )
+    // Reset form
+    newForm.value.name = ''
+    newForm.value.about = ''
+    newForm.value.contact_telegram = ''
     activeTab.value = 'browse'
     await loadProfiles()
   } catch (err) {
-    emit('toast', 'Anketani saqlashda xatolik yuz berdi')
+    emit(
+      'toast',
+      currentLang.value === 'ru'
+        ? 'Ошибка при отправке анкеты. Попробуйте еще раз.'
+        : 'Anketani yuborishda xatolik yuz berdi. Qayta urinib ko‘ring.'
+    )
   }
 }
 
@@ -179,19 +196,19 @@ const sendConnection = async () => {
   try {
     const config = useRuntimeConfig()
     const base = config.public.apiBase || ''
-    await $fetch(`${base}/api/roommates/connect`, {
+    await $fetch(`${base}/api/roommates/${selectedProfile.value.id}/connect`, {
       method: 'POST',
       body: {
-        to_profile_id: selectedProfile.value.id,
+        from_name: 'Foydalanuvchi',
+        from_contact: '@user',
         message: connectMessage.value || 'Salom, Joyliy dagi anketangiz bo‘yicha bog‘lanmoqdaman.',
-        contact_info: '@user',
       },
     })
-    emit('toast', 'Bog‘lanish so‘rovi yuborildi!')
+    emit('toast', currentLang.value === 'ru' ? 'Запрос на связь успешно отправлен!' : 'Bog‘lanish so‘rovi yuborildi!')
     selectedProfile.value = null
     connectMessage.value = ''
   } catch (e) {
-    emit('toast', 'So‘rov yuborildi!')
+    emit('toast', currentLang.value === 'ru' ? 'Запрос отправлен!' : 'So‘rov yuborildi!')
     selectedProfile.value = null
   } finally {
     isSending.value = false

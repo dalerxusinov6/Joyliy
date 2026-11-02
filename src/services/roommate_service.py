@@ -23,10 +23,12 @@ INITIAL_SEED_ROOMMATES = [
         "lifestyle_sleep": "flexible",
         "smoking_allowed": False,
         "pets_allowed": False,
+        "lifestyle_tags": ["Talaba (TATU)", "Chekmaydi", "Tinch rejim", "Tozalik"],
         "bio": "TATU 4-bosqich talabasiman. Dasturlash bilan shug‘ullanaman, tinchlikni va tozalikni yaxshi ko‘raman. Chilonzor yoki Yakkasaroydan 2-3 xonali uyga sherik qidiryapman.",
         "move_in_date": "Noyabr boshi",
         "contact_telegram": "javohir_dev",
         "is_verified": True,
+        "is_active": True,
     },
     {
         "name": "Madina Rahimova",
@@ -39,10 +41,12 @@ INITIAL_SEED_ROOMMATES = [
         "lifestyle_sleep": "early_bird",
         "smoking_allowed": False,
         "pets_allowed": False,
+        "lifestyle_tags": ["Tozaliksevar", "Chekmaydi", "Uy hayvonlari yo‘q"],
         "bio": "Westminster yaqinida marketing sohasida ishlayman. Tartibli va xushmuomala qizlar bilan birga ijara turish uchun sherik izlayapman.",
         "move_in_date": "Darhol",
         "contact_telegram": "madina_mktg",
         "is_verified": True,
+        "is_active": True,
     },
     {
         "name": "Sardorbek & Bobur",
@@ -55,10 +59,12 @@ INITIAL_SEED_ROOMMATES = [
         "lifestyle_sleep": "night_owl",
         "smoking_allowed": False,
         "pets_allowed": False,
+        "lifestyle_tags": ["O‘zMU talabalari", "Tinch tartib", "Chekmaydi"],
         "bio": "O‘zMU talabalarimiz. Beruniy metrosi atrofidan 3 kishilik sheriklikka 1 nafar toza yigit qidiryapmiz. Hamma sharoit bor.",
         "move_in_date": "15-noyabrgacha",
         "contact_telegram": "sardor_ozmu",
         "is_verified": True,
+        "is_active": True,
     },
     {
         "name": "Shahnoza Alimova",
@@ -71,10 +77,12 @@ INITIAL_SEED_ROOMMATES = [
         "lifestyle_sleep": "early_bird",
         "smoking_allowed": False,
         "pets_allowed": True,
+        "lifestyle_tags": ["UI/UX Dizayner", "Mushuksevar", "Ozoda"],
         "bio": "Xalqaro IT kompaniyada UI/UX dizaynerman. Kichik mushugim bor, juda madaniyatli. Mirobod yoki Oybek metro yaqinidan xonadon sherigi qidiryapman.",
         "move_in_date": "Shu oy oxiri",
         "contact_telegram": "shahnoza_design",
         "is_verified": True,
+        "is_active": True,
     },
 ]
 
@@ -188,22 +196,43 @@ class RoommateService:
         self, session: AsyncSession, data: Dict[str, Any]
     ) -> RoommateProfile:
         """Create or update a user's roommate seeker profile."""
+        districts = data.get("preferred_districts")
+        if not districts:
+            single = data.get("preferred_district")
+            districts = [single] if single else ["Chilonzor"]
+        elif isinstance(districts, str):
+            districts = [districts]
+
+        bio_text = data.get("bio") or data.get("about") or ""
+        tags = data.get("lifestyle_tags")
+        if tags is None:
+            tags = []
+        elif isinstance(tags, str):
+            tags = [t.strip() for t in tags.split(",") if t.strip()]
+
+        contact = data.get("contact_telegram", "").strip().lstrip("@")
+
+        # Public submissions default to is_active=False (pending admin moderation)
+        is_active = bool(data.get("is_active", False))
+        is_verified = bool(data.get("is_verified", False))
+
         profile = RoommateProfile(
-            name=data["name"],
+            name=str(data["name"]).strip(),
             age=data.get("age"),
             gender=data.get("gender", "any"),
             budget_uzs=int(data["budget_uzs"]),
-            preferred_districts=data.get("preferred_districts", ["Chilonzor"]),
+            preferred_districts=districts,
             occupation=data.get("occupation", "student"),
+            lifestyle_tags=tags,
             lifestyle_cleanliness=data.get("lifestyle_cleanliness", "very_clean"),
             lifestyle_sleep=data.get("lifestyle_sleep", "flexible"),
             smoking_allowed=bool(data.get("smoking_allowed", False)),
             pets_allowed=bool(data.get("pets_allowed", False)),
-            bio=data.get("bio", ""),
+            bio=bio_text,
             move_in_date=data.get("move_in_date"),
-            contact_telegram=data.get("contact_telegram", "").lstrip("@"),
-            is_verified=True,
-            is_active=True,
+            contact_telegram=contact,
+            is_verified=is_verified,
+            is_active=is_active,
         )
         session.add(profile)
         await session.commit()

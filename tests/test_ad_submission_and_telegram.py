@@ -124,3 +124,4 @@ async def test_submit_ad_with_images_and_admin_telegram_approval(mock_bot: MockT
         detail_data = detail_res.json()
         assert detail_data["is_active"] is True
         assert len(detail_data["image_urls"]) == 2
+

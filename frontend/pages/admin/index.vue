@@ -128,6 +128,27 @@ const maxGrowthCount = computed(() => {
             </div>
           </NuxtLink>
 
+          <!-- Roommates Moderation Queue -->
+          <NuxtLink to="/admin/roommates?status=pending" class="kpi-card text-decoration-none">
+            <div class="kpi-top">
+              <span class="kpi-label">Hamxona Anketalari</span>
+              <div class="kpi-icon-box bg-purple">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                  <circle cx="9" cy="7" r="4"/>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+              </div>
+            </div>
+            <div class="kpi-value text-purple">{{ formatNumber(stats.roommates?.pending || 0) }}</div>
+            <div class="kpi-footer">
+              <span class="kpi-sub-text">Jami anketalar: <strong>{{ formatNumber(stats.roommates?.total || 0) }}</strong></span>
+              <span class="kpi-badge-amber" v-if="stats.roommates?.pending">Tasdiqlash →</span>
+              <span class="kpi-badge-green" v-else>Tekshirilgan</span>
+            </div>
+          </NuxtLink>
+
           <!-- New Today -->
           <div class="kpi-card">
             <div class="kpi-top">

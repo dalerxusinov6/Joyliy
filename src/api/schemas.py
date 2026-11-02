@@ -209,24 +209,31 @@ class CompareRequest(BaseModel):
 
 class RoommateProfileCreate(BaseModel):
     name: str
-    age: Optional[int] = None
-    gender: str = "any"
+    age: Optional[int] = 21
+    gender: Optional[str] = "male"
     budget_uzs: int
-    preferred_districts: List[str] = Field(default_factory=lambda: ["Chilonzor"])
-    occupation: str = "student"
-    lifestyle_cleanliness: str = "very_clean"
-    lifestyle_sleep: str = "flexible"
-    smoking_allowed: bool = False
-    pets_allowed: bool = False
-    bio: str = ""
+    preferred_districts: Optional[List[str]] = None
+    preferred_district: Optional[str] = None
+    occupation: Optional[str] = "Talaba"
+    lifestyle_tags: Optional[List[str]] = None
+    lifestyle_cleanliness: Optional[str] = "clean"
+    lifestyle_sleep: Optional[str] = "flexible"
+    smoking_allowed: Optional[bool] = False
+    pets_allowed: Optional[bool] = False
+    bio: Optional[str] = ""
+    about: Optional[str] = None
     contact_telegram: str
     move_in_date: Optional[str] = None
+    is_active: Optional[bool] = False
+    is_verified: Optional[bool] = False
 
 
 class RoommateConnectRequest(BaseModel):
-    from_name: str
-    from_contact: str
-    message: str
+    from_name: Optional[str] = "Foydalanuvchi"
+    from_contact: Optional[str] = None
+    contact_info: Optional[str] = None
+    message: Optional[str] = "Salom, anketangiz bo‘yicha bog‘lanmoqdaman."
+    to_profile_id: Optional[int] = None
 
 
 class ListingReportRequest(BaseModel):

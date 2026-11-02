@@ -742,56 +742,78 @@ async def list_roommates(
     profiles = await roommate_service.list_profiles(
         session, district=district, gender=gender, max_budget=max_budget, occupation=occupation
     )
+    formatted = [
+        {
+            "id": p.id,
+            "name": p.name,
+            "age": p.age,
+            "gender": p.gender,
+            "budget_uzs": p.budget_uzs,
+            "budget_formatted": f"{p.budget_uzs:,} so‘m",
+            "preferred_districts": p.preferred_districts or [],
+            "preferred_district": (p.preferred_districts[0] if p.preferred_districts else "Toshkent"),
+            "occupation": p.occupation,
+            "lifestyle_tags": p.lifestyle_tags if (p.lifestyle_tags and len(p.lifestyle_tags) > 0) else [
+                "Toza tartib",
+                "Chekmaydi" if not p.smoking_allowed else "Chekadi",
+                "Uy hayvonlari yo‘q" if not p.pets_allowed else "Hayvonlar mumkin",
+            ],
+            "lifestyle_cleanliness": p.lifestyle_cleanliness,
+            "lifestyle_sleep": p.lifestyle_sleep,
+            "smoking_allowed": p.smoking_allowed,
+            "pets_allowed": p.pets_allowed,
+            "bio": p.bio,
+            "about": p.bio,
+            "move_in_date": p.move_in_date,
+            "contact_telegram": p.contact_telegram,
+            "is_verified": p.is_verified,
+            "is_active": p.is_active,
+            "created_at": p.created_at.isoformat() if p.created_at else None,
+        }
+        for p in profiles
+    ]
     return {
         "total": len(profiles),
-        "profiles": [
-            {
-                "id": p.id,
-                "name": p.name,
-                "age": p.age,
-                "gender": p.gender,
-                "budget_uzs": p.budget_uzs,
-                "budget_formatted": f"{p.budget_uzs:,} so‘m",
-                "preferred_districts": p.preferred_districts,
-                "occupation": p.occupation,
-                "lifestyle_cleanliness": p.lifestyle_cleanliness,
-                "lifestyle_sleep": p.lifestyle_sleep,
-                "smoking_allowed": p.smoking_allowed,
-                "pets_allowed": p.pets_allowed,
-                "bio": p.bio,
-                "move_in_date": p.move_in_date,
-                "contact_telegram": p.contact_telegram,
-                "is_verified": p.is_verified,
-                "created_at": p.created_at.isoformat() if p.created_at else None,
-            }
-            for p in profiles
-        ],
+        "profiles": formatted,
+        "items": formatted,
     }
 
 
 @api_router.post("/roommates")
+@api_router.post("/roommates/profiles")
 async def create_roommate_profile(
     req: RoommateProfileCreate,
     session: AsyncSession = Depends(get_db_session),
 ):
     """Publish a new roommate seeker profile."""
     prof = await roommate_service.create_profile(session, req.model_dump())
-    return {"status": "created", "profile_id": prof.id, "name": prof.name}
+    return {
+        "status": "created",
+        "profile_id": prof.id,
+        "name": prof.name,
+        "is_active": prof.is_active,
+        "message": "Anketangiz moderatsiyaga yuborildi. Tez orada tekshirib tasdiqlanadi." if not prof.is_active else "Anketa faollashtirildi.",
+    }
 
 
 @api_router.post("/roommates/{roommate_id}/connect")
+@api_router.post("/roommates/connect")
 async def connect_roommate(
-    roommate_id: int,
     req: RoommateConnectRequest,
+    roommate_id: Optional[int] = None,
     session: AsyncSession = Depends(get_db_session),
 ):
     """Send connection request to a prospective roommate."""
+    target_id = roommate_id or req.to_profile_id
+    if not target_id:
+        raise HTTPException(status_code=400, detail="Roommate ID is required")
+    from_contact = req.from_contact or req.contact_info or "@user"
     conn_req = await roommate_service.send_connection_request(
         session,
-        roommate_id=roommate_id,
-        from_name=req.from_name,
-        from_contact=req.from_contact,
-        message=req.message,
+        roommate_id=target_id,
+        from_name=req.from_name or "Foydalanuvchi",
+        from_contact=from_contact,
+        message=req.message or "Salom, Joyliy dagi anketangiz bo‘yicha bog‘lanmoqdaman.",
     )
     return {"status": "sent", "request_id": conn_req.id}
 

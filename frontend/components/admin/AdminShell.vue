@@ -163,6 +163,12 @@ const navSections = [
     title: 'BOSHQARUV',
     items: [
       {
+        label: 'Hamxona anketalari',
+        to: '/admin/roommates',
+        icon: 'users',
+        badge: 'Moderatsiya',
+      },
+      {
         label: 'Foydalanuvchilar',
         to: '/admin/users',
         icon: 'users',
@@ -207,6 +213,7 @@ const commandLinks = [
   { label: 'Yangi e‘lon qo‘shish', to: '/admin/listings?action=new', category: 'Amallar' },
   { label: 'Parserni hozir ishga tushirish', action: 'scan', category: 'Amallar' },
   { label: 'Telegram nashr navbati', to: '/admin/telegram', category: 'Sahifalar' },
+  { label: 'Hamxona anketalari (Moderatsiya)', to: '/admin/roommates', category: 'Sahifalar' },
   { label: 'Foydalanuvchilar va rollar', to: '/admin/users', category: 'Sahifalar' },
   { label: 'Xarita orqali saralash', to: '/admin/map', category: 'Sahifalar' },
   { label: 'Audit xavfsizlik jurnali', to: '/admin/logs', category: 'Sahifalar' },

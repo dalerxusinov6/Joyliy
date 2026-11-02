@@ -683,3 +683,86 @@ async def sync_sitemaps(
 
     return {"success": True, "details": res}
 
+
+# =================================================================
+# 11. Roommate Profiles Moderation & Management
+# =================================================================
+
+@admin_router.get("/roommates")
+async def get_admin_roommates(
+    status: str = Query("all", description="all, pending, active, inactive"),
+    search: Optional[str] = Query(None),
+    gender: Optional[str] = Query(None),
+    district: Optional[str] = Query(None),
+    limit: int = Query(50, ge=1, le=200),
+    offset: int = Query(0, ge=0),
+    current_admin: Dict[str, Any] = Depends(get_current_admin),
+    session: AsyncSession = Depends(get_db_session),
+):
+    """Retrieve roommate profiles with administrative moderation statuses."""
+    res = await admin_service.get_roommates_list(
+        session=session,
+        status=status,
+        search=search,
+        gender=gender,
+        district=district,
+        limit=limit,
+        offset=offset,
+    )
+    return res
+
+
+@admin_router.post("/roommates/{profile_id}/approve")
+async def approve_admin_roommate(
+    profile_id: int,
+    current_admin: Dict[str, Any] = Depends(get_current_admin),
+    session: AsyncSession = Depends(get_db_session),
+):
+    """Approve a roommate profile, setting is_active=True and is_verified=True."""
+    res = await admin_service.approve_roommate(
+        session=session,
+        profile_id=profile_id,
+        admin_id=current_admin.get("id"),
+    )
+    if not res:
+        raise HTTPException(status_code=404, detail="Roommate profile not found")
+    return {"success": True, "data": res, "is_active": True}
+
+
+@admin_router.post("/roommates/{profile_id}/reject")
+async def reject_admin_roommate(
+    profile_id: int,
+    payload: Optional[Dict[str, Any]] = None,
+    current_admin: Dict[str, Any] = Depends(get_current_admin),
+    session: AsyncSession = Depends(get_db_session),
+):
+    """Reject or deactivate a roommate profile."""
+    reason = payload.get("reason") if payload else None
+    res = await admin_service.reject_roommate(
+        session=session,
+        profile_id=profile_id,
+        admin_id=current_admin.get("id"),
+        reason=reason,
+    )
+    if not res:
+        raise HTTPException(status_code=404, detail="Roommate profile not found")
+    return {"success": True, "data": res, "is_active": False}
+
+
+@admin_router.delete("/roommates/{profile_id}")
+async def delete_admin_roommate(
+    profile_id: int,
+    current_admin: Dict[str, Any] = Depends(get_current_admin),
+    session: AsyncSession = Depends(get_db_session),
+):
+    """Permanently delete a roommate profile."""
+    ok = await admin_service.delete_roommate(
+        session=session,
+        profile_id=profile_id,
+        admin_id=current_admin.get("id"),
+    )
+    if not ok:
+        raise HTTPException(status_code=404, detail="Roommate profile not found")
+    return {"success": True, "message": "Roommate profile deleted successfully"}
+
+

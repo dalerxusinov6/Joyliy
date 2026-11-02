@@ -64,6 +64,7 @@ class RoommateProfile(Base):
     lifestyle_sleep: Mapped[str] = mapped_column(String(32), default="flexible", nullable=False)
     smoking_allowed: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     pets_allowed: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    lifestyle_tags: Mapped[list] = mapped_column(JSON, default=list, nullable=True)
     bio: Mapped[str] = mapped_column(Text, default="", nullable=False)
     move_in_date: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
     contact_telegram: Mapped[str] = mapped_column(String(128), nullable=False)
