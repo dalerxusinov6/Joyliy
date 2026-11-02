@@ -1,9 +1,11 @@
 """Seed database with newly discovered realistic Tashkent apartment listings."""
 
+from __future__ import annotations
+
 import asyncio
 import logging
 from datetime import datetime, timezone
-from src.database import init_db, AsyncSessionLocal
+from src.database import init_db, AsyncSessionLocal, AsyncSession
 from src.services.listing_service import listing_service
 from src.providers.base import RawListingItem
 

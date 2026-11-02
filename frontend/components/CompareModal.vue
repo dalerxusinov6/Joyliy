@@ -61,13 +61,27 @@ const formatPrice = (val: number) => {
     <div class="modal-box">
       <!-- Head -->
       <div class="modal-head">
-        <div>
+        <div class="head-title-wrap">
           <span class="head-badge">Shortlist Battle</span>
-          <h2 class="head-title">⚖️ Kvartiralarni Taqqoslash</h2>
+          <h2 class="head-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="head-svg">
+              <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
+              <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
+              <path d="M7 21h10"/>
+              <path d="M12 3v18"/>
+              <path d="M3 7h18"/>
+            </svg>
+            <span>Kvartiralarni Taqqoslash</span>
+          </h2>
         </div>
         <div class="head-actions">
           <button v-if="compareList.length" class="clear-btn" @click="clearCompare">Tozalash</button>
-          <button class="close-btn" @click="$emit('close')" aria-label="Yopish">✕</button>
+          <button class="close-btn" @click="$emit('close')" aria-label="Yopish">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="modal-close-svg">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
         </div>
       </div>
 
@@ -75,10 +89,18 @@ const formatPrice = (val: number) => {
       <div class="modal-body">
         <!-- If fewer than 2 items -->
         <div v-if="compareList.length < 2" class="empty-state">
-          <div class="empty-icon">⚖️</div>
+          <div class="empty-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="empty-cmp-svg">
+              <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
+              <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
+              <path d="M7 21h10"/>
+              <path d="M12 3v18"/>
+              <path d="M3 7h18"/>
+            </svg>
+          </div>
           <h3>Taqqoslash uchun kamida 2 ta kvartira tanlang</h3>
           <p>
-            Katalogdagi istalgan e’lon ustidagi <b>«⚖️»</b> tugmasini bosib taqqoslash ro‘yxatiga qo‘shishingiz mumkin.
+            Katalogdagi istalgan e’lon ustidagi taqqoslash tugmasini bosib taqqoslash ro‘yxatiga qo‘shishingiz mumkin.
             AI narx/m², metro yaqinligi va sharoitlarni yonma-yon tahlil qilib beradi.
           </p>
           <div v-if="compareList.length === 1" class="selected-hint">
@@ -90,7 +112,15 @@ const formatPrice = (val: number) => {
         <div v-else class="comparison-container">
           <!-- AI Winner Banner -->
           <div v-if="comparisonData && comparisonData.winner_listing_id" class="winner-banner">
-            <div class="winner-trophy">🏆</div>
+            <div class="winner-trophy">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="trophy-svg">
+                <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
+                <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
+                <path d="M4 22h16"/>
+                <path d="M10 14.66V17c0 .55-.45 1-1 1H7v4h10v-4h-2c-.55 0-1-.45-1-1v-2.34"/>
+                <path d="M6 2h12v7a6 6 0 0 1-12 0V2Z"/>
+              </svg>
+            </div>
             <div class="winner-text">
               <h4 class="winner-title">Joyliy AI G‘olibi: E’lon #{{ comparisonData.winner_listing_id }}</h4>
               <p class="winner-desc">{{ comparisonData.ai_winner_summary }}</p>
@@ -101,7 +131,12 @@ const formatPrice = (val: number) => {
           <div class="compare-columns">
             <div v-for="item in compareList" :key="item.id" class="compare-col">
               <div class="col-head">
-                <button class="remove-btn" @click="toggleCompare(item)" title="Olib tashlash">✕</button>
+                <button class="remove-btn" @click="toggleCompare(item)" title="Olib tashlash" aria-label="Olib tashlash">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="remove-svg">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
+                </button>
                 <div class="img-wrap" @click="$emit('selectListing', item); $emit('close')">
                   <img
                     v-if="item.image_urls && item.image_urls.length"
@@ -144,7 +179,13 @@ const formatPrice = (val: number) => {
                 <div class="attr-row">
                   <span class="attr-lbl">Manba</span>
                   <span class="attr-val" :class="{ 'owner-tag': item.is_owner }">
-                    {{ item.is_owner ? '✅ Egasidan' : 'Rieltor/Agent' }}
+                    <template v-if="item.is_owner">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="inline-svg-check">
+                        <polyline points="20 6 9 17 4 12"/>
+                      </svg>
+                      <span>Egasidan</span>
+                    </template>
+                    <template v-else>Rieltor/Agent</template>
                   </span>
                 </div>
 
@@ -152,13 +193,25 @@ const formatPrice = (val: number) => {
                   <span class="attr-lbl">Bozor bahosi</span>
                   <span class="attr-val">
                     <span v-if="item.fair_price_category === 'BELOW_MARKET'" class="badge-good">
-                      🟢 Bozordan arzon
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="inline-badge-svg">
+                        <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/>
+                        <polyline points="17 18 23 18 23 12"/>
+                      </svg>
+                      <span>Bozordan arzon</span>
                     </span>
                     <span v-else-if="item.fair_price_category === 'ABOVE_MARKET'" class="badge-warn">
-                      🔴 Bozordan qimmat
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="inline-badge-svg">
+                        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                        <polyline points="17 6 23 6 23 12"/>
+                      </svg>
+                      <span>Bozordan qimmat</span>
                     </span>
                     <span v-else class="badge-fair">
-                      🟡 Bozor narxida
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="inline-badge-svg">
+                        <line x1="5" y1="9" x2="19" y2="9"/>
+                        <line x1="5" y1="15" x2="19" y2="15"/>
+                      </svg>
+                      <span>Bozor narxida</span>
                     </span>
                   </span>
                 </div>
@@ -167,10 +220,19 @@ const formatPrice = (val: number) => {
                   <span class="attr-lbl">Xavfsizlik</span>
                   <span class="attr-val">
                     <span v-if="(item.scam_risk_score || 0) < 40" class="badge-safe">
-                      🛡 Xavfsiz
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="inline-badge-svg">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        <path d="m9 12 2 2 4-4"/>
+                      </svg>
+                      <span>Xavfsiz</span>
                     </span>
                     <span v-else class="badge-risk">
-                      ⚠️ Diqqat talab
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="inline-badge-svg">
+                        <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+                        <line x1="12" y1="9" x2="12" y2="13"/>
+                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                      </svg>
+                      <span>Diqqat talab</span>
                     </span>
                   </span>
                 </div>
@@ -237,6 +299,57 @@ const formatPrice = (val: number) => {
   margin: 2px 0 0;
   font-size: 20px;
   font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.head-svg {
+  width: 20px;
+  height: 20px;
+  color: var(--blue-primary, #2878C8);
+  flex-shrink: 0;
+}
+
+.modal-close-svg {
+  width: 18px;
+  height: 18px;
+}
+
+.empty-cmp-svg {
+  width: 48px;
+  height: 48px;
+  color: var(--blue-primary, #2878C8);
+  margin-bottom: 12px;
+}
+
+.trophy-svg {
+  width: 32px;
+  height: 32px;
+  color: #F59E0B;
+  flex-shrink: 0;
+}
+
+.remove-svg {
+  width: 12px;
+  height: 12px;
+}
+
+.inline-svg-check {
+  width: 13px;
+  height: 13px;
+  color: #10B981;
+  display: inline-block;
+  vertical-align: -2px;
+  margin-right: 3px;
+}
+
+.inline-badge-svg {
+  width: 12px;
+  height: 12px;
+  display: inline-block;
+  vertical-align: -1px;
+  margin-right: 3px;
 }
 
 .head-actions {

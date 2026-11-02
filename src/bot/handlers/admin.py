@@ -1,5 +1,7 @@
 """Admin commands, scraper management, and monitoring controls."""
 
+from __future__ import annotations
+
 import asyncio
 import logging
 from datetime import datetime, timezone, timedelta
@@ -15,7 +17,7 @@ from sqlalchemy import select, func
 from sqlalchemy.orm import selectinload
 
 from src.config import settings
-from src.database import AsyncSessionLocal
+from src.database import AsyncSessionLocal, AsyncSession
 from src.models.user import User, UserSearchPreference
 from src.models.listing import Listing, ListingClassification
 from src.models.system import SourceMonitorRun, AdminAuditLog

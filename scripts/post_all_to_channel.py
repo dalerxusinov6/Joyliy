@@ -1,5 +1,7 @@
 """Script to broadcast all listings in the database to the Telegram channel."""
 
+from __future__ import annotations
+
 import asyncio
 import logging
 import sys
@@ -12,7 +14,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
 from src.config import settings
-from src.database import AsyncSessionLocal
+from src.database import AsyncSessionLocal, AsyncSession
 from src.models.listing import Listing
 from src.services.notification_service import notification_service
 

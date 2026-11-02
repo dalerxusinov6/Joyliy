@@ -207,9 +207,22 @@ const formatPrice = (p: number) => {
       <div class="modal-head">
         <div class="head-title-wrap">
           <span class="head-badge">Joyliy Ecosystem</span>
-          <h2 class="head-title">👥 Hamxona Topish (Roommates)</h2>
+          <h2 class="head-title">
+            <svg class="modal-head-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+            </svg>
+            Hamxona Topish (Roommates)
+          </h2>
         </div>
-        <button class="close-btn" @click="$emit('close')" aria-label="Yopish">✕</button>
+        <button class="close-btn" @click="$emit('close')" aria-label="Yopish">
+          <svg class="close-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
       </div>
 
       <!-- Navigation Tabs -->
@@ -220,7 +233,11 @@ const formatPrice = (p: number) => {
           :class="{ active: activeTab === 'browse' }"
           @click="activeTab = 'browse'"
         >
-          🔍 Anketalarni ko‘rish ({{ filteredProfiles.length }})
+          <svg class="tab-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          Anketalarni ko‘rish ({{ filteredProfiles.length }})
         </button>
         <button
           type="button"
@@ -228,7 +245,11 @@ const formatPrice = (p: number) => {
           :class="{ active: activeTab === 'create' }"
           @click="activeTab = 'create'"
         >
-          ➕ Anketa to‘ldirish
+          <svg class="tab-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          Anketa to‘ldirish
         </button>
       </div>
 
@@ -250,7 +271,7 @@ const formatPrice = (p: number) => {
             :class="{ active: filterType === 'student' }"
             @click="filterType = 'student'"
           >
-            🎓 Talabalar
+            Talabalar
           </button>
           <button
             type="button"
@@ -258,7 +279,7 @@ const formatPrice = (p: number) => {
             :class="{ active: filterType === 'working' }"
             @click="filterType = 'working'"
           >
-            💼 Ishlaydiganlar
+            Ishlaydiganlar
           </button>
           <button
             type="button"
@@ -266,7 +287,7 @@ const formatPrice = (p: number) => {
             :class="{ active: filterType === 'female' }"
             @click="filterType = 'female'"
           >
-            👩 Qizlar
+            Qizlar
           </button>
           <button
             type="button"
@@ -274,7 +295,7 @@ const formatPrice = (p: number) => {
             :class="{ active: filterType === 'male' }"
             @click="filterType = 'male'"
           >
-            👨 Yigitlar
+            Yigitlar
           </button>
         </div>
 
@@ -291,16 +312,23 @@ const formatPrice = (p: number) => {
                   <p class="profile-occ">{{ p.occupation || 'Talaba' }}</p>
                 </div>
               </div>
-              <span class="match-score">🎯 {{ p.compatibility_score }}% Mos</span>
+              <span class="match-score">
+                <svg class="match-target-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10" />
+                  <circle cx="12" cy="12" r="6" />
+                  <circle cx="12" cy="12" r="2" />
+                </svg>
+                {{ p.compatibility_score }}% Mos
+              </span>
             </div>
 
             <div class="spec-row">
               <div class="spec-item">
-                <span class="spec-label">📍 Tuman:</span>
+                <span class="spec-label">Tuman:</span>
                 <span class="spec-val">{{ p.preferred_district || 'Toshkent' }}</span>
               </div>
               <div class="spec-item">
-                <span class="spec-label">💰 Byudjet:</span>
+                <span class="spec-label">Byudjet:</span>
                 <span class="spec-val price">{{ formatPrice(p.budget_uzs) }}</span>
               </div>
             </div>
@@ -322,7 +350,11 @@ const formatPrice = (p: number) => {
               class="connect-btn"
               @click="selectedProfile = p"
             >
-              💌 Bog‘lanish so‘rovi
+              <svg class="btn-mail-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                <polyline points="22,6 12,13 2,6" />
+              </svg>
+              Bog‘lanish so‘rovi
             </button>
           </div>
         </div>
@@ -388,7 +420,14 @@ const formatPrice = (p: number) => {
           </div>
 
           <div class="form-actions">
-            <button type="submit" class="submit-btn">💾 Anketani e’lon qilish</button>
+            <button type="submit" class="submit-btn">
+              <svg class="btn-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                <polyline points="17 21 17 13 7 13 7 21" />
+                <polyline points="7 3 7 8 15 8" />
+              </svg>
+              Anketani e’lon qilish
+            </button>
           </div>
         </form>
       </div>
@@ -406,7 +445,7 @@ const formatPrice = (p: number) => {
           <div class="connect-actions">
             <button type="button" class="cancel-btn" @click="selectedProfile = null">Bekor qilish</button>
             <button type="button" class="send-btn" :disabled="isSending" @click="sendConnection">
-              {{ isSending ? 'Yuborilmoqda...' : 'Yuborish 🚀' }}
+              {{ isSending ? 'Yuborilmoqda...' : 'Yuborish' }}
             </button>
           </div>
         </div>
@@ -462,15 +501,64 @@ const formatPrice = (p: number) => {
   font-size: 20px;
   font-weight: 700;
   color: var(--ink, #1c1c1b);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-head-svg {
+  width: 22px;
+  height: 22px;
+  color: var(--blue-primary, #2878c8);
+  flex-shrink: 0;
 }
 
 .close-btn {
   background: none;
   border: none;
-  font-size: 20px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
   color: var(--ink-light, #72746b);
-  padding: 4px 8px;
+  transition: background 0.15s ease;
+}
+
+.close-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.close-svg {
+  width: 18px;
+  height: 18px;
+}
+
+.tab-svg {
+  width: 15px;
+  height: 15px;
+  display: inline-block;
+  vertical-align: -2px;
+  margin-right: 6px;
+}
+
+.match-target-svg {
+  width: 13px;
+  height: 13px;
+  display: inline-block;
+  vertical-align: -2px;
+  margin-right: 4px;
+}
+
+.btn-mail-svg,
+.btn-icon-svg {
+  width: 15px;
+  height: 15px;
+  display: inline-block;
+  vertical-align: -2px;
+  margin-right: 6px;
 }
 
 .nav-tabs {

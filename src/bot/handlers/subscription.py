@@ -1,12 +1,14 @@
 """Subscription and notification toggle handlers."""
 
+from __future__ import annotations
+
 import logging
 from aiogram import Router
 from aiogram.filters import Command
 from aiogram.types import Message
 from sqlalchemy import select
 
-from src.database import AsyncSessionLocal
+from src.database import AsyncSessionLocal, AsyncSession
 from src.models.user import User, UserSearchPreference
 from src.bot.i18n import get_text
 from src.bot.keyboards import get_main_menu_keyboard

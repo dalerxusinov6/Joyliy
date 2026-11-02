@@ -81,9 +81,19 @@ const formatPrice = (p: number) => {
       <div class="modal-head">
         <div>
           <span class="head-badge">Neighborhood Intelligence</span>
-          <h2 class="head-title">🏙 Toshkent Tumanlari Reytingi</h2>
+          <h2 class="head-title">
+            <svg class="modal-head-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 21h18M5 21V7l8-4v18M13 21V11l6 3v7" />
+            </svg>
+            Toshkent Tumanlari Reytingi
+          </h2>
         </div>
-        <button class="close-btn" @click="$emit('close')">✕</button>
+        <button class="close-btn" @click="$emit('close')" aria-label="Yopish">
+          <svg class="close-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
       </div>
 
       <!-- Body -->
@@ -96,7 +106,12 @@ const formatPrice = (p: number) => {
           <div v-for="d in districts" :key="d.name" class="d-card">
             <div class="d-top">
               <h3 class="d-name">{{ d.name }}</h3>
-              <span class="d-score">⭐ {{ d.score }}/100</span>
+              <span class="d-score">
+                <svg class="score-star-svg" viewBox="0 0 24 24" fill="currentColor">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                </svg>
+                {{ d.score }}/100
+              </span>
             </div>
 
             <p class="d-desc">{{ d.description }}</p>
@@ -108,15 +123,34 @@ const formatPrice = (p: number) => {
               </div>
               <div class="stat-cell">
                 <span class="s-label">Metro bekatlari</span>
-                <span class="s-val">🚇 {{ d.metro_count }} ta</span>
+                <span class="s-val">
+                  <svg class="stat-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="4" y="3" width="16" height="15" rx="3" />
+                    <line x1="4" y1="11" x2="20" y2="11" />
+                    <circle cx="8.5" cy="15.5" r="1.5" />
+                    <circle cx="15.5" cy="15.5" r="1.5" />
+                    <path d="M6 18l-2 3M18 18l2 3" />
+                  </svg>
+                  {{ d.metro_count }} ta
+                </span>
               </div>
               <div class="stat-cell">
                 <span class="s-label">Xavfsizlik</span>
-                <span class="s-val">🛡 {{ d.safety_score }}%</span>
+                <span class="s-val">
+                  <svg class="stat-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                  </svg>
+                  {{ d.safety_score }}%
+                </span>
               </div>
               <div class="stat-cell">
                 <span class="s-label">Parklar</span>
-                <span class="s-val">🌳 {{ d.parks_count }} ta</span>
+                <span class="s-val">
+                  <svg class="stat-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2L7 10h3l-4 7h6v5h2v-5h6l-4-7h3z" />
+                  </svg>
+                  {{ d.parks_count }} ta
+                </span>
               </div>
             </div>
 
@@ -176,14 +210,54 @@ const formatPrice = (p: number) => {
   margin: 2px 0 0;
   font-size: 20px;
   font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-head-svg {
+  width: 22px;
+  height: 22px;
+  color: var(--blue-primary, #2878c8);
+  flex-shrink: 0;
 }
 
 .close-btn {
   background: none;
   border: none;
-  font-size: 20px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
   color: #72746b;
+  transition: background 0.15s ease;
+}
+
+.close-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.close-svg {
+  width: 18px;
+  height: 18px;
+}
+
+.score-star-svg {
+  width: 13px;
+  height: 13px;
+  color: #f59e0b;
+}
+
+.stat-svg {
+  width: 13px;
+  height: 13px;
+  display: inline-block;
+  vertical-align: -2px;
+  margin-right: 3px;
+  color: #64748b;
 }
 
 .modal-body {

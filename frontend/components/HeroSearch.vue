@@ -101,7 +101,9 @@ const applyQuick = (type: string, val: string) => {
                 :class="{ active: searchMode === 'ai' }"
                 @click="searchMode = 'ai'"
               >
-                <span class="ai-sparkle">✨</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="tab-svg-icon">
+                  <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+                </svg>
                 <span>AI Aqlli Qidiruv</span>
                 <span class="ai-chip-pill">Tezkor</span>
               </button>
@@ -145,13 +147,31 @@ const applyQuick = (type: string, val: string) => {
                   <span class="prompts-title">Misollar:</span>
                   <div class="prompts-scroll">
                     <button type="button" class="prompt-pill" @click="applyAiPrompt('Chilonzorda metro yaqinida 4 mln gacha 2 xonali')">
-                      🚇 Chilonzor metro 4 mln
+                      <svg class="prompt-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect width="16" height="16" x="4" y="3" rx="2"/>
+                        <path d="M4 11h16"/>
+                        <path d="M12 3v8"/>
+                        <path d="m8 19-2 3"/>
+                        <path d="m18 22-2-3"/>
+                        <circle cx="8" cy="15" r="1"/>
+                        <circle cx="16" cy="15" r="1"/>
+                      </svg>
+                      <span>Chilonzor metro 4 mln</span>
                     </button>
                     <button type="button" class="prompt-pill" @click="applyAiPrompt('Yunusobodda maklersiz oila uchun')">
-                      👨‍👩‍👧 Yunusobod oila
+                      <svg class="prompt-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                      </svg>
+                      <span>Yunusobod oila</span>
                     </button>
                     <button type="button" class="prompt-pill" @click="applyAiPrompt('Mirobodda 3 xonali jihozlangan')">
-                      ✨ Mirobod jihozlangan
+                      <svg class="prompt-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                      </svg>
+                      <span>Mirobod jihozlangan</span>
                     </button>
                   </div>
                 </div>
@@ -250,11 +270,22 @@ const applyQuick = (type: string, val: string) => {
             <!-- Active AI Search Filter Status -->
             <div v-if="aiSearchActive" class="ai-active-status">
               <div class="ai-status-left">
-                <span class="ai-badge-live">🤖 Groq Qwen AI</span>
+                <span class="ai-badge-live">
+                  <svg class="ai-chip-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect width="16" height="16" x="4" y="4" rx="2" />
+                    <rect width="6" height="6" x="9" y="9" rx="1" />
+                    <path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3" />
+                  </svg>
+                  <span>Groq Qwen AI</span>
+                </span>
                 <span class="ai-query-text">«{{ aiSearchQuery }}»</span>
               </div>
-              <button type="button" class="ai-reset-btn" @click="resetAiMatch">
-                Filtrni tozalash ✕
+              <button type="button" class="ai-reset-btn" @click="resetAiMatch" aria-label="Filtrni tozalash">
+                <span>Filtrni tozalash</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="reset-svg">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
               </button>
             </div>
           </div>
@@ -301,7 +332,7 @@ const applyQuick = (type: string, val: string) => {
 
               <!-- Floating Pill Tags (Matching "Fair Price" & "Good Location" from Image 1) -->
               <div class="floating-pill-fair">
-                <span class="pill-dot">🟢</span>
+                <span class="pill-dot-live"></span>
                 <span>Fair Price / Adolatli narx</span>
               </div>
             </div>
@@ -332,12 +363,19 @@ const applyQuick = (type: string, val: string) => {
 /* Atmospheric Hero Card */
 .atmospheric-hero-card {
   background: var(--hero-gradient);
-  border-radius: var(--radius-card);
+  border-radius: 20px;
   border: 1px solid rgba(255, 255, 255, 0.9);
   box-shadow: 0 16px 48px -8px rgba(40, 120, 200, 0.12), 0 4px 16px rgba(0, 0, 0, 0.02);
-  padding: 20px 14px;
+  padding: 16px 12px;
   position: relative;
   overflow: hidden;
+}
+
+@media (min-width: 375px) {
+  .atmospheric-hero-card {
+    padding: 18px 14px;
+    border-radius: 24px;
+  }
 }
 
 @media (min-width: 480px) {
@@ -523,8 +561,10 @@ const applyQuick = (type: string, val: string) => {
   position: relative;
 }
 
-.ai-sparkle {
-  font-size: 13px;
+.tab-svg-icon {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
 }
 
 .ai-chip-pill {
@@ -729,6 +769,16 @@ const applyQuick = (type: string, val: string) => {
   white-space: nowrap;
   transition: all 0.15s ease;
   min-height: 30px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.prompt-svg {
+  width: 13px;
+  height: 13px;
+  color: var(--blue-primary);
+  flex-shrink: 0;
 }
 
 .prompt-pill:hover {
@@ -741,6 +791,13 @@ const applyQuick = (type: string, val: string) => {
   display: grid;
   grid-template-columns: 1fr;
   gap: 10px;
+}
+
+@media (max-width: 639px) {
+  .console-fields-row {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px 8px;
+  }
 }
 
 @media (min-width: 640px) {
@@ -787,6 +844,16 @@ const applyQuick = (type: string, val: string) => {
   font-weight: 600;
   outline: none;
   transition: all 0.18s ease;
+}
+
+@media (max-width: 639px) {
+  .iconly-select {
+    min-height: 42px;
+    height: 42px;
+    padding: 0 10px;
+    font-size: 12.5px;
+    border-radius: 10px;
+  }
 }
 
 .iconly-select:focus {
@@ -924,8 +991,16 @@ const applyQuick = (type: string, val: string) => {
   color: #ffffff;
   font-size: 10.5px;
   font-weight: 700;
-  padding: 2px 8px;
+  padding: 3px 8px;
   border-radius: var(--radius-full);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.ai-chip-svg {
+  width: 13px;
+  height: 13px;
 }
 
 .ai-query-text {
@@ -941,6 +1016,15 @@ const applyQuick = (type: string, val: string) => {
   border: none;
   background: none;
   min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.reset-svg {
+  width: 13px;
+  height: 13px;
 }
 
 /* Right: Visual Showcase (Desktop Only) */
@@ -1085,7 +1169,12 @@ const applyQuick = (type: string, val: string) => {
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
 }
 
-.pill-dot {
-  font-size: 10px;
+.pill-dot-live {
+  width: 7px;
+  height: 7px;
+  background: #10B981;
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25);
 }
 </style>

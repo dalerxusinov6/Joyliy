@@ -1,5 +1,7 @@
 """Search and Preferences interactive configuration handlers using FSM and Inline Keyboards."""
 
+from __future__ import annotations
+
 import logging
 from aiogram import Router, F
 from aiogram.filters import Command
@@ -8,7 +10,7 @@ from aiogram.types import Message, CallbackQuery
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
-from src.database import AsyncSessionLocal
+from src.database import AsyncSessionLocal, AsyncSession
 from src.models.user import User, UserSearchPreference
 from src.services.listing_service import listing_service
 from src.bot.states import SearchConfigState

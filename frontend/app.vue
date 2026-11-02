@@ -187,15 +187,27 @@ onUnmounted(() => {
     <Transition name="slide-fade">
       <div v-if="compareList.length > 0 && !showCompare" class="floating-compare-bar">
         <div class="fc-left">
-          <span class="fc-pill">⚖️ {{ compareList.length }}</span>
+          <span class="fc-pill">
+            <svg class="fc-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
+              <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
+              <path d="M7 21h10"/>
+              <path d="M12 3v18"/>
+              <path d="M3 7h18"/>
+            </svg>
+            <span>{{ compareList.length }}</span>
+          </span>
           <span class="fc-label">Kvartira taqqoslashda</span>
         </div>
         <div class="fc-right">
           <button class="fc-btn-view" @click="showCompare = true">
             Taqqoslash
           </button>
-          <button class="fc-btn-clear" @click="clearCompare" title="Tozalash">
-            ✕
+          <button class="fc-btn-clear" @click="clearCompare" title="Tozalash" aria-label="Tozalash">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="fc-close-svg">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
           </button>
         </div>
       </div>
@@ -206,45 +218,80 @@ onUnmounted(() => {
       {{ toastMessage }}
     </div>
 
-    <!-- Mobile Bottom Navigation (Floating Pill Capsule - Iconly Mobile Reference) -->
+    <!-- Mobile Bottom Navigation (Floating Pill Capsule - Iconly Mobile Reference: ONLY ICONS) -->
     <nav class="bn" aria-label="Mobil navigatsiya">
-      <button type="button" :class="{ on: !showMap && !showRoommates && !showCompare && !showSaved }" @click="scrollToResults">
+      <button
+        type="button"
+        :class="{ on: !showMap && !showRoommates && !showCompare && !showSaved }"
+        @click="scrollToResults"
+        aria-label="Bosh sahifa"
+        title="Bosh sahifa"
+      >
         <svg class="i" viewBox="0 0 24 24">
           <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
           <polyline points="9 22 9 12 15 12 15 22" />
         </svg>
-        <span>Bosh sahifa</span>
       </button>
 
-      <button type="button" :class="{ on: showMap }" @click="showMap = true">
+      <button
+        type="button"
+        :class="{ on: showMap }"
+        @click="showMap = true"
+        aria-label="Xarita"
+        title="Xarita"
+      >
         <svg class="i" viewBox="0 0 24 24">
           <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" />
           <line x1="8" y1="2" x2="8" y2="18" />
           <line x1="16" y1="6" x2="16" y2="22" />
         </svg>
-        <span>Xarita</span>
       </button>
 
-      <button type="button" :class="{ on: showRoommates }" @click="showRoommates = true">
+      <button
+        type="button"
+        :class="{ on: showRoommates }"
+        @click="showRoommates = true"
+        aria-label="Hamxona"
+        title="Hamxona"
+      >
         <svg class="i" viewBox="0 0 24 24">
           <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
           <circle cx="9" cy="7" r="4" />
           <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
           <path d="M16 3.13a4 4 0 0 1 0 7.75" />
         </svg>
-        <span>Hamxona</span>
       </button>
 
-      <button type="button" :class="{ on: showCompare }" @click="showCompare = true">
-        <span style="font-size: 15px;">⚖️</span>
-        <span>Taqqoslash {{ compareList.length ? `(${compareList.length})` : '' }}</span>
+      <button
+        type="button"
+        class="btn-with-badge"
+        :class="{ on: showCompare }"
+        @click="showCompare = true"
+        aria-label="Taqqoslash"
+        title="Taqqoslash"
+      >
+        <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
+          <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
+          <path d="M7 21h10"/>
+          <path d="M12 3v18"/>
+          <path d="M3 7h18"/>
+        </svg>
+        <span v-if="compareList.length > 0" class="bn-badge">{{ compareList.length }}</span>
       </button>
 
-      <button type="button" :class="{ on: showSaved }" @click="showSaved = true">
+      <button
+        type="button"
+        class="btn-with-badge"
+        :class="{ on: showSaved }"
+        @click="showSaved = true"
+        aria-label="Saqlanganlar"
+        title="Saqlanganlar"
+      >
         <svg class="i" viewBox="0 0 24 24">
           <path d="M12 21s-8-5-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 6-8 11-8 11z" />
         </svg>
-        <span>Saqlangan {{ favCount > 0 ? `(${favCount})` : '' }}</span>
+        <span v-if="favCount > 0" class="bn-badge">{{ favCount }}</span>
       </button>
     </nav>
   </div>
@@ -296,9 +343,22 @@ main {
   color: #ffffff;
   font-size: 11px;
   font-weight: 700;
-  padding: 2px 8px;
+  padding: 3px 8px;
   border-radius: 999px;
   font-family: var(--font-mono);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.fc-svg {
+  width: 13px;
+  height: 13px;
+}
+
+.fc-close-svg {
+  width: 12px;
+  height: 12px;
 }
 
 .fc-label {

@@ -1,5 +1,7 @@
 """Ecosystem bot handlers: AI Apartment Match, Roommates, Price Intelligence, Comparison, and AI Advisor."""
 
+from __future__ import annotations
+
 import logging
 import html
 from aiogram import Router, F
@@ -8,7 +10,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 from sqlalchemy import select
 
-from src.database import AsyncSessionLocal
+from src.database import AsyncSessionLocal, AsyncSession
 from src.config import settings
 from src.models.user import User
 from src.models.listing import Listing

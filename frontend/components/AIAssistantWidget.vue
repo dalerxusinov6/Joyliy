@@ -26,10 +26,10 @@ const messages = ref<ChatMessage[]>([
 ])
 
 const quickQuestions = [
-  '📄 Shartnomani soliqda qanday ro‘yxatdan o‘tkazish mumkin?',
-  '💵 Zalog (depozit) qachon qaytarilishi kerak?',
-  '💡 Kommunal to‘lovlarni kim to‘lashi shart?',
-  '🛡 Firibgarlardan qanday himoyalanamiz?',
+  { text: 'Shartnomani soliqda qanday ro‘yxatdan o‘tkazish mumkin?', icon: 'file' },
+  { text: 'Zalog (depozit) qachon qaytarilishi kerak?', icon: 'money' },
+  { text: 'Kommunal to‘lovlarni kim to‘lashi shart?', icon: 'bulb' },
+  { text: 'Firibgarlardan qanday himoyalanamiz?', icon: 'shield' },
 ]
 
 // Toggle global body class to suppress bottom navigation & lock background scroll on mobile
@@ -101,7 +101,11 @@ const sendQuestion = async (textToSend?: string) => {
       title="Joyliy AI Maslahatchi"
       aria-label="AI Maslahatchi chatini ochish"
     >
-      <div class="trigger-spark-circle">✨</div>
+      <div class="trigger-spark-circle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="sparkle-svg">
+          <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+        </svg>
+      </div>
       <span class="trigger-text">AI Maslahatchi</span>
       <span class="online-dot"></span>
     </button>
@@ -112,25 +116,53 @@ const sendQuestion = async (textToSend?: string) => {
         <!-- Drawer Header -->
         <div class="chat-header-bar">
           <div class="header-bot-info">
-            <div class="bot-avatar-circle">🤖</div>
+            <div class="bot-avatar-circle">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="bot-svg">
+                <rect width="18" height="12" x="3" y="6" rx="2" />
+                <path d="M12 2v4M9 12h.01M15 12h.01M10 16h4" />
+              </svg>
+            </div>
             <div>
               <h3 class="bot-name">Joyliy AI Maslahatchi</h3>
               <span class="bot-subtitle">Groq Qwen AI · Toshkent Ijara Huquqi</span>
             </div>
           </div>
-          <button class="btn-close-drawer" @click="isOpen = false" aria-label="Yopish">✕</button>
+          <button class="btn-close-drawer" @click="isOpen = false" aria-label="Yopish">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="drawer-close-svg">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
         </div>
 
         <!-- Quick Suggestions Strip -->
         <div class="quick-prompts-strip">
           <button
             v-for="q in quickQuestions"
-            :key="q"
+            :key="q.text"
             type="button"
             class="prompt-pill-btn"
-            @click="sendQuestion(q)"
+            @click="sendQuestion(q.text)"
           >
-            {{ q }}
+            <svg v-if="q.icon === 'file'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="pill-svg">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="16" y1="13" x2="8" y2="13" />
+              <line x1="16" y1="17" x2="8" y2="17" />
+            </svg>
+            <svg v-else-if="q.icon === 'money'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="pill-svg">
+              <rect width="20" height="12" x="2" y="6" rx="2" />
+              <circle cx="12" cy="12" r="2" />
+              <path d="M6 12h.01M18 12h.01" />
+            </svg>
+            <svg v-else-if="q.icon === 'bulb'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="pill-svg">
+              <path d="M12 2a6 6 0 0 0-6 6c0 2.5 1.5 4.5 3 6v2h6v-2c1.5-1.5 3-3.5 3-6a6 6 0 0 0-6-6Z" />
+              <path d="M9 22h6" />
+            </svg>
+            <svg v-else-if="q.icon === 'shield'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="pill-svg">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            </svg>
+            <span>{{ q.text }}</span>
           </button>
         </div>
 
@@ -147,7 +179,13 @@ const sendQuestion = async (textToSend?: string) => {
 
               <!-- Legal references -->
               <div v-if="msg.legal_references && msg.legal_references.length" class="legal-references-box">
-                <span class="box-tag">📚 Qonuniy asos:</span>
+                <span class="box-tag">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="box-svg">
+                    <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z" />
+                    <path d="M6 6h10M6 10h10" />
+                  </svg>
+                  <span>Qonuniy asos:</span>
+                </span>
                 <ul class="box-list">
                   <li v-for="ref in msg.legal_references" :key="ref">{{ ref }}</li>
                 </ul>
@@ -155,7 +193,13 @@ const sendQuestion = async (textToSend?: string) => {
 
               <!-- Practical Tips -->
               <div v-if="msg.practical_tips && msg.practical_tips.length" class="practical-tips-box">
-                <span class="box-tag">💡 Amaliy tavsiya:</span>
+                <span class="box-tag">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="box-svg">
+                    <path d="M12 2a6 6 0 0 0-6 6c0 2.5 1.5 4.5 3 6v2h6v-2c1.5-1.5 3-3.5 3-6a6 6 0 0 0-6-6Z" />
+                    <path d="M9 22h6" />
+                  </svg>
+                  <span>Amaliy tavsiya:</span>
+                </span>
                 <ul class="box-list">
                   <li v-for="tip in msg.practical_tips" :key="tip">{{ tip }}</li>
                 </ul>
@@ -267,7 +311,11 @@ const sendQuestion = async (textToSend?: string) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+}
+
+.sparkle-svg {
+  width: 16px;
+  height: 16px;
 }
 
 .online-dot {
@@ -620,6 +668,31 @@ const sendQuestion = async (textToSend?: string) => {
 .send-arr {
   width: 16px;
   height: 16px;
+}
+
+.bot-svg {
+  width: 20px;
+  height: 20px;
+}
+
+.drawer-close-svg {
+  width: 18px;
+  height: 18px;
+}
+
+.pill-svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: var(--blue-primary);
+}
+
+.box-svg {
+  width: 14px;
+  height: 14px;
+  display: inline-block;
+  vertical-align: -2px;
+  margin-right: 4px;
 }
 
 /* Transitions */

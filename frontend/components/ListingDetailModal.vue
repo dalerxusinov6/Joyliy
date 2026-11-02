@@ -172,14 +172,26 @@ const sourceViewLabel = computed(() => {
             <div class="intel-card">
               <span class="ic-lbl">Bozor Tahlili (Fair Price)</span>
               <div class="ic-status">
-                <span v-if="listing.fair_price_category === 'BELOW_MARKET'" class="tag-good">
-                  🟢 Bozordan arzon {{ listing.price_diff_percent ? `(${listing.price_diff_percent > 0 ? '+' : ''}${listing.price_diff_percent}%)` : '' }}
+                <span v-if="listing.fair_price_category === 'BELOW_MARKET'" class="tag-status-icon tag-good">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="intel-svg">
+                    <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/>
+                    <polyline points="17 18 23 18 23 12"/>
+                  </svg>
+                  <span>Bozordan arzon {{ listing.price_diff_percent ? `(${listing.price_diff_percent > 0 ? '+' : ''}${listing.price_diff_percent}%)` : '' }}</span>
                 </span>
-                <span v-else-if="listing.fair_price_category === 'ABOVE_MARKET'" class="tag-warn">
-                  🔴 Bozordan qimmat {{ listing.price_diff_percent ? `(+${listing.price_diff_percent}%)` : '' }}
+                <span v-else-if="listing.fair_price_category === 'ABOVE_MARKET'" class="tag-status-icon tag-warn">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="intel-svg">
+                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                    <polyline points="17 6 23 6 23 12"/>
+                  </svg>
+                  <span>Bozordan qimmat {{ listing.price_diff_percent ? `(+${listing.price_diff_percent}%)` : '' }}</span>
                 </span>
-                <span v-else class="tag-fair">
-                  🟡 Bozor narxida
+                <span v-else class="tag-status-icon tag-fair">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="intel-svg">
+                    <line x1="5" y1="9" x2="19" y2="9"/>
+                    <line x1="5" y1="15" x2="19" y2="15"/>
+                  </svg>
+                  <span>Bozor narxida</span>
                 </span>
               </div>
               <p class="ic-desc">
@@ -191,11 +203,20 @@ const sourceViewLabel = computed(() => {
             <div class="intel-card">
               <span class="ic-lbl">Xavfsizlik Tahlili</span>
               <div class="ic-status">
-                <span v-if="(listing.scam_risk_score || 0) < 40" class="tag-safe">
-                  🛡 Xavfsiz e’lon ({{ 100 - (listing.scam_risk_score || 10) }}% ishonch)
+                <span v-if="(listing.scam_risk_score || 0) < 40" class="tag-status-icon tag-safe">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="intel-svg">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    <path d="m9 12 2 2 4-4"/>
+                  </svg>
+                  <span>Xavfsiz e’lon ({{ 100 - (listing.scam_risk_score || 10) }}% ishonch)</span>
                 </span>
-                <span v-else class="tag-danger">
-                  ⚠️ Ehtiyot bo‘ling (Xavf darajasi: {{ listing.scam_risk_score }}%)
+                <span v-else class="tag-status-icon tag-danger">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="intel-svg">
+                    <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+                    <line x1="12" y1="9" x2="12" y2="13"/>
+                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                  </svg>
+                  <span>Ehtiyot bo‘ling (Xavf darajasi: {{ listing.scam_risk_score }}%)</span>
                 </span>
               </div>
               <p class="ic-desc">
@@ -245,8 +266,14 @@ const sourceViewLabel = computed(() => {
           :title="isInCompare(listing.id) ? 'Taqqoslangan' : 'Taqqoslash'"
           :aria-label="isInCompare(listing.id) ? 'Taqqoslangan' : 'Taqqoslash'"
         >
-          <span class="cmp-desktop-text">⚖️ {{ isInCompare(listing.id) ? 'Taqqoslangan' : 'Taqqoslash' }}</span>
-          <span class="cmp-mobile-text">⚖️</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="cmp-svg-icon">
+            <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
+            <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
+            <path d="M7 21h10"/>
+            <path d="M12 3v18"/>
+            <path d="M3 7h18"/>
+          </svg>
+          <span class="cmp-desktop-text">{{ isInCompare(listing.id) ? 'Taqqoslangan' : 'Taqqoslash' }}</span>
         </button>
 
         <a
@@ -701,6 +728,18 @@ const sourceViewLabel = computed(() => {
   line-height: 1.4;
 }
 
+.tag-status-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.intel-svg {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+}
+
 .tag-good {
   color: #137333;
 }
@@ -721,12 +760,29 @@ const sourceViewLabel = computed(() => {
   color: #c5221f;
 }
 
-.cmp-desktop-text {
-  display: inline;
+.cmp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 14px;
+  background: var(--sand-light, #f4f0eb);
+  border: 1px solid var(--sand, #ebe5db);
+  color: var(--ink, #1c1c1b);
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
 }
 
-.cmp-mobile-text {
-  display: none;
+.cmp-svg-icon {
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+}
+
+.cmp-desktop-text {
+  display: inline;
 }
 
 .btn-text-full {
@@ -756,9 +812,6 @@ const sourceViewLabel = computed(() => {
   }
   .cmp-desktop-text {
     display: none;
-  }
-  .cmp-mobile-text {
-    display: inline;
   }
   .btn-text-full {
     display: none;

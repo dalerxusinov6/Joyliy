@@ -1,5 +1,7 @@
 """Common command and main menu handlers."""
 
+from __future__ import annotations
+
 import logging
 from aiogram import Router, F
 from aiogram.filters import CommandStart, Command, CommandObject
@@ -8,7 +10,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
 from src.config import settings
-from src.database import AsyncSessionLocal
+from src.database import AsyncSessionLocal, AsyncSession
 from src.models.user import User, UserSearchPreference
 from src.models.listing import Listing
 from src.services.listing_service import listing_service

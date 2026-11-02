@@ -13,11 +13,11 @@ const details = ref('')
 const isSubmitting = ref(false)
 
 const reasonsList = [
-  { val: 'PREPAYMENT_SCAM', label: '💳 Ko‘rishdan oldin plastik kartaga to‘lov / zakalat talab qildi' },
-  { val: 'FAKE_PHOTOS', label: '🖼 Rasmlar soxta yoki internetdan o‘g‘irlangan' },
-  { val: 'WRONG_PRICE', label: '💰 E’londagi narx haqiqatga to‘g‘ri kelmaydi (aldov)' },
-  { val: 'BROKER_AS_OWNER', label: '👤 Makler o‘zini xonadon egasi deb ko‘rsatgan' },
-  { val: 'UNREACHABLE', label: '📵 Aloqa vositasi ishlamaydi / soxta profil' },
+  { val: 'PREPAYMENT_SCAM', label: 'Ko‘rishdan oldin plastik kartaga to‘lov / zakalat talab qildi' },
+  { val: 'FAKE_PHOTOS', label: 'Rasmlar soxta yoki internetdan o‘g‘irlangan' },
+  { val: 'WRONG_PRICE', label: 'E’londagi narx haqiqatga to‘g‘ri kelmaydi (aldov)' },
+  { val: 'BROKER_AS_OWNER', label: 'Makler o‘zini xonadon egasi deb ko‘rsatgan' },
+  { val: 'UNREACHABLE', label: 'Aloqa vositasi ishlamaydi / soxta profil' },
 ]
 
 const submitReport = async () => {
@@ -52,9 +52,20 @@ const submitReport = async () => {
       <div class="modal-head">
         <div>
           <span class="head-badge">Scam Protection</span>
-          <h2 class="head-title">🚩 E’lon ustidan shikoyat qilish</h2>
+          <h2 class="head-title">
+            <svg class="modal-head-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
+              <line x1="4" y1="22" x2="4" y2="15" />
+            </svg>
+            E’lon ustidan shikoyat qilish
+          </h2>
         </div>
-        <button class="close-btn" @click="$emit('close')">✕</button>
+        <button class="close-btn" @click="$emit('close')" aria-label="Yopish">
+          <svg class="close-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
       </div>
 
       <form @submit.prevent="submitReport" class="modal-body">
@@ -134,13 +145,39 @@ const submitReport = async () => {
   margin: 2px 0 0;
   font-size: 18px;
   font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-head-svg {
+  width: 18px;
+  height: 18px;
+  color: #c5221f;
+  flex-shrink: 0;
 }
 
 .close-btn {
   background: none;
   border: none;
-  font-size: 18px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
+  color: #666;
+  transition: background 0.15s ease;
+}
+
+.close-btn:hover {
+  background: #f0f0f0;
+}
+
+.close-svg {
+  width: 18px;
+  height: 18px;
 }
 
 .modal-body {

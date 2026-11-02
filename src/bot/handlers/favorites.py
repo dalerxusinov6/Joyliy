@@ -1,12 +1,14 @@
 """Favorites and listing action callbacks."""
 
+from __future__ import annotations
+
 import logging
 from aiogram import Router, F
 from aiogram.filters import Command
 from aiogram.types import Message, CallbackQuery
 from sqlalchemy import select
 
-from src.database import AsyncSessionLocal
+from src.database import AsyncSessionLocal, AsyncSession
 from src.models.user import User
 from src.services.listing_service import listing_service
 from src.bot.i18n import get_text

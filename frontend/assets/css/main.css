@@ -743,13 +743,13 @@ header {
 .bn {
   position: fixed;
   bottom: calc(var(--mobile-nav-bottom) + env(safe-area-inset-bottom, 0px));
-  left: 12px;
-  right: 12px;
-  max-width: 440px;
+  left: 16px;
+  right: 16px;
+  max-width: 380px;
   margin: 0 auto;
-  height: var(--mobile-nav-height);
+  height: var(--mobile-nav-height, 58px);
   z-index: var(--z-bottom-nav);
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.94);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border: 1px solid rgba(255, 255, 255, 0.9);
@@ -758,15 +758,14 @@ header {
   display: flex;
   align-items: center;
   justify-content: space-around;
-  padding: 0 6px;
+  padding: 0 8px;
   transition: transform 0.28s var(--ease), opacity 0.2s ease;
 }
 
 @media (min-width: 375px) {
   .bn {
-    left: 16px;
-    right: 16px;
-    padding: 0 8px;
+    left: 20px;
+    right: 20px;
   }
 }
 
@@ -778,7 +777,8 @@ header {
 }
 
 /* When chat or modal is open, bottom nav is hidden smoothly */
-body.chat-open .bn {
+body.chat-open .bn,
+body.modal-open .bn {
   transform: translateY(180%);
   opacity: 0;
   pointer-events: none;
@@ -787,31 +787,27 @@ body.chat-open .bn {
 .bn button {
   border: 0;
   background: none;
+  min-width: 44px;
   min-height: 44px;
-  height: 46px;
+  width: 48px;
+  height: 48px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 5px;
-  padding: 0 8px;
-  font-size: 11px;
-  font-weight: 600;
+  padding: 0;
   color: var(--text-secondary);
   border-radius: var(--radius-full);
   transition: all 0.2s var(--ease);
-  flex-shrink: 1;
+  position: relative;
+  cursor: pointer;
+  flex-shrink: 0;
 }
 
-@media (max-width: 374px) {
-  .bn button {
-    padding: 0 5px;
-    font-size: 10px;
-    gap: 3px;
-  }
-  .bn button svg.i {
-    width: 16px;
-    height: 16px;
-  }
+.bn button svg.i {
+  width: 22px;
+  height: 22px;
+  stroke-width: 2.1;
+  transition: transform 0.18s ease;
 }
 
 .bn button:hover {
@@ -819,32 +815,55 @@ body.chat-open .bn {
 }
 
 .bn button:active {
-  transform: scale(0.96);
+  transform: scale(0.92);
 }
 
-/* Active Dark Capsule Button (Iconly Mobile Reference Image) */
+/* Active Pill (Iconly Mobile Reference Image) */
 .bn button.on {
   background: #17191D;
   color: #FFFFFF;
-  padding: 0 14px;
-  box-shadow: 0 4px 14px rgba(23, 25, 29, 0.2);
-}
-
-@media (max-width: 374px) {
-  .bn button.on {
-    padding: 0 10px;
-  }
+  box-shadow: 0 4px 14px rgba(23, 25, 29, 0.25);
 }
 
 :root[data-theme="dark"] .bn button.on,
 :root:not([data-theme="light"]) .bn button.on {
-  background: #388BFD;
+  background: var(--blue-primary);
   color: #FFFFFF;
-  box-shadow: 0 4px 14px rgba(56, 139, 253, 0.3);
+  box-shadow: 0 4px 14px rgba(40, 120, 200, 0.35);
 }
 
-.bn button.on svg {
+.bn button.on svg.i {
   stroke: #FFFFFF;
+}
+
+/* Badge for compare / saved items on bottom nav */
+.bn-badge {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: var(--blue-primary);
+  color: #FFFFFF;
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(40, 120, 200, 0.35);
+  border: 1.5px solid #FFFFFF;
+  line-height: 1;
+}
+
+:root[data-theme="dark"] .bn-badge {
+  border-color: #161B22;
+}
+
+.bn button.on .bn-badge {
+  background: #EF4444;
+  border-color: #17191D;
 }
 
 /* Hide on desktop */

@@ -79,7 +79,10 @@ const scoreColorClass = computed(() => {
       <div class="top-badges-row">
         <!-- AI Match / Owner Pill -->
         <span v-if="listing.match_percentage" class="iconly-badge match-badge">
-          ✨ {{ listing.match_percentage }}% Mos
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="badge-sparkle-svg">
+            <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+          </svg>
+          <span>{{ listing.match_percentage }}% Mos</span>
         </span>
         <span v-else-if="listing.is_owner" class="iconly-badge owner-badge">
           Maklersiz
@@ -102,7 +105,13 @@ const scoreColorClass = computed(() => {
           title="Taqqoslash"
           aria-label="Taqqoslashga qo‘shish"
         >
-          <span>⚖️</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="action-svg">
+            <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
+            <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
+            <path d="M7 21h10"/>
+            <path d="M12 3v18"/>
+            <path d="M3 7h18"/>
+          </svg>
         </button>
 
         <!-- Circular White Favorite Button (Iconly Signature Element) -->
@@ -155,7 +164,16 @@ const scoreColorClass = computed(() => {
         <span class="district-name">{{ listing.district }}</span>
         <span class="dot-sep">·</span>
         <span class="metro-transit">
-          🚇 {{ listing.metro_station || listing.metro_name || 'Metro yaqin' }}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="metro-svg">
+            <rect width="16" height="16" x="4" y="3" rx="2"/>
+            <path d="M4 11h16"/>
+            <path d="M12 3v8"/>
+            <path d="m8 19-2 3"/>
+            <path d="m18 22-2-3"/>
+            <circle cx="8" cy="15" r="1"/>
+            <circle cx="16" cy="15" r="1"/>
+          </svg>
+          <span>{{ listing.metro_station || listing.metro_name || 'Metro yaqin' }}</span>
         </span>
       </div>
 
@@ -165,22 +183,42 @@ const scoreColorClass = computed(() => {
         <span class="spec-pill">{{ listing.rooms }} xona</span>
         <span class="spec-pill">{{ listing.floor || '3/9' }} qavat</span>
         <span v-if="listing.target_audience && listing.target_audience !== 'any'" class="spec-pill audience-pill">
-          {{ listing.target_audience === 'family' ? '👨‍👩‍👧 Oila' : listing.target_audience === 'female' ? '👩 Qizlar' : '👨 Yigitlar' }}
+          <svg v-if="listing.target_audience === 'family'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spec-audience-svg">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+          </svg>
+          <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spec-audience-svg">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
+          </svg>
+          <span>{{ listing.target_audience === 'family' ? 'Oila' : listing.target_audience === 'female' ? 'Qizlar' : 'Yigitlar' }}</span>
         </span>
       </div>
 
       <!-- AI Match Insights Pill & Reasons (Grounded Groq Qwen Evaluation) -->
       <div v-if="listing.match_pros && listing.match_pros.length" class="ai-match-container">
         <div class="ai-match-header">
-          <span class="ai-spark">✨</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="ai-spark-svg">
+            <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+          </svg>
           <span class="ai-header-text">{{ listing.match_percentage }}% so‘rovingizga mos</span>
         </div>
         <div class="ai-points-list">
           <span v-for="(pro, idx) in listing.match_pros.slice(0, 2)" :key="idx" class="ai-pro-badge">
-            ✓ {{ pro }}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" class="ai-point-svg">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            <span>{{ pro }}</span>
           </span>
           <span v-if="listing.match_cons && listing.match_cons.length" class="ai-con-badge">
-            ⚠️ {{ listing.match_cons[0] }}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="ai-warn-svg">
+              <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+            <span>{{ listing.match_cons[0] }}</span>
           </span>
         </div>
       </div>
@@ -314,6 +352,21 @@ const scoreColorClass = computed(() => {
 .match-badge {
   background: var(--blue-primary);
   color: #FFFFFF;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.badge-sparkle-svg {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+}
+
+.action-svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
 }
 
 .fair-badge {
@@ -543,6 +596,16 @@ const scoreColorClass = computed(() => {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.metro-svg {
+  width: 13px;
+  height: 13px;
+  color: var(--blue-primary);
+  flex-shrink: 0;
 }
 
 /* Specs Pills (Wrap gracefully on 320px screens) */
@@ -563,6 +626,15 @@ const scoreColorClass = computed(() => {
   padding: 3px 8px;
   border-radius: var(--radius-full);
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.spec-audience-svg {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
 }
 
 .audience-pill {
@@ -596,8 +668,11 @@ const scoreColorClass = computed(() => {
   color: #58A6FF;
 }
 
-.ai-spark {
-  font-size: 12px;
+.ai-spark-svg {
+  width: 14px;
+  height: 14px;
+  color: var(--blue-primary);
+  flex-shrink: 0;
 }
 
 .ai-points-list {
@@ -613,8 +688,16 @@ const scoreColorClass = computed(() => {
   background: #D1FAE5;
   padding: 2px 6px;
   border-radius: var(--radius-xs);
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   word-break: break-word;
+}
+
+.ai-point-svg {
+  width: 11px;
+  height: 11px;
+  flex-shrink: 0;
 }
 
 :root[data-theme="dark"] .ai-pro-badge {
@@ -629,8 +712,16 @@ const scoreColorClass = computed(() => {
   background: #FEF3C7;
   padding: 2px 6px;
   border-radius: var(--radius-xs);
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   word-break: break-word;
+}
+
+.ai-warn-svg {
+  width: 11px;
+  height: 11px;
+  flex-shrink: 0;
 }
 
 /* Footer Row */

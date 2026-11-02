@@ -1,5 +1,7 @@
 """Periodic Background Monitor Worker for apartment listing discovery and dispatch."""
 
+from __future__ import annotations
+
 import asyncio
 import logging
 from datetime import datetime, timezone
@@ -8,7 +10,7 @@ from aiogram import Bot
 from sqlalchemy import select, func
 
 from src.config import settings
-from src.database import AsyncSessionLocal
+from src.database import AsyncSessionLocal, AsyncSession
 from src.models.listing import Listing
 from src.models.system import SourceMonitorRun
 from src.providers.base import BaseListingProvider, ProviderStatus

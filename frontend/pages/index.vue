@@ -32,14 +32,14 @@ await useAsyncData('listings_ssr', async () => {
 
 // Curated categories matching Iconly pill tabs
 const categories = [
-  { key: '', title: 'Barchasi' },
-  { key: 'mk', title: '🏠 Maklersiz' },
-  { key: 'fair_cheap', title: '🟢 Bozordan arzon' },
-  { key: '3days', title: '⚡️ Yangi e’lonlar' },
-  { key: '1', title: '1 xonali' },
-  { key: '2', title: '2 xonali' },
-  { key: '3', title: '3 xonali' },
-  { key: 'room', title: '👥 Sheriklik' },
+  { key: '', title: 'Barchasi', icon: 'all' },
+  { key: 'mk', title: 'Maklersiz', icon: 'home' },
+  { key: 'fair_cheap', title: 'Bozordan arzon', icon: 'discount' },
+  { key: '3days', title: 'Yangi e’lonlar', icon: 'zap' },
+  { key: '1', title: '1 xonali', icon: 'room' },
+  { key: '2', title: '2 xonali', icon: 'room' },
+  { key: '3', title: '3 xonali', icon: 'room' },
+  { key: 'room', title: 'Sheriklik', icon: 'users' },
 ]
 
 // Audience options
@@ -130,6 +130,25 @@ const formatPrice = (val: number) => {
             :class="{ active: filterCategory === cat.key }"
             @click="selectCategory(cat.key)"
           >
+            <!-- SVG icons for categories -->
+            <svg v-if="cat.icon === 'home'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="cat-svg">
+              <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+              <polyline points="9 22 9 12 15 12 15 22" />
+            </svg>
+            <svg v-else-if="cat.icon === 'discount'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="cat-svg">
+              <line x1="19" y1="5" x2="5" y2="19" />
+              <circle cx="6.5" cy="6.5" r="2.5" />
+              <circle cx="17.5" cy="17.5" r="2.5" />
+            </svg>
+            <svg v-else-if="cat.icon === 'zap'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="cat-svg">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+            </svg>
+            <svg v-else-if="cat.icon === 'users'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="cat-svg">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+            </svg>
             <span>{{ cat.title }}</span>
           </button>
         </div>
@@ -162,7 +181,11 @@ const formatPrice = (val: number) => {
             </button>
 
             <button v-if="hasActiveFilters" class="btn-clear-action" type="button" @click="clearFilters">
-              <span>Tozalash ✕</span>
+              <span>Tozalash</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="action-icon">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
             </button>
           </div>
         </div>
@@ -203,7 +226,12 @@ const formatPrice = (val: number) => {
 
             <!-- Top Left Tag -->
             <div class="featured-top-left-tag">
-              <span class="hot-rent-pill">🔥 Qaynoq taklif</span>
+              <span class="hot-rent-pill">
+                <svg viewBox="0 0 24 24" fill="currentColor" class="flame-svg">
+                  <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" />
+                </svg>
+                <span>Qaynoq taklif</span>
+              </span>
               <span v-if="dominantFeatured.is_owner" class="owner-pill">Maklersiz</span>
             </div>
 
@@ -273,7 +301,12 @@ const formatPrice = (val: number) => {
 
         <!-- Empty State -->
         <div v-else-if="!dominantFeatured" class="empty-state-card">
-          <div class="empty-icon-wrap">🔍</div>
+          <div class="empty-icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="empty-search-svg">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+          </div>
           <h3>Hech qanday e’lon topilmadi</h3>
           <p>Tanlangan filtrlarga mos xonadonlar topilmadi. Filtrlarni tozalab qayta urinib ko‘ring.</p>
           <button class="btn btn-dark" type="button" @click="clearFilters">Filtrlarni tozalash</button>
@@ -325,7 +358,12 @@ const formatPrice = (val: number) => {
         <div class="why-cards-grid">
           <div class="why-card">
             <div class="why-icon-circle">
-              <span class="icon-emoji">🤝</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="why-svg">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+              </svg>
             </div>
             <h4 class="why-card-title">0% Vositachilik to‘lovi</h4>
             <p class="why-card-desc">
@@ -335,7 +373,11 @@ const formatPrice = (val: number) => {
 
           <div class="why-card">
             <div class="why-icon-circle">
-              <span class="icon-emoji">🤖</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="why-svg">
+                <rect width="16" height="16" x="4" y="4" rx="2" />
+                <rect width="6" height="6" x="9" y="9" rx="1" />
+                <path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3" />
+              </svg>
             </div>
             <h4 class="why-card-title">Groq Qwen AI Tahlili</h4>
             <p class="why-card-desc">
@@ -345,7 +387,10 @@ const formatPrice = (val: number) => {
 
           <div class="why-card">
             <div class="why-icon-circle">
-              <span class="icon-emoji">🛡</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="why-svg">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                <path d="m9 12 2 2 4-4" />
+              </svg>
             </div>
             <h4 class="why-card-title">100% Tekshirilgan E’lonlar</h4>
             <p class="why-card-desc">
@@ -430,6 +475,18 @@ const formatPrice = (val: number) => {
     padding: 8px 18px;
     min-height: 40px;
   }
+}
+
+.category-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cat-svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
 }
 
 .category-pill-btn:hover {
@@ -689,6 +746,15 @@ const formatPrice = (val: number) => {
   padding: 3px 8px;
   border-radius: var(--radius-full);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.flame-svg {
+  width: 13px;
+  height: 13px;
+  color: #F59E0B;
 }
 
 .owner-pill {
@@ -880,8 +946,20 @@ const formatPrice = (val: number) => {
 }
 
 .empty-icon-wrap {
-  font-size: 32px;
-  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 12px;
+  background: var(--blue-pale);
+  border-radius: var(--radius-md);
+  color: var(--blue-primary);
+}
+
+.empty-search-svg {
+  width: 26px;
+  height: 26px;
 }
 
 /* Popular Districts Section */
@@ -1049,10 +1127,12 @@ const formatPrice = (val: number) => {
   align-items: center;
   justify-content: center;
   margin-bottom: 14px;
+  color: var(--blue-primary);
 }
 
-.icon-emoji {
-  font-size: 20px;
+.why-svg {
+  width: 22px;
+  height: 22px;
 }
 
 .why-card-title {
