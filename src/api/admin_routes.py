@@ -168,8 +168,10 @@ async def admin_login(
 
     return {
         "status": "success",
+        "success": True,
         "token": token,
         "admin": admin_data,
+        "user": admin_data,
     }
 
 
@@ -178,14 +180,18 @@ async def admin_get_me(
     current_admin: Dict[str, Any] = Depends(get_current_admin),
 ):
     """Retrieve authenticated administrator profile."""
+    admin_info = {
+        "id": int(current_admin.get("sub", 1)),
+        "username": current_admin.get("username", "admin"),
+        "role": current_admin.get("role", "admin"),
+        "is_admin": True,
+    }
     return {
+        "status": "success",
+        "success": True,
         "authenticated": True,
-        "admin": {
-            "id": int(current_admin.get("sub", 1)),
-            "username": current_admin.get("username", "admin"),
-            "role": current_admin.get("role", "admin"),
-            "is_admin": True,
-        },
+        "admin": admin_info,
+        "user": admin_info,
     }
 
 
@@ -193,13 +199,14 @@ async def admin_get_me(
 async def admin_logout(response: Response):
     """Clear administrator session cookie."""
     response.delete_cookie(key="joyliy_admin_session", path="/")
-    return {"status": "logged_out"}
+    return {"status": "logged_out", "success": True}
 
 
 # =================================================================
 # 2. Overview Dashboard
 # =================================================================
 
+@admin_router.get("/overview")
 @admin_router.get("/overview/stats")
 async def get_overview_dashboard(
     current_admin: Dict[str, Any] = Depends(get_current_admin),
@@ -207,6 +214,8 @@ async def get_overview_dashboard(
 ):
     """Retrieve full dashboard statistics directly from database."""
     stats = await admin_service.get_overview_stats(session)
+    if isinstance(stats, dict) and "success" not in stats:
+        stats["success"] = True
     return stats
 
 
@@ -399,6 +408,7 @@ async def update_parser_schedule(
 # 5. Telegram Publishing Management
 # =================================================================
 
+@admin_router.get("/telegram")
 @admin_router.get("/telegram/overview")
 async def get_telegram_overview(
     current_admin: Dict[str, Any] = Depends(get_current_admin),

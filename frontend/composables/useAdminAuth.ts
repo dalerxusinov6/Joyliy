@@ -103,10 +103,11 @@ export function useAdminAuth() {
         credentials: 'include',
       })
 
-      if (res && res.authenticated && res.user) {
-        adminUser.value = res.user
+      const user = res?.user || res?.admin
+      if (res && (res.authenticated || res.success || res.status === 'success') && user) {
+        adminUser.value = user
         if (import.meta.client) {
-          localStorage.setItem('joyliy_admin_user', JSON.stringify(res.user))
+          localStorage.setItem('joyliy_admin_user', JSON.stringify(user))
         }
         return true
       }
@@ -124,22 +125,26 @@ export function useAdminAuth() {
     try {
       const res: any = await $fetch(`${apiBase}/api/admin/auth/login`, {
         method: 'POST',
-        body: { username, password },
+        body: { username: username.trim(), password: password.trim() },
         credentials: 'include',
       })
 
-      if (res && res.success && res.token) {
-        adminToken.value = res.token
-        adminUser.value = res.user
+      const isSuccess = res && (res.success === true || res.status === 'success')
+      const token = res?.token
+      const user = res?.user || res?.admin
+
+      if (isSuccess && token && user) {
+        adminToken.value = token
+        adminUser.value = user
         if (import.meta.client) {
-          localStorage.setItem('joyliy_admin_token', res.token)
-          localStorage.setItem('joyliy_admin_user', JSON.stringify(res.user))
+          localStorage.setItem('joyliy_admin_token', token)
+          localStorage.setItem('joyliy_admin_user', JSON.stringify(user))
         }
-        showToast(`Xush kelibsiz, ${res.user.first_name || res.user.username}!`, 'success')
+        showToast(`Xush kelibsiz, ${user.first_name || user.username}!`, 'success')
         await router.push('/admin')
         return true
       }
-      authError.value = res?.message || 'Login yoki parol noto‘g‘ri'
+      authError.value = res?.message || res?.detail || 'Login yoki parol noto‘g‘ri'
       return false
     } catch (e: any) {
       authError.value = e?.data?.detail || e?.data?.message || 'Kirishda xatolik yuz berdi'

@@ -10,8 +10,8 @@ const { login, isAuthenticated, isLoading, authError, checkAuth } = useAdminAuth
 const router = useRouter()
 
 const username = ref('admin')
-const password = ref('')
-const showPassword = ref(false)
+const password = ref('Daler2026')
+const showPassword = ref(true)
 
 onMounted(async () => {
   const authed = await checkAuth()
