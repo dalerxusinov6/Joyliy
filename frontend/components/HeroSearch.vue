@@ -10,6 +10,8 @@ const {
   filterRooms,
   filterMaxPrice,
   filterAudience,
+  filterDealType,
+  filterPropertyType,
   availableDistricts,
   aiSearchQuery,
   isAiSearching,
@@ -20,6 +22,24 @@ const {
 
 const searchMode = ref<'rent' | 'buy' | 'ai'>('rent')
 const aiInput = ref('')
+
+// Initialize searchMode to match filterDealType
+if (filterDealType.value === 'sale') {
+  searchMode.value = 'buy'
+}
+
+const setMode = (mode: 'rent' | 'buy' | 'ai') => {
+  searchMode.value = mode
+  if (mode === 'rent') {
+    filterDealType.value = 'rent'
+    filterMaxPrice.value = ''
+    filterPropertyType.value = ''
+  } else if (mode === 'buy') {
+    filterDealType.value = 'sale'
+    filterMaxPrice.value = ''
+    filterAudience.value = 'all'
+  }
+}
 
 const handleAiSearch = async () => {
   if (!aiInput.value.trim()) return
@@ -81,7 +101,7 @@ const applyQuick = (type: string, val: string) => {
                 role="tab"
                 class="mode-pill-tab"
                 :class="{ active: searchMode === 'rent' }"
-                @click="searchMode = 'rent'"
+                @click="setMode('rent')"
               >
                 Ijaraga olish
               </button>
@@ -90,7 +110,7 @@ const applyQuick = (type: string, val: string) => {
                 role="tab"
                 class="mode-pill-tab"
                 :class="{ active: searchMode === 'buy' }"
-                @click="searchMode = 'buy'"
+                @click="setMode('buy')"
               >
                 Sotib olish
               </button>
@@ -99,7 +119,7 @@ const applyQuick = (type: string, val: string) => {
                 role="tab"
                 class="mode-pill-tab ai-tab-special"
                 :class="{ active: searchMode === 'ai' }"
-                @click="searchMode = 'ai'"
+                @click="setMode('ai')"
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="tab-svg-icon">
                   <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
@@ -186,7 +206,7 @@ const applyQuick = (type: string, val: string) => {
                     <label class="field-lbl">Tuman</label>
                     <div class="field-select-wrap">
                       <select v-model="filterDistrict" class="iconly-select" aria-label="Tuman tanlang">
-                        <option value="">Barcha tumanlar</option>
+                        <option value="">Barchasi</option>
                         <option v-for="d in availableDistricts" :key="d" :value="d">{{ d }}</option>
                       </select>
                     </div>
@@ -206,12 +226,26 @@ const applyQuick = (type: string, val: string) => {
                     </div>
                   </div>
 
-                  <!-- Price -->
-                  <div class="field-item">
+                  <!-- Price: Rent vs Buy -->
+                  <div class="field-item" v-if="searchMode === 'buy'">
                     <label class="field-lbl">Maksimal byudjet</label>
                     <div class="field-select-wrap">
-                      <select v-model="filterMaxPrice" class="iconly-select" aria-label="Maksimal byudjet">
-                        <option value="">Istalgan narx</option>
+                      <select v-model="filterMaxPrice" class="iconly-select" aria-label="Maksimal xarid byudjeti">
+                        <option value="">Istalgan</option>
+                        <option value="400000000">400 mln so‘m</option>
+                        <option value="600000000">600 mln so‘m</option>
+                        <option value="800000000">800 mln so‘m</option>
+                        <option value="1200000000">1.2 mlrd so‘m</option>
+                        <option value="2000000000">2.0 mlrd so‘m</option>
+                        <option value="3500000000">3.5 mlrd so‘m</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="field-item" v-else>
+                    <label class="field-lbl">Maksimal byudjet</label>
+                    <div class="field-select-wrap">
+                      <select v-model="filterMaxPrice" class="iconly-select" aria-label="Maksimal ijara byudjeti">
+                        <option value="">Istalgan</option>
                         <option value="3000000">3 000 000 so‘m</option>
                         <option value="4000000">4 000 000 so‘m</option>
                         <option value="6000000">6 000 000 so‘m</option>
@@ -221,8 +255,19 @@ const applyQuick = (type: string, val: string) => {
                     </div>
                   </div>
 
-                  <!-- Audience -->
-                  <div class="field-item">
+                  <!-- Buy: Property Type vs Rent: Target Audience -->
+                  <div class="field-item" v-if="searchMode === 'buy'">
+                    <label class="field-lbl">Mulk turi</label>
+                    <div class="field-select-wrap">
+                      <select v-model="filterPropertyType" class="iconly-select" aria-label="Mulk turi">
+                        <option value="">Barchasi</option>
+                        <option value="new_building">Novostroyka</option>
+                        <option value="secondary">Ikkilamchi</option>
+                        <option value="house">Hovli / Dacha</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="field-item" v-else>
                     <label class="field-lbl">Kim uchun</label>
                     <div class="field-select-wrap">
                       <select v-model="filterAudience" class="iconly-select" aria-label="Kim uchun">
@@ -330,12 +375,6 @@ const applyQuick = (type: string, val: string) => {
                   <span class="score-sub">Ajoyib joylashuv</span>
                 </div>
               </div>
-
-              <!-- Floating Pill Tags (Matching "Fair Price" & "Good Location" from Image 1) -->
-              <div class="floating-pill-fair">
-                <span class="pill-dot-live"></span>
-                <span>Fair Price / Adolatli narx</span>
-              </div>
             </div>
           </div>
         </div>
@@ -421,8 +460,15 @@ const applyQuick = (type: string, val: string) => {
 
 @media (min-width: 1024px) {
   .hero-inner-grid {
-    grid-template-columns: 1.15fr 0.85fr;
-    gap: 44px;
+    grid-template-columns: 1.35fr 0.85fr;
+    gap: 32px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .hero-inner-grid {
+    grid-template-columns: 1.4fr 0.8fr;
+    gap: 40px;
   }
 }
 
@@ -846,7 +892,8 @@ const applyQuick = (type: string, val: string) => {
 
 @media (min-width: 1024px) {
   .console-fields-row {
-    grid-template-columns: 1.1fr 1fr 1.2fr 1fr auto;
+    grid-template-columns: 1.15fr 1fr 1.25fr 1.1fr auto;
+    gap: 8px;
     align-items: flex-end;
   }
 }
@@ -855,6 +902,7 @@ const applyQuick = (type: string, val: string) => {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  min-width: 0;
 }
 
 .field-lbl {
@@ -866,30 +914,44 @@ const applyQuick = (type: string, val: string) => {
 
 .field-select-wrap {
   position: relative;
+  min-width: 0;
 }
 
 .iconly-select {
   width: 100%;
+  min-width: 0;
   min-height: 44px;
   height: 44px;
-  padding: 0 14px;
-  background: var(--surface-subtle);
+  padding: 0 24px 0 10px;
+  background-color: var(--surface-subtle);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
   color: var(--text-primary);
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 600;
   outline: none;
   transition: all 0.18s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 12px;
+  cursor: pointer;
 }
 
 @media (max-width: 639px) {
   .iconly-select {
     min-height: 42px;
     height: 42px;
-    padding: 0 10px;
+    padding: 0 22px 0 9px;
     font-size: 12.5px;
     border-radius: 10px;
+    background-position: right 6px center;
   }
 }
 
@@ -1187,32 +1249,5 @@ const applyQuick = (type: string, val: string) => {
 .score-sub {
   font-size: 10.5px;
   color: var(--text-secondary);
-}
-
-/* Floating Pill Tag */
-.floating-pill-fair {
-  position: absolute;
-  bottom: -14px;
-  left: 20px;
-  background: #FEF3C7;
-  color: #92400E;
-  border: 1px solid #FDE68A;
-  padding: 6px 14px;
-  border-radius: var(--radius-full);
-  font-size: 12px;
-  font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-}
-
-.pill-dot-live {
-  width: 7px;
-  height: 7px;
-  background: #10B981;
-  border-radius: 50%;
-  display: inline-block;
-  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25);
 }
 </style>

@@ -117,6 +117,8 @@ def _sync_schema_migration(connection) -> None:
             ("coordinates_lon", "FLOAT"),
             ("metro_station", "VARCHAR(128)"),
             ("metro_distance_m", "INTEGER"),
+            ("deal_type", "VARCHAR(32) DEFAULT 'rent'"),
+            ("property_type", "VARCHAR(64)"),
             ("is_furnished", "BOOLEAN DEFAULT TRUE"),
             ("renovation_type", "VARCHAR(64)"),
             ("fair_price_category", "VARCHAR(32) DEFAULT 'fair_price'"),

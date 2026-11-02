@@ -36,6 +36,8 @@ class RawListingItem(BaseModel):
     image_urls: List[str] = Field(default_factory=list)
     # Publication date is None if not reliably known. Never fabricated.
     publication_date: Optional[datetime] = None
+    deal_type: Optional[str] = "rent"  # 'rent' | 'sale'
+    property_type: Optional[str] = None  # 'new_building' | 'secondary' | 'house' | 'apartment'
     raw_metadata: Dict[str, Any] = Field(default_factory=dict)
 
 

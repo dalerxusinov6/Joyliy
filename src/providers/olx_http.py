@@ -76,10 +76,16 @@ class OLXHttpListingProvider(BaseListingProvider):
         return "olx_uz_http"
 
     async def _fetch_api_listings(self, client: httpx.AsyncClient, max_pages: int = 2) -> List[RawListingItem]:
-        """Fetch newly published listings from OLX official offers API, sorted by newest first."""
+        """Fetch newly published listings for both rent and sale from OLX official offers API, sorted by newest first."""
+        categories = [
+            1147,  # Kvartiry arenda (Rent)
+            13,    # Kvartiry prodazha (Sale)
+            18,    # Doma / dachas prodazha (Houses for sale)
+        ]
         api_endpoints = [
-            f"https://www.olx.uz/api/v1/offers/?category_id=1147&city_id=4&offset={page * 40}&limit=40&sort_by=created_at:desc"
-            for page in range(max(1, min(10, max_pages)))
+            f"https://www.olx.uz/api/v1/offers/?category_id={cat_id}&city_id=4&offset={page * 40}&limit=40&sort_by=created_at:desc"
+            for cat_id in categories
+            for page in range(max(1, min(5, max_pages)))
         ]
         items = []
         seen_ids = set()

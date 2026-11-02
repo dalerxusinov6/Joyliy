@@ -224,6 +224,46 @@ def extract_telegram_user(text: Optional[str]) -> Optional[str]:
     return None
 
 
+def detect_deal_type(title: str, url: Optional[str] = None, category_id: Optional[int] = None) -> str:
+    """Detect whether a property listing is for rent or sale."""
+    if category_id in (13, 18, 1143, 1145, 1148):
+        return "sale"
+    if category_id == 1147:
+        return "rent"
+    if url:
+        u_lower = url.lower()
+        if "/prodazha/" in u_lower or "prodazha" in u_lower:
+            return "sale"
+        if "/arenda-" in u_lower or "arenda" in u_lower:
+            return "rent"
+    t_lower = (title or "").lower()
+    sale_keywords = ["sotiladi", "сотилади", "продается", "продам", "продажа", "новостройка", "sotuvda", "сотувда", "novostroyka"]
+    rent_keywords = ["ijaraga", "ижара", "сдается", "аренда", "сниму", "ijara", "sheriklik", "шериклик"]
+    if any(k in t_lower for k in sale_keywords):
+        return "sale"
+    if any(k in t_lower for k in rent_keywords):
+        return "rent"
+    return "rent"
+
+
+def detect_property_type(title: str, category_id: Optional[int] = None, market_type: Optional[str] = None) -> Optional[str]:
+    """Detect property sub-type: 'new_building', 'secondary', 'house', or 'apartment'."""
+    t_lower = (title or "").lower()
+    if category_id == 18 or any(k in t_lower for k in ["hovli", "ҳовли", "дача", "dacha", "частный дом", "uchastka", "участка"]):
+        return "house"
+    if market_type:
+        mt_lower = market_type.lower()
+        if "новостройк" in mt_lower or "yangi" in mt_lower:
+            return "new_building"
+        if "вторичн" in mt_lower:
+            return "secondary"
+    if any(k in t_lower for k in ["новостройк", "yangi bino", "novostroyka", "new house"]):
+        return "new_building"
+    if any(k in t_lower for k in ["вторичк", "ikkilamchi"]):
+        return "secondary"
+    return "apartment"
+
+
 def _parse_prerendered_state(html_content: str, base_url: str = "https://www.olx.uz") -> List[RawListingItem]:
     """Extract structured listing data from window.__PRERENDERED_STATE__ if present in the page."""
     import json
@@ -360,6 +400,8 @@ def _parse_prerendered_state(html_content: str, base_url: str = "https://www.olx
                 target_audience=detect_target_audience(title, description),
                 image_urls=image_urls,
                 publication_date=pub_date,
+                deal_type=detect_deal_type(title, canonical),
+                property_type=detect_property_type(title),
             )
             listings.append(item)
         except Exception:
@@ -472,6 +514,8 @@ def parse_olx_html_list(html_content: str, base_url: str = "https://www.olx.uz")
                 target_audience=detect_target_audience(title, None),
                 image_urls=img_urls,
                 publication_date=pub_date,
+                deal_type=detect_deal_type(title, canonical),
+                property_type=detect_property_type(title),
             )
             listings.append(item)
         except Exception:
@@ -497,10 +541,13 @@ def parse_olx_api_offer(offer: Dict[str, Any]) -> RawListingItem:
     total_floors = None
     commission_flag = None
 
+    market_type = None
     for p in offer.get("params", []):
         key = p.get("key")
         val = p.get("value", {}) if isinstance(p, dict) else {}
-        if key == "price":
+        if key == "type_of_market":
+            market_type = str(val.get("label") or val.get("key") or "")
+        elif key == "price":
             price_raw = val.get("label")
             raw_p = val.get("converted_value") or val.get("value")
             try:
@@ -560,6 +607,12 @@ def parse_olx_api_offer(offer: Dict[str, Any]) -> RawListingItem:
 
     clean_url = canonicalize_url(url) if url else f"https://www.olx.uz/d/obyavlenie/-ID{oid}.html"
 
+    cat_id = None
+    if isinstance(offer.get("category"), dict):
+        cat_id = offer.get("category", {}).get("id")
+    deal_type = detect_deal_type(title, clean_url, cat_id)
+    prop_type = detect_property_type(title, cat_id, market_type)
+
     return RawListingItem(
         source="olx_uz",
         source_id=oid,
@@ -578,6 +631,8 @@ def parse_olx_api_offer(offer: Dict[str, Any]) -> RawListingItem:
         target_audience=detect_target_audience(title, desc_extra),
         image_urls=images,
         publication_date=pub_date,
+        deal_type=deal_type,
+        property_type=prop_type,
         raw_metadata=raw_meta,
     )
 

@@ -16,6 +16,8 @@ const {
   filterMaxPrice,
   filterCategory,
   filterAudience,
+  filterDealType,
+  filterPropertyType,
   filterAmenities,
   filterSort,
   availableDistricts,
@@ -32,7 +34,7 @@ await useAsyncData('listings_ssr', async () => {
 })
 
 // Curated categories matching Iconly pill tabs
-const categories = [
+const rentCategories = [
   { key: '', title: 'Barchasi', icon: 'all' },
   { key: 'mk', title: 'Maklersiz', icon: 'home' },
   { key: 'fair_cheap', title: 'Bozordan arzon', icon: 'discount' },
@@ -42,6 +44,20 @@ const categories = [
   { key: '3', title: '3 xonali', icon: 'room' },
   { key: 'room', title: 'Sheriklik', icon: 'users' },
 ]
+
+const saleCategories = [
+  { key: '', title: 'Barchasi', icon: 'all' },
+  { key: 'mk', title: 'Egasidan', icon: 'home' },
+  { key: 'fair_cheap', title: 'Arzon narxda', icon: 'discount' },
+  { key: '3days', title: 'Yangi e’lonlar', icon: 'zap' },
+  { key: '1', title: '1 xonali', icon: 'room' },
+  { key: '2', title: '2 xonali', icon: 'room' },
+  { key: '3', title: '3 xonali', icon: 'room' },
+]
+
+const activeCategories = computed(() => {
+  return filterDealType.value === 'sale' ? saleCategories : rentCategories
+})
 
 // Audience options
 const audienceOptions = [
@@ -144,6 +160,8 @@ watch(
     filterMaxPrice,
     filterCategory,
     filterAudience,
+    filterDealType,
+    filterPropertyType,
     filterSort,
     () => filterAmenities.value.owner_only,
     () => filterAmenities.value.mebel,
@@ -171,7 +189,7 @@ const formatPrice = (val: number) => {
       <div class="category-pill-container">
         <div class="category-pill-scroll">
           <button
-            v-for="cat in categories"
+            v-for="cat in activeCategories"
             :key="cat.key"
             type="button"
             class="category-pill-btn"
@@ -210,13 +228,13 @@ const formatPrice = (val: number) => {
         <div class="section-heading-bar">
           <div class="heading-left">
             <h2 class="section-title">
-              Tanlangan takliflar
+              {{ filterDealType === 'sale' ? 'Sotuvdagi uy-joylar' : 'Tanlangan takliflar' }}
               <span class="catalog-total-pill" v-if="filteredListings.length > 0">
-                {{ filteredListings.length }} ta xonadon
+                {{ filteredListings.length }} ta e’lon
               </span>
             </h2>
             <p class="section-subtitle">
-              Siz uchun saralangan eng yaxshi uy-joylar.
+              {{ filterDealType === 'sale' ? 'Toshkent bo‘ylab sotiladigan eng yaxshi uy-joylar.' : 'Siz uchun saralangan eng yaxshi ijara xonadonlari.' }}
             </p>
           </div>
 
@@ -241,8 +259,8 @@ const formatPrice = (val: number) => {
           </div>
         </div>
 
-        <!-- Audience Filter Pill Strip -->
-        <div class="audience-pill-row">
+        <!-- Audience Filter Pill Strip (Only for Rentals) -->
+        <div class="audience-pill-row" v-if="filterDealType === 'rent'">
           <span class="aud-lbl">Ijarachilar:</span>
           <div class="aud-scroll">
             <button
@@ -277,13 +295,18 @@ const formatPrice = (val: number) => {
 
             <!-- Top Left Tag -->
             <div class="featured-top-left-tag">
-              <span class="hot-rent-pill">
+              <span v-if="dominantFeatured.deal_type === 'sale'" class="hot-rent-pill">
+                <span>Sotuvda</span>
+              </span>
+              <span v-else class="hot-rent-pill">
                 <svg viewBox="0 0 24 24" fill="currentColor" class="flame-svg">
                   <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" />
                 </svg>
                 <span>Qaynoq taklif</span>
               </span>
-              <span v-if="dominantFeatured.is_owner" class="owner-pill">Maklersiz</span>
+              <span v-if="dominantFeatured.is_owner" class="owner-pill">
+                {{ dominantFeatured.deal_type === 'sale' ? 'Egasidan' : 'Maklersiz' }}
+              </span>
             </div>
 
             <!-- Bottom Floating Frosted Glass Specs Overlay (Exactly matching Image 2!) -->
@@ -309,7 +332,7 @@ const formatPrice = (val: number) => {
             <div class="featured-price-row">
               <div class="price-side">
                 <span class="f-price-value">{{ formatPrice(dominantFeatured.price_uzs) }}</span>
-                <span class="f-price-period">/ oy</span>
+                <span v-if="dominantFeatured.deal_type !== 'sale'" class="f-price-period">/ oy</span>
               </div>
               <div class="f-score-indicator" title="Sifat ko‘rsatkichi">
                 <span>9.4</span>

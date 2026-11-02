@@ -183,6 +183,8 @@ class ListingService:
             description=item.description,
             contact_phone=getattr(item, "contact_phone", None),
             contact_telegram=getattr(item, "contact_telegram", None),
+            deal_type=getattr(item, "deal_type", "rent") or "rent",
+            property_type=getattr(item, "property_type", None),
             target_audience=item.target_audience or detect_target_audience(item.title, item.description),
             image_urls=item.image_urls,
             content_hash=c_hash,
@@ -257,6 +259,8 @@ class ListingService:
         min_area: Optional[float] = None,
         max_area: Optional[float] = None,
         target_audience: Optional[str] = None,
+        deal_type: Optional[str] = None,
+        property_type: Optional[str] = None,
         owner_only: bool = False,
         include_agency: bool = True,
         max_age_hours: Optional[int] = None,
@@ -287,6 +291,10 @@ class ListingService:
             conditions.append(Listing.area <= max_area)
         if target_audience and target_audience != "all":
             conditions.append(Listing.target_audience == target_audience)
+        if deal_type and deal_type != "all":
+            conditions.append(Listing.deal_type == deal_type.lower())
+        if property_type and property_type != "all":
+            conditions.append(Listing.property_type == property_type.lower())
 
         if owner_only:
             conditions.append(

@@ -28,6 +28,8 @@ class ListingResponse(BaseModel):
     contact_phone: Optional[str] = None
     contact_telegram: Optional[str] = None
     target_audience: str = "any"
+    deal_type: Optional[str] = "rent"
+    property_type: Optional[str] = None
     coordinates_lat: Optional[float] = None
     coordinates_lon: Optional[float] = None
     metro_station: Optional[str] = None

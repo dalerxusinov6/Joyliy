@@ -59,6 +59,8 @@ class Listing(Base):
     metro_distance_m: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
 
     # Property Characteristics
+    deal_type: Mapped[str] = mapped_column(String(32), default="rent", index=True, nullable=False)  # 'rent' | 'sale'
+    property_type: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)  # 'new_building', 'secondary', 'house'
     is_furnished: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     renovation_type: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)  # euro, good, cosmetic, standard
 

@@ -41,6 +41,8 @@ export interface ListingItem {
   scam_risk_reasons?: string[]
   is_furnished?: boolean
   renovation_type?: string
+  deal_type?: 'rent' | 'sale'
+  property_type?: string
   match_percentage?: number
   match_pros?: string[]
   match_cons?: string[]
@@ -70,6 +72,8 @@ export function useListings() {
   const compareList = useState<ListingItem[]>('compare_list', () => [])
 
   // Filters state
+  const filterDealType = useState<'rent' | 'sale'>('filter_deal_type', () => 'rent')
+  const filterPropertyType = useState<string>('filter_property_type', () => '')
   const filterDistrict = useState<string>('filter_district', () => '')
   const filterRooms = useState<string>('filter_rooms', () => '')
   const filterMaxPrice = useState<string>('filter_max_price', () => '')
@@ -143,6 +147,8 @@ export function useListings() {
       scam_risk_reasons: item.scam_risk_reasons,
       is_furnished: item.is_furnished,
       renovation_type: item.renovation_type,
+      deal_type: item.deal_type || (item.canonical_url?.includes('prodazha') || item.title?.toLowerCase().includes('sotiladi') || item.title?.toLowerCase().includes('сотилади') || item.title?.toLowerCase().includes('продается') ? 'sale' : 'rent'),
+      property_type: item.property_type,
     }
   }
 
@@ -300,6 +306,29 @@ export function useListings() {
       return result
     }
 
+    // Deal Type Filter ('rent' | 'sale')
+    if (filterDealType.value) {
+      result = result.filter((item) => (item.deal_type || 'rent') === filterDealType.value)
+    }
+
+    // Property Type Filter (e.g. 'new_building', 'secondary', 'house')
+    if (filterPropertyType.value) {
+      result = result.filter((item) => {
+        const pt = (item.property_type || '').toLowerCase()
+        const t = (item.title || '').toLowerCase()
+        if (filterPropertyType.value === 'new_building') {
+          return pt === 'new_building' || t.includes('новостройк') || t.includes('yangi bino') || t.includes('novostroyka')
+        }
+        if (filterPropertyType.value === 'house') {
+          return pt === 'house' || t.includes('dom') || t.includes('hovli') || t.includes('ҳовли') || t.includes('dacha') || t.includes('дача')
+        }
+        if (filterPropertyType.value === 'secondary') {
+          return pt === 'secondary' || (!t.includes('новостройк') && !t.includes('hovli') && !t.includes('ҳовли'))
+        }
+        return true
+      })
+    }
+
     // District filter
     if (filterDistrict.value) {
       result = result.filter((item) => item.district === filterDistrict.value)
@@ -334,8 +363,8 @@ export function useListings() {
     if (filterCategory.value === 'today') result = result.filter((item) => (item.days_ago || 0) === 0)
     if (filterCategory.value === 'fair_cheap') result = result.filter((item) => item.fair_price_category === 'BELOW_MARKET')
 
-    // Target Audience filter ('family', 'female', 'male')
-    if (filterAudience.value && filterAudience.value !== 'all') {
+    // Target Audience filter ('family', 'female', 'male') - applies for rent only
+    if (filterDealType.value === 'rent' && filterAudience.value && filterAudience.value !== 'all') {
       result = result.filter((item) => item.target_audience === filterAudience.value)
     }
 
@@ -384,6 +413,8 @@ export function useListings() {
     filterMaxPrice,
     filterCategory,
     filterAudience,
+    filterDealType,
+    filterPropertyType,
     filterSort,
     filterAmenities,
     availableDistricts,

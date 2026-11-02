@@ -77,6 +77,11 @@ const scoreColorClass = computed(() => {
 
       <!-- Top Badges Overlay -->
       <div class="top-badges-row">
+        <!-- Sale Badge -->
+        <span v-if="listing.deal_type === 'sale'" class="iconly-badge sale-badge">
+          Sotiladi
+        </span>
+
         <!-- AI Match / Owner Pill -->
         <span v-if="listing.match_percentage" class="iconly-badge match-badge">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="badge-sparkle-svg">
@@ -85,12 +90,12 @@ const scoreColorClass = computed(() => {
           <span>{{ listing.match_percentage }}% Mos</span>
         </span>
         <span v-else-if="listing.is_owner" class="iconly-badge owner-badge">
-          Maklersiz
+          {{ listing.deal_type === 'sale' ? 'Egasidan' : 'Maklersiz' }}
         </span>
 
         <!-- Fair price tag -->
         <span v-if="listing.fair_price_category === 'BELOW_MARKET'" class="iconly-badge fair-badge">
-          Bozordan arzon
+          {{ listing.deal_type === 'sale' ? 'Arzon narx' : 'Bozordan arzon' }}
         </span>
       </div>
 
@@ -141,7 +146,7 @@ const scoreColorClass = computed(() => {
       <div class="price-score-row">
         <div class="price-block">
           <span class="price-amount">{{ formatPrice(listing.price_uzs) }}</span>
-          <span class="price-period">/oy</span>
+          <span v-if="listing.deal_type !== 'sale'" class="price-period">/oy</span>
         </div>
 
         <!-- Circular Score Ring (Image 1 Style) -->

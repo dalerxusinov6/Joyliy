@@ -98,7 +98,8 @@ const sourceViewLabel = computed(() => {
         <div class="exhibition-price-bar">
           <div class="price-cluster">
             <span class="large-price">{{ formatPrice(listing.price_uzs) }}</span>
-            <span class="period-label">{{ t('per_month') }}</span>
+            <span v-if="listing.deal_type !== 'sale'" class="period-label">{{ t('per_month') }}</span>
+            <span v-else class="period-label">sotuv narxi</span>
           </div>
           <div v-if="listing.is_owner" class="terracotta-status-badge">
             <span class="status-badge-dot"></span>

@@ -158,7 +158,9 @@ class Settings(BaseSettings):
     )
     OLX_SEARCH_URLS: Any = Field(
         default_factory=lambda: [
-            "https://www.olx.uz/nedvizhimost/kvartiry/arenda-dolgosrochnaya/tashkent/"
+            "https://www.olx.uz/nedvizhimost/kvartiry/arenda-dolgosrochnaya/tashkent/",
+            "https://www.olx.uz/nedvizhimost/kvartiry/prodazha/tashkent/",
+            "https://www.olx.uz/nedvizhimost/doma/prodazha/tashkent/",
         ],
         description="Target search URLs to monitor on OLX Uzbekistan",
     )
