@@ -4,7 +4,7 @@ import { useI18n } from '~/composables/useI18n'
 import { useListings } from '~/composables/useListings'
 
 const emit = defineEmits(['openFilters'])
-const { t } = useI18n()
+const { t, tDistrict } = useI18n()
 const {
   filterDistrict,
   filterRooms,
@@ -82,20 +82,20 @@ const applyQuick = (type: string, val: string) => {
             <!-- Top Tag Pill -->
             <div class="hero-badge-pill">
               <span class="pulse-dot"></span>
-              <span>Toshkentda 0% vositachilik komissiyasi</span>
+              <span>{{ t('hero_badge') }}</span>
             </div>
 
             <!-- Headline matching prompt -->
             <h1 class="hero-heading">
-              Orzuingizdagi uyni <span class="heading-gradient">toping.</span>
+              {{ t('hero_title_prefix') }} <span class="heading-gradient">{{ t('hero_title_highlight') }}</span>
             </h1>
 
             <p class="hero-subheading">
-              O‘zbekistondagi uy-joylarni sotib oling yoki ijaraga oling. Xonadon egalaridan tekshirilgan e’lonlar va sun’iy intellekt tahlili.
+              {{ t('hero_subheading') }}
             </p>
 
             <!-- Mode Switcher Tabs (Iconly Pill Tabs - Touch-Friendly Scrollable) -->
-            <div class="mode-tabs-wrapper" role="tablist" aria-label="Qidiruv rejimlari">
+            <div class="mode-tabs-wrapper" role="tablist" :aria-label="t('mode_rent')">
               <button
                 type="button"
                 role="tab"
@@ -103,7 +103,7 @@ const applyQuick = (type: string, val: string) => {
                 :class="{ active: searchMode === 'rent' }"
                 @click="setMode('rent')"
               >
-                Ijaraga olish
+                {{ t('mode_rent') }}
               </button>
               <button
                 type="button"
@@ -112,7 +112,7 @@ const applyQuick = (type: string, val: string) => {
                 :class="{ active: searchMode === 'buy' }"
                 @click="setMode('buy')"
               >
-                Sotib olish
+                {{ t('mode_buy') }}
               </button>
               <button
                 type="button"
@@ -124,9 +124,9 @@ const applyQuick = (type: string, val: string) => {
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="tab-svg-icon">
                   <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
                 </svg>
-                <span class="tab-label-desktop">AI Aqlli Qidiruv</span>
-                <span class="tab-label-mobile">AI Qidiruv</span>
-                <span class="ai-chip-pill">Tezkor</span>
+                <span class="tab-label-desktop">{{ t('mode_ai') }}</span>
+                <span class="tab-label-mobile">{{ t('mode_ai_mobile') }}</span>
+                <span class="ai-chip-pill">{{ t('fast_badge') }}</span>
               </button>
             </div>
 
@@ -143,9 +143,9 @@ const applyQuick = (type: string, val: string) => {
                   <input
                     v-model="aiInput"
                     type="text"
-                    placeholder="Masalan: Chilonzor metro yaqinida 4 mln gacha 2 xonali kvartira..."
+                    :placeholder="t('ai_search_placeholder')"
                     class="ai-search-input"
-                    aria-label="AI qidiruv so‘rovi"
+                    :aria-label="t('mode_ai')"
                     @keydown.enter.prevent="handleAiSearch"
                   />
                   <button
@@ -154,8 +154,8 @@ const applyQuick = (type: string, val: string) => {
                     :disabled="isAiSearching || !aiInput.trim()"
                     @click="handleAiSearch"
                   >
-                    <span v-if="!isAiSearching">AI bilan topish</span>
-                    <span v-else>Tahlil qilinmoqda...</span>
+                    <span v-if="!isAiSearching">{{ t('ai_search_btn') }}</span>
+                    <span v-else>{{ t('ai_analyzing') }}</span>
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="arrow-icon">
                       <line x1="5" y1="12" x2="19" y2="12" />
                       <polyline points="12 5 19 12 12 19" />
@@ -165,9 +165,9 @@ const applyQuick = (type: string, val: string) => {
 
                 <!-- Quick Prompt Suggestions (Horizontal Scroll) -->
                 <div class="ai-prompts-row">
-                  <span class="prompts-title">Misollar:</span>
+                  <span class="prompts-title">{{ t('examples') }}</span>
                   <div class="prompts-scroll">
-                    <button type="button" class="prompt-pill" @click="applyAiPrompt('Chilonzorda metro yaqinida 4 mln gacha 2 xonali')">
+                    <button type="button" class="prompt-pill" @click="applyAiPrompt(t('prompt_chilonzor'))">
                       <svg class="prompt-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <rect width="16" height="16" x="4" y="3" rx="2"/>
                         <path d="M4 11h16"/>
@@ -177,22 +177,22 @@ const applyQuick = (type: string, val: string) => {
                         <circle cx="8" cy="15" r="1"/>
                         <circle cx="16" cy="15" r="1"/>
                       </svg>
-                      <span>Chilonzor metro 4 mln</span>
+                      <span>{{ t('ex_chilonzor') }}</span>
                     </button>
-                    <button type="button" class="prompt-pill" @click="applyAiPrompt('Yunusobodda maklersiz oila uchun')">
+                    <button type="button" class="prompt-pill" @click="applyAiPrompt(t('prompt_yunusobod'))">
                       <svg class="prompt-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
                         <circle cx="9" cy="7" r="4"/>
                         <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
                         <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
                       </svg>
-                      <span>Yunusobod oila</span>
+                      <span>{{ t('ex_yunusobod') }}</span>
                     </button>
-                    <button type="button" class="prompt-pill" @click="applyAiPrompt('Mirobodda 3 xonali jihozlangan')">
+                    <button type="button" class="prompt-pill" @click="applyAiPrompt(t('prompt_mirobod'))">
                       <svg class="prompt-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                       </svg>
-                      <span>Mirobod jihozlangan</span>
+                      <span>{{ t('ex_mirobod') }}</span>
                     </button>
                   </div>
                 </div>
@@ -203,78 +203,78 @@ const applyQuick = (type: string, val: string) => {
                 <div class="console-fields-row">
                   <!-- District -->
                   <div class="field-item">
-                    <label class="field-lbl">Tuman</label>
+                    <label class="field-lbl">{{ t('district') }}</label>
                     <div class="field-select-wrap">
-                      <select v-model="filterDistrict" class="iconly-select" aria-label="Tuman tanlang">
-                        <option value="">Barchasi</option>
-                        <option v-for="d in availableDistricts" :key="d" :value="d">{{ d }}</option>
+                      <select v-model="filterDistrict" class="iconly-select" :aria-label="t('select_district')">
+                        <option value="">{{ t('all') }}</option>
+                        <option v-for="d in availableDistricts" :key="d" :value="d">{{ tDistrict(d) }}</option>
                       </select>
                     </div>
                   </div>
 
                   <!-- Rooms -->
                   <div class="field-item">
-                    <label class="field-lbl">Xonalar soni</label>
+                    <label class="field-lbl">{{ t('rooms_count') }}</label>
                     <div class="field-select-wrap">
-                      <select v-model="filterRooms" class="iconly-select" aria-label="Xonalar soni">
-                        <option value="">Istalgan</option>
-                        <option value="1">1 xonali</option>
-                        <option value="2">2 xonali</option>
-                        <option value="3">3 xonali</option>
-                        <option value="4">4+ xonali</option>
+                      <select v-model="filterRooms" class="iconly-select" :aria-label="t('rooms_count')">
+                        <option value="">{{ t('any') }}</option>
+                        <option value="1">{{ t('room_1') }}</option>
+                        <option value="2">{{ t('room_2') }}</option>
+                        <option value="3">{{ t('room_3') }}</option>
+                        <option value="4">{{ t('room_4_plus') }}</option>
                       </select>
                     </div>
                   </div>
 
                   <!-- Price: Rent vs Buy -->
                   <div class="field-item" v-if="searchMode === 'buy'">
-                    <label class="field-lbl">Maksimal byudjet</label>
+                    <label class="field-lbl">{{ t('max_budget') }}</label>
                     <div class="field-select-wrap">
-                      <select v-model="filterMaxPrice" class="iconly-select" aria-label="Maksimal xarid byudjeti">
-                        <option value="">Istalgan</option>
-                        <option value="400000000">400 mln so‘m</option>
-                        <option value="600000000">600 mln so‘m</option>
-                        <option value="800000000">800 mln so‘m</option>
-                        <option value="1200000000">1.2 mlrd so‘m</option>
-                        <option value="2000000000">2.0 mlrd so‘m</option>
-                        <option value="3500000000">3.5 mlrd so‘m</option>
+                      <select v-model="filterMaxPrice" class="iconly-select" :aria-label="t('max_budget')">
+                        <option value="">{{ t('any') }}</option>
+                        <option value="400000000">400 {{ t('mln_som') }}</option>
+                        <option value="600000000">600 {{ t('mln_som') }}</option>
+                        <option value="800000000">800 {{ t('mln_som') }}</option>
+                        <option value="1200000000">1.2 {{ t('mlrd_som') }}</option>
+                        <option value="2000000000">2.0 {{ t('mlrd_som') }}</option>
+                        <option value="3500000000">3.5 {{ t('mlrd_som') }}</option>
                       </select>
                     </div>
                   </div>
                   <div class="field-item" v-else>
-                    <label class="field-lbl">Maksimal byudjet</label>
+                    <label class="field-lbl">{{ t('max_budget') }}</label>
                     <div class="field-select-wrap">
-                      <select v-model="filterMaxPrice" class="iconly-select" aria-label="Maksimal ijara byudjeti">
-                        <option value="">Istalgan</option>
-                        <option value="3000000">3 000 000 so‘m</option>
-                        <option value="4000000">4 000 000 so‘m</option>
-                        <option value="6000000">6 000 000 so‘m</option>
-                        <option value="8000000">8 000 000 so‘m</option>
-                        <option value="12000000">12 000 000 so‘m</option>
+                      <select v-model="filterMaxPrice" class="iconly-select" :aria-label="t('max_budget')">
+                        <option value="">{{ t('any') }}</option>
+                        <option value="3000000">3 {{ t('mln_som') }}</option>
+                        <option value="4000000">4 {{ t('mln_som') }}</option>
+                        <option value="6000000">6 {{ t('mln_som') }}</option>
+                        <option value="8000000">8 {{ t('mln_som') }}</option>
+                        <option value="12000000">12 {{ t('mln_som') }}</option>
                       </select>
                     </div>
                   </div>
 
                   <!-- Buy: Property Type vs Rent: Target Audience -->
                   <div class="field-item" v-if="searchMode === 'buy'">
-                    <label class="field-lbl">Mulk turi</label>
+                    <label class="field-lbl">{{ t('property_type') }}</label>
                     <div class="field-select-wrap">
-                      <select v-model="filterPropertyType" class="iconly-select" aria-label="Mulk turi">
-                        <option value="">Barchasi</option>
-                        <option value="new_building">Novostroyka</option>
-                        <option value="secondary">Ikkilamchi</option>
-                        <option value="house">Hovli / Dacha</option>
+                      <select v-model="filterPropertyType" class="iconly-select" :aria-label="t('property_type')">
+                        <option value="">{{ t('all') }}</option>
+                        <option value="new_building">{{ t('type_new_building') }}</option>
+                        <option value="secondary">{{ t('type_secondary') }}</option>
+                        <option value="house">{{ t('type_house') }}</option>
                       </select>
                     </div>
                   </div>
                   <div class="field-item" v-else>
-                    <label class="field-lbl">Kim uchun</label>
+                    <label class="field-lbl">{{ t('for_whom') }}</label>
                     <div class="field-select-wrap">
-                      <select v-model="filterAudience" class="iconly-select" aria-label="Kim uchun">
-                        <option value="all">Barchasi</option>
-                        <option value="family">Oila uchun</option>
-                        <option value="female">Qizlar uchun</option>
-                        <option value="male">Yigitlar uchun</option>
+                      <select v-model="filterAudience" class="iconly-select" :aria-label="t('for_whom')">
+                        <option value="all">{{ t('all') }}</option>
+                        <option value="family">{{ t('aud_family') }}</option>
+                        <option value="female">{{ t('aud_female') }}</option>
+                        <option value="male">{{ t('aud_male') }}</option>
                       </select>
                     </div>
                   </div>
@@ -285,8 +285,8 @@ const applyQuick = (type: string, val: string) => {
                       type="button"
                       class="btn-iconly-filter"
                       @click="$emit('openFilters')"
-                      title="Qo‘shimcha filtrlar"
-                      aria-label="Kengaytirilgan filtrlar"
+                      :title="t('more_filters')"
+                      :aria-label="t('more_filters')"
                     >
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="filter-icon">
                         <line x1="4" y1="21" x2="4" y2="14" />
@@ -301,12 +301,12 @@ const applyQuick = (type: string, val: string) => {
                       </svg>
                     </button>
 
-                    <button type="button" class="btn-iconly-submit" @click="onSearch" aria-label="Qidirish">
+                    <button type="button" class="btn-iconly-submit" @click="onSearch" :aria-label="t('search')">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="search-icon">
                         <circle cx="11" cy="11" r="8" />
                         <line x1="21" y1="21" x2="16.65" y2="16.65" />
                       </svg>
-                      <span>Qidirish</span>
+                      <span>{{ t('search') }}</span>
                     </button>
                   </div>
                 </div>
@@ -326,8 +326,8 @@ const applyQuick = (type: string, val: string) => {
                 </span>
                 <span class="ai-query-text">«{{ aiSearchQuery }}»</span>
               </div>
-              <button type="button" class="ai-reset-btn" @click="resetAiMatch" aria-label="Filtrni tozalash">
-                <span>Filtrni tozalash</span>
+              <button type="button" class="ai-reset-btn" @click="resetAiMatch" :aria-label="t('reset_filter')">
+                <span>{{ t('reset_filter') }}</span>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="reset-svg">
                   <line x1="18" y1="6" x2="6" y2="18" />
                   <line x1="6" y1="6" x2="18" y2="18" />
@@ -349,17 +349,17 @@ const applyQuick = (type: string, val: string) => {
                 />
                 <div class="visual-photo-glass-bottom">
                   <div class="spec-col">
-                    <span class="spec-label">Maydon</span>
+                    <span class="spec-label">{{ t('spec_area') }}</span>
                     <span class="spec-val">85 m²</span>
                   </div>
                   <div class="spec-sep"></div>
                   <div class="spec-col">
-                    <span class="spec-label">Xonalar</span>
-                    <span class="spec-val">3 xona</span>
+                    <span class="spec-label">{{ t('spec_rooms') }}</span>
+                    <span class="spec-val">{{ t('spec_rooms_val') }}</span>
                   </div>
                   <div class="spec-sep"></div>
                   <div class="spec-col">
-                    <span class="spec-label">Qavat</span>
+                    <span class="spec-label">{{ t('spec_floor') }}</span>
                     <span class="spec-val">4 / 9</span>
                   </div>
                 </div>
@@ -371,8 +371,8 @@ const applyQuick = (type: string, val: string) => {
                   <span class="score-number">9.4</span>
                 </div>
                 <div class="score-meta">
-                  <span class="score-title">Moslik darajasi</span>
-                  <span class="score-sub">Ajoyib joylashuv</span>
+                  <span class="score-title">{{ t('hero_match_title') }}</span>
+                  <span class="score-sub">{{ t('hero_match_sub') }}</span>
                 </div>
               </div>
             </div>
@@ -922,12 +922,12 @@ const applyQuick = (type: string, val: string) => {
   min-width: 0;
   min-height: 44px;
   height: 44px;
-  padding: 0 24px 0 10px;
+  padding: 0 18px 0 8px;
   background-color: var(--surface-subtle);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
   color: var(--text-primary);
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 600;
   outline: none;
   transition: all 0.18s ease;
@@ -939,7 +939,7 @@ const applyQuick = (type: string, val: string) => {
   -moz-appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 8px center;
+  background-position: right 6px center;
   background-size: 12px;
   cursor: pointer;
 }
@@ -948,8 +948,8 @@ const applyQuick = (type: string, val: string) => {
   .iconly-select {
     min-height: 42px;
     height: 42px;
-    padding: 0 22px 0 9px;
-    font-size: 12.5px;
+    padding: 0 18px 0 8px;
+    font-size: 12px;
     border-radius: 10px;
     background-position: right 6px center;
   }

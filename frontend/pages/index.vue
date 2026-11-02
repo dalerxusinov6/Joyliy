@@ -5,7 +5,7 @@ import { useModals } from '~/composables/useModals'
 import HeroSearch from '~/components/HeroSearch.vue'
 import ListingCard from '~/components/ListingCard.vue'
 
-const { t } = useI18n()
+const { t, tDistrict, formatPrice } = useI18n()
 const {
   listings,
   filteredListings,
@@ -34,38 +34,38 @@ await useAsyncData('listings_ssr', async () => {
 })
 
 // Curated categories matching Iconly pill tabs
-const rentCategories = [
-  { key: '', title: 'Barchasi', icon: 'all' },
-  { key: 'mk', title: 'Maklersiz', icon: 'home' },
-  { key: 'fair_cheap', title: 'Bozordan arzon', icon: 'discount' },
-  { key: '3days', title: 'Yangi e’lonlar', icon: 'zap' },
-  { key: '1', title: '1 xonali', icon: 'room' },
-  { key: '2', title: '2 xonali', icon: 'room' },
-  { key: '3', title: '3 xonali', icon: 'room' },
-  { key: 'room', title: 'Sheriklik', icon: 'users' },
-]
+const rentCategories = computed(() => [
+  { key: '', title: t('cat_all'), icon: 'all' },
+  { key: 'mk', title: t('cat_no_agent'), icon: 'home' },
+  { key: 'fair_cheap', title: t('cat_below_market'), icon: 'discount' },
+  { key: '3days', title: t('cat_new_listings'), icon: 'zap' },
+  { key: '1', title: t('cat_1room'), icon: 'room' },
+  { key: '2', title: t('cat_2room'), icon: 'room' },
+  { key: '3', title: t('cat_3room'), icon: 'room' },
+  { key: 'room', title: t('cat_roommates'), icon: 'users' },
+])
 
-const saleCategories = [
-  { key: '', title: 'Barchasi', icon: 'all' },
-  { key: 'mk', title: 'Egasidan', icon: 'home' },
-  { key: 'fair_cheap', title: 'Arzon narxda', icon: 'discount' },
-  { key: '3days', title: 'Yangi e’lonlar', icon: 'zap' },
-  { key: '1', title: '1 xonali', icon: 'room' },
-  { key: '2', title: '2 xonali', icon: 'room' },
-  { key: '3', title: '3 xonali', icon: 'room' },
-]
+const saleCategories = computed(() => [
+  { key: '', title: t('cat_all'), icon: 'all' },
+  { key: 'mk', title: t('cat_from_owner'), icon: 'home' },
+  { key: 'fair_cheap', title: t('cat_cheap_price'), icon: 'discount' },
+  { key: '3days', title: t('cat_new_listings'), icon: 'zap' },
+  { key: '1', title: t('cat_1room'), icon: 'room' },
+  { key: '2', title: t('cat_2room'), icon: 'room' },
+  { key: '3', title: t('cat_3room'), icon: 'room' },
+])
 
 const activeCategories = computed(() => {
-  return filterDealType.value === 'sale' ? saleCategories : rentCategories
+  return filterDealType.value === 'sale' ? saleCategories.value : rentCategories.value
 })
 
 // Audience options
-const audienceOptions = [
-  { key: 'all', title: 'Barchasi', type: 'all' },
-  { key: 'family', title: 'Oila uchun', type: 'family' },
-  { key: 'female', title: 'Qizlar uchun', type: 'female' },
-  { key: 'male', title: 'Yigitlar uchun', type: 'male' },
-]
+const audienceOptions = computed(() => [
+  { key: 'all', title: t('aud_all'), type: 'all' },
+  { key: 'family', title: t('aud_family'), type: 'family' },
+  { key: 'female', title: t('aud_female'), type: 'female' },
+  { key: 'male', title: t('aud_male'), type: 'male' },
+])
 
 const getAudienceCount = (key: string) => {
   if (key === 'all') return listings.value.length
@@ -173,10 +173,6 @@ watch(
     displayCount.value = 13
   }
 )
-
-const formatPrice = (val: number) => {
-  return (val || 0).toLocaleString('ru-RU').replace(/\u00a0/g, ' ') + ' so‘m'
-}
 </script>
 
 <template>
@@ -228,13 +224,13 @@ const formatPrice = (val: number) => {
         <div class="section-heading-bar">
           <div class="heading-left">
             <h2 class="section-title">
-              {{ filterDealType === 'sale' ? 'Sotuvdagi uy-joylar' : 'Tanlangan takliflar' }}
+              {{ filterDealType === 'sale' ? t('catalog_title_sale') : t('catalog_title_rent') }}
               <span class="catalog-total-pill" v-if="filteredListings.length > 0">
-                {{ filteredListings.length }} ta e’lon
+                {{ t('listings_count_suffix', { count: filteredListings.length }) }}
               </span>
             </h2>
             <p class="section-subtitle">
-              {{ filterDealType === 'sale' ? 'Toshkent bo‘ylab sotiladigan eng yaxshi uy-joylar.' : 'Siz uchun saralangan eng yaxshi ijara xonadonlari.' }}
+              {{ filterDealType === 'sale' ? t('catalog_sub_sale') : t('catalog_sub_rent') }}
             </p>
           </div>
 
@@ -246,11 +242,11 @@ const formatPrice = (val: number) => {
                 <line x1="8" y1="2" x2="8" y2="18" />
                 <line x1="16" y1="6" x2="16" y2="22" />
               </svg>
-              <span>Xarita</span>
+              <span>{{ t('map') }}</span>
             </button>
 
             <button v-if="hasActiveFilters" class="btn-clear-action" type="button" @click="clearFilters">
-              <span>Tozalash</span>
+              <span>{{ t('clear') }}</span>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="action-icon">
                 <line x1="18" y1="6" x2="6" y2="18" />
                 <line x1="6" y1="6" x2="18" y2="18" />
@@ -261,7 +257,7 @@ const formatPrice = (val: number) => {
 
         <!-- Audience Filter Pill Strip (Only for Rentals) -->
         <div class="audience-pill-row" v-if="filterDealType === 'rent'">
-          <span class="aud-lbl">Ijarachilar:</span>
+          <span class="aud-lbl">{{ t('tenants_lbl') }}</span>
           <div class="aud-scroll">
             <button
               v-for="aud in audienceOptions"
@@ -290,39 +286,39 @@ const formatPrice = (val: number) => {
               loading="lazy"
             />
             <div v-else class="featured-placeholder">
-              <span>Joyliy Tanlangan Xonadon</span>
+              <span>Joyliy</span>
             </div>
 
             <!-- Top Left Tag -->
             <div class="featured-top-left-tag">
               <span v-if="dominantFeatured.deal_type === 'sale'" class="hot-rent-pill">
-                <span>Sotuvda</span>
+                <span>{{ t('featured_for_sale') }}</span>
               </span>
               <span v-else class="hot-rent-pill">
                 <svg viewBox="0 0 24 24" fill="currentColor" class="flame-svg">
                   <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" />
                 </svg>
-                <span>Qaynoq taklif</span>
+                <span>{{ t('featured_hot_deal') }}</span>
               </span>
               <span v-if="dominantFeatured.is_owner" class="owner-pill">
-                {{ dominantFeatured.deal_type === 'sale' ? 'Egasidan' : 'Maklersiz' }}
+                {{ dominantFeatured.deal_type === 'sale' ? t('from_owner') : t('no_agent') }}
               </span>
             </div>
 
-            <!-- Bottom Floating Frosted Glass Specs Overlay (Exactly matching Image 2!) -->
+            <!-- Bottom Floating Frosted Glass Specs Overlay -->
             <div class="featured-frosted-specs-overlay">
               <div class="frosted-spec-cell">
-                <span class="f-lbl">Maydon</span>
+                <span class="f-lbl">{{ t('spec_area') }}</span>
                 <span class="f-val">{{ dominantFeatured.area }} m²</span>
               </div>
               <div class="frosted-spec-div"></div>
               <div class="frosted-spec-cell">
-                <span class="f-lbl">Xonalar</span>
-                <span class="f-val">{{ dominantFeatured.rooms }} xona</span>
+                <span class="f-lbl">{{ t('spec_rooms') }}</span>
+                <span class="f-val">{{ t('rooms_spec', { rooms: dominantFeatured.rooms }) }}</span>
               </div>
               <div class="frosted-spec-div"></div>
               <div class="frosted-spec-cell">
-                <span class="f-lbl">Qavat</span>
+                <span class="f-lbl">{{ t('spec_floor') }}</span>
                 <span class="f-val">{{ dominantFeatured.floor || '3/9' }}</span>
               </div>
             </div>
@@ -332,7 +328,7 @@ const formatPrice = (val: number) => {
             <div class="featured-price-row">
               <div class="price-side">
                 <span class="f-price-value">{{ formatPrice(dominantFeatured.price_uzs) }}</span>
-                <span v-if="dominantFeatured.deal_type !== 'sale'" class="f-price-period">/ oy</span>
+                <span v-if="dominantFeatured.deal_type !== 'sale'" class="f-price-period">{{ t('per_month') }}</span>
               </div>
               <div class="f-score-indicator" title="Sifat ko‘rsatkichi">
                 <span>9.4</span>
@@ -348,12 +344,12 @@ const formatPrice = (val: number) => {
                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
                 <circle cx="12" cy="10" r="3" />
               </svg>
-              <span>{{ dominantFeatured.district }} · Metroga {{ dominantFeatured.metro_minutes || 5 }} daqiqa</span>
+              <span>{{ tDistrict(dominantFeatured.district) }} · {{ t('min_to_metro', { min: dominantFeatured.metro_minutes || 5 }) }}</span>
             </div>
 
             <div class="f-action-bar">
               <button class="btn btn-dark inspect-cta" type="button">
-                <span>Batafsil ko‘rish</span>
+                <span>{{ t('featured_inspect') }}</span>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="arrow-mini">
                   <line x1="5" y1="12" x2="19" y2="12" />
                   <polyline points="12 5 19 12 12 19" />
@@ -382,7 +378,7 @@ const formatPrice = (val: number) => {
             @click="loadMoreListings"
           >
             <span v-if="isLoadingMore" class="load-spinner"></span>
-            <span v-else>Ko‘proq ko‘rish (+{{ nextBatchCount }} ta e’lon)</span>
+            <span v-else>{{ t('load_more_btn', { count: nextBatchCount }) }}</span>
             <svg v-if="!isLoadingMore" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="arr-down-mini">
               <polyline points="6 9 12 15 18 9" />
             </svg>
@@ -397,9 +393,9 @@ const formatPrice = (val: number) => {
               <line x1="21" y1="21" x2="16.65" y2="16.65" />
             </svg>
           </div>
-          <h3>Hech qanday e’lon topilmadi</h3>
-          <p>Tanlangan filtrlarga mos xonadonlar topilmadi. Filtrlarni tozalab qayta urinib ko‘ring.</p>
-          <button class="btn btn-dark" type="button" @click="clearFilters">Filtrlarni tozalash</button>
+          <h3>{{ t('empty_listings_title') }}</h3>
+          <p>{{ t('empty_listings_desc') }}</p>
+          <button class="btn btn-dark" type="button" @click="clearFilters">{{ t('reset_filter') }}</button>
         </div>
       </section>
 
@@ -408,10 +404,10 @@ const formatPrice = (val: number) => {
         <div class="section-heading-bar">
           <div class="heading-left">
             <h2 class="section-title">
-              Toshkentning mashhur hududlari
+              {{ t('districts_section_title') }}
             </h2>
             <p class="section-subtitle">
-              Har bir tumanning o‘ziga xos infratuzilmasi va narx darajasi.
+              {{ t('districts_section_sub') }}
             </p>
           </div>
         </div>
@@ -426,8 +422,8 @@ const formatPrice = (val: number) => {
             @click="filterDistrict = filterDistrict === d ? '' : d"
           >
             <div class="district-info-left">
-              <span class="district-name-bold">{{ d }}</span>
-              <span class="district-count-tag">{{ getDistrictCount(d) }} ta xonadon</span>
+              <span class="district-name-bold">{{ tDistrict(d) }}</span>
+              <span class="district-count-tag">{{ t('district_apts_count', { count: getDistrictCount(d) }) }}</span>
             </div>
             <div class="district-arrow-circle">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="d-arr">
@@ -441,8 +437,8 @@ const formatPrice = (val: number) => {
       <!-- Why Joyliy.uz Trust Section -->
       <section class="why-joyliy-section">
         <div class="why-heading-wrap">
-          <h2 class="section-title">Nega aynan Joyliy.uz?</h2>
-          <p class="section-subtitle">O‘zbekiston uy-joy ijarasidagi yangi avlod intellektual standarti.</p>
+          <h2 class="section-title">{{ t('why_title') }}</h2>
+          <p class="section-subtitle">{{ t('why_sub') }}</p>
         </div>
 
         <div class="why-cards-grid">
@@ -455,9 +451,9 @@ const formatPrice = (val: number) => {
                 <path d="M16 3.13a4 4 0 0 1 0 7.75" />
               </svg>
             </div>
-            <h4 class="why-card-title">0% Vositachilik to‘lovi</h4>
+            <h4 class="why-card-title">{{ t('why_1_title') }}</h4>
             <p class="why-card-desc">
-              Hech qanday makler va ortiqcha 50% komissiyasiz. Mulk egasi bilan to‘g‘ridan-to‘g‘ri shaffof shartnoma tuzing.
+              {{ t('why_1_desc') }}
             </p>
           </div>
 
@@ -469,9 +465,9 @@ const formatPrice = (val: number) => {
                 <path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3" />
               </svg>
             </div>
-            <h4 class="why-card-title">Joyliy Aqlli AI Tahlili</h4>
+            <h4 class="why-card-title">{{ t('why_2_title') }}</h4>
             <p class="why-card-desc">
-              Har bir e’lon sun’iy intellekt tomonidan tahlil qilinib, haqiqiy bozor narxi va xavf darajasi baholanadi.
+              {{ t('why_2_desc') }}
             </p>
           </div>
 
@@ -482,9 +478,9 @@ const formatPrice = (val: number) => {
                 <path d="m9 12 2 2 4-4" />
               </svg>
             </div>
-            <h4 class="why-card-title">100% Tekshirilgan E’lonlar</h4>
+            <h4 class="why-card-title">{{ t('why_3_title') }}</h4>
             <p class="why-card-desc">
-              Har kuni yangilanuvchi avtomatlashtirilgan filtrlar soxta e’lonlar va firibgarlik holatlarini bartaraf etadi.
+              {{ t('why_3_desc') }}
             </p>
           </div>
         </div>
@@ -494,19 +490,19 @@ const formatPrice = (val: number) => {
       <section class="landlord-cta-section">
         <div class="landlord-cta-card">
           <div class="cta-text-side">
-            <span class="cta-pill-badge">Mulk egalari uchun</span>
-            <h3 class="cta-title">Xonadoningizni tez va ishonchli ijaraga bering</h3>
+            <span class="cta-pill-badge">{{ t('cta_landlord_badge') }}</span>
+            <h3 class="cta-title">{{ t('cta_landlord_title') }}</h3>
             <p class="cta-desc">
-              E’loningizni 2 daqiqada bepul joylashtiring va minglab talabgorlar bilan vositachisiz bog‘laning.
+              {{ t('cta_landlord_desc') }}
             </p>
             <button class="btn btn-dark cta-main-btn" @click="showPostAd = true">
-              Bepul e’lon berish →
+              {{ t('cta_landlord_btn') }}
             </button>
           </div>
           <div class="cta-visual-side">
             <div class="cta-stat-pill">
-              <span class="stat-number">10,000+</span>
-              <span class="stat-desc">Oylik faol qidiruvchilar</span>
+              <span class="stat-number">{{ t('cta_stat_num') }}</span>
+              <span class="stat-desc">{{ t('cta_stat_desc') }}</span>
             </div>
           </div>
         </div>

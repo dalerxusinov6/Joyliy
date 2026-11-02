@@ -65,13 +65,13 @@ const onLangChange = (lang: string) => {
       </NuxtLink>
 
       <!-- Center: Clean Floating Pill Navigation (Hidden on mobile/tablet, desktop only) -->
-      <nav class="d iconly-nav" aria-label="Asosiy navigatsiya">
-        <a href="#katalog" class="nav-item">Bosh sahifa</a>
-        <a href="#katalog" class="nav-item" @click.prevent="$emit('filterMaklersiz')">Maklersiz</a>
-        <a href="#xarita" class="nav-item" @click.prevent="$emit('openMap')">Xarita</a>
-        <a href="#hamxona" class="nav-item" @click.prevent="$emit('openRoommates')">Hamxona</a>
+      <nav class="d iconly-nav" :aria-label="t('mobile_nav')">
+        <a href="#katalog" class="nav-item">{{ t('home') }}</a>
+        <a href="#katalog" class="nav-item" @click.prevent="$emit('filterMaklersiz')">{{ t('no_agent') }}</a>
+        <a href="#xarita" class="nav-item" @click.prevent="$emit('openMap')">{{ t('map') }}</a>
+        <a href="#hamxona" class="nav-item" @click.prevent="$emit('openRoommates')">{{ t('roommates_tab') }}</a>
         <a href="#taqqoslash" class="nav-item" @click.prevent="$emit('openCompare')">
-          Taqqoslash
+          {{ t('compare') }}
           <span v-if="compareList.length" class="badge-mini">{{ compareList.length }}</span>
         </a>
       </nav>
@@ -104,8 +104,8 @@ const onLangChange = (lang: string) => {
         <button
           class="ib theme-btn"
           @click="toggleTheme"
-          :aria-label="isDark ? 'Yorug‘ rejim' : 'Qorong‘i rejim'"
-          title="Rejimni almashtirish"
+          :aria-label="isDark ? t('theme_light') : t('theme_dark')"
+          :title="isDark ? t('theme_light') : t('theme_dark')"
         >
           <svg v-if="isDark" class="i" viewBox="0 0 24 24">
             <circle cx="12" cy="12" r="5" />
@@ -126,7 +126,7 @@ const onLangChange = (lang: string) => {
           class="ib saved-btn desktop-only"
           @click="$emit('openFavorites')"
           :aria-label="t('saved')"
-          title="Saqlangan uylar"
+          :title="t('saved_houses')"
         >
           <svg class="i" viewBox="0 0 24 24">
             <path d="M12 21s-8-5-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 6-8 11-8 11z" />
@@ -152,13 +152,13 @@ const onLangChange = (lang: string) => {
         </button>
 
         <!-- Iconly Black Capsule CTA Button -->
-        <button class="btn btn-dark cta-post" @click="$emit('openNew')" title="E’lon berish">
+        <button class="btn btn-dark cta-post" @click="$emit('openNew')" :title="t('post_ad')">
           <svg class="cta-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <line x1="12" y1="5" x2="12" y2="19" />
             <line x1="5" y1="12" x2="19" y2="12" />
           </svg>
-          <span class="cta-text-full">E’lon berish</span>
-          <span class="cta-text-short">E’lon</span>
+          <span class="cta-text-full">{{ t('post_ad') }}</span>
+          <span class="cta-text-short">{{ t('post_ad_short') }}</span>
         </button>
       </div>
     </div>

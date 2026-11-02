@@ -24,7 +24,7 @@ const savedListings = computed(() => {
       <!-- Header -->
       <div class="top saved-header">
         <div class="header-left">
-          <span class="saved-title">Saqlangan uylar ({{ savedListings.length }})</span>
+          <span class="saved-title">{{ t('saved_title_with_count', { count: savedListings.length }) }}</span>
         </div>
         <button class="ib" @click="$emit('close')" :aria-label="t('close')">
           <svg class="i" viewBox="0 0 24 24">
@@ -47,12 +47,12 @@ const savedListings = computed(() => {
         <!-- Empty Monograph State -->
         <div v-else class="saved-empty-box">
           <span class="numeral-accent">00</span>
-          <h3 class="empty-title">Kolleksiya hali bo‘sh</h3>
+          <h3 class="empty-title">{{ t('saved_empty_title') }}</h3>
           <p class="empty-desc">
-            O‘zingizga ma’qul kelgan xonadonlarni belgilab qo‘ying va keyinroq solishtirish uchun shu yerda saqlang.
+            {{ t('saved_empty_desc') }}
           </p>
           <button class="btn p" type="button" @click="$emit('close')">
-            Katalogga qaytish
+            {{ t('back_to_catalog') }}
           </button>
         </div>
       </div>

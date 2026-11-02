@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue'
+import { useI18n } from '~/composables/useI18n'
 import { useListings, type ListingItem } from '~/composables/useListings'
 
 const props = defineProps<{
@@ -8,6 +9,7 @@ const props = defineProps<{
 
 const emit = defineEmits(['close', 'selectListing'])
 
+const { t, tDistrict, formatPrice } = useI18n()
 const { compareList, toggleCompare, clearCompare } = useListings()
 
 interface CompareResult {
@@ -50,10 +52,6 @@ watch(() => props.show, (val) => {
 watch(() => compareList.value.length, () => {
   if (props.show) runComparison()
 })
-
-const formatPrice = (val: number) => {
-  return (val || 0).toLocaleString('ru-RU').replace(/\u00a0/g, ' ') + ' so‘m'
-}
 </script>
 
 <template>
@@ -71,12 +69,12 @@ const formatPrice = (val: number) => {
               <path d="M12 3v18"/>
               <path d="M3 7h18"/>
             </svg>
-            <span>Kvartiralarni Taqqoslash</span>
+            <span>{{ t('compare_title') }}</span>
           </h2>
         </div>
         <div class="head-actions">
-          <button v-if="compareList.length" class="clear-btn" @click="clearCompare">Tozalash</button>
-          <button class="close-btn" @click="$emit('close')" aria-label="Yopish">
+          <button v-if="compareList.length" class="clear-btn" @click="clearCompare">{{ t('clear') }}</button>
+          <button class="close-btn" @click="$emit('close')" :aria-label="t('close')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="modal-close-svg">
               <line x1="18" y1="6" x2="6" y2="18"/>
               <line x1="6" y1="6" x2="18" y2="18"/>
@@ -98,13 +96,12 @@ const formatPrice = (val: number) => {
               <path d="M3 7h18"/>
             </svg>
           </div>
-          <h3>Taqqoslash uchun kamida 2 ta kvartira tanlang</h3>
+          <h3>{{ t('compare_need_2') }}</h3>
           <p>
-            Katalogdagi istalgan e’lon ustidagi taqqoslash tugmasini bosib taqqoslash ro‘yxatiga qo‘shishingiz mumkin.
-            AI narx/m², metro yaqinligi va sharoitlarni yonma-yon tahlil qilib beradi.
+            {{ t('compare_need_2_desc') }}
           </p>
           <div v-if="compareList.length === 1" class="selected-hint">
-            Hozircha 1 ta e’lon tanlangan: <b>{{ compareList[0].title }}</b>
+            {{ t('compare_1_selected', { title: compareList[0].title }) }}
           </div>
         </div>
 
@@ -122,7 +119,7 @@ const formatPrice = (val: number) => {
               </svg>
             </div>
             <div class="winner-text">
-              <h4 class="winner-title">Joyliy AI G‘olibi: E’lon #{{ comparisonData.winner_listing_id }}</h4>
+              <h4 class="winner-title">{{ t('compare_winner_title', { id: comparisonData.winner_listing_id }) }}</h4>
               <p class="winner-desc">{{ comparisonData.ai_winner_summary }}</p>
             </div>
           </div>
@@ -131,7 +128,7 @@ const formatPrice = (val: number) => {
           <div class="compare-columns">
             <div v-for="item in compareList" :key="item.id" class="compare-col">
               <div class="col-head">
-                <button class="remove-btn" @click="toggleCompare(item)" title="Olib tashlash" aria-label="Olib tashlash">
+                <button class="remove-btn" @click="toggleCompare(item)" :title="t('remove_from_compare')" :aria-label="t('remove_from_compare')">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="remove-svg">
                     <line x1="18" y1="6" x2="6" y2="18"/>
                     <line x1="6" y1="6" x2="18" y2="18"/>
@@ -143,7 +140,7 @@ const formatPrice = (val: number) => {
                     :src="item.image_urls[0]"
                     :alt="item.title"
                   />
-                  <div v-else class="placeholder">Rasm yo‘q</div>
+                  <div v-else class="placeholder">{{ t('no_photo') }}</div>
                 </div>
                 <h4 class="col-title" :title="item.title">{{ item.title }}</h4>
                 <div class="col-price">{{ formatPrice(item.price_uzs) }}</div>
@@ -152,79 +149,79 @@ const formatPrice = (val: number) => {
               <!-- Matrix Rows -->
               <div class="attr-list">
                 <div class="attr-row">
-                  <span class="attr-lbl">1 m² narxi</span>
+                  <span class="attr-lbl">{{ t('price_per_m2') }}</span>
                   <span class="attr-val highlight">
                     {{ formatPrice(Math.round(item.price_uzs / (item.area || 50))) }}
                   </span>
                 </div>
 
                 <div class="attr-row">
-                  <span class="attr-lbl">Tuman</span>
-                  <span class="attr-val">{{ item.district }}</span>
+                  <span class="attr-lbl">{{ t('district') }}</span>
+                  <span class="attr-val">{{ tDistrict(item.district) }}</span>
                 </div>
 
                 <div class="attr-row">
-                  <span class="attr-lbl">Metro</span>
+                  <span class="attr-lbl">{{ t('metro') }}</span>
                   <span class="attr-val">
-                    {{ item.metro_station || item.metro_name || 'Yaqin metro' }}
+                    {{ item.metro_station || item.metro_name || t('near_metro') }}
                     <small v-if="item.metro_distance_m">({{ item.metro_distance_m }}m)</small>
                   </span>
                 </div>
 
                 <div class="attr-row">
-                  <span class="attr-lbl">Xonalar / Maydon</span>
-                  <span class="attr-val">{{ item.rooms }} xona / {{ item.area }} m²</span>
+                  <span class="attr-lbl">{{ t('rooms_and_area') }}</span>
+                  <span class="attr-val">{{ t('rooms_spec', { rooms: item.rooms }) }} / {{ item.area }} m²</span>
                 </div>
 
                 <div class="attr-row">
-                  <span class="attr-lbl">Manba</span>
+                  <span class="attr-lbl">{{ t('source_label') }}</span>
                   <span class="attr-val" :class="{ 'owner-tag': item.is_owner }">
                     <template v-if="item.is_owner">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="inline-svg-check">
                         <polyline points="20 6 9 17 4 12"/>
                       </svg>
-                      <span>Egasidan</span>
+                      <span>{{ t('from_owner') }}</span>
                     </template>
-                    <template v-else>Rieltor/Agent</template>
+                    <template v-else>{{ t('realtor_agent') }}</template>
                   </span>
                 </div>
 
                 <div class="attr-row">
-                  <span class="attr-lbl">Bozor bahosi</span>
+                  <span class="attr-lbl">{{ t('fair_market_label') }}</span>
                   <span class="attr-val">
                     <span v-if="item.fair_price_category === 'BELOW_MARKET'" class="badge-good">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="inline-badge-svg">
                         <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/>
                         <polyline points="17 18 23 18 23 12"/>
                       </svg>
-                      <span>Bozordan arzon</span>
+                      <span>{{ t('below_market_label') }}</span>
                     </span>
                     <span v-else-if="item.fair_price_category === 'ABOVE_MARKET'" class="badge-warn">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="inline-badge-svg">
                         <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
                         <polyline points="17 6 23 6 23 12"/>
                       </svg>
-                      <span>Bozordan qimmat</span>
+                      <span>{{ t('above_market_label') }}</span>
                     </span>
                     <span v-else class="badge-fair">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="inline-badge-svg">
                         <line x1="5" y1="9" x2="19" y2="9"/>
                         <line x1="5" y1="15" x2="19" y2="15"/>
                       </svg>
-                      <span>Bozor narxida</span>
+                      <span>{{ t('at_market_label') }}</span>
                     </span>
                   </span>
                 </div>
 
                 <div class="attr-row">
-                  <span class="attr-lbl">Xavfsizlik</span>
+                  <span class="attr-lbl">{{ t('safety_label') }}</span>
                   <span class="attr-val">
                     <span v-if="(item.scam_risk_score || 0) < 40" class="badge-safe">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="inline-badge-svg">
                         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
                         <path d="m9 12 2 2 4-4"/>
                       </svg>
-                      <span>Xavfsiz</span>
+                      <span>{{ t('safe_label') }}</span>
                     </span>
                     <span v-else class="badge-risk">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="inline-badge-svg">
@@ -232,7 +229,7 @@ const formatPrice = (val: number) => {
                         <line x1="12" y1="9" x2="12" y2="13"/>
                         <line x1="12" y1="17" x2="12.01" y2="17"/>
                       </svg>
-                      <span>Diqqat talab</span>
+                      <span>{{ t('caution_label') }}</span>
                     </span>
                   </span>
                 </div>
@@ -243,7 +240,7 @@ const formatPrice = (val: number) => {
                 class="view-listing-btn"
                 @click="$emit('selectListing', item); $emit('close')"
               >
-                E’lonni ochish
+                {{ t('open_listing') }}
               </button>
             </div>
           </div>

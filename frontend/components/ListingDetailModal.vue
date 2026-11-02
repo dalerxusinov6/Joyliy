@@ -9,7 +9,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits(['close', 'toast'])
-const { t } = useI18n()
+const { t, tDistrict, formatPrice } = useI18n()
 const { isInCompare, toggleCompare } = useListings()
 const { openReportModal } = useModals()
 
@@ -22,10 +22,6 @@ watch(
   }
 )
 
-const formatPrice = (val: number) => {
-  return (val || 0).toLocaleString('ru-RU').replace(/\u00a0/g, ' ') + ' so‘m'
-}
-
 const onReport = () => {
   if (props.listing) {
     openReportModal(props.listing.id)
@@ -35,7 +31,7 @@ const onReport = () => {
 const onToggleCompare = () => {
   if (props.listing) {
     toggleCompare(props.listing)
-    emit('toast', isInCompare(props.listing.id) ? 'Taqqoslashga qo‘shildi' : 'Taqqoslashdan olindi')
+    emit('toast', isInCompare(props.listing.id) ? t('toast_added_compare') : t('toast_removed_compare'))
   }
 }
 
@@ -50,9 +46,9 @@ const sourceViewLabel = computed(() => {
       <!-- Top Exhibition Header -->
       <div class="top exhibition-header">
         <div class="exhibition-meta">
-          <span class="exhibit-tag">XONADON HUJJATI</span>
+          <span class="exhibit-tag">{{ t('modal_doc_tag') }}</span>
           <span class="exhibit-sep">/</span>
-          <span class="exhibit-title">{{ listing.rooms }} xonali · {{ listing.district }}</span>
+          <span class="exhibit-title">{{ t('modal_doc_title', { rooms: listing.rooms, district: tDistrict(listing.district) }) }}</span>
         </div>
         <button class="ib" @click="$emit('close')" :aria-label="t('close')">
           <svg class="i" viewBox="0 0 24 24">
@@ -76,7 +72,7 @@ const sourceViewLabel = computed(() => {
             </div>
           </div>
           <div v-else class="hero-photo-placeholder">
-            <span>Fotosurat mavjud emas</span>
+            <span>{{ t('no_photo') }}</span>
           </div>
 
           <!-- Thumbnails Strip -->
@@ -89,7 +85,7 @@ const sourceViewLabel = computed(() => {
               :class="{ active: activePhotoIndex === idx }"
               @click="activePhotoIndex = idx"
             >
-              <img :src="img" :alt="`Rasm ${idx + 1}`" />
+              <img :src="img" :alt="t('photo_n', { n: idx + 1 })" />
             </button>
           </div>
         </div>
@@ -99,11 +95,11 @@ const sourceViewLabel = computed(() => {
           <div class="price-cluster">
             <span class="large-price">{{ formatPrice(listing.price_uzs) }}</span>
             <span v-if="listing.deal_type !== 'sale'" class="period-label">{{ t('per_month') }}</span>
-            <span v-else class="period-label">sotuv narxi</span>
+            <span v-else class="period-label">{{ t('sale_price_lbl') }}</span>
           </div>
           <div v-if="listing.is_owner" class="terracotta-status-badge">
             <span class="status-badge-dot"></span>
-            <span>100% Maklersiz · Egasidan</span>
+            <span>{{ t('owner_100') }}</span>
           </div>
         </div>
 
@@ -115,20 +111,20 @@ const sourceViewLabel = computed(() => {
         <!-- Architectural Specifications Grid -->
         <div class="exhibition-specs-grid">
           <div class="spec-cell">
-            <span class="cell-k">Umumiy Maydon</span>
+            <span class="cell-k">{{ t('spec_total_area') }}</span>
             <span class="cell-v">{{ listing.area }} m²</span>
           </div>
           <div class="spec-cell">
-            <span class="cell-k">Xonalar Soni</span>
-            <span class="cell-v">{{ listing.rooms }} xona</span>
+            <span class="cell-k">{{ t('spec_rooms_count') }}</span>
+            <span class="cell-v">{{ t('rooms_spec', { rooms: listing.rooms }) }}</span>
           </div>
           <div class="spec-cell">
-            <span class="cell-k">Joylashgan Qavat</span>
+            <span class="cell-k">{{ t('spec_floor_loc') }}</span>
             <span class="cell-v">{{ listing.floor || '3/9' }}</span>
           </div>
           <div class="spec-cell">
-            <span class="cell-k">Metro Masofasi</span>
-            <span class="cell-v">{{ listing.metro_minutes || 5 }} daqiqa</span>
+            <span class="cell-k">{{ t('spec_metro_dist') }}</span>
+            <span class="cell-v">{{ listing.metro_minutes || 5 }} {{ t('minutes_unit') }}</span>
           </div>
         </div>
 
@@ -154,62 +150,62 @@ const sourceViewLabel = computed(() => {
           </div>
           <div class="target-right">
             <div class="target-headline">
-              <template v-if="listing.target_audience === 'family'">Faqat oila uchun mo‘ljallangan</template>
-              <template v-else-if="listing.target_audience === 'female'">Qizlar / Ayollar uchun mo‘ljallangan</template>
-              <template v-else-if="listing.target_audience === 'male'">Yigitlar / Talabalar uchun mo‘ljallangan</template>
+              <template v-if="listing.target_audience === 'family'">{{ t('aud_only_family') }}</template>
+              <template v-else-if="listing.target_audience === 'female'">{{ t('aud_only_female') }}</template>
+              <template v-else-if="listing.target_audience === 'male'">{{ t('aud_only_male') }}</template>
             </div>
-            <div class="target-hint">E’lon matnida ijarachilar toifasi egasi tomonidan alohida belgilangan</div>
+            <div class="target-hint">{{ t('aud_hint') }}</div>
           </div>
         </div>
 
         <!-- AI Intelligence Dossier -->
         <div class="ai-intelligence-block">
           <div class="intel-header">
-            <span class="intel-badge">Joyliy Fair Price & Safety AI</span>
+            <span class="intel-badge">{{ t('ai_intel_title') }}</span>
           </div>
 
           <div class="intel-grid">
             <!-- Market valuation card -->
             <div class="intel-card">
-              <span class="ic-lbl">Bozor Tahlili (Fair Price)</span>
+              <span class="ic-lbl">{{ t('market_analysis') }}</span>
               <div class="ic-status">
                 <span v-if="listing.fair_price_category === 'BELOW_MARKET'" class="tag-status-icon tag-good">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="intel-svg">
                     <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/>
                     <polyline points="17 18 23 18 23 12"/>
                   </svg>
-                  <span>Bozordan arzon {{ listing.price_diff_percent ? `(${listing.price_diff_percent > 0 ? '+' : ''}${listing.price_diff_percent}%)` : '' }}</span>
+                  <span>{{ t('below_market_label') }} {{ listing.price_diff_percent ? `(${listing.price_diff_percent > 0 ? '+' : ''}${listing.price_diff_percent}%)` : '' }}</span>
                 </span>
                 <span v-else-if="listing.fair_price_category === 'ABOVE_MARKET'" class="tag-status-icon tag-warn">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="intel-svg">
                     <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
                     <polyline points="17 6 23 6 23 12"/>
                   </svg>
-                  <span>Bozordan qimmat {{ listing.price_diff_percent ? `(+${listing.price_diff_percent}%)` : '' }}</span>
+                  <span>{{ t('above_market_label') }} {{ listing.price_diff_percent ? `(+${listing.price_diff_percent}%)` : '' }}</span>
                 </span>
                 <span v-else class="tag-status-icon tag-fair">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="intel-svg">
                     <line x1="5" y1="9" x2="19" y2="9"/>
                     <line x1="5" y1="15" x2="19" y2="15"/>
                   </svg>
-                  <span>Bozor narxida</span>
+                  <span>{{ t('at_market_label') }}</span>
                 </span>
               </div>
               <p class="ic-desc">
-                Toshkent {{ listing.district }} tumanida o‘xshash xonadonlar o‘rtacha narxi: ~{{ formatPrice(listing.estimated_market_price || listing.price_uzs) }}
+                {{ t('avg_market_in_district', { district: tDistrict(listing.district), price: formatPrice(listing.estimated_market_price || listing.price_uzs) }) }}
               </p>
             </div>
 
             <!-- Scam detector card -->
             <div class="intel-card">
-              <span class="ic-lbl">Xavfsizlik Tahlili</span>
+              <span class="ic-lbl">{{ t('safety_analysis') }}</span>
               <div class="ic-status">
                 <span v-if="(listing.scam_risk_score || 0) < 40" class="tag-status-icon tag-safe">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="intel-svg">
                     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
                     <path d="m9 12 2 2 4-4"/>
                   </svg>
-                  <span>Xavfsiz e’lon ({{ 100 - (listing.scam_risk_score || 10) }}% ishonch)</span>
+                  <span>{{ t('safe_listing', { pct: 100 - (listing.scam_risk_score || 10) }) }}</span>
                 </span>
                 <span v-else class="tag-status-icon tag-danger">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="intel-svg">
@@ -217,11 +213,11 @@ const sourceViewLabel = computed(() => {
                     <line x1="12" y1="9" x2="12" y2="13"/>
                     <line x1="12" y1="17" x2="12.01" y2="17"/>
                   </svg>
-                  <span>Ehtiyot bo‘ling (Xavf darajasi: {{ listing.scam_risk_score }}%)</span>
+                  <span>{{ t('caution_listing', { pct: listing.scam_risk_score }) }}</span>
                 </span>
               </div>
               <p class="ic-desc">
-                Avans to‘lamang, xonadonni va egalik kadastrini bevosita ko‘rishdan avval pul o‘tkazmang.
+                {{ t('safety_tip') }}
               </p>
             </div>
           </div>
@@ -229,7 +225,7 @@ const sourceViewLabel = computed(() => {
 
         <!-- Description Text -->
         <div v-if="listing.description" class="exhibition-description-block">
-          <h4 class="description-heading">Tavsif va shartlar</h4>
+          <h4 class="description-heading">{{ t('description_heading') }}</h4>
           <p class="description-body">
             {{ listing.description }}
           </p>
@@ -238,10 +234,10 @@ const sourceViewLabel = computed(() => {
         <!-- Provenance & Disclaimer -->
         <div class="provenance-block">
           <div class="prov-top">
-            <span class="prov-label">Manba: {{ listing.source_attribution || 'OLX.uz' }}</span>
+            <span class="prov-label">{{ t('source_lbl', { source: listing.source_attribution || 'OLX.uz' }) }}</span>
           </div>
           <p class="prov-text">
-            {{ listing.disclaimer || 'Ushbu e’lon ommaviy platformadan to‘g‘ridan-to‘g‘ri olingan. To‘lovdan avval xonadonni o‘z ko‘zingiz bilan ko‘rib, hujjatlarni tekshirib olishingizni tavsiya qilamiz.' }}
+            {{ listing.disclaimer || t('disclaimer_text') }}
           </p>
         </div>
 
@@ -252,7 +248,7 @@ const sourceViewLabel = computed(() => {
               <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
               <line x1="4" y1="22" x2="4" y2="15" />
             </svg>
-            <span>Noto‘g‘ri ma’lumot haqida xabar berish</span>
+            <span>{{ t('report_issue') }}</span>
           </button>
         </div>
       </div>
@@ -264,8 +260,8 @@ const sourceViewLabel = computed(() => {
           class="btn cmp-btn"
           :class="{ active: isInCompare(listing.id) }"
           @click="onToggleCompare"
-          :title="isInCompare(listing.id) ? 'Taqqoslangan' : 'Taqqoslash'"
-          :aria-label="isInCompare(listing.id) ? 'Taqqoslangan' : 'Taqqoslash'"
+          :title="isInCompare(listing.id) ? t('btn_compared') : t('btn_compare')"
+          :aria-label="isInCompare(listing.id) ? t('btn_compared') : t('btn_compare')"
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="cmp-svg-icon">
             <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
@@ -274,7 +270,7 @@ const sourceViewLabel = computed(() => {
             <path d="M12 3v18"/>
             <path d="M3 7h18"/>
           </svg>
-          <span class="cmp-desktop-text">{{ isInCompare(listing.id) ? 'Taqqoslangan' : 'Taqqoslash' }}</span>
+          <span class="cmp-desktop-text">{{ isInCompare(listing.id) ? t('btn_compared') : t('btn_compare') }}</span>
         </button>
 
         <a
@@ -285,8 +281,8 @@ const sourceViewLabel = computed(() => {
           <svg class="btn-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
           </svg>
-          <span class="btn-text-full">Qo‘ng‘iroq qilish</span>
-          <span class="btn-text-short">Qo‘ng‘iroq</span>
+          <span class="btn-text-full">{{ t('call_owner') }}</span>
+          <span class="btn-text-short">{{ t('call_short') }}</span>
         </a>
         <a
           v-if="listing.contact_telegram"
@@ -298,8 +294,8 @@ const sourceViewLabel = computed(() => {
           <svg class="btn-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="m22 2-11 11M22 2l-7 20-4-9-9-4z" />
           </svg>
-          <span class="btn-text-full">Telegram orqali yozish</span>
-          <span class="btn-text-short">Telegram</span>
+          <span class="btn-text-full">{{ t('write_telegram') }}</span>
+          <span class="btn-text-short">{{ t('telegram_short') }}</span>
         </a>
         <a
           v-if="listing.canonical_url"

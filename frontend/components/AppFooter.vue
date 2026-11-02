@@ -16,10 +16,10 @@ const { t } = useI18n()
             </svg>
           </div>
           <span class="footer-brand-title">Joyliy<span class="brand-tld">.uz</span></span>
-          <span class="footer-brand-sub">O‘zbekiston zamonaviy uy-joy ekosistemasi</span>
+          <span class="footer-brand-sub">{{ t('footer_brand_sub') }}</span>
         </div>
         <div class="footer-edition">
-          <span>Toshkent · 2026</span>
+          <span>{{ t('footer_edition') }}</span>
         </div>
       </div>
 
@@ -27,41 +27,41 @@ const { t } = useI18n()
       <div class="footer-columns-grid">
         <!-- Col 1: About / Statement -->
         <div class="footer-col about-col">
-          <h4 class="col-heading">Joyliy haqida</h4>
+          <h4 class="col-heading">{{ t('footer_about_title') }}</h4>
           <p class="col-desc">
-            Joyliy — mulk egalari va ijarachilarni to‘g‘ridan-to‘g‘ri bog‘lovchi aqlli proptech platformasi. 0% vositachilik to‘lovi, sun’iy intellekt bozor tahlili va shaffof shartlar bilan orzuingizdagi uyni toping.
+            {{ t('footer_about_desc') }}
           </p>
           <div class="footer-badges">
-            <span class="f-badge">0% Vositachilik</span>
-            <span class="f-badge">Joyliy AI</span>
-            <span class="f-badge">Shaffof narxlar</span>
+            <span class="f-badge">{{ t('footer_badge_0pct') }}</span>
+            <span class="f-badge">{{ t('footer_badge_ai') }}</span>
+            <span class="f-badge">{{ t('footer_badge_fair') }}</span>
           </div>
         </div>
 
         <!-- Col 2: Directory -->
         <div class="footer-col">
-          <h4 class="col-heading">Katalog</h4>
-          <a href="#katalog" class="footer-link">Barcha xonadonlar</a>
-          <a href="#katalog" class="footer-link">Maklersiz uylar</a>
-          <a href="#katalog" class="footer-link">Bozordan arzon takliflar</a>
-          <a href="#katalog" class="footer-link">Yangi e’lonlar</a>
-          <a href="#katalog" class="footer-link">Sheriklik va talabalar</a>
+          <h4 class="col-heading">{{ t('footer_catalog') }}</h4>
+          <a href="#katalog" class="footer-link">{{ t('footer_all_apts') }}</a>
+          <a href="#katalog" class="footer-link">{{ t('footer_no_agent') }}</a>
+          <a href="#katalog" class="footer-link">{{ t('footer_cheap') }}</a>
+          <a href="#katalog" class="footer-link">{{ t('footer_new') }}</a>
+          <a href="#katalog" class="footer-link">{{ t('footer_roommates') }}</a>
         </div>
 
         <!-- Col 3: Districts -->
         <div class="footer-col">
-          <h4 class="col-heading">Tumanlar</h4>
-          <a href="#katalog" class="footer-link">Chilonzor tumani</a>
-          <a href="#katalog" class="footer-link">Yunusobod tumani</a>
-          <a href="#katalog" class="footer-link">Mirzo Ulug‘bek tumani</a>
-          <a href="#katalog" class="footer-link">Mirobod tumani</a>
-          <a href="#katalog" class="footer-link">Yakkasaroy tumani</a>
-          <a href="#katalog" class="footer-link">Yashnobod tumani</a>
+          <h4 class="col-heading">{{ t('footer_districts') }}</h4>
+          <a href="#katalog" class="footer-link">{{ t('district_chilonzor') }}</a>
+          <a href="#katalog" class="footer-link">{{ t('district_yunusobod') }}</a>
+          <a href="#katalog" class="footer-link">{{ t('district_mirzo') }}</a>
+          <a href="#katalog" class="footer-link">{{ t('district_mirobod') }}</a>
+          <a href="#katalog" class="footer-link">{{ t('district_yakkasaroy') }}</a>
+          <a href="#katalog" class="footer-link">{{ t('district_yashnobod') }}</a>
         </div>
 
         <!-- Col 4: Telegram & Contacts -->
         <div class="footer-col">
-          <h4 class="col-heading">Aloqa va Bot</h4>
+          <h4 class="col-heading">{{ t('footer_contacts') }}</h4>
           <a href="https://t.me/joyliy_bot" target="_blank" rel="noopener" class="footer-link special-link">
             <svg class="foot-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="m22 2-11 11M22 2l-7 20-4-9-9-4z" />
@@ -82,17 +82,17 @@ const { t } = useI18n()
             </svg>
             <span>salom@joyliy.uz</span>
           </a>
-          <span class="city-location">Toshkent shahri, O‘zbekiston</span>
+          <span class="city-location">{{ t('footer_city') }}</span>
         </div>
       </div>
 
       <!-- Bottom Legal Line -->
       <div class="footer-bottom-line">
         <div class="legal-left">
-          © 2026 Joyliy.uz. Barcha huquqlar himoyalangan.
+          {{ t('footer_rights') }}
         </div>
         <div class="legal-right">
-          E’lonlar ochiq manbalar va mulk egalari tomonidan taqdim etiladi.
+          {{ t('footer_disclaimer') }}
         </div>
       </div>
     </div>

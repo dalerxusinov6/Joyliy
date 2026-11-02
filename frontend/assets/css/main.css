@@ -605,13 +605,29 @@ header {
   box-shadow: var(--sh-modal);
 }
 
+.sheet,
+.sheet .bd,
+.ov,
+.modal,
+.modal-body,
+.drawer,
+.exhibition-sheet,
+.exhibition-body,
+.comparison-container,
+.no-scrollbar {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
 .sheet::-webkit-scrollbar,
 .sheet .bd::-webkit-scrollbar,
 .ov::-webkit-scrollbar,
 .modal::-webkit-scrollbar,
+.modal-body::-webkit-scrollbar,
 .drawer::-webkit-scrollbar,
 .exhibition-sheet::-webkit-scrollbar,
 .exhibition-body::-webkit-scrollbar,
+.comparison-container::-webkit-scrollbar,
 .no-scrollbar::-webkit-scrollbar {
   display: none !important;
   width: 0 !important;

@@ -10,18 +10,18 @@ const emit = defineEmits(['close'])
 const { t } = useI18n()
 const { filterAmenities, filterSort, filterAudience } = useListings()
 
-const sortOptions = [
-  { value: 'new', label: 'Eng yangi' },
-  { value: 'lo', label: 'Arzonroqdan' },
-  { value: 'hi', label: 'Qimmatroqdan' },
-]
+const sortOptions = computed(() => [
+  { value: 'new', label: t('sort_new') },
+  { value: 'lo', label: t('sort_low') },
+  { value: 'hi', label: t('sort_high') },
+])
 
-const audienceList = [
-  { value: 'all', label: 'Barchasi' },
-  { value: 'family', label: 'Oila uchun' },
-  { value: 'female', label: 'Qizlar uchun' },
-  { value: 'male', label: 'Yigitlar uchun' },
-]
+const audienceList = computed(() => [
+  { value: 'all', label: t('aud_all') },
+  { value: 'family', label: t('aud_family') },
+  { value: 'female', label: t('aud_female') },
+  { value: 'male', label: t('aud_male') },
+])
 
 const onReset = () => {
   filterAmenities.value.mebel = false
@@ -44,7 +44,7 @@ const onApply = () => {
       <!-- Header -->
       <div class="top filter-header">
         <div class="filter-header-left">
-          <span class="filter-heading-text">Kengaytirilgan filtrlar</span>
+          <span class="filter-heading-text">{{ t('filter_advanced_title') }}</span>
         </div>
         <button class="ib" @click="$emit('close')" :aria-label="t('close')">
           <svg class="i" viewBox="0 0 24 24">
@@ -57,7 +57,7 @@ const onApply = () => {
       <div class="bd filter-body">
         <!-- Sort Segment -->
         <div class="filter-section">
-          <span class="editorial-meta">Saralash tartibi</span>
+          <span class="editorial-meta">{{ t('sort_order') }}</span>
           <div class="sort-segmented">
             <button
               v-for="opt in sortOptions"
@@ -74,7 +74,7 @@ const onApply = () => {
 
         <!-- Audience Grid -->
         <div class="filter-section">
-          <span class="editorial-meta">Ijarachi toifasi</span>
+          <span class="editorial-meta">{{ t('tenant_category') }}</span>
           <div class="audience-select-grid">
             <button
               v-for="aud in audienceList"
@@ -112,14 +112,14 @@ const onApply = () => {
 
         <!-- Amenities Checklist -->
         <div class="filter-section">
-          <span class="editorial-meta">Qulayliklar va mezonlar</span>
+          <span class="editorial-meta">{{ t('amenities_criteria') }}</span>
           <div class="amenities-container">
             <!-- Owner Only -->
             <label class="amenity-row owner-highlight">
               <input type="checkbox" v-model="filterAmenities.owner_only" />
               <div class="amenity-desc">
-                <span class="amenity-title">Faqat egasidan (Maklersiz)</span>
-                <span class="amenity-sub">100% vositachilik komissiyasisiz e’lonlar</span>
+                <span class="amenity-title">{{ t('amenity_owner_title') }}</span>
+                <span class="amenity-sub">{{ t('amenity_owner_sub') }}</span>
               </div>
             </label>
 
@@ -127,8 +127,8 @@ const onApply = () => {
             <label class="amenity-row">
               <input type="checkbox" v-model="filterAmenities.mebel" />
               <div class="amenity-desc">
-                <span class="amenity-title">Mebel mavjud</span>
-                <span class="amenity-sub">Yashash uchun to‘liq jihozlangan</span>
+                <span class="amenity-title">{{ t('amenity_furniture_title') }}</span>
+                <span class="amenity-sub">{{ t('amenity_furniture_sub') }}</span>
               </div>
             </label>
 
@@ -136,8 +136,8 @@ const onApply = () => {
             <label class="amenity-row">
               <input type="checkbox" v-model="filterAmenities.kond" />
               <div class="amenity-desc">
-                <span class="amenity-title">Konditsioner</span>
-                <span class="amenity-sub">Sovutish va isitish iqlim uskunasi</span>
+                <span class="amenity-title">{{ t('amenity_ac_title') }}</span>
+                <span class="amenity-sub">{{ t('amenity_ac_sub') }}</span>
               </div>
             </label>
 
@@ -145,8 +145,8 @@ const onApply = () => {
             <label class="amenity-row">
               <input type="checkbox" v-model="filterAmenities.kir" />
               <div class="amenity-desc">
-                <span class="amenity-title">Kir yuvish mashinasi</span>
-                <span class="amenity-sub">Avtomat kir yuvish texnikasi</span>
+                <span class="amenity-title">{{ t('amenity_wm_title') }}</span>
+                <span class="amenity-sub">{{ t('amenity_wm_sub') }}</span>
               </div>
             </label>
 
@@ -154,8 +154,8 @@ const onApply = () => {
             <label class="amenity-row">
               <input type="checkbox" v-model="filterAmenities.net" />
               <div class="amenity-desc">
-                <span class="amenity-title">Wi-Fi Internet</span>
-                <span class="amenity-sub">Tezkor internet tarmog‘i</span>
+                <span class="amenity-title">{{ t('amenity_wifi_title') }}</span>
+                <span class="amenity-sub">{{ t('amenity_wifi_sub') }}</span>
               </div>
             </label>
           </div>
@@ -165,7 +165,7 @@ const onApply = () => {
       <!-- Action Footer Bar -->
       <div class="cbar filter-cbar">
         <button class="btn" type="button" @click="onReset">{{ t('clear') }}</button>
-        <button class="btn p" type="button" @click="onApply">Filtrlarni qo‘llash</button>
+        <button class="btn p" type="button" @click="onApply">{{ t('apply_filters') }}</button>
       </div>
     </div>
   </div>

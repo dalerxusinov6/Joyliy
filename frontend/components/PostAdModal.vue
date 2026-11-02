@@ -7,7 +7,7 @@ defineProps<{
 }>()
 
 const emit = defineEmits(['close', 'toast'])
-const { t } = useI18n()
+const { t, tDistrict, currentLang } = useI18n()
 const { availableDistricts } = useListings()
 
 const form = ref({
@@ -49,7 +49,7 @@ const onSubmit = async () => {
       <!-- Header -->
       <div class="top post-ad-header">
         <div class="header-titles">
-          <span class="post-ad-title">Xonadon e’lonini joylash</span>
+          <span class="post-ad-title">{{ currentLang === 'ru' ? 'Размещение объявления' : 'Xonadon e’lonini joylash' }}</span>
         </div>
         <button class="ib" @click="$emit('close')" :aria-label="t('close')">
           <svg class="i" viewBox="0 0 24 24">
@@ -63,10 +63,10 @@ const onSubmit = async () => {
         <!-- Trust Statement -->
         <div class="trust-manifesto-box">
           <div class="manifesto-left">
-            <span class="manifesto-badge">0% Vositachilik</span>
+            <span class="manifesto-badge">{{ currentLang === 'ru' ? '0% Комиссии' : '0% Vositachilik' }}</span>
           </div>
           <p class="manifesto-text">
-            Joyliy — mustaqil e’lonlar maydoni. Kvartirangizni vositachisiz, to‘g‘ridan-to‘g‘ri munosib ijarachiga topshiring.
+            {{ currentLang === 'ru' ? 'Joyliy — площадка прямых объявлений. Сдавайте жильё напрямую надёжным жильцам без посредников и переплат.' : 'Joyliy — mustaqil e’lonlar maydoni. Kvartirangizni vositachisiz, to‘g‘ridan-to‘g‘ri munosib ijarachiga topshiring.' }}
           </p>
         </div>
 
@@ -74,39 +74,39 @@ const onSubmit = async () => {
         <div class="form-grid">
           <!-- District -->
           <div class="field-item">
-            <label class="field-label">01 / Tuman</label>
+            <label class="field-label">{{ currentLang === 'ru' ? '01 / Район' : '01 / Tuman' }}</label>
             <select v-model="form.district" class="field-control">
-              <option v-for="d in availableDistricts" :key="d" :value="d">{{ d }}</option>
+              <option v-for="d in availableDistricts" :key="d" :value="d">{{ tDistrict(d) }}</option>
             </select>
           </div>
 
           <!-- Rooms -->
           <div class="field-item">
-            <label class="field-label">02 / Xonalar soni</label>
+            <label class="field-label">{{ currentLang === 'ru' ? '02 / Количество комнат' : '02 / Xonalar soni' }}</label>
             <select v-model.number="form.rooms" class="field-control">
-              <option :value="1">1 xona</option>
-              <option :value="2">2 xona</option>
-              <option :value="3">3 xona</option>
-              <option :value="4">4+ xona</option>
+              <option :value="1">{{ t('room_1') }}</option>
+              <option :value="2">{{ t('room_2') }}</option>
+              <option :value="3">{{ t('room_3') }}</option>
+              <option :value="4">{{ t('room_4_plus') }}</option>
             </select>
           </div>
 
           <!-- Price -->
           <div class="field-item">
-            <label class="field-label">03 / Oylik ijara narxi (so‘m)</label>
+            <label class="field-label">{{ currentLang === 'ru' ? '03 / Стоимость в месяц (сум)' : '03 / Oylik ijara narxi (so‘m)' }}</label>
             <input
               v-model.number="form.price"
               type="number"
               step="100000"
               class="field-control"
-              placeholder="Masalan: 4000000"
+              placeholder="4000000"
               required
             />
           </div>
 
           <!-- Area -->
           <div class="field-item">
-            <label class="field-label">04 / Maydon (m²)</label>
+            <label class="field-label">{{ currentLang === 'ru' ? '04 / Площадь (м²)' : '04 / Maydon (m²)' }}</label>
             <input
               v-model.number="form.area"
               type="number"
@@ -118,7 +118,7 @@ const onSubmit = async () => {
 
           <!-- Floor -->
           <div class="field-item">
-            <label class="field-label">05 / Qavat</label>
+            <label class="field-label">{{ currentLang === 'ru' ? '05 / Этаж' : '05 / Qavat' }}</label>
             <input
               v-model="form.floor"
               type="text"
@@ -129,18 +129,18 @@ const onSubmit = async () => {
 
           <!-- Audience -->
           <div class="field-item">
-            <label class="field-label">06 / Kimlar uchun?</label>
+            <label class="field-label">{{ currentLang === 'ru' ? '06 / Для кого?' : '06 / Kimlar uchun?' }}</label>
             <select v-model="form.audience" class="field-control">
-              <option value="all">Farqi yo‘q (Barchaga)</option>
-              <option value="family">Faqat oila uchun</option>
-              <option value="female">Qizlar / Talabalar</option>
-              <option value="male">Yigitlar / Talabalar</option>
+              <option value="all">{{ t('aud_all') }}</option>
+              <option value="family">{{ t('aud_family') }}</option>
+              <option value="female">{{ t('aud_female') }}</option>
+              <option value="male">{{ t('aud_male') }}</option>
             </select>
           </div>
 
           <!-- Phone -->
           <div class="field-item">
-            <label class="field-label">07 / Telefon raqam</label>
+            <label class="field-label">{{ currentLang === 'ru' ? '07 / Номер телефона' : '07 / Telefon raqam' }}</label>
             <input
               v-model="form.phone"
               type="tel"
@@ -152,7 +152,7 @@ const onSubmit = async () => {
 
           <!-- Telegram -->
           <div class="field-item">
-            <label class="field-label">08 / Telegram username</label>
+            <label class="field-label">{{ currentLang === 'ru' ? '08 / Профиль в Telegram' : '08 / Telegram username' }}</label>
             <input
               v-model="form.telegram"
               type="text"
@@ -164,12 +164,12 @@ const onSubmit = async () => {
 
         <!-- Description -->
         <div class="field-item full-width">
-          <label class="field-label">09 / Tavsif va qo‘shimcha shartlar</label>
+          <label class="field-label">{{ currentLang === 'ru' ? '09 / Описание и дополнительные условия' : '09 / Tavsif va qo‘shimcha shartlar' }}</label>
           <textarea
             v-model="form.description"
             rows="3"
             class="field-control textarea"
-            placeholder="Kvartira holati, mebel va jihozlar, depozit yoki boshqa talablar..."
+            :placeholder="currentLang === 'ru' ? 'Состояние квартиры, мебель, бытовая техника, залог и другие пожелания...' : 'Kvartira holati, mebel va jihozlar, depozit yoki boshqa talablar...'"
           ></textarea>
         </div>
 
@@ -177,21 +177,21 @@ const onSubmit = async () => {
         <label class="owner-declaration-box">
           <input type="checkbox" v-model="form.isOwner" required />
           <span class="declaration-text">
-            <b>Men ushbu mulkning qonuniy egasiman</b> va vositachi (makler/rieltor) emasman. E’londagi ma’lumotlarning haqqoniyligini tasdiqlayman.
+            <b>{{ currentLang === 'ru' ? 'Я подтверждаю, что являюсь законным владельцем' : 'Men ushbu mulkning qonuniy egasiman' }}</b> {{ currentLang === 'ru' ? 'и не являюсь посредником (маклером/риелтором). Гарантирую достоверность информации.' : 'va vositachi (makler/rieltor) emasman. E’londagi ma’lumotlarning haqqoniyligini tasdiqlayman.' }}
           </span>
         </label>
 
         <!-- Actions -->
         <div class="post-actions-bar">
-          <button class="btn" type="button" @click="$emit('close')">Bekor qilish</button>
+          <button class="btn" type="button" @click="$emit('close')">{{ t('cancel') }}</button>
           <button class="btn p" type="submit" :disabled="isSubmitting">
-            {{ isSubmitting ? 'Yuborilmoqda...' : 'E’lonni chop etish' }}
+            {{ isSubmitting ? t('sending') : (currentLang === 'ru' ? 'Опубликовать объявление' : 'E’lonni chop etish') }}
           </button>
         </div>
 
         <!-- Bot Alternate Link -->
         <div class="bot-reference">
-          Rasmlarni yuklash va e’lonni tezkor yuborish uchun <a href="https://t.me/joyliy_bot" target="_blank" rel="noopener">@joyliy_bot</a> orqali ham topshirishingiz mumkin.
+          {{ currentLang === 'ru' ? 'Для быстрой загрузки фотографий вы также можете отправить объявление через' : 'Rasmlarni yuklash va e’lonni tezkor yuborish uchun' }} <a href="https://t.me/joyliy_bot" target="_blank" rel="noopener">@joyliy_bot</a> {{ currentLang === 'ru' ? '' : 'orqali ham topshirishingiz mumkin.' }}
         </div>
       </form>
     </div>

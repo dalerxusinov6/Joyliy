@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue'
+import { useI18n } from '~/composables/useI18n'
 
 const props = defineProps<{
   show: boolean
 }>()
 
 const emit = defineEmits(['close', 'toast'])
+
+const { t, tDistrict, currentLang } = useI18n()
 
 interface Profile {
   id: number
@@ -214,10 +217,10 @@ const formatPrice = (p: number) => {
               <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
               <path d="M16 3.13a4 4 0 0 1 0 7.75" />
             </svg>
-            Hamxona Topish (Roommates)
+            {{ currentLang === 'ru' ? 'Поиск соседей (Roommates)' : (currentLang === 'en' ? 'Find Roommates' : 'Hamxona Topish (Roommates)') }}
           </h2>
         </div>
-        <button class="close-btn" @click="$emit('close')" aria-label="Yopish">
+        <button class="close-btn" @click="$emit('close')" :aria-label="t('close')">
           <svg class="close-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <line x1="18" y1="6" x2="6" y2="18" />
             <line x1="6" y1="6" x2="18" y2="18" />
@@ -237,7 +240,7 @@ const formatPrice = (p: number) => {
             <circle cx="11" cy="11" r="8" />
             <line x1="21" y1="21" x2="16.65" y2="16.65" />
           </svg>
-          Anketalarni ko‘rish ({{ filteredProfiles.length }})
+          {{ currentLang === 'ru' ? 'Смотреть анкеты' : (currentLang === 'en' ? 'Browse profiles' : 'Anketalarni ko‘rish') }} ({{ filteredProfiles.length }})
         </button>
         <button
           type="button"
@@ -249,7 +252,7 @@ const formatPrice = (p: number) => {
             <line x1="12" y1="5" x2="12" y2="19" />
             <line x1="5" y1="12" x2="19" y2="12" />
           </svg>
-          Anketa to‘ldirish
+          {{ currentLang === 'ru' ? 'Заполнить анкету' : (currentLang === 'en' ? 'Fill Profile' : 'Anketa to‘ldirish') }}
         </button>
       </div>
 
@@ -263,7 +266,7 @@ const formatPrice = (p: number) => {
             :class="{ active: filterType === 'all' }"
             @click="filterType = 'all'"
           >
-            Barchasi
+            {{ t('cat_all') }}
           </button>
           <button
             type="button"
@@ -271,7 +274,7 @@ const formatPrice = (p: number) => {
             :class="{ active: filterType === 'student' }"
             @click="filterType = 'student'"
           >
-            Talabalar
+            {{ currentLang === 'ru' ? 'Студенты' : (currentLang === 'en' ? 'Students' : 'Talabalar') }}
           </button>
           <button
             type="button"
@@ -279,7 +282,7 @@ const formatPrice = (p: number) => {
             :class="{ active: filterType === 'working' }"
             @click="filterType = 'working'"
           >
-            Ishlaydiganlar
+            {{ currentLang === 'ru' ? 'Работающие' : (currentLang === 'en' ? 'Working' : 'Ishlaydiganlar') }}
           </button>
           <button
             type="button"
@@ -287,7 +290,7 @@ const formatPrice = (p: number) => {
             :class="{ active: filterType === 'female' }"
             @click="filterType = 'female'"
           >
-            Qizlar
+            {{ t('aud_female_short') }}
           </button>
           <button
             type="button"
@@ -295,7 +298,7 @@ const formatPrice = (p: number) => {
             :class="{ active: filterType === 'male' }"
             @click="filterType = 'male'"
           >
-            Yigitlar
+            {{ t('aud_male_short') }}
           </button>
         </div>
 
@@ -309,7 +312,7 @@ const formatPrice = (p: number) => {
                 </div>
                 <div>
                   <h3 class="profile-name">{{ p.name }}, {{ p.age || 22 }}</h3>
-                  <p class="profile-occ">{{ p.occupation || 'Talaba' }}</p>
+                  <p class="profile-occ">{{ p.occupation || (currentLang === 'ru' ? 'Студент' : 'Talaba') }}</p>
                 </div>
               </div>
               <span class="match-score">
@@ -318,17 +321,17 @@ const formatPrice = (p: number) => {
                   <circle cx="12" cy="12" r="6" />
                   <circle cx="12" cy="12" r="2" />
                 </svg>
-                {{ p.compatibility_score }}% Mos
+                {{ p.compatibility_score }}% {{ currentLang === 'ru' ? 'Подходит' : 'Mos' }}
               </span>
             </div>
 
             <div class="spec-row">
               <div class="spec-item">
-                <span class="spec-label">Tuman:</span>
-                <span class="spec-val">{{ p.preferred_district || 'Toshkent' }}</span>
+                <span class="spec-label">{{ t('district') }}:</span>
+                <span class="spec-val">{{ tDistrict(p.preferred_district) || (currentLang === 'ru' ? 'Ташкент' : 'Toshkent') }}</span>
               </div>
               <div class="spec-item">
-                <span class="spec-label">Byudjet:</span>
+                <span class="spec-label">{{ currentLang === 'ru' ? 'Бюджет:' : 'Byudjet:' }}</span>
                 <span class="spec-val price">{{ formatPrice(p.budget_uzs) }}</span>
               </div>
             </div>
@@ -354,13 +357,13 @@ const formatPrice = (p: number) => {
                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
                 <polyline points="22,6 12,13 2,6" />
               </svg>
-              Bog‘lanish so‘rovi
+              {{ currentLang === 'ru' ? 'Связаться' : (currentLang === 'en' ? 'Connect' : 'Bog‘lanish so‘rovi') }}
             </button>
           </div>
         </div>
 
         <div v-else class="empty-state">
-          <p>Ushbu toifa bo‘yicha hozircha anketalar yo‘q.</p>
+          <p>{{ currentLang === 'ru' ? 'В этой категории пока нет анкет.' : (currentLang === 'en' ? 'No profiles found in this category.' : 'Ushbu toifa bo‘yicha hozircha anketalar yo‘q.') }}</p>
         </div>
       </div>
 
@@ -369,53 +372,53 @@ const formatPrice = (p: number) => {
         <form @submit.prevent="submitNewProfile" class="form-container">
           <div class="form-grid">
             <div class="form-group">
-              <label>Ismingiz *</label>
+              <label>{{ currentLang === 'ru' ? 'Ваше имя *' : 'Ismingiz *' }}</label>
               <input v-model="newForm.name" type="text" placeholder="Jasur" required />
             </div>
 
             <div class="form-group">
-              <label>Yoshingiz</label>
+              <label>{{ currentLang === 'ru' ? 'Возраст' : 'Yoshingiz' }}</label>
               <input v-model="newForm.age" type="number" min="16" max="70" />
             </div>
 
             <div class="form-group">
-              <label>Jinsingiz</label>
+              <label>{{ currentLang === 'ru' ? 'Пол' : 'Jinsingiz' }}</label>
               <select v-model="newForm.gender">
-                <option value="male">Erkak / Yigit</option>
-                <option value="female">Ayol / Qiz</option>
+                <option value="male">{{ currentLang === 'ru' ? 'Мужской / Парень' : 'Erkak / Yigit' }}</option>
+                <option value="female">{{ currentLang === 'ru' ? 'Женский / Девушка' : 'Ayol / Qiz' }}</option>
               </select>
             </div>
 
             <div class="form-group">
-              <label>Qulay tuman</label>
+              <label>{{ currentLang === 'ru' ? 'Желаемый район' : 'Qulay tuman' }}</label>
               <select v-model="newForm.preferred_district">
-                <option v-for="d in districts" :key="d" :value="d">{{ d }}</option>
+                <option v-for="d in districts" :key="d" :value="d">{{ tDistrict(d) }}</option>
               </select>
             </div>
 
             <div class="form-group">
-              <label>Oylik byudjetingiz (so‘m)</label>
+              <label>{{ currentLang === 'ru' ? 'Месячный бюджет (сум)' : 'Oylik byudjetingiz (so‘m)' }}</label>
               <input v-model="newForm.budget_uzs" type="number" step="100000" />
             </div>
 
             <div class="form-group">
-              <label>Kasb yoki O‘qish joyingiz</label>
+              <label>{{ currentLang === 'ru' ? 'Профессия или место учёбы' : 'Kasb yoki O‘qish joyingiz' }}</label>
               <input v-model="newForm.occupation" type="text" placeholder="TATU 3-kurs yoki Dasturchi" />
             </div>
 
             <div class="form-group full-width">
-              <label>Telegram profilingiz (@username) *</label>
+              <label>{{ currentLang === 'ru' ? 'Профиль в Telegram (@username) *' : 'Telegram profilingiz (@username) *' }}</label>
               <input v-model="newForm.contact_telegram" type="text" placeholder="@sizning_nik" required />
             </div>
 
             <div class="form-group full-width">
-              <label>Turmush tarzi belgilari (vergul bilan)</label>
+              <label>{{ currentLang === 'ru' ? 'Привычки и образ жизни (через запятую)' : 'Turmush tarzi belgilari (vergul bilan)' }}</label>
               <input v-model="newForm.lifestyle_tags" type="text" placeholder="Chekmaydi, Tozalik, Tinch rejim" />
             </div>
 
             <div class="form-group full-width">
-              <label>O‘zingiz haqingizda qisqacha</label>
-              <textarea v-model="newForm.about" rows="3" placeholder="Qanday xonadon va qanday sherik qidiryapsiz?"></textarea>
+              <label>{{ currentLang === 'ru' ? 'Кратко о себе' : 'O‘zingiz haqingizda qisqacha' }}</label>
+              <textarea v-model="newForm.about" rows="3" :placeholder="currentLang === 'ru' ? 'Какую квартиру и какого соседа вы ищете?' : 'Qanday xonadon va qanday sherik qidiryapsiz?'"></textarea>
             </div>
           </div>
 
@@ -426,7 +429,7 @@ const formatPrice = (p: number) => {
                 <polyline points="17 21 17 13 7 13 7 21" />
                 <polyline points="7 3 7 8 15 8" />
               </svg>
-              Anketani e’lon qilish
+              {{ currentLang === 'ru' ? 'Опубликовать анкету' : 'Anketani e’lon qilish' }}
             </button>
           </div>
         </form>
@@ -435,17 +438,17 @@ const formatPrice = (p: number) => {
       <!-- CONNECT MODAL POPUP -->
       <div v-if="selectedProfile" class="connect-overlay" @click.self="selectedProfile = null">
         <div class="connect-card">
-          <h3>Bog‘lanish so‘rovi: {{ selectedProfile.name }}</h3>
-          <p class="connect-sub">Ushbu foydalanuvchiga xabar va aloqa ma’lumotlaringizni yuboring:</p>
+          <h3>{{ currentLang === 'ru' ? 'Запрос на связь:' : 'Bog‘lanish so‘rovi:' }} {{ selectedProfile.name }}</h3>
+          <p class="connect-sub">{{ currentLang === 'ru' ? 'Отправьте сообщение и свои контактные данные пользователю:' : 'Ushbu foydalanuvchiga xabar va aloqa ma’lumotlaringizni yuboring:' }}</p>
           <textarea
             v-model="connectMessage"
             rows="3"
-            placeholder="Salom, Joyliy dagi anketangiz bo‘yicha birgalikda uy izlamoqchi edim..."
+            :placeholder="currentLang === 'ru' ? 'Здравствуйте, пишу по вашей анкете на Joyliy...' : 'Salom, Joyliy dagi anketangiz bo‘yicha birgalikda uy izlamoqchi edim...'"
           ></textarea>
           <div class="connect-actions">
-            <button type="button" class="cancel-btn" @click="selectedProfile = null">Bekor qilish</button>
+            <button type="button" class="cancel-btn" @click="selectedProfile = null">{{ t('cancel') }}</button>
             <button type="button" class="send-btn" :disabled="isSending" @click="sendConnection">
-              {{ isSending ? 'Yuborilmoqda...' : 'Yuborish' }}
+              {{ isSending ? t('sending') : (currentLang === 'ru' ? 'Отправить' : 'Yuborish') }}
             </button>
           </div>
         </div>

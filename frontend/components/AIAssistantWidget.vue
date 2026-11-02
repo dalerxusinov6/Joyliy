@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, watch, onUnmounted } from 'vue'
+import { ref, computed, watch, onUnmounted } from 'vue'
+import { useI18n } from '~/composables/useI18n'
 
 const props = withDefaults(defineProps<{
   show?: boolean
@@ -8,6 +9,8 @@ const props = withDefaults(defineProps<{
 })
 
 const emit = defineEmits(['close'])
+
+const { t, currentLang } = useI18n()
 
 interface ChatMessage {
   id: string
@@ -34,24 +37,35 @@ const openChat = () => {
   isOpen.value = true
 }
 
-const messages = ref<ChatMessage[]>([
-  {
-    id: '1',
-    sender: 'ai',
-    text: 'Assalomu alaykum! Men Joyliy AI – O‘zbekiston ijara bozori bo‘yicha virtual yordamchingizman. Ijara shartnomasi, soliq (ijara.soliq.uz), zalog yoki firibgarlikdan saqlanish bo‘yicha savolingiz bormi?',
-    practical_tips: [
-      'Shartnomani albatta ijara.soliq.uz portalida ro‘yxatdan o‘tkazing',
-      'Uyga ko‘chib kirishdan oldin zalog va buyumlar ro‘yxatini tuzing',
-    ],
-  },
-])
+const resetDefaultGreeting = () => {
+  messages.value = [
+    {
+      id: '1',
+      sender: 'ai',
+      text: t('assistant_welcome'),
+      practical_tips: [
+        t('tip_1'),
+        t('tip_2'),
+      ],
+    },
+  ]
+}
 
-const quickQuestions = [
-  { text: 'Shartnomani soliqda qanday ro‘yxatdan o‘tkazish mumkin?', icon: 'file' },
-  { text: 'Zalog (depozit) qachon qaytarilishi kerak?', icon: 'money' },
-  { text: 'Kommunal to‘lovlarni kim to‘lashi shart?', icon: 'bulb' },
-  { text: 'Firibgarlardan qanday himoyalanamiz?', icon: 'shield' },
-]
+const messages = ref<ChatMessage[]>([])
+resetDefaultGreeting()
+
+watch(currentLang, () => {
+  if (messages.value.length <= 1) {
+    resetDefaultGreeting()
+  }
+})
+
+const quickQuestions = computed(() => [
+  { text: t('q_tax'), icon: 'file' },
+  { text: t('q_deposit'), icon: 'money' },
+  { text: t('q_utilities'), icon: 'bulb' },
+  { text: t('q_fraud'), icon: 'shield' },
+])
 
 // Toggle global body class to suppress bottom navigation & lock background scroll on mobile
 watch(isOpen, (opened) => {
@@ -124,15 +138,15 @@ const sendQuestion = async (textToSend?: string) => {
       type="button"
       class="iconly-assistant-trigger"
       @click="openChat"
-      title="Joyliy AI Maslahatchi"
-      aria-label="AI Maslahatchi chatini ochish"
+      :title="t('ai_assistant')"
+      :aria-label="t('ai_assistant')"
     >
       <div class="trigger-spark-circle">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="sparkle-svg">
           <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
         </svg>
       </div>
-      <span class="trigger-text">AI Maslahatchi</span>
+      <span class="trigger-text">{{ t('ai_assistant') }}</span>
       <span class="online-dot"></span>
     </button>
 
@@ -149,11 +163,11 @@ const sendQuestion = async (textToSend?: string) => {
               </svg>
             </div>
             <div>
-              <h3 class="bot-name">Joyliy AI Maslahatchi</h3>
-              <span class="bot-subtitle">Joyliy AI · Toshkent Ijara Huquqi</span>
+              <h3 class="bot-name">{{ t('ai_assistant') }}</h3>
+              <span class="bot-subtitle">{{ t('bot_subtitle') }}</span>
             </div>
           </div>
-          <button class="btn-close-drawer" @click="closeChat" aria-label="Yopish">
+          <button class="btn-close-drawer" @click="closeChat" :aria-label="t('close')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="drawer-close-svg">
               <line x1="18" y1="6" x2="6" y2="18" />
               <line x1="6" y1="6" x2="18" y2="18" />
@@ -210,7 +224,7 @@ const sendQuestion = async (textToSend?: string) => {
                     <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z" />
                     <path d="M6 6h10M6 10h10" />
                   </svg>
-                  <span>Qonuniy asos:</span>
+                  <span>{{ t('legal_basis') }}</span>
                 </span>
                 <ul class="box-list">
                   <li v-for="ref in msg.legal_references" :key="ref">{{ ref }}</li>
@@ -224,7 +238,7 @@ const sendQuestion = async (textToSend?: string) => {
                     <path d="M12 2a6 6 0 0 0-6 6c0 2.5 1.5 4.5 3 6v2h6v-2c1.5-1.5 3-3.5 3-6a6 6 0 0 0-6-6Z" />
                     <path d="M9 22h6" />
                   </svg>
-                  <span>Amaliy tavsiya:</span>
+                  <span>{{ t('practical_tip') }}</span>
                 </span>
                 <ul class="box-list">
                   <li v-for="tip in msg.practical_tips" :key="tip">{{ tip }}</li>
@@ -237,7 +251,7 @@ const sendQuestion = async (textToSend?: string) => {
             <span class="typing-dot"></span>
             <span class="typing-dot"></span>
             <span class="typing-dot"></span>
-            <span class="typing-label">AI tahlil qilmoqda...</span>
+            <span class="typing-label">{{ t('ai_analyzing_chat') }}</span>
           </div>
         </div>
 
@@ -247,14 +261,14 @@ const sendQuestion = async (textToSend?: string) => {
             <input
               v-model="inputQuery"
               type="text"
-              placeholder="Ijara yoki shartnoma bo‘yicha so‘rang..."
+              :placeholder="t('chat_placeholder')"
               class="chat-text-input"
             />
             <button
               type="submit"
               class="btn-send-message"
               :disabled="!inputQuery.trim() || isLoading"
-              aria-label="Xabar yuborish"
+              :aria-label="t('send_message')"
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="send-arr">
                 <line x1="22" y1="2" x2="11" y2="13" />

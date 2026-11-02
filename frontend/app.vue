@@ -202,13 +202,13 @@ onUnmounted(() => {
             </svg>
             <span>{{ compareList.length }}</span>
           </span>
-          <span class="fc-label">Kvartira taqqoslashda</span>
+          <span class="fc-label">{{ t('compare_floating_label') }}</span>
         </div>
         <div class="fc-right">
           <button class="fc-btn-view" @click="showCompare = true">
-            Taqqoslash
+            {{ t('compare') }}
           </button>
-          <button class="fc-btn-clear" @click="clearCompare" title="Tozalash" aria-label="Tozalash">
+          <button class="fc-btn-clear" @click="clearCompare" :title="t('clear')" :aria-label="t('clear')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="fc-close-svg">
               <line x1="18" y1="6" x2="6" y2="18" />
               <line x1="6" y1="6" x2="18" y2="18" />
@@ -224,14 +224,14 @@ onUnmounted(() => {
     </div>
 
     <!-- Mobile Bottom Navigation (Floating Pill Capsule - Iconly Mobile Reference: ONLY ICONS) -->
-    <nav class="bn" aria-label="Mobil navigatsiya">
+    <nav class="bn" :aria-label="t('mobile_nav')">
       <!-- 1. Bosh sahifa -->
       <button
         type="button"
         :class="{ on: !showRoommates && !showCompare && !showAssistant && !showSaved }"
         @click="scrollToResults"
-        aria-label="Bosh sahifa"
-        title="Bosh sahifa"
+        :aria-label="t('home')"
+        :title="t('home')"
       >
         <svg class="i" viewBox="0 0 24 24">
           <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
@@ -244,8 +244,8 @@ onUnmounted(() => {
         type="button"
         :class="{ on: showRoommates }"
         @click="showRoommates = true"
-        aria-label="Hamxona"
-        title="Hamxona"
+        :aria-label="t('roommates_tab')"
+        :title="t('roommates_tab')"
       >
         <svg class="i" viewBox="0 0 24 24">
           <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
@@ -261,8 +261,8 @@ onUnmounted(() => {
         class="btn-with-badge"
         :class="{ on: showCompare }"
         @click="showCompare = true"
-        aria-label="Taqqoslash"
-        title="Taqqoslash"
+        :aria-label="t('compare')"
+        :title="t('compare')"
       >
         <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
@@ -280,8 +280,8 @@ onUnmounted(() => {
         class="btn-with-badge"
         :class="{ on: showAssistant }"
         @click="showAssistant = true"
-        aria-label="AI Maslahatchi"
-        title="AI Maslahatchi"
+        :aria-label="t('ai_assistant')"
+        :title="t('ai_assistant')"
       >
         <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
@@ -294,8 +294,8 @@ onUnmounted(() => {
         class="btn-with-badge"
         :class="{ on: showSaved }"
         @click="showSaved = true"
-        aria-label="Saqlanganlar"
-        title="Saqlanganlar"
+        :aria-label="t('saved')"
+        :title="t('saved')"
       >
         <svg class="i" viewBox="0 0 24 24">
           <path d="M12 21s-8-5-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 6-8 11-8 11z" />

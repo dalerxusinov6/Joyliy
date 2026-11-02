@@ -8,7 +8,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits(['close', 'select'])
-const { t } = useI18n()
+const { t, tDistrict, formatPrice, currentLang } = useI18n()
 const { listings, filterAudience } = useListings()
 
 const mapContainer = ref<HTMLElement | null>(null)
@@ -300,8 +300,8 @@ onBeforeUnmount(() => {
               fill="#e11d48"
             />
           </svg>
-          <span style="font-weight: 700; font-size: 17px">Toshkent Ijaralari — Yandex Xarita</span>
-          <span class="count-pill">{{ listings.length }} ta e’lon</span>
+          <span style="font-weight: 700; font-size: 17px">{{ currentLang === 'ru' ? 'Аренда в Ташкенте — Яндекс Карта' : 'Toshkent Ijaralari — Yandex Xarita' }}</span>
+          <span class="count-pill">{{ t('listings_count_suffix', { count: listings.length }) }}</span>
         </div>
 
         <button class="ib" @click="$emit('close')" :aria-label="t('close')">
@@ -318,7 +318,7 @@ onBeforeUnmount(() => {
           :class="{ on: !selectedDistrict }"
           @click="onDistrictClick('')"
         >
-          Barcha tumanlar
+          {{ t('all_districts') }}
         </button>
 
         <button
@@ -328,7 +328,7 @@ onBeforeUnmount(() => {
           :class="{ on: selectedDistrict === dName }"
           @click="onDistrictClick(dName)"
         >
-          {{ dName }}
+          {{ tDistrict(dName) }}
         </button>
 
         <button
@@ -339,7 +339,7 @@ onBeforeUnmount(() => {
           <svg class="i" style="width: 14px; height: 14px" viewBox="0 0 24 24">
             <path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z" />
           </svg>
-          Maklersiz
+          {{ t('no_agent') }}
         </button>
       </div>
 
@@ -349,7 +349,7 @@ onBeforeUnmount(() => {
         <div v-if="isLoadingMap" class="map-loader">
           <div class="spinner"></div>
           <p style="margin-top: 12px; font-weight: 600; font-size: 14px">
-            Yandex Xarita yuklanmoqda...
+            {{ currentLang === 'ru' ? 'Загрузка Яндекс Карты...' : 'Yandex Xarita yuklanmoqda...' }}
           </p>
         </div>
 
@@ -357,7 +357,7 @@ onBeforeUnmount(() => {
         <div v-if="mapError" class="map-error-state">
           <p style="color: #e11d48; font-weight: 600">{{ mapError }}</p>
           <button class="btn p" @click="initMap" style="margin-top: 10px">
-            Qayta yuklash
+            {{ currentLang === 'ru' ? 'Перезагрузить' : 'Qayta yuklash' }}
           </button>
         </div>
 
@@ -373,23 +373,23 @@ onBeforeUnmount(() => {
                 :src="selectedItem.image_urls[0]"
                 :alt="selectedItem.title"
               />
-              <div v-else class="thumb-placeholder">Uy</div>
+              <div v-else class="thumb-placeholder">{{ t('no_photo') }}</div>
             </div>
 
             <div class="card-info">
               <div class="card-price">
-                {{ formatPriceFull(selectedItem.price_uzs) }}
-                <span v-if="selectedItem.is_owner" class="badge-maklersiz">Maklersiz</span>
+                {{ formatPrice(selectedItem.price_uzs) }}
+                <span v-if="selectedItem.is_owner" class="badge-maklersiz">{{ t('no_agent') }}</span>
               </div>
               <div class="card-title">{{ selectedItem.title }}</div>
               <div class="card-meta">
-                {{ selectedItem.rooms }} xona · {{ selectedItem.area }} m² · {{ selectedItem.district }}
+                {{ t('rooms_spec', { rooms: selectedItem.rooms }) }} · {{ selectedItem.area }} m² · {{ tDistrict(selectedItem.district) }}
               </div>
             </div>
 
             <div class="card-actions">
               <button class="btn p action-btn" @click="$emit('select', selectedItem)">
-                Batafsil
+                {{ t('featured_inspect') }}
               </button>
               <button class="ib close-btn" @click="selectedItem = null">
                 <svg class="i" viewBox="0 0 24 24">

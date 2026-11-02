@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { useI18n } from '~/composables/useI18n'
 
 const props = defineProps<{
   show: boolean
@@ -8,17 +9,19 @@ const props = defineProps<{
 
 const emit = defineEmits(['close', 'toast'])
 
+const { t } = useI18n()
+
 const reason = ref('PREPAYMENT_SCAM')
 const details = ref('')
 const isSubmitting = ref(false)
 
-const reasonsList = [
-  { val: 'PREPAYMENT_SCAM', label: 'Ko‘rishdan oldin plastik kartaga to‘lov / zakalat talab qildi' },
-  { val: 'FAKE_PHOTOS', label: 'Rasmlar soxta yoki internetdan o‘g‘irlangan' },
-  { val: 'WRONG_PRICE', label: 'E’londagi narx haqiqatga to‘g‘ri kelmaydi (aldov)' },
-  { val: 'BROKER_AS_OWNER', label: 'Makler o‘zini xonadon egasi deb ko‘rsatgan' },
-  { val: 'UNREACHABLE', label: 'Aloqa vositasi ishlamaydi / soxta profil' },
-]
+const reasonsList = computed(() => [
+  { val: 'PREPAYMENT_SCAM', label: t('r_prepay') },
+  { val: 'FAKE_PHOTOS', label: t('r_photos') },
+  { val: 'WRONG_PRICE', label: t('r_price') },
+  { val: 'BROKER_AS_OWNER', label: t('r_broker') },
+  { val: 'UNREACHABLE', label: t('r_contact') },
+])
 
 const submitReport = async () => {
   if (!props.listingId) return
@@ -34,11 +37,11 @@ const submitReport = async () => {
         details: details.value,
       },
     })
-    emit('toast', 'Shikoyatingiz qabul qilindi. Moderatsiya jamoasi ushbu e’lonni tekshiradi!')
+    emit('toast', t('report_modal_title') + ': OK')
     emit('close')
     details.value = ''
   } catch (err) {
-    emit('toast', 'Shikoyat qabul qilindi. Rahmat!')
+    emit('toast', 'OK')
     emit('close')
   } finally {
     isSubmitting.value = false
@@ -57,10 +60,10 @@ const submitReport = async () => {
               <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
               <line x1="4" y1="22" x2="4" y2="15" />
             </svg>
-            E’lon ustidan shikoyat qilish
+            {{ t('report_modal_title') }}
           </h2>
         </div>
-        <button class="close-btn" @click="$emit('close')" aria-label="Yopish">
+        <button class="close-btn" @click="$emit('close')" :aria-label="t('close')">
           <svg class="close-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <line x1="18" y1="6" x2="6" y2="18" />
             <line x1="6" y1="6" x2="18" y2="18" />
@@ -70,11 +73,11 @@ const submitReport = async () => {
 
       <form @submit.prevent="submitReport" class="modal-body">
         <p class="desc">
-          E’lon #{{ listingId }} bo‘yicha shubhali holatni sezsangiz, xabar bering. Biz Toshkent ijarasini xavfsiz qilishga intilamiz.
+          {{ t('report_modal_desc', { id: listingId }) }}
         </p>
 
         <div class="form-group">
-          <label>Shikoyat sababini tanlang:</label>
+          <label>{{ t('report_reason_lbl') }}</label>
           <div class="radio-list">
             <label v-for="r in reasonsList" :key="r.val" class="radio-label">
               <input type="radio" v-model="reason" :value="r.val" />
@@ -84,18 +87,18 @@ const submitReport = async () => {
         </div>
 
         <div class="form-group">
-          <label>Qo‘shimcha tafsilotlar (ixtiyoriy):</label>
+          <label>{{ t('report_details_lbl') }}</label>
           <textarea
             v-model="details"
             rows="3"
-            placeholder="Nima bo‘lganini yozib qoldiring..."
+            :placeholder="t('report_details_placeholder')"
           ></textarea>
         </div>
 
         <div class="modal-actions">
-          <button type="button" class="cancel-btn" @click="$emit('close')">Bekor qilish</button>
+          <button type="button" class="cancel-btn" @click="$emit('close')">{{ t('cancel') }}</button>
           <button type="submit" class="submit-btn" :disabled="isSubmitting">
-            {{ isSubmitting ? 'Yuborilmoqda...' : 'Shikoyat yuborish' }}
+            {{ isSubmitting ? t('sending') : t('send_report') }}
           </button>
         </div>
       </form>

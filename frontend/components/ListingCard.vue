@@ -10,13 +10,9 @@ const props = defineProps<{
 
 const emit = defineEmits(['select'])
 
-const { t } = useI18n()
+const { t, tDistrict, formatPrice } = useI18n()
 const { isFavorite, toggleFavorite } = useFavorites()
 const { isInCompare, toggleCompare } = useListings()
-
-const formatPrice = (val: number) => {
-  return (val || 0).toLocaleString('ru-RU').replace(/\u00a0/g, ' ') + ' so‘m'
-}
 
 const onBookmarkClick = (e: MouseEvent) => {
   e.stopPropagation()
@@ -79,7 +75,7 @@ const scoreColorClass = computed(() => {
       <div class="top-badges-row">
         <!-- Sale Badge -->
         <span v-if="listing.deal_type === 'sale'" class="iconly-badge sale-badge">
-          Sotiladi
+          {{ t('badge_for_sale') }}
         </span>
 
         <!-- AI Match / Owner Pill -->
@@ -87,15 +83,15 @@ const scoreColorClass = computed(() => {
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="badge-sparkle-svg">
             <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
           </svg>
-          <span>{{ listing.match_percentage }}% Mos</span>
+          <span>{{ t('badge_match', { pct: listing.match_percentage }) }}</span>
         </span>
         <span v-else-if="listing.is_owner" class="iconly-badge owner-badge">
-          {{ listing.deal_type === 'sale' ? 'Egasidan' : 'Maklersiz' }}
+          {{ listing.deal_type === 'sale' ? t('from_owner') : t('no_agent') }}
         </span>
 
         <!-- Fair price tag -->
         <span v-if="listing.fair_price_category === 'BELOW_MARKET'" class="iconly-badge fair-badge">
-          {{ listing.deal_type === 'sale' ? 'Arzon narx' : 'Bozordan arzon' }}
+          {{ listing.deal_type === 'sale' ? t('badge_cheap_price') : t('badge_below_market') }}
         </span>
       </div>
 
@@ -107,8 +103,8 @@ const scoreColorClass = computed(() => {
           class="media-action-circle compare-circle"
           :class="{ active: isInCompare(listing.id) }"
           @click="onCompareClick"
-          title="Taqqoslash"
-          aria-label="Taqqoslashga qo‘shish"
+          :title="t('compare')"
+          :aria-label="t('compare')"
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="action-svg">
             <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
@@ -126,7 +122,7 @@ const scoreColorClass = computed(() => {
           :class="{ active: isFavorite(listing.id) }"
           @click="onBookmarkClick"
           :aria-label="t('save')"
-          title="Saqlash"
+          :title="t('save')"
         >
           <svg viewBox="0 0 24 24" class="heart-icon">
             <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
@@ -136,7 +132,7 @@ const scoreColorClass = computed(() => {
 
       <!-- Photos Count Pill -->
       <span class="media-count-pill">
-        {{ listing.image_urls && listing.image_urls.length ? `${listing.image_urls.length} rasm` : '1 rasm' }}
+        {{ t('photos_count', { count: (listing.image_urls && listing.image_urls.length) || 1 }) }}
       </span>
     </div>
 
@@ -146,11 +142,11 @@ const scoreColorClass = computed(() => {
       <div class="price-score-row">
         <div class="price-block">
           <span class="price-amount">{{ formatPrice(listing.price_uzs) }}</span>
-          <span v-if="listing.deal_type !== 'sale'" class="price-period">/oy</span>
+          <span v-if="listing.deal_type !== 'sale'" class="price-period">{{ t('per_month_short') }}</span>
         </div>
 
         <!-- Circular Score Ring (Image 1 Style) -->
-        <div class="score-indicator-badge" :class="scoreColorClass" title="Joylashuv va sifat bahosi">
+        <div class="score-indicator-badge" :class="scoreColorClass" title="Score">
           <span class="score-digit">{{ ratingScore }}</span>
         </div>
       </div>
@@ -166,7 +162,7 @@ const scoreColorClass = computed(() => {
           <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
           <circle cx="12" cy="10" r="3" />
         </svg>
-        <span class="district-name">{{ listing.district }}</span>
+        <span class="district-name">{{ tDistrict(listing.district) }}</span>
         <span class="dot-sep">·</span>
         <span class="metro-transit">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="metro-svg">
@@ -178,15 +174,15 @@ const scoreColorClass = computed(() => {
             <circle cx="8" cy="15" r="1"/>
             <circle cx="16" cy="15" r="1"/>
           </svg>
-          <span>{{ listing.metro_station || listing.metro_name || 'Metro yaqin' }}</span>
+          <span>{{ listing.metro_station || listing.metro_name || t('metro_near') }}</span>
         </span>
       </div>
 
       <!-- Architectural Specs (Pills) -->
       <div class="specs-pills-row">
         <span class="spec-pill">{{ listing.area }} m²</span>
-        <span class="spec-pill">{{ listing.rooms }} xona</span>
-        <span class="spec-pill">{{ listing.floor || '3/9' }} qavat</span>
+        <span class="spec-pill">{{ t('rooms_spec', { rooms: listing.rooms }) }}</span>
+        <span class="spec-pill">{{ t('floor_spec', { floor: listing.floor || '3/9' }) }}</span>
         <span v-if="listing.target_audience && listing.target_audience !== 'any'" class="spec-pill audience-pill">
           <svg v-if="listing.target_audience === 'family'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spec-audience-svg">
             <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
@@ -198,7 +194,7 @@ const scoreColorClass = computed(() => {
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
             <circle cx="12" cy="7" r="4" />
           </svg>
-          <span>{{ listing.target_audience === 'family' ? 'Oila' : listing.target_audience === 'female' ? 'Qizlar' : 'Yigitlar' }}</span>
+          <span>{{ listing.target_audience === 'family' ? t('aud_family_short') : listing.target_audience === 'female' ? t('aud_female_short') : t('aud_male_short') }}</span>
         </span>
       </div>
 
@@ -208,7 +204,7 @@ const scoreColorClass = computed(() => {
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="ai-spark-svg">
             <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
           </svg>
-          <span class="ai-header-text">{{ listing.match_percentage }}% so‘rovingizga mos</span>
+          <span class="ai-header-text">{{ t('ai_match_query', { pct: listing.match_percentage }) }}</span>
         </div>
         <div class="ai-points-list">
           <span v-for="(pro, idx) in listing.match_pros.slice(0, 2)" :key="idx" class="ai-pro-badge">
@@ -232,10 +228,10 @@ const scoreColorClass = computed(() => {
       <div class="card-footer-row">
         <div class="status-left">
           <span v-if="listing.is_owner" class="verified-dot-label">
-            <span class="green-dot"></span> Egasidan
+            <span class="green-dot"></span> {{ t('from_owner') }}
           </span>
           <span v-else class="regular-label">
-            Tekshirilgan e’lon
+            {{ t('verified_listing_tag') }}
           </span>
         </div>
 

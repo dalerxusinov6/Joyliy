@@ -7,7 +7,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits(['close', 'toast'])
-const { t } = useI18n()
+const { t, currentLang } = useI18n()
 const {
   user,
   token,
@@ -87,7 +87,7 @@ const onLogout = () => {
           <svg class="i" style="color: #229ed9; width: 20px; height: 20px" viewBox="0 0 24 24">
             <path d="m22 2-11 11M22 2l-7 20-4-9-9-4z" />
           </svg>
-          {{ user ? 'Mening profilim' : 'Joyliy tizimiga kirish' }}
+          {{ user ? (currentLang === 'ru' ? 'Мой профиль' : (currentLang === 'en' ? 'My Profile' : 'Mening profilim')) : (currentLang === 'ru' ? 'Вход в систему Joyliy' : (currentLang === 'en' ? 'Sign in to Joyliy' : 'Joyliy tizimiga kirish')) }}
         </span>
         <button class="ib" @click="$emit('close')" :aria-label="t('close')">
           <svg class="i" viewBox="0 0 24 24">
@@ -110,7 +110,7 @@ const onLogout = () => {
               <div v-else class="avatar-lg avatar-fallback">
                 {{ (user.first_name || 'U')[0].toUpperCase() }}
               </div>
-              <div class="tg-badge" title="Telegram orqali tasdiqlangan">
+              <div class="tg-badge" :title="currentLang === 'ru' ? 'Подтверждено через Telegram' : 'Telegram orqali tasdiqlangan'">
                 <svg viewBox="0 0 24 24">
                   <path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z" fill="#fff" />
                 </svg>
@@ -118,7 +118,7 @@ const onLogout = () => {
             </div>
 
             <div class="user-info">
-              <h3 class="user-name">{{ user.first_name || 'Foydalanuvchi' }}</h3>
+              <h3 class="user-name">{{ user.first_name || (currentLang === 'ru' ? 'Пользователь' : 'Foydalanuvchi') }}</h3>
               <p v-if="user.username" class="user-username">
                 <a :href="`https://t.me/${user.username}`" target="_blank" rel="noopener">
                   @{{ user.username }}
@@ -131,11 +131,11 @@ const onLogout = () => {
           <div class="auth-features">
             <div class="feature-item">
               <span class="dot ok"></span>
-              <span>Telegram orqali yangi e’lonlar xabarnomasi faol</span>
+              <span>{{ currentLang === 'ru' ? 'Уведомления о новых квартирах в Telegram активны' : 'Telegram orqali yangi e’lonlar xabarnomasi faol' }}</span>
             </div>
             <div class="feature-item">
               <span class="dot ok"></span>
-              <span>Saqlangan kvartiralar bulutli sinxronizatsiyasi</span>
+              <span>{{ currentLang === 'ru' ? 'Синхронизация сохранённых квартир' : 'Saqlangan kvartiralar bulutli sinxronizatsiyasi' }}</span>
             </div>
           </div>
 
@@ -150,11 +150,11 @@ const onLogout = () => {
               <svg class="i" viewBox="0 0 24 24">
                 <path d="m22 2-11 11M22 2l-7 20-4-9-9-4z" />
               </svg>
-              Telegram Botni ochish (@{{ botUsername }})
+              {{ currentLang === 'ru' ? 'Открыть Telegram-бот' : 'Telegram Botni ochish' }} (@{{ botUsername }})
             </a>
 
             <button class="btn" type="button" @click="onLogout" style="width: 100%">
-              Chiqish
+              {{ currentLang === 'ru' ? 'Выйти' : (currentLang === 'en' ? 'Log out' : 'Chiqish') }}
             </button>
           </div>
         </template>
@@ -173,9 +173,9 @@ const onLogout = () => {
               </div>
             </div>
 
-            <h4 style="margin: 12px 0 6px">Telegram orqali tasdiqlash kutilmoqda</h4>
+            <h4 style="margin: 12px 0 6px">{{ currentLang === 'ru' ? 'Ожидание подтверждения в Telegram' : 'Telegram orqali tasdiqlash kutilmoqda' }}</h4>
             <p class="mu" style="font-size: 14px; margin-bottom: 16px; line-height: 1.4">
-              Telegram botingiz ochildi. Kirishni tasdiqlash uchun <b>"Start"</b> tugmasini bosing.
+              {{ currentLang === 'ru' ? 'Бот открыт. Нажмите кнопку "Start" для подтверждения входа.' : 'Telegram botingiz ochildi. Kirishni tasdiqlash uchun "Start" tugmasini bosing.' }}
             </p>
 
             <div style="display: flex; flex-direction: column; gap: 8px; width: 100%">
@@ -190,14 +190,14 @@ const onLogout = () => {
                 <svg class="i" viewBox="0 0 24 24">
                   <path d="m22 2-11 11M22 2l-7 20-4-9-9-4z" />
                 </svg>
-                Telegram botni ochish
+                {{ currentLang === 'ru' ? 'Открыть Telegram-бот' : 'Telegram botni ochish' }}
               </a>
 
               <button class="btn" type="button" @click="onDevConfirm" style="font-size: 13px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
                 <svg class="i" viewBox="0 0 24 24" style="width: 14px; height: 14px;">
                   <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
                 </svg>
-                <span>Tezkor tasdiqlash (Dev rejim)</span>
+                <span>{{ currentLang === 'ru' ? 'Быстрое подтверждение (Dev)' : 'Tezkor tasdiqlash (Dev rejim)' }}</span>
               </button>
 
               <button
@@ -206,7 +206,7 @@ const onLogout = () => {
                 @click="onCancelPolling"
                 style="background: transparent; border: none; color: var(--mu); font-size: 13px"
               >
-                Bekor qilish
+                {{ t('cancel') }}
               </button>
             </div>
           </div>
@@ -219,9 +219,9 @@ const onLogout = () => {
                   <path d="m22 2-11 11M22 2l-7 20-4-9-9-4z" fill="#229ed9" />
                 </svg>
               </div>
-              <h3 style="margin: 10px 0 6px; font-size: 20px">Telegram orqali 1-marta bosishda kiring</h3>
+              <h3 style="margin: 10px 0 6px; font-size: 20px">{{ currentLang === 'ru' ? 'Вход через Telegram в 1 клик' : 'Telegram orqali 1-marta bosishda kiring' }}</h3>
               <p class="mu" style="font-size: 14px; max-width: 380px; margin: 0 auto; line-height: 1.4">
-                Parol va kodlarsiz, Telegram botingiz orqali xavfsiz va bir zumda kiring.
+                {{ currentLang === 'ru' ? 'Без паролей и SMS: мгновенный безопасный вход через Telegram-бот.' : 'Parol va kodlarsiz, Telegram botingiz orqali xavfsiz va bir zumda kiring.' }}
               </p>
             </div>
 
@@ -239,11 +239,11 @@ const onLogout = () => {
               <svg class="i" style="width: 20px; height: 20px" viewBox="0 0 24 24">
                 <path d="m22 2-11 11M22 2l-7 20-4-9-9-4z" />
               </svg>
-              <span>{{ isStarting ? 'Yuklanmoqda...' : 'Telegram orqali kirish' }}</span>
+              <span>{{ isStarting ? (currentLang === 'ru' ? 'Загрузка...' : 'Yuklanmoqda...') : (currentLang === 'ru' ? 'Войти через Telegram' : 'Telegram orqali kirish') }}</span>
             </button>
 
             <div class="divider">
-              <span>yoki rasmiy vidjet</span>
+              <span>{{ currentLang === 'ru' ? 'или через официальный виджет' : 'yoki rasmiy vidjet' }}</span>
             </div>
 
             <!-- Telegram Widget Option -->
