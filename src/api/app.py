@@ -139,6 +139,12 @@ def create_app() -> FastAPI:
         content = await seo_service.generate_listings_sitemap(session)
         return Response(content=content, media_type="application/xml; charset=utf-8")
 
+    from fastapi.staticfiles import StaticFiles
+
+    upload_dir = os.path.join(base_dir, "uploads")
+    os.makedirs(upload_dir, exist_ok=True)
+    app.mount("/uploads", StaticFiles(directory=upload_dir), name="uploads")
+
     static_dir = None
     if os.path.exists(frontend_dist) and os.path.exists(os.path.join(frontend_dist, "index.html")):
         static_dir = frontend_dist
@@ -146,8 +152,6 @@ def create_app() -> FastAPI:
         static_dir = frontend_public
 
     if static_dir:
-        from fastapi.staticfiles import StaticFiles
-
         @app.get("/admin", include_in_schema=False)
         @app.get("/admin/{subpath:path}", include_in_schema=False)
         async def serve_admin_spa(subpath: str = ""):

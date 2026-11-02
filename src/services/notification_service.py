@@ -2,6 +2,7 @@
 
 import asyncio
 import logging
+import os
 from datetime import datetime, timezone, timedelta, time
 from typing import List, Optional
 from aiogram import Bot
@@ -162,7 +163,24 @@ class NotificationService:
 
         caption = format_channel_message(listing)
         reply_markup = get_channel_inline_keyboard(listing)
-        images = [img for img in (listing.image_urls or []) if img and img.startswith("http")]
+
+        # Resolve images: support both external HTTP URLs and local /uploads files
+        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        images = []
+        for img in (listing.image_urls or []):
+            if not img or not isinstance(img, str):
+                continue
+            if img.startswith("http://") or img.startswith("https://"):
+                images.append(img)
+            elif img.startswith("/uploads/") or img.startswith("uploads/"):
+                fname = img.split("uploads/")[-1]
+                local_file = os.path.join(base_dir, "uploads", fname)
+                if os.path.exists(local_file):
+                    from aiogram.types import FSInputFile
+                    images.append(FSInputFile(local_file))
+                else:
+                    web_base = (settings.WEBSITE_URL or "https://joyliy.uz").rstrip("/")
+                    images.append(f"{web_base}/{img.lstrip('/')}")
 
         msg_id: Optional[int] = None
 

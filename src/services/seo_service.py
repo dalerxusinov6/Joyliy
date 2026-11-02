@@ -379,3 +379,4 @@ class SeoService:
 
 
 seo_service = SeoService()
+

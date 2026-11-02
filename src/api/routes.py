@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import asyncio
+import base64
+import os
 import time
 import uuid
 from datetime import datetime, timezone
 from typing import Optional, List
-from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status, UploadFile, File
 from sqlalchemy import select, text, func, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -331,6 +333,95 @@ async def ingest_manual_listing(
     listing, is_new = await listing_service.ingest_raw_listing(session, raw_item)
 
     return to_listing_response(listing)
+
+
+# --- Image Upload Endpoints for Ad Submissions ---
+UPLOAD_DIR = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+    "uploads",
+)
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".heic"}
+
+
+def _save_image_file_bytes(content: bytes, original_name: str = "photo.jpg") -> str:
+    ext = os.path.splitext(original_name)[1].lower()
+    if ext not in ALLOWED_EXTENSIONS:
+        ext = ".jpg"
+    safe_name = f"img_{int(time.time())}_{uuid.uuid4().hex[:8]}{ext}"
+    dest_path = os.path.join(UPLOAD_DIR, safe_name)
+    with open(dest_path, "wb") as f:
+        f.write(content)
+    return f"/uploads/{safe_name}"
+
+
+@api_router.post("/upload/image")
+async def upload_image(
+    file: Optional[UploadFile] = File(None),
+    request: Request = None,
+):
+    """Upload a single ad image via multipart form-data or base64 JSON payload."""
+    if file and file.filename:
+        content = await file.read()
+        if len(content) > 15 * 1024 * 1024:
+            raise HTTPException(status_code=400, detail="Rasm hajmi 15MB dan oshmasligi kerak")
+        url = _save_image_file_bytes(content, file.filename)
+        return {"success": True, "url": url, "filename": os.path.basename(url)}
+
+    if request:
+        try:
+            data = await request.json()
+            raw_b64 = data.get("image", "")
+            fname = data.get("filename", "photo.jpg")
+            if raw_b64:
+                if "," in raw_b64:
+                    raw_b64 = raw_b64.split(",", 1)[1]
+                content = base64.b64decode(raw_b64)
+                if len(content) > 15 * 1024 * 1024:
+                    raise HTTPException(status_code=400, detail="Rasm hajmi 15MB dan oshmasligi kerak")
+                url = _save_image_file_bytes(content, fname)
+                return {"success": True, "url": url, "filename": os.path.basename(url)}
+        except Exception:
+            pass
+
+    raise HTTPException(status_code=400, detail="Rasm fayli taqdim etilmadi")
+
+
+@api_router.post("/upload/images")
+async def upload_multiple_images(
+    files: Optional[List[UploadFile]] = File(None),
+    request: Request = None,
+):
+    """Upload multiple ad images via multipart form-data or base64 JSON list."""
+    saved_urls = []
+    if files:
+        for f in files:
+            if f and f.filename:
+                content = await f.read()
+                if len(content) <= 15 * 1024 * 1024:
+                    url = _save_image_file_bytes(content, f.filename)
+                    saved_urls.append(url)
+        return {"success": True, "urls": saved_urls}
+
+    if request:
+        try:
+            data = await request.json()
+            images = data.get("images", [])
+            for item in images:
+                raw_b64 = item if isinstance(item, str) else item.get("image", "")
+                fname = item.get("filename", "photo.jpg") if isinstance(item, dict) else "photo.jpg"
+                if raw_b64:
+                    if "," in raw_b64:
+                        raw_b64 = raw_b64.split(",", 1)[1]
+                    content = base64.b64decode(raw_b64)
+                    if len(content) <= 15 * 1024 * 1024:
+                        url = _save_image_file_bytes(content, fname)
+                        saved_urls.append(url)
+            return {"success": True, "urls": saved_urls}
+        except Exception:
+            pass
+
+    return {"success": True, "urls": saved_urls}
 
 
 @api_router.post(

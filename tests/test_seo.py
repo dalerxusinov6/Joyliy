@@ -159,3 +159,4 @@ async def test_admin_seo_endpoints():
         sync_data = sync_res.json()
         assert sync_data["success"] is True
         assert "details" in sync_data
+

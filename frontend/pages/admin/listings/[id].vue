@@ -117,7 +117,7 @@ const approveListing = async () => {
       method: 'POST',
     })
     if (res && (res.success || res.status === 'success')) {
-      showToast('E‘lon tasdiqlandi va saytda faollashtirildi!', 'success')
+      showToast('E‘lon tasdiqlandi va Telegram kanalga yuklandi!', 'success')
       await loadListingDetail()
     } else {
       showToast(res?.message || 'Tasdiqlashda xatolik yuz berdi', 'error')

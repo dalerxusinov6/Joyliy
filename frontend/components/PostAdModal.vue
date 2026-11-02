@@ -26,6 +26,106 @@ const form = ref({
 
 const isSubmitting = ref(false)
 
+// Photos Upload State
+const uploadedImages = ref<{ url: string; preview: string; name: string }[]>([])
+const isUploading = ref(false)
+const isDragging = ref(false)
+const fileInputRef = ref<HTMLInputElement | null>(null)
+
+const triggerFileInput = () => {
+  fileInputRef.value?.click()
+}
+
+const handleFile = async (file: File) => {
+  if (!file.type.startsWith('image/')) {
+    emit('toast', currentLang.value === 'ru' ? 'Поддерживаются только изображения (JPG, PNG, WebP)' : 'Faqat rasm fayllari (JPG, PNG, WebP) qabul qilinadi')
+    return
+  }
+  if (file.size > 15 * 1024 * 1024) {
+    emit('toast', currentLang.value === 'ru' ? 'Размер фото не должен превышать 15 МБ' : 'Rasm hajmi 15 MB dan oshmasligi kerak')
+    return
+  }
+
+  const previewUrl = URL.createObjectURL(file)
+
+  try {
+    const formData = new FormData()
+    formData.append('file', file)
+
+    const res: any = await $fetch('/api/upload/image', {
+      method: 'POST',
+      body: formData,
+    })
+
+    if (res && res.url) {
+      uploadedImages.value.push({
+        url: res.url,
+        preview: previewUrl,
+        name: file.name,
+      })
+    }
+  } catch (err) {
+    // Fallback: Read as base64 data URL
+    const reader = new FileReader()
+    reader.onload = async (ev) => {
+      try {
+        const b64 = ev.target?.result as string
+        const res: any = await $fetch('/api/upload/image', {
+          method: 'POST',
+          body: { image: b64, filename: file.name },
+        })
+        if (res && res.url) {
+          uploadedImages.value.push({
+            url: res.url,
+            preview: previewUrl,
+            name: file.name,
+          })
+        }
+      } catch (uploadErr) {
+        emit('toast', 'Rasm yuklashda xatolik yuz berdi')
+      }
+    }
+    reader.readAsDataURL(file)
+  }
+}
+
+const onFilesSelected = async (e: Event) => {
+  const target = e.target as HTMLInputElement
+  if (!target.files || target.files.length === 0) return
+
+  isUploading.value = true
+  const files = Array.from(target.files)
+  for (const file of files) {
+    if (uploadedImages.value.length >= 10) {
+      emit('toast', currentLang.value === 'ru' ? 'Максимум 10 фотографий' : 'Maksimal 10 ta fotosurat yuklash mumkin')
+      break
+    }
+    await handleFile(file)
+  }
+  target.value = ''
+  isUploading.value = false
+}
+
+const onDrop = async (e: DragEvent) => {
+  isDragging.value = false
+  if (!e.dataTransfer?.files || e.dataTransfer.files.length === 0) return
+
+  isUploading.value = true
+  const files = Array.from(e.dataTransfer.files)
+  for (const file of files) {
+    if (uploadedImages.value.length >= 10) {
+      emit('toast', currentLang.value === 'ru' ? 'Максимум 10 фотографий' : 'Maksimal 10 ta fotosurat yuklash mumkin')
+      break
+    }
+    await handleFile(file)
+  }
+  isUploading.value = false
+}
+
+const removeImage = (idx: number) => {
+  uploadedImages.value.splice(idx, 1)
+}
+
 const onSubmit = async () => {
   if (!form.value.price || !form.value.district) {
     emit('toast', currentLang.value === 'ru' ? 'Пожалуйста, заполните основные поля.' : 'Iltimos, barcha asosiy maydonlarni to‘ldiring.')
@@ -49,6 +149,7 @@ const onSubmit = async () => {
         telegram: form.value.telegram,
         description: form.value.description,
         is_owner: form.value.isOwner,
+        image_urls: uploadedImages.value.map((x) => x.url),
       },
     })
     if (res && res.success) {
@@ -219,6 +320,94 @@ const onSubmit = async () => {
             class="field-control textarea"
             :placeholder="currentLang === 'ru' ? 'Состояние квартиры, мебель, бытовая техника, залог и другие пожелания...' : 'Kvartira holati, mebel va jihozlar, depozit yoki boshqa talablar...'"
           ></textarea>
+        </div>
+
+        <!-- Photo Upload Section -->
+        <div class="field-item full-width photo-upload-field">
+          <div class="photo-field-header">
+            <label class="field-label">
+              {{ currentLang === 'ru' ? '10 / Фотографии квартиры' : '10 / Xonadon fotosuratlari' }}
+            </label>
+            <span class="photo-counter-tag">{{ uploadedImages.length }} / 10 ta</span>
+          </div>
+
+          <!-- Dropzone -->
+          <div
+            class="photo-dropzone"
+            :class="{ 'is-dragging': isDragging, 'has-images': uploadedImages.length > 0 }"
+            @dragover.prevent="isDragging = true"
+            @dragleave.prevent="isDragging = false"
+            @drop.prevent="onDrop"
+            @click="triggerFileInput"
+          >
+            <input
+              ref="fileInputRef"
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/heic"
+              multiple
+              class="hidden-file-input"
+              @change="onFilesSelected"
+            />
+
+            <div v-if="!isUploading" class="dropzone-inner">
+              <div class="upload-icon-circle">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="up-svg">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="17 8 12 3 7 8"/>
+                  <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+              </div>
+              <div class="dropzone-text">
+                <span class="main-prompt">
+                  {{ currentLang === 'ru' ? 'Нажмите или перетащите фотографии сюда' : 'Fotosuratlarni yuklash uchun bosing yoki shu yerga tashlang' }}
+                </span>
+                <span class="sub-prompt">
+                  {{ currentLang === 'ru' ? 'JPG, PNG, WebP formatlarida — 15 MB gacha (10 tagacha)' : 'JPG, PNG, WebP formatlarida — 15 MB gacha (10 tagacha)' }}
+                </span>
+              </div>
+            </div>
+
+            <div v-else class="dropzone-loading">
+              <div class="spinner-sm"></div>
+              <span>{{ currentLang === 'ru' ? 'Yuklanmoqda...' : 'Yuklanmoqda...' }}</span>
+            </div>
+          </div>
+
+          <!-- Thumbnails Preview Grid -->
+          <div v-if="uploadedImages.length > 0" class="previews-grid">
+            <div
+              v-for="(img, idx) in uploadedImages"
+              :key="idx"
+              class="preview-card"
+            >
+              <img :src="img.preview" :alt="'Photo ' + (idx + 1)" class="preview-img" />
+              <button
+                type="button"
+                class="remove-photo-btn"
+                @click.stop="removeImage(idx)"
+                title="Rasmni o‘chirish"
+              >
+                ×
+              </button>
+              <span v-if="idx === 0" class="main-photo-badge">
+                {{ currentLang === 'ru' ? 'Главное' : 'Asosiy' }}
+              </span>
+            </div>
+
+            <!-- Add More Button -->
+            <button
+              v-if="uploadedImages.length < 10"
+              type="button"
+              class="add-more-photos-btn"
+              @click="triggerFileInput"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="plus-svg">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              <span>+ Rasm</span>
+            </button>
+          </div>
         </div>
 
         <!-- Declaration Consent -->
@@ -439,6 +628,200 @@ const onSubmit = async () => {
   color: var(--blue-primary, #2878C8);
   font-weight: 700;
   text-decoration: underline;
+}
+
+/* Photo Upload Styles */
+.photo-upload-field {
+  margin-top: 6px;
+}
+
+.photo-field-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.photo-counter-tag {
+  font-size: 11px;
+  font-family: monospace;
+  color: var(--muted, #6B7280);
+}
+
+.hidden-file-input {
+  display: none;
+}
+
+.photo-dropzone {
+  border: 2px dashed #D1D5DB;
+  border-radius: 12px;
+  padding: 24px 16px;
+  text-align: center;
+  background: #F9FAFB;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.photo-dropzone:hover,
+.photo-dropzone.is-dragging {
+  border-color: var(--blue-primary, #2878C8);
+  background: #F0F7FF;
+}
+
+.photo-dropzone.has-images {
+  padding: 16px;
+}
+
+.dropzone-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.upload-icon-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--blue-primary, #2878C8);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.up-svg {
+  width: 20px;
+  height: 20px;
+}
+
+.dropzone-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.main-prompt {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink, #111827);
+}
+
+.sub-prompt {
+  font-size: 11.5px;
+  color: var(--muted, #6B7280);
+}
+
+.dropzone-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--blue-primary, #2878C8);
+  padding: 12px;
+}
+
+.spinner-sm {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(40, 120, 200, 0.2);
+  border-top-color: var(--blue-primary, #2878C8);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.previews-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.preview-card {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #E5E7EB;
+  background: #F3F4F6;
+}
+
+.preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.remove-photo-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(17, 24, 39, 0.75);
+  color: #FFFFFF;
+  border: none;
+  font-size: 14px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.remove-photo-btn:hover {
+  background: #EF4444;
+}
+
+.main-photo-badge {
+  position: absolute;
+  bottom: 4px;
+  left: 4px;
+  background: rgba(40, 120, 200, 0.9);
+  color: #FFFFFF;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.add-more-photos-btn {
+  aspect-ratio: 1;
+  border: 2px dashed #D1D5DB;
+  border-radius: 8px;
+  background: #F9FAFB;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: #6B7280;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.add-more-photos-btn:hover {
+  border-color: var(--blue-primary, #2878C8);
+  color: var(--blue-primary, #2878C8);
+  background: #F0F7FF;
+}
+
+.plus-svg {
+  width: 18px;
+  height: 18px;
 }
 
 @media (min-width: 600px) {

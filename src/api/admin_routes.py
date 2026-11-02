@@ -282,7 +282,13 @@ async def approve_listing(
     )
     if not res:
         raise HTTPException(status_code=404, detail="Listing not found")
-    return {"success": True, "status": "success", "data": res}
+    return {
+        "success": True,
+        "status": "success",
+        "is_active": res.get("is_active", True),
+        "telegram_posted": res.get("telegram_posted", False),
+        "data": res,
+    }
 
 
 @admin_router.post("/listings/{listing_id}/reject")
@@ -302,7 +308,12 @@ async def reject_listing(
     )
     if not res:
         raise HTTPException(status_code=404, detail="Listing not found")
-    return {"success": True, "status": "success", "data": res}
+    return {
+        "success": True,
+        "status": "success",
+        "is_active": res.get("is_active", False),
+        "data": res,
+    }
 
 
 @admin_router.get("/listings/{listing_id}")

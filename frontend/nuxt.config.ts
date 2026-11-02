@@ -58,6 +58,9 @@ export default defineNuxtConfig({
       '/api/**': {
         proxy: 'http://localhost:8000/api/**',
       },
+      '/uploads/**': {
+        proxy: 'http://localhost:8000/uploads/**',
+      },
     },
     hooks: {
       'prerender:generate'(route) {

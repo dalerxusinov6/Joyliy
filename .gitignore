@@ -57,7 +57,9 @@ htmlcov/
 *.swo
 .DS_Store
 
-# Frontend & Node.js
+# Uploads
+uploads/*
+!uploads/.gitkeep
 node_modules/
 frontend/node_modules/
 .nuxt/

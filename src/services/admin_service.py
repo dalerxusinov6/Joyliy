@@ -638,6 +638,7 @@ class AdminService:
                 "thumbnail": thumb,
                 "image_url": thumb,
                 "images": item.image_urls or [],
+                "image_urls": item.image_urls or [],
                 "image_count": len(item.image_urls) if item.image_urls else 0,
                 "status": "active" if item.is_active else "pending",
                 "is_active": item.is_active,
@@ -686,7 +687,8 @@ class AdminService:
 
         listing.is_active = True
 
-        # Enqueue for Telegram publication if requested
+        # Enqueue and publish to Telegram channel if requested
+        telegram_posted = False
         if publish_to_telegram:
             try:
                 from src.services.queue_service import queue_service
@@ -694,16 +696,36 @@ class AdminService:
             except Exception as e:
                 logger.warning("Could not enqueue approved listing to Telegram: %s", e)
 
+            try:
+                from src.services.notification_service import notification_service
+                if notification_service.bot:
+                    res = await notification_service.send_to_channel(listing, session=session)
+                    telegram_posted = bool(res)
+            except Exception as e:
+                logger.warning("Could not immediately broadcast approved listing to Telegram: %s", e)
+
         # Audit log
         audit = AdminAuditLog(
             admin_id=admin_id or 1,
             action="listing_approved",
-            details={"listing_id": listing.id, "title": listing.title, "price_uzs": listing.price_uzs, "publish_to_telegram": publish_to_telegram},
+            details={
+                "listing_id": listing.id,
+                "title": listing.title,
+                "price_uzs": listing.price_uzs,
+                "publish_to_telegram": publish_to_telegram,
+                "telegram_posted": telegram_posted,
+            },
         )
         session.add(audit)
         await session.commit()
         await session.refresh(listing)
-        return {"id": listing.id, "status": "active", "is_active": True, "message": "Listing approved and activated"}
+        return {
+            "id": listing.id,
+            "status": "active",
+            "is_active": True,
+            "telegram_posted": telegram_posted,
+            "message": "Listing approved, activated and published/queued for Telegram",
+        }
 
     async def reject_listing(
         self,

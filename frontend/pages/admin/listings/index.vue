@@ -118,7 +118,21 @@ watch(page, () => {
   loadListings()
 })
 
+watch(
+  () => route.query.status,
+  (newStatus) => {
+    if (newStatus !== undefined) {
+      status.value = String(newStatus)
+      page.value = 1
+      loadListings()
+    }
+  }
+)
+
 onMounted(() => {
+  if (route.query.status) {
+    status.value = String(route.query.status)
+  }
   if (route.query.action === 'new') {
     showCreateModal.value = true
   }
@@ -277,7 +291,7 @@ const approveListing = async (item: any) => {
       method: 'POST',
     })
     if (res && (res.success || res.status === 'success')) {
-      showToast(`E‘lon #${item.id} tasdiqlandi va saytda faollashtirildi!`, 'success')
+      showToast(`E‘lon #${item.id} tasdiqlandi va Telegram kanalga yuklandi!`, 'success')
       await loadListings()
     } else {
       showToast(res?.message || 'Tasdiqlashda xatolik yuz berdi', 'error')
