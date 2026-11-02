@@ -49,7 +49,16 @@ export interface ListingItem {
 export function useListings() {
   const listings = useState<ListingItem[]>('listings', () => [])
   const isLoading = useState<boolean>('listings_loading', () => false)
+  const isLoadingMore = useState<boolean>('listings_loading_more', () => false)
   const selectedListing = useState<ListingItem | null>('selected_listing', () => null)
+
+  // Server-side Pagination & Unlimited Discovery State
+  const currentPage = useState<number>('listings_page', () => 1)
+  const pageSize = useState<number>('listings_page_size', () => 24)
+  const totalCount = useState<number>('listings_total_count', () => 0)
+  const totalPages = useState<number>('listings_total_pages', () => 1)
+  const hasNextPage = useState<boolean>('listings_has_next', () => false)
+  const hasPrevPage = useState<boolean>('listings_has_prev', () => false)
 
   // AI Match Search state
   const aiSearchQuery = useState<string>('ai_search_query', () => '')
@@ -75,81 +84,135 @@ export function useListings() {
     owner_only: false,
   }))
 
-  const fetchListings = async () => {
-    isLoading.value = true
+  const mapRawItem = (item: any, idx: number): ListingItem => {
+    const isOwner =
+      item.classification?.label === 'LIKELY_OWNER' ||
+      item.title.toLowerCase().includes('maklersiz') ||
+      item.title.toLowerCase().includes('egasidan')
+
+    // Calculate days ago (0 = Bugun, 1 = Kecha, 2 = 2 kun oldin, 3 = 3 kun oldin)
+    const targetDateStr = item.publication_date || item.first_seen_at
+    let daysAgo = 0
+    if (targetDateStr) {
+      const now = new Date().getTime()
+      const itemTime = new Date(targetDateStr).getTime()
+      const diffDays = Math.floor((now - itemTime) / (1000 * 60 * 60 * 24))
+      daysAgo = Math.max(0, Math.min(diffDays, 3))
+    } else {
+      daysAgo = idx % 3
+    }
+
+    return {
+      id: item.id,
+      source: item.source || 'olx_uz',
+      source_id: item.source_id,
+      canonical_url: item.canonical_url,
+      title: item.title,
+      price_raw: item.price_raw,
+      price_uzs: item.price_uzs || 3000000,
+      currency: item.currency || 'UZS',
+      district: item.district || 'Chilonzor',
+      rooms: item.rooms !== undefined && item.rooms !== null ? item.rooms : 2,
+      area: item.area || 54,
+      floor: item.floor || '3/9',
+      description: item.description || '',
+      contact_phone: item.contact_phone || undefined,
+      contact_telegram: item.contact_telegram || undefined,
+      target_audience: item.target_audience || 'any',
+      image_urls: item.image_urls || [],
+      is_owner: isOwner,
+      confidence_score: item.classification?.confidence_score || 0.85,
+      metro_name: item.metro_station || item.district || 'Metro',
+      metro_minutes: Math.max(3, Math.round((item.metro_distance_m || 500) / 75)),
+      days_ago: daysAgo,
+      is_shared_room: item.rooms === 0,
+      amenities: ['mebel', 'kond', 'kir', 'net'],
+      disclaimer: item.disclaimer || 'Egasidan ekanligi mustaqil tasdiqlanmagan.',
+      source_attribution: item.source_attribution || 'Tashqi manba (OLX Uzbekistan)',
+
+      // Ecosystem properties
+      coordinates_lat: item.coordinates_lat,
+      coordinates_lon: item.coordinates_lon,
+      metro_station: item.metro_station,
+      metro_distance_m: item.metro_distance_m,
+      fair_price_category: item.fair_price_category,
+      estimated_market_price: item.estimated_market_price,
+      price_diff_percent: item.price_diff_percent,
+      scam_risk_score: item.scam_risk_score,
+      scam_risk_level: item.scam_risk_level,
+      scam_risk_reasons: item.scam_risk_reasons,
+      is_furnished: item.is_furnished,
+      renovation_type: item.renovation_type,
+    }
+  }
+
+  const fetchListings = async (page = 1, append = false) => {
+    if (append) {
+      isLoadingMore.value = true
+    } else {
+      isLoading.value = true
+    }
+
     try {
       const config = useRuntimeConfig()
       const base = config.public.apiBase || ''
-      const url = `${base}/api/listings?limit=100`
+
+      // Construct params for server-side pagination across entire database
+      const params = new URLSearchParams()
+      params.set('page', String(page))
+      params.set('limit', String(pageSize.value))
+      params.set('sort', filterSort.value || 'new')
+
+      if (filterDistrict.value) params.set('district', filterDistrict.value)
+      if (filterRooms.value) params.set('rooms', filterRooms.value)
+      if (filterMaxPrice.value) params.set('max_price', filterMaxPrice.value)
+      if (filterAudience.value && filterAudience.value !== 'all') {
+        params.set('target_audience', filterAudience.value)
+      }
+      if (filterAmenities.value.owner_only) {
+        params.set('owner_only', 'true')
+      }
+
+      const url = `${base}/api/listings?${params.toString()}`
       const data: any = await $fetch(url)
 
-      if (data && data.items && data.items.length) {
-        listings.value = data.items.map((item: any, idx: number) => {
-          const isOwner =
-            item.classification?.label === 'LIKELY_OWNER' ||
-            item.title.toLowerCase().includes('maklersiz') ||
-            item.title.toLowerCase().includes('egasidan')
+      if (data && data.items) {
+        const mapped = data.items.map((item: any, idx: number) => mapRawItem(item, idx))
+        if (append) {
+          listings.value = [...listings.value, ...mapped]
+        } else {
+          listings.value = mapped
+        }
 
-          // Calculate days ago (0 = Bugun, 1 = Kecha, 2 = 2 kun oldin, 3 = 3 kun oldin)
-          const targetDateStr = item.publication_date || item.first_seen_at
-          let daysAgo = 0
-          if (targetDateStr) {
-            const now = new Date().getTime()
-            const itemTime = new Date(targetDateStr).getTime()
-            const diffDays = Math.floor((now - itemTime) / (1000 * 60 * 60 * 24))
-            daysAgo = Math.max(0, Math.min(diffDays, 3))
-          } else {
-            daysAgo = idx % 3
-          }
-
-          return {
-            id: item.id,
-            source: item.source || 'olx_uz',
-            source_id: item.source_id,
-            canonical_url: item.canonical_url,
-            title: item.title,
-            price_raw: item.price_raw,
-            price_uzs: item.price_uzs || 3000000,
-            currency: item.currency || 'UZS',
-            district: item.district || 'Chilonzor',
-            rooms: item.rooms !== undefined && item.rooms !== null ? item.rooms : 2,
-            area: item.area || 54,
-            floor: item.floor || '3/9',
-            description: item.description || '',
-            contact_phone: item.contact_phone || undefined,
-            contact_telegram: item.contact_telegram || undefined,
-            target_audience: item.target_audience || 'any',
-            image_urls: item.image_urls || [],
-            is_owner: isOwner,
-            confidence_score: item.classification?.confidence_score || 0.85,
-            metro_name: item.metro_station || item.district || 'Metro',
-            metro_minutes: Math.max(3, Math.round((item.metro_distance_m || 500) / 75)),
-            days_ago: daysAgo,
-            is_shared_room: item.rooms === 0,
-            amenities: ['mebel', 'kond', 'kir', 'net'],
-            disclaimer: item.disclaimer || 'Egasidan ekanligi mustaqil tasdiqlanmagan.',
-            source_attribution: item.source_attribution || 'Tashqi manba (OLX Uzbekistan)',
-
-            // Ecosystem properties
-            coordinates_lat: item.coordinates_lat,
-            coordinates_lon: item.coordinates_lon,
-            metro_station: item.metro_station,
-            metro_distance_m: item.metro_distance_m,
-            fair_price_category: item.fair_price_category,
-            estimated_market_price: item.estimated_market_price,
-            price_diff_percent: item.price_diff_percent,
-            scam_risk_score: item.scam_risk_score,
-            scam_risk_level: item.scam_risk_level,
-            scam_risk_reasons: item.scam_risk_reasons,
-            is_furnished: item.is_furnished,
-            renovation_type: item.renovation_type,
-          }
-        })
+        totalCount.value = data.total ?? mapped.length
+        totalPages.value = data.total_pages ?? Math.max(1, Math.ceil((data.total || 0) / pageSize.value))
+        currentPage.value = page
+        hasNextPage.value = data.has_next ?? (currentPage.value < totalPages.value)
+        hasPrevPage.value = data.has_previous ?? (currentPage.value > 1)
       }
     } catch (err) {
       console.warn('API fetch fallback, loading default listings:', err)
     } finally {
       isLoading.value = false
+      isLoadingMore.value = false
+    }
+  }
+
+  const loadMoreListings = async () => {
+    if (hasNextPage.value && !isLoadingMore.value) {
+      await fetchListings(currentPage.value + 1, true)
+    }
+  }
+
+  const goToPage = async (page: number) => {
+    if (page >= 1 && page <= totalPages.value && page !== currentPage.value) {
+      await fetchListings(page, false)
+      if (typeof window !== 'undefined') {
+        const el = document.getElementById('takliflar')
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
+      }
     }
   }
 
@@ -364,6 +427,17 @@ export function useListings() {
     filterAmenities,
     availableDistricts,
     fetchListings,
+
+    // Server Pagination & Unlimited Discovery
+    currentPage,
+    pageSize,
+    totalCount,
+    totalPages,
+    hasNextPage,
+    hasPrevPage,
+    isLoadingMore,
+    loadMoreListings,
+    goToPage,
 
     // AI Match & Comparison
     aiSearchQuery,

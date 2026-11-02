@@ -103,14 +103,46 @@ class Listing(Base):
     notifications = relationship(
         "NotificationHistory", back_populates="listing", cascade="all, delete-orphan"
     )
+    update_history = relationship(
+        "ListingUpdateHistory", back_populates="listing", cascade="all, delete-orphan"
+    )
 
     __table_args__ = (
+        UniqueConstraint("source", "source_id", name="uq_listings_source_source_id"),
+        Index("idx_listings_active_pubdate", "is_active", "publication_date"),
+        Index("idx_listings_active_district_price", "is_active", "district", "price_uzs"),
+        Index("idx_listings_active_rooms_price", "is_active", "rooms", "price_uzs"),
+        Index("idx_listings_posted_channel", "posted_to_channel_at"),
         Index("idx_listings_district_price", "district", "price_uzs"),
         Index("idx_listings_rooms_price", "rooms", "price_uzs"),
     )
 
     def __repr__(self) -> str:
         return f"<Listing id={self.id} title={self.title[:30]!r} price_uzs={self.price_uzs}>"
+
+
+class ListingUpdateHistory(Base):
+    """Tracks field-level updates and state changes over time for auditing and duplicate signals."""
+
+    __tablename__ = "listing_update_history"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    listing_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("listings.id", ondelete="CASCADE"), index=True, nullable=False
+    )
+    change_type: Mapped[str] = mapped_column(
+        String(64), index=True, nullable=False
+    )  # 'price_change', 'status_change', 'content_update', 'photo_update'
+    old_values: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)
+    new_values: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)
+    detected_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=utc_now, index=True, nullable=False
+    )
+
+    listing: Mapped["Listing"] = relationship("Listing", back_populates="update_history")
+
+    def __repr__(self) -> str:
+        return f"<ListingUpdateHistory id={self.id} listing_id={self.listing_id} change={self.change_type}>"
 
 
 class ListingClassification(Base):

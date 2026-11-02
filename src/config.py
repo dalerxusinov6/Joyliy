@@ -75,7 +75,7 @@ class Settings(BaseSettings):
         default="07:59",
         description="End of night quiet hours in Tashkent time (HH:MM)",
     )
-    # Daily Morning Scrape Settings
+    # Daily Morning & Scheduled Ingest Settings
     MORNING_SCRAPE_ENABLED: bool = Field(
         default=True,
         description="Enable automatic daily morning listing ingest for the website",
@@ -87,6 +87,18 @@ class Settings(BaseSettings):
     MORNING_SCRAPE_PAGES: int = Field(
         default=4,
         description="Number of pages to ingest during morning deep scrape (approx 160 listings)",
+    )
+    PARSER_SCHEDULE_TIMES: List[str] = Field(
+        default_factory=lambda: ["08:00", "14:00", "20:00"],
+        description="Daily automatic discovery slots in Tashkent timezone (08:00, 14:00, 20:00)",
+    )
+    PARSER_PAGES_PER_RUN: int = Field(
+        default=3,
+        description="Number of provider pages to ingest per scheduled scan",
+    )
+    REDIS_URL: Optional[str] = Field(
+        default=None,
+        description="Redis connection URL for caching, queues, and distributed locks (e.g. redis://localhost:6379/0)",
     )
     WEBSITE_URL: str = Field(
         default="https://joyliy.onrender.com",

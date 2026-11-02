@@ -5,6 +5,7 @@ import re
 from datetime import datetime, timezone, timedelta
 from typing import Optional
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from src.config import settings
 from src.models.listing import Listing
 from src.classification.types import ClassificationLabel
 
@@ -205,15 +206,22 @@ def format_channel_message(listing: Listing) -> str:
     lines = [f"🏠 <b>{clean_title}</b>", ""]
 
     # Price
+    usd_val = None
+    if listing.price_uzs is not None and settings.USD_TO_UZS_RATE > 0:
+        usd_val = int(round(listing.price_uzs / settings.USD_TO_UZS_RATE))
+    usd_str = f" (~${usd_val:,})" if usd_val else ""
+
     if listing.price_uzs is not None:
-        lines.append(f"💰 <b>Narxi:</b> {format_price_uzs(listing.price_uzs)}")
+        lines.append(f"💰 <b>Narxi:</b> {format_price_uzs(listing.price_uzs)}{usd_str} / oy")
     elif listing.price_raw:
         lines.append(f"💰 <b>Narxi:</b> {html.escape(listing.price_raw.strip())}")
 
-    # Location
+    # Location (District, neighborhood, address)
     location_parts = []
     if listing.district:
         location_parts.append(listing.district.strip())
+    if getattr(listing, "address", None):
+        location_parts.append(listing.address.strip())
     if location_parts:
         lines.append(f"📍 <b>Manzil:</b> {html.escape(', '.join(location_parts))}")
 
@@ -283,15 +291,17 @@ def format_channel_message(listing: Listing) -> str:
 
     # Link & Channel attribution
     platform = get_source_platform_name(getattr(listing, "source", None))
+    web_url = f"{settings.WEBSITE_URL.rstrip('/')}/?listing={listing.id}"
     lines.append("")
-    lines.append(f"🔗 <b>E’lonni ko‘rish:</b> <a href=\"{listing.canonical_url}\">{platform} orqali ochish</a>")
-    lines.append("🤖 <b>Joyliy:</b> @joyliy_uz | @joyliy_bot")
+    lines.append(f"🌐 <b>Joyliy.uz:</b> <a href=\"{web_url}\">Saytda to‘liq ko‘rish</a>")
+    lines.append(f"🔗 <b>Manba:</b> <a href=\"{listing.canonical_url}\">{platform} orqali ochish</a>")
+    lines.append("🤖 <b>Kanal:</b> @joyliy_uz | <b>Bot:</b> @joyliy_bot")
 
     return "\n".join(lines)
 
 
 def get_channel_inline_keyboard(listing: Listing) -> InlineKeyboardMarkup:
-    """Create inline buttons for channel postings including direct Telegram contact."""
+    """Create inline buttons for channel postings including direct Telegram contact and Joyliy.uz link."""
     from src.providers.parser import extract_telegram_user
 
     tg_user = getattr(listing, "contact_telegram", None)
@@ -299,48 +309,24 @@ def get_channel_inline_keyboard(listing: Listing) -> InlineKeyboardMarkup:
         tg_user = extract_telegram_user(f"{listing.title} {listing.description or ''}")
 
     platform = get_source_platform_name(getattr(listing, "source", None))
+    web_url = f"{settings.WEBSITE_URL.rstrip('/')}/?listing={listing.id}"
 
-    buttons_row1 = []
+    buttons_row1 = [
+        InlineKeyboardButton(text="🌐 Joyliy.uz’da ko‘rish", url=web_url),
+    ]
+
+    buttons_row2 = []
     if tg_user:
         clean_tg = tg_user.lstrip("@")
-        buttons_row1.append(
+        buttons_row2.append(
             InlineKeyboardButton(text="💬 Egasiga yozish", url=f"https://t.me/{clean_tg}")
         )
-
-    buttons_row1.append(
-        InlineKeyboardButton(text=f"🔗 {platform}’da ko‘rish", url=listing.canonical_url)
+    buttons_row2.append(
+        InlineKeyboardButton(text=f"🔗 {platform}", url=listing.canonical_url)
     )
 
-    buttons_row2 = [
+    buttons_row3 = [
         InlineKeyboardButton(text="🤖 Joyliy Bot", url="https://t.me/joyliy_bot"),
     ]
 
-    return InlineKeyboardMarkup(inline_keyboard=[buttons_row1, buttons_row2])
-
-
-def get_channel_inline_keyboard(listing: Listing) -> InlineKeyboardMarkup:
-    """Create inline buttons for channel postings including direct Telegram contact."""
-    from src.providers.parser import extract_telegram_user
-
-    tg_user = getattr(listing, "contact_telegram", None)
-    if not tg_user:
-        tg_user = extract_telegram_user(f"{listing.title} {listing.description or ''}")
-
-    platform = get_source_platform_name(getattr(listing, "source", None))
-
-    buttons_row1 = []
-    if tg_user:
-        clean_tg = tg_user.lstrip("@")
-        buttons_row1.append(
-            InlineKeyboardButton(text="💬 Egasiga yozish", url=f"https://t.me/{clean_tg}")
-        )
-
-    buttons_row1.append(
-        InlineKeyboardButton(text=f"🔗 {platform}’da ko‘rish", url=listing.canonical_url)
-    )
-
-    buttons_row2 = [
-        InlineKeyboardButton(text="🤖 Joyliy Bot", url="https://t.me/joyliy_bot"),
-    ]
-
-    return InlineKeyboardMarkup(inline_keyboard=[buttons_row1, buttons_row2])
+    return InlineKeyboardMarkup(inline_keyboard=[buttons_row1, buttons_row2, buttons_row3])

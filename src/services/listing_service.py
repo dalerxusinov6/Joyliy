@@ -9,6 +9,7 @@ from sqlalchemy.orm import selectinload
 from src.models.listing import (
     Listing,
     ListingClassification,
+    ListingUpdateHistory,
     Favorite,
     NotificationHistory,
 )
@@ -67,20 +68,77 @@ class ListingService:
             )
             existing = (await session.execute(stmt)).scalars().first()
 
+        # 3. Secondary check: content hash (if title + district + price + rooms match an active listing)
+        if not existing and c_hash:
+            stmt = select(Listing).where(
+                and_(
+                    Listing.content_hash == c_hash,
+                    Listing.is_active == True,
+                )
+            )
+            existing = (await session.execute(stmt)).scalars().first()
+
         if existing:
-            # Update last_seen timestamp and price if changed
+            # Update last_seen timestamp and attributes if changed
             existing.last_seen_at = now
+            if not existing.is_active:
+                existing.is_active = True
+                hist_reactivate = ListingUpdateHistory(
+                    listing_id=existing.id,
+                    change_type="status_reactivated",
+                    old_values={"is_active": False},
+                    new_values={"is_active": True},
+                    detected_at=now,
+                )
+                session.add(hist_reactivate)
+
             if item.price_uzs and existing.price_uzs != item.price_uzs:
-                existing.price_uzs = item.price_uzs
+                old_p = existing.price_uzs or 0
+                new_p = item.price_uzs
+                diff = new_p - old_p
+                pct = round((diff / old_p) * 100, 2) if old_p > 0 else 0.0
+
+                from src.models.ecosystem import ListingPriceHistory
+                price_hist = ListingPriceHistory(
+                    listing_id=existing.id,
+                    old_price_uzs=old_p,
+                    new_price_uzs=new_p,
+                    diff_uzs=diff,
+                    diff_percent=pct,
+                    detected_at=now,
+                )
+                session.add(price_hist)
+
+                update_hist = ListingUpdateHistory(
+                    listing_id=existing.id,
+                    change_type="price_change",
+                    old_values={"price_uzs": old_p, "price_raw": existing.price_raw},
+                    new_values={"price_uzs": new_p, "price_raw": item.price_raw},
+                    detected_at=now,
+                )
+                session.add(update_hist)
+
+                existing.price_uzs = new_p
                 existing.price_raw = item.price_raw
+
             if item.image_urls and not existing.image_urls:
                 existing.image_urls = item.image_urls
+                update_hist = ListingUpdateHistory(
+                    listing_id=existing.id,
+                    change_type="photo_update",
+                    old_values={"images_count": 0},
+                    new_values={"images_count": len(item.image_urls)},
+                    detected_at=now,
+                )
+                session.add(update_hist)
+
             if not existing.source_id and item.source_id:
                 existing.source_id = str(item.source_id)
             if not existing.content_hash and c_hash:
                 existing.content_hash = c_hash
             if not existing.image_fingerprint and img_fp:
                 existing.image_fingerprint = img_fp
+
             await session.commit()
             return existing, False
 
@@ -171,10 +229,11 @@ class ListingService:
         owner_only: bool = False,
         include_agency: bool = True,
         max_age_hours: Optional[int] = None,
-        limit: int = 20,
+        sort: str = "new",
+        limit: int = 24,
         offset: int = 0,
     ) -> Tuple[Sequence[Listing], int]:
-        """Search listings with filters and return (items, total_count)."""
+        """Search listings with filters, sorting, and pagination across the full database."""
         stmt = select(Listing).options(selectinload(Listing.classification))
 
         # Join classification if filtering on owner/agency
@@ -219,17 +278,26 @@ class ListingService:
 
         stmt = stmt.where(and_(*conditions))
 
-        # Count total
+        # Count total across entire dataset
         count_stmt = select(func.count()).select_from(stmt.subquery())
         total_res = await session.execute(count_stmt)
         total = total_res.scalar_one()
 
-        # Query paginated page, always prioritizing newest publication and ingestion
-        stmt = stmt.order_by(
-            desc(Listing.publication_date).nullslast(),
-            desc(Listing.first_seen_at),
-            desc(Listing.id),
-        ).limit(limit).offset(offset)
+        # Query paginated page with requested sorting
+        if sort in ("lo", "price_asc"):
+            order_clause = (Listing.price_uzs.asc().nullslast(), desc(Listing.id))
+        elif sort in ("hi", "price_desc"):
+            order_clause = (Listing.price_uzs.desc().nullslast(), desc(Listing.id))
+        elif sort == "area_desc":
+            order_clause = (Listing.area.desc().nullslast(), desc(Listing.id))
+        else:  # "new"
+            order_clause = (
+                desc(Listing.publication_date).nullslast(),
+                desc(Listing.first_seen_at),
+                desc(Listing.id),
+            )
+
+        stmt = stmt.order_by(*order_clause).limit(limit).offset(offset)
         res = await session.execute(stmt)
         listings = res.scalars().all()
 

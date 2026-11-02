@@ -96,7 +96,7 @@ class QueueService:
         """
         # A. Already marked posted on listing record
         if listing.posted_to_channel_at is not None:
-            return True, f"Listing #{listing.id} was already marked as posted to channel"
+            return True, f"Matches listing #{listing.id} which was already marked as posted to channel"
 
         from src.providers.parser import canonicalize_url, normalize_url_path
         clean_url = canonicalize_url(listing.canonical_url) if listing.canonical_url else ""

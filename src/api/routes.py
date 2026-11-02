@@ -45,6 +45,10 @@ from src.api.schemas import (
     ListingReportRequest,
     ReverseImageSearchRequest,
     AssistantChatRequest,
+    ParserDashboardResponse,
+    ParserRunResponse,
+    ParserLogsResponse,
+    ParserLogEntry,
 )
 
 api_router = APIRouter(prefix="/api")
@@ -139,15 +143,26 @@ async def get_listings(
     min_price: Optional[int] = Query(None, description="Minimum price in UZS"),
     max_price: Optional[int] = Query(None, description="Maximum price in UZS"),
     rooms: Optional[int] = Query(None, description="Room count"),
+    min_area: Optional[float] = Query(None, description="Minimum area in m²"),
+    max_area: Optional[float] = Query(None, description="Maximum area in m²"),
     target_audience: Optional[str] = Query(None, description="Filter by target audience: 'family', 'female', 'male', 'any'"),
     owner_only: bool = Query(False, description="Filter only likely-owner listings"),
-    limit: int = Query(20, ge=1, le=100),
-    offset: int = Query(0, ge=0),
+    sort: str = Query("new", description="Sort order: 'new', 'lo', 'hi', 'area_desc'"),
+    page: Optional[int] = Query(None, ge=1, description="1-indexed page number"),
+    limit: int = Query(24, ge=1, le=500, description="Items per page (limitation removed)"),
+    offset: int = Query(0, ge=0, description="0-indexed offset (used if page is omitted)"),
     session: AsyncSession = Depends(get_db_session),
 ):
-    """Retrieve paginated listings with search filters and source attribution."""
+    """Retrieve paginated listings with search filters, sorting, and full database traversal."""
     districts = [district] if district else None
     room_list = [rooms] if rooms is not None else None
+
+    if page is not None:
+        calc_offset = (page - 1) * limit
+        current_page = page
+    else:
+        calc_offset = offset
+        current_page = (offset // limit) + 1 if limit > 0 else 1
 
     items, total = await listing_service.search_listings(
         session=session,
@@ -155,19 +170,29 @@ async def get_listings(
         min_price=min_price,
         max_price=max_price,
         rooms=room_list,
+        min_area=min_area,
+        max_area=max_area,
         target_audience=target_audience,
         owner_only=owner_only,
+        sort=sort,
         limit=limit,
-        offset=offset,
+        offset=calc_offset,
     )
 
     response_items = [to_listing_response(item) for item in items]
+    total_pages = max(1, (total + limit - 1) // limit) if total > 0 else 1
+    has_next = current_page < total_pages
+    has_previous = current_page > 1
 
     return PaginatedListingsResponse(
         items=response_items,
         total=total,
         limit=limit,
-        offset=offset,
+        offset=calc_offset,
+        page=current_page,
+        total_pages=total_pages,
+        has_next=has_next,
+        has_previous=has_previous,
     )
 
 
@@ -203,6 +228,67 @@ async def get_monitor_status():
         last_run_at=summary["last_run_at"],
         last_status=summary["last_status"],
     )
+
+
+# --- Intelligent Automatic Parser Admin Dashboard Endpoints ---
+
+@api_router.get("/admin/parser/dashboard", response_model=ParserDashboardResponse)
+async def get_parser_dashboard(
+    session: AsyncSession = Depends(get_db_session),
+):
+    """Retrieve complete administrative parser dashboard statistics and operational health."""
+    stats = await monitor_worker.get_dashboard_stats(session)
+    return ParserDashboardResponse(**stats)
+
+
+@api_router.post("/admin/parser/run", response_model=ParserRunResponse)
+async def trigger_manual_parser_run(
+    deep: bool = Query(True, description="Deep multi-page scrape"),
+    pages: int = Query(3, ge=1, le=10, description="Pages to scan"),
+):
+    """Trigger on-demand listing parser discovery scan immediately."""
+    result = await monitor_worker.run_manual_scan(deep=deep, pages=pages)
+    return ParserRunResponse(
+        status=result["status"],
+        listings_found=result["listings_found"],
+        listings_new=result["listings_new"],
+        duration_seconds=result["duration_seconds"],
+        error_message=result.get("error_message"),
+    )
+
+
+@api_router.post("/admin/parser/pause")
+async def pause_parser():
+    """Pause automatic scheduled and periodic parser runs."""
+    monitor_worker.pause()
+    return {"status": "PAUSED", "is_paused": True, "message": "Parser has been paused."}
+
+
+@api_router.post("/admin/parser/resume")
+async def resume_parser():
+    """Resume automatic scheduled and periodic parser runs."""
+    monitor_worker.resume()
+    return {"status": "RESUMED", "is_paused": False, "message": "Parser has been resumed."}
+
+
+@api_router.post("/admin/parser/retry-telegram")
+async def retry_telegram_posts(
+    session: AsyncSession = Depends(get_db_session),
+):
+    """Retry pending or unposted listings to the Telegram channel queue."""
+    retried = await monitor_worker.retry_channel_queue(session)
+    return {
+        "status": "SUCCESS",
+        "retried_count": retried,
+        "message": f"{retried} listings published to channel.",
+    }
+
+
+@api_router.get("/admin/parser/logs", response_model=ParserLogsResponse)
+async def get_parser_logs():
+    """Retrieve recent parser operational logs and diagnostics."""
+    logs = monitor_worker.get_recent_logs()
+    return ParserLogsResponse(logs=[ParserLogEntry(**log) for log in logs])
 
 
 @api_router.post(

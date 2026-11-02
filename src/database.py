@@ -30,7 +30,7 @@ class Base(DeclarativeBase):
 
 
 def create_engine_and_session(db_url: str | None = None):
-    """Factory to create an async engine and sessionmaker."""
+    """Factory to create an async engine and sessionmaker with connection pooling."""
     url = db_url or settings.DATABASE_URL
 
     # Normalize Render and Cloud provider PostgreSQL URLs to use asyncpg driver
@@ -40,16 +40,24 @@ def create_engine_and_session(db_url: str | None = None):
         url = url.replace("postgresql://", "postgresql+asyncpg://", 1)
 
     connect_args = {}
+    engine_kwargs = {
+        "echo": settings.DB_ECHO,
+        "future": True,
+        "pool_pre_ping": True,
+    }
+
     if url.startswith("sqlite"):
         connect_args["check_same_thread"] = False
+    else:
+        # PostgreSQL / asyncpg connection pool optimization
+        engine_kwargs["pool_size"] = 20
+        engine_kwargs["max_overflow"] = 10
+        engine_kwargs["pool_recycle"] = 1800
+        engine_kwargs["pool_timeout"] = 30
 
-    engine = create_async_engine(
-        url,
-        echo=settings.DB_ECHO,
-        future=True,
-        pool_pre_ping=True,
-        connect_args=connect_args,
-    )
+    engine_kwargs["connect_args"] = connect_args
+
+    engine = create_async_engine(url, **engine_kwargs)
 
     session_maker = async_sessionmaker(
         bind=engine,
@@ -145,6 +153,13 @@ def _sync_schema_migration(connection) -> None:
                     connection.execute(text(f"ALTER TABLE channel_posts ADD COLUMN {col} {ctype}"))
                 except Exception as e:
                     logger.debug("Could not add column %s to channel_posts: %s", col, e)
+
+    if "listing_update_history" not in tables:
+        try:
+            from src.models.listing import ListingUpdateHistory
+            ListingUpdateHistory.__table__.create(connection, checkfirst=True)
+        except Exception as e:
+            logger.debug("Could not create listing_update_history table: %s", e)
 
 
 async def init_db() -> None:

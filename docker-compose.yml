@@ -3,7 +3,7 @@ version: '3.8'
 services:
   db:
     image: postgres:16-alpine
-    container_name: uyda_postgres
+    container_name: joyliy_postgres
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
@@ -19,24 +19,62 @@ services:
       timeout: 5s
       retries: 5
 
+  redis:
+    image: redis:7-alpine
+    container_name: joyliy_redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   app:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: uyda_app
+    container_name: joyliy_app
     restart: unless-stopped
     depends_on:
       db:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     env_file:
       - .env
     environment:
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-uyda}
+      REDIS_URL: redis://redis:6379/0
+      PORT: 8000
     ports:
       - "${PORT:-8000}:8000"
     command: >
       sh -c "alembic upgrade head && python -m src.main --mode all"
 
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: joyliy_parser_worker
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-uyda}
+      REDIS_URL: redis://redis:6379/0
+    command: >
+      python -m src.main --mode monitor
+
 volumes:
   postgres_data:
-
+  redis_data:

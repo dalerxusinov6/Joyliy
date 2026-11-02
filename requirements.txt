@@ -37,6 +37,7 @@ Pygments==2.21.0
 pytest==9.2.0
 pytest-asyncio==1.4.1
 python-dotenv==1.2.4
+redis>=5.0.0
 soupsieve==3.0.4
 SQLAlchemy==2.1.6
 starlette==1.10.0

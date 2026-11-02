@@ -55,6 +55,55 @@ class PaginatedListingsResponse(BaseModel):
     total: int
     limit: int
     offset: int
+    page: int = 1
+    total_pages: int = 1
+    has_next: bool = False
+    has_previous: bool = False
+
+
+class ParserLogEntry(BaseModel):
+    timestamp: str
+    level: str
+    message: str
+
+
+class ParserDashboardResponse(BaseModel):
+    provider: str
+    is_running: bool
+    is_paused: bool
+    poll_interval_seconds: int
+    consecutive_failures: int
+    last_run_at: Optional[str] = None
+    last_scan_duration_seconds: float = 0.0
+    last_status: str
+    scheduled_times: List[str] = Field(default_factory=list)
+    completed_slots_today: List[str] = Field(default_factory=list)
+    next_scheduled_run: Optional[str] = None
+    total_discovered_today: int = 0
+    new_discovered_today: int = 0
+    updated_today: int = 0
+    duplicates_detected_today: int = 0
+    active_listings_count: int = 0
+    unposted_channel_count: int = 0
+    telegram_queue_pending: int = 0
+    telegram_queue_total: int = 0
+    channel_posts_published_total: int = 0
+    server_tashkent_time: str
+    morning_scrape_enabled: bool = True
+    morning_scrape_time: str = "08:00"
+    morning_done_today: bool = False
+
+
+class ParserRunResponse(BaseModel):
+    status: str
+    listings_found: int
+    listings_new: int
+    duration_seconds: float
+    error_message: Optional[str] = None
+
+
+class ParserLogsResponse(BaseModel):
+    logs: List[ParserLogEntry]
 
 
 class HealthResponse(BaseModel):

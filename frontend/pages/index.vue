@@ -20,13 +20,22 @@ const {
   filterSort,
   availableDistricts,
   fetchListings,
+  currentPage,
+  pageSize,
+  totalCount,
+  totalPages,
+  hasNextPage,
+  hasPrevPage,
+  isLoadingMore,
+  loadMoreListings,
+  goToPage,
 } = useListings()
 
 const { showFilters, showMap, showPostAd } = useModals()
 
 // Pre-fetch during SSR and client navigation
 await useAsyncData('listings_ssr', async () => {
-  await fetchListings()
+  await fetchListings(1, false)
   return true
 })
 
@@ -111,6 +120,33 @@ const remainingListings = computed(() => {
 const formatPrice = (val: number) => {
   return (val || 0).toLocaleString('ru-RU').replace(/\u00a0/g, ' ') + ' so‘m'
 }
+
+// Server-side pagination visible page buttons
+const visiblePages = computed(() => {
+  const total = totalPages.value
+  const curr = currentPage.value
+  if (total <= 7) {
+    return Array.from({ length: total }, (_, i) => i + 1)
+  }
+  const pages: number[] = [1]
+  if (curr > 3) pages.push(-1) // ellipsis
+  const start = Math.max(2, curr - 1)
+  const end = Math.min(total - 1, curr + 1)
+  for (let i = start; i <= end; i++) {
+    pages.push(i)
+  }
+  if (curr < total - 2) pages.push(-1) // ellipsis
+  pages.push(total)
+  return pages
+})
+
+// Automatically re-query across full database on server filter change
+watch(
+  [filterDistrict, filterRooms, filterMaxPrice, filterAudience, filterSort],
+  () => {
+    fetchListings(1, false)
+  }
+)
 </script>
 
 <template>
@@ -163,6 +199,9 @@ const formatPrice = (val: number) => {
           <div class="heading-left">
             <h2 class="section-title">
               Tanlangan takliflar
+              <span class="catalog-total-pill" v-if="totalCount > 0">
+                {{ totalCount }} ta xonadon
+              </span>
             </h2>
             <p class="section-subtitle">
               Siz uchun saralangan eng yaxshi uy-joylar.
@@ -297,6 +336,66 @@ const formatPrice = (val: number) => {
             :listing="item"
             @select="onSelectListing"
           />
+        </div>
+
+        <!-- Server-side Pagination & Load More Controls (Unlimited Database Browsing) -->
+        <div v-if="hasNextPage || totalPages > 1" class="catalog-pagination-wrap">
+          <!-- Load More Button -->
+          <button
+            v-if="hasNextPage"
+            type="button"
+            class="btn-load-more"
+            :disabled="isLoadingMore"
+            @click="loadMoreListings"
+          >
+            <span v-if="isLoadingMore" class="load-spinner"></span>
+            <span v-else>Ko‘proq ko‘rish (+{{ pageSize }} ta e’lon)</span>
+            <svg v-if="!isLoadingMore" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="arr-down-mini">
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </button>
+
+          <!-- Numbered Page Navigation Bar -->
+          <div v-if="totalPages > 1" class="page-navigation-strip">
+            <button
+              type="button"
+              class="page-nav-arrow"
+              :disabled="currentPage <= 1 || isLoadingMore"
+              @click="goToPage(currentPage - 1)"
+              aria-label="Oldingi sahifa"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="p-nav-svg">
+                <polyline points="15 18 9 12 15 6" />
+              </svg>
+            </button>
+
+            <div class="page-numbers-row">
+              <template v-for="p in visiblePages" :key="p">
+                <button
+                  v-if="p !== -1"
+                  type="button"
+                  class="page-number-btn"
+                  :class="{ active: p === currentPage }"
+                  @click="goToPage(p)"
+                >
+                  {{ p }}
+                </button>
+                <span v-else class="page-ellipsis">...</span>
+              </template>
+            </div>
+
+            <button
+              type="button"
+              class="page-nav-arrow"
+              :disabled="currentPage >= totalPages || isLoadingMore"
+              @click="goToPage(currentPage + 1)"
+              aria-label="Keyingi sahifa"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="p-nav-svg">
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         <!-- Empty State -->
@@ -1261,5 +1360,185 @@ const formatPrice = (val: number) => {
   font-size: 11.5px;
   color: var(--text-secondary);
   font-weight: 600;
+}
+
+/* --- Catalog Total Pill & Server Pagination Styling (Iconly Design System) --- */
+.catalog-total-pill {
+  display: inline-flex;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--blue-primary);
+  background: rgba(40, 120, 200, 0.08);
+  border: 1px solid rgba(40, 120, 200, 0.18);
+  padding: 3px 10px;
+  border-radius: 999px;
+  margin-left: 10px;
+  vertical-align: middle;
+}
+
+:root[data-theme="dark"] .catalog-total-pill {
+  background: rgba(40, 120, 200, 0.2);
+  border-color: rgba(40, 120, 200, 0.35);
+  color: #60a5fa;
+}
+
+.catalog-pagination-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  margin-top: 36px;
+  margin-bottom: 24px;
+}
+
+.btn-load-more {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 28px;
+  background: #ffffff;
+  color: var(--text-primary);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:root[data-theme="dark"] .btn-load-more {
+  background: #161b22;
+  color: #f0f6fc;
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.btn-load-more:hover:not(:disabled) {
+  transform: translateY(-2px);
+  border-color: var(--blue-primary);
+  color: var(--blue-primary);
+  box-shadow: 0 8px 24px rgba(40, 120, 200, 0.12);
+}
+
+.btn-load-more:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.arr-down-mini {
+  width: 16px;
+  height: 16px;
+}
+
+.load-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(40, 120, 200, 0.2);
+  border-top-color: var(--blue-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.page-navigation-strip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+}
+
+:root[data-theme="dark"] .page-navigation-strip {
+  background: rgba(22, 27, 34, 0.85);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.page-numbers-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.page-number-btn {
+  min-width: 38px;
+  height: 38px;
+  padding: 0 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.page-number-btn:hover:not(.active) {
+  background: rgba(40, 120, 200, 0.08);
+  color: var(--blue-primary);
+}
+
+.page-number-btn.active {
+  background: var(--blue-primary);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(40, 120, 200, 0.3);
+}
+
+.page-ellipsis {
+  padding: 0 6px;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.page-nav-arrow {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.page-nav-arrow:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.04);
+  color: var(--blue-primary);
+}
+
+:root[data-theme="dark"] .page-nav-arrow:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08);
+  color: #60a5fa;
+}
+
+.page-nav-arrow:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.p-nav-svg {
+  width: 18px;
+  height: 18px;
 }
 </style>
