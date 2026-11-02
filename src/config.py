@@ -117,7 +117,7 @@ class Settings(BaseSettings):
         description="Admin dashboard master username",
     )
     ADMIN_PASSWORD: str = Field(
-        default="joyliy2026!",
+        default="Daler2026",
         description="Admin dashboard master password",
     )
     ADMIN_JWT_EXPIRE_MINUTES: int = Field(

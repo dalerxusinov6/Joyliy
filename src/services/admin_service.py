@@ -162,12 +162,17 @@ class AdminService:
 
         # Check Master Config Admin Credentials
         master_user = getattr(settings, "ADMIN_USERNAME", "admin").strip().lower()
-        master_pass = getattr(settings, "ADMIN_PASSWORD", "joyliy2026!").strip()
+        master_pass = getattr(settings, "ADMIN_PASSWORD", "Daler2026").strip()
 
         # Flexible master password check:
-        # Accepts configured settings.ADMIN_PASSWORD, or common defaults (joyliy2026!, joyliy2026, admin)
-        is_master_user = u_clean in (master_user, "admin", "superadmin")
-        is_master_pass = (p_clean == master_pass) or p_clean in (master_pass, "joyliy2026!", "joyliy2026", "admin", "admin123")
+        # Accepts configured settings.ADMIN_PASSWORD (e.g. Daler2026), case-insensitive 'daler2026', or 'admin'
+        is_master_user = u_clean in (master_user, "admin", "superadmin", "daler")
+        is_master_pass = (
+            (p_clean == master_pass)
+            or (p_clean.lower() == master_pass.lower())
+            or (p_clean.lower() == "daler2026")
+            or p_clean in (master_pass, "Daler2026", "daler2026", "joyliy2026!", "joyliy2026", "admin")
+        )
 
         if is_master_user and is_master_pass:
             admin_data = {

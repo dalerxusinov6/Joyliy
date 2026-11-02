@@ -112,7 +112,7 @@ const handleLogin = async () => {
               </button>
             </div>
             <div class="credentials-hint">
-              <span>Standart kirish: <strong>admin</strong> / <strong>admin</strong> yoki <strong>joyliy2026!</strong></span>
+              <span>Standart kirish: <strong>admin</strong> / <strong>Daler2026</strong></span>
             </div>
           </div>
 
