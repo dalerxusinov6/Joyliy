@@ -202,7 +202,7 @@ const formatPrice = (p: number) => {
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
-  color: #BC684B;
+  color: var(--blue-primary, #2878C8);
   letter-spacing: 0.5px;
 }
 
@@ -304,8 +304,8 @@ const formatPrice = (p: number) => {
 .d-score {
   font-size: 12px;
   font-weight: 700;
-  background: #fdf0eb;
-  color: #BC684B;
+  background: rgba(40, 120, 200, 0.1);
+  color: var(--blue-primary, #2878C8);
   padding: 2px 8px;
   border-radius: 12px;
 }
@@ -339,7 +339,7 @@ const formatPrice = (p: number) => {
 }
 
 .s-val.price {
-  color: #BC684B;
+  color: var(--blue-primary, #2878C8);
 }
 
 .d-btn {
@@ -355,7 +355,7 @@ const formatPrice = (p: number) => {
 }
 
 .d-btn:hover {
-  background: #BC684B;
+  background: var(--blue-primary, #2878C8);
   color: #ffffff;
 }
 </style>

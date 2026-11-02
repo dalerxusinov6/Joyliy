@@ -460,15 +460,15 @@ const applyQuick = (type: string, val: string) => {
 
 @media (min-width: 1024px) {
   .hero-inner-grid {
-    grid-template-columns: 1.35fr 0.85fr;
-    gap: 32px;
+    grid-template-columns: 1.5fr 0.75fr;
+    gap: 28px;
   }
 }
 
 @media (min-width: 1280px) {
   .hero-inner-grid {
-    grid-template-columns: 1.4fr 0.8fr;
-    gap: 40px;
+    grid-template-columns: 1.55fr 0.75fr;
+    gap: 36px;
   }
 }
 
@@ -892,7 +892,7 @@ const applyQuick = (type: string, val: string) => {
 
 @media (min-width: 1024px) {
   .console-fields-row {
-    grid-template-columns: 1.15fr 1fr 1.25fr 1.1fr auto;
+    grid-template-columns: 1.2fr 1fr 1.3fr 1.15fr auto;
     gap: 8px;
     align-items: flex-end;
   }
@@ -922,13 +922,13 @@ const applyQuick = (type: string, val: string) => {
   min-width: 0;
   min-height: 44px;
   height: 44px;
-  padding: 0 18px 0 8px;
+  padding: 0 20px 0 9px;
   background-color: var(--surface-subtle);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
   color: var(--text-primary);
-  font-size: 12.5px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 500;
   outline: none;
   transition: all 0.18s ease;
   white-space: nowrap;
@@ -940,7 +940,7 @@ const applyQuick = (type: string, val: string) => {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 6px center;
-  background-size: 12px;
+  background-size: 11px;
   cursor: pointer;
 }
 

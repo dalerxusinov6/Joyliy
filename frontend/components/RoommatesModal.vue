@@ -207,21 +207,12 @@ const formatPrice = (p: number) => {
   <div v-if="show" class="ov show" @click.self="$emit('close')">
     <div class="sheet roommates-sheet">
       <!-- Modal Header -->
-      <div class="top modal-head">
-        <div class="head-title-wrap">
-          <span class="head-badge">Joyliy Ecosystem</span>
-          <h2 class="head-title">
-            <svg class="modal-head-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-              <circle cx="9" cy="7" r="4" />
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-            </svg>
-            {{ currentLang === 'ru' ? 'Поиск соседей (Roommates)' : (currentLang === 'en' ? 'Find Roommates' : 'Hamxona Topish (Roommates)') }}
-          </h2>
+      <div class="top modal-header">
+        <div class="header-left">
+          <span class="modal-title">{{ currentLang === 'ru' ? 'Поиск соседей' : (currentLang === 'en' ? 'Find Roommates' : 'Hamxona topish') }}</span>
         </div>
-        <button class="close-btn" @click="$emit('close')" :aria-label="t('close')">
-          <svg class="close-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <button class="ib" @click="$emit('close')" :aria-label="t('close')">
+          <svg class="i" viewBox="0 0 24 24">
             <line x1="18" y1="6" x2="6" y2="18" />
             <line x1="6" y1="6" x2="18" y2="18" />
           </svg>
@@ -362,8 +353,15 @@ const formatPrice = (p: number) => {
           </div>
         </div>
 
-        <div v-else class="empty-state">
-          <p>{{ currentLang === 'ru' ? 'В этой категории пока нет анкет.' : (currentLang === 'en' ? 'No profiles found in this category.' : 'Ushbu toifa bo‘yicha hozircha anketalar yo‘q.') }}</p>
+        <div v-else class="roommates-empty-box">
+          <span class="numeral-accent">00</span>
+          <h3 class="empty-title">{{ currentLang === 'ru' ? 'В этой категории пока нет анкет' : (currentLang === 'en' ? 'No profiles found' : 'Ushbu toifa bo‘yicha anketalar yo‘q') }}</h3>
+          <p class="empty-desc">
+            {{ currentLang === 'ru' ? 'Станьте первым — заполните анкету и найдите соседа для совместной аренды.' : (currentLang === 'en' ? 'Be the first to create a profile and find a roommate.' : 'Birinchi bo‘lib anketa to‘ldiring va xonadon uchun munosib hamxona toping.') }}
+          </p>
+          <button class="btn p" type="button" @click="activeTab = 'create'">
+            {{ currentLang === 'ru' ? 'Заполнить анкету' : (currentLang === 'en' ? 'Fill Profile' : 'Anketa to‘ldirish') }}
+          </button>
         </div>
       </div>
 
@@ -462,70 +460,20 @@ const formatPrice = (p: number) => {
   max-width: 880px;
 }
 
-.modal-head {
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--border-subtle, #ebe5db);
+.modal-header {
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--sand, #DDD3C2);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  position: sticky;
-  top: 0;
-  background: var(--surface, #ffffff);
-  z-index: 5;
+  background: var(--ivory, #F3F0E8);
 }
 
-@media (min-width: 768px) {
-  .modal-head {
-    padding: 18px 24px;
-  }
-}
-
-.head-badge {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  color: #BC684B;
-  letter-spacing: 0.5px;
-}
-
-.head-title {
-  margin: 2px 0 0;
+.modal-title {
+  font-family: var(--font-serif);
   font-size: 20px;
-  font-weight: 700;
-  color: var(--ink, #1c1c1b);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.modal-head-svg {
-  width: 22px;
-  height: 22px;
-  color: var(--blue-primary, #2878c8);
-  flex-shrink: 0;
-}
-
-.close-btn {
-  background: none;
-  border: none;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  color: var(--ink-light, #72746b);
-  transition: background 0.15s ease;
-}
-
-.close-btn:hover {
-  background: rgba(0, 0, 0, 0.05);
-}
-
-.close-svg {
-  width: 18px;
-  height: 18px;
+  font-weight: 600;
+  color: var(--ink);
 }
 
 .tab-svg {
@@ -555,8 +503,8 @@ const formatPrice = (p: number) => {
 
 .nav-tabs {
   display: flex;
-  background: var(--sand-light, #f8f6f2);
-  border-bottom: 1px solid var(--sand, #ebe5db);
+  background: var(--sand-light, #EBE5DB);
+  border-bottom: 1px solid var(--sand, #DDD3C2);
   padding: 4px;
 }
 
@@ -565,54 +513,47 @@ const formatPrice = (p: number) => {
   padding: 10px 16px;
   border: none;
   background: transparent;
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 600;
-  color: var(--ink-light, #72746b);
-  border-radius: 8px;
+  color: var(--muted, #72746B);
+  border-radius: var(--radius-xs, 4px);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.15s ease;
 }
 
 .tab-btn.active {
   background: #ffffff;
-  color: #BC684B;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  color: var(--ink, #121110);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
 }
 
 .modal-body {
-  padding: 16px;
-  overflow-y: auto;
-  flex: 1;
-}
-
-@media (min-width: 768px) {
-  .modal-body {
-    padding: 20px 24px;
-  }
+  padding: 24px;
 }
 
 .filter-pills {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 .pill-btn {
   padding: 6px 14px;
   border-radius: 20px;
-  border: 1px solid var(--sand, #ebe5db);
+  border: 1px solid var(--sand, #DDD3C2);
   background: var(--surf, #ffffff);
   font-size: 12.5px;
   font-weight: 600;
+  color: var(--muted, #72746B);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.15s ease;
 }
 
 .pill-btn.active {
-  background: #BC684B;
+  background: var(--ink, #121110);
   color: #ffffff;
-  border-color: #BC684B;
+  border-color: var(--ink, #121110);
 }
 
 .profiles-grid {
@@ -628,9 +569,9 @@ const formatPrice = (p: number) => {
 }
 
 .profile-card {
-  border: 1px solid var(--sand, #ebe5db);
-  border-radius: 12px;
-  padding: 16px;
+  border: 1px solid var(--sand, #DDD3C2);
+  border-radius: var(--radius-xs, 4px);
+  padding: 18px;
   background: var(--surf, #ffffff);
   display: flex;
   flex-direction: column;
@@ -659,8 +600,8 @@ const formatPrice = (p: number) => {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: #BC684B;
-  color: #ffffff;
+  background: var(--sand-light, #EBE5DB);
+  color: var(--ink, #121110);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -672,21 +613,22 @@ const formatPrice = (p: number) => {
   margin: 0;
   font-size: 15px;
   font-weight: 700;
+  color: var(--ink);
 }
 
 .profile-occ {
   margin: 0;
   font-size: 12px;
-  color: var(--ink-light, #72746b);
+  color: var(--muted, #72746B);
 }
 
 .match-score {
   font-size: 11px;
   font-weight: 700;
-  background: #e6f4ea;
-  color: #137333;
+  background: #ECFDF5;
+  color: #065F46;
   padding: 3px 8px;
-  border-radius: 12px;
+  border-radius: 4px;
 }
 
 .spec-row {
@@ -696,9 +638,13 @@ const formatPrice = (p: number) => {
   margin-bottom: 8px;
 }
 
+.spec-label {
+  color: var(--muted, #72746B);
+}
+
 .spec-val.price {
   font-weight: 700;
-  color: #BC684B;
+  color: var(--blue-primary, #2878C8);
 }
 
 .tags-row {
@@ -710,35 +656,68 @@ const formatPrice = (p: number) => {
 
 .tag-badge {
   font-size: 11px;
-  padding: 2px 7px;
-  background: var(--sand-light, #f8f6f2);
-  border-radius: 6px;
-  color: var(--ink, #1c1c1b);
+  padding: 3px 8px;
+  background: var(--sand-light, #EBE5DB);
+  border-radius: var(--radius-xs, 2px);
+  color: var(--ink, #121110);
 }
 
 .profile-about {
   font-size: 12.5px;
-  color: var(--ink-light, #72746b);
+  color: var(--muted, #72746B);
   font-style: italic;
   margin-bottom: 14px;
   flex: 1;
+  line-height: 1.5;
 }
 
 .connect-btn {
   margin-top: auto;
-  padding: 8px 14px;
-  border-radius: 8px;
-  background: #BC684B;
+  padding: 9px 14px;
+  border-radius: var(--radius-xs, 4px);
+  background: var(--blue-primary, #2878C8);
   color: #ffffff;
   border: none;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition: opacity 0.2s;
+  transition: background 0.15s ease;
 }
 
 .connect-btn:hover {
-  opacity: 0.9;
+  background: var(--blue-deep, #1E60A5);
+}
+
+.roommates-empty-box {
+  text-align: center;
+  padding: 64px 20px;
+  border: 1px dashed var(--sand, #DDD3C2);
+  border-radius: var(--radius-xs, 4px);
+  background: var(--surf, #ffffff);
+}
+
+.empty-title {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  margin: 12px 0 8px;
+  color: var(--ink);
+}
+
+.empty-desc {
+  font-size: 14.5px;
+  color: var(--muted, #72746B);
+  max-width: 440px;
+  margin: 0 auto 20px;
+  line-height: 1.6;
+}
+
+.numeral-accent {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--muted, #72746B);
+  background: var(--sand-light, #EBE5DB);
+  padding: 3px 8px;
+  border-radius: var(--radius-xs, 2px);
 }
 
 /* FORM STYLES */
@@ -751,9 +730,6 @@ const formatPrice = (p: number) => {
 @media (max-width: 600px) {
   .form-grid {
     grid-template-columns: 1fr;
-  }
-  .full-width {
-    grid-column: span 1;
   }
 }
 
@@ -771,6 +747,7 @@ const formatPrice = (p: number) => {
   display: block;
   font-size: 12.5px;
   font-weight: 600;
+  color: var(--ink);
   margin-bottom: 5px;
 }
 
@@ -778,53 +755,83 @@ const formatPrice = (p: number) => {
 .form-group select,
 .form-group textarea {
   width: 100%;
-  padding: 8px 12px;
-  border: 1px solid var(--sand, #ebe5db);
-  border-radius: 8px;
+  padding: 9px 12px;
+  border: 1px solid var(--sand, #DDD3C2);
+  border-radius: var(--radius-xs, 4px);
   font-family: inherit;
   font-size: 13.5px;
+  background: var(--surf, #ffffff);
+  color: var(--ink);
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: var(--blue-primary, #2878C8);
+  outline: none;
 }
 
 .submit-btn {
   width: 100%;
   margin-top: 18px;
   padding: 12px;
-  border-radius: 10px;
-  background: #BC684B;
+  border-radius: var(--radius-xs, 4px);
+  background: var(--blue-primary, #2878C8);
   color: #ffffff;
   border: none;
   font-weight: 700;
   font-size: 14px;
   cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.submit-btn:hover {
+  background: var(--blue-deep, #1E60A5);
 }
 
 /* CONNECT OVERLAY */
 .connect-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,0.5);
+  background: rgba(18, 17, 16, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 20px;
+  z-index: 20;
 }
 
 .connect-card {
   background: #ffffff;
-  border-radius: 14px;
-  padding: 20px;
+  border-radius: var(--radius-xs, 4px);
+  padding: 24px;
   max-width: 440px;
   width: 100%;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+  border: 1px solid var(--sand, #DDD3C2);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.connect-card h3 {
+  margin: 0 0 6px;
+  font-family: var(--font-serif);
+  font-size: 18px;
+  color: var(--ink);
+}
+
+.connect-sub {
+  font-size: 13px;
+  color: var(--muted, #72746B);
+  margin-bottom: 12px;
 }
 
 .connect-card textarea {
   width: 100%;
   padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  margin: 10px 0;
+  border: 1px solid var(--sand, #DDD3C2);
+  border-radius: var(--radius-xs, 4px);
+  margin-bottom: 16px;
   font-family: inherit;
+  font-size: 13px;
 }
 
 .connect-actions {
@@ -835,20 +842,38 @@ const formatPrice = (p: number) => {
 
 .cancel-btn {
   padding: 8px 14px;
-  background: #eee;
-  border: none;
-  border-radius: 8px;
+  background: var(--sand-light, #EBE5DB);
+  border: 1px solid var(--sand, #DDD3C2);
+  border-radius: var(--radius-xs, 4px);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink);
   cursor: pointer;
 }
 
 .send-btn {
   padding: 8px 16px;
-  background: #BC684B;
+  background: var(--blue-primary, #2878C8);
   color: #ffffff;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-xs, 4px);
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.send-btn:hover {
+  background: var(--blue-deep, #1E60A5);
+}
+
+@media (max-width: 640px) {
+  .modal-header {
+    padding: 14px 16px;
+  }
+  .modal-body {
+    padding: 16px 14px;
+  }
 }
 </style>
 

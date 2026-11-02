@@ -291,22 +291,16 @@ onBeforeUnmount(() => {
   <div v-if="show" class="ov show" @click.self="$emit('close')">
     <div class="sheet yandex-map-sheet">
       <!-- Modal Top Bar -->
-      <div class="top">
-        <div style="display: flex; align-items: center; gap: 8px">
-          <!-- Yandex Maps Branded Icon -->
-          <svg style="width: 22px; height: 22px" viewBox="0 0 24 24">
-            <path
-              d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"
-              fill="#e11d48"
-            />
-          </svg>
-          <span style="font-weight: 700; font-size: 17px">{{ currentLang === 'ru' ? 'Аренда в Ташкенте — Яндекс Карта' : 'Toshkent Ijaralari — Yandex Xarita' }}</span>
+      <div class="top map-header">
+        <div class="header-left">
+          <span class="map-title">{{ currentLang === 'ru' ? 'Карта жилья' : (currentLang === 'en' ? 'Apartments Map' : 'Uy-joylar xaritasi') }}</span>
           <span class="count-pill">{{ t('listings_count_suffix', { count: listings.length }) }}</span>
         </div>
 
         <button class="ib" @click="$emit('close')" :aria-label="t('close')">
           <svg class="i" viewBox="0 0 24 24">
-            <path d="M18 6 6 18M6 6l12 12" />
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
           </svg>
         </button>
       </div>
@@ -417,10 +411,26 @@ onBeforeUnmount(() => {
   border: 1px solid var(--sand, #DDD3C2) !important;
 }
 
-.top {
-  padding: 16px 20px;
+.map-header {
+  padding: 18px 24px;
   border-bottom: 1px solid var(--sand, #DDD3C2);
   background: var(--ivory, #F3F0E8);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.map-title {
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ink);
 }
 
 .count-pill {
@@ -463,9 +473,9 @@ onBeforeUnmount(() => {
 }
 
 .district-pill.on {
-  background: var(--terracotta, #BC684B);
+  background: var(--ink, #121110);
   color: #fff;
-  border-color: var(--terracotta, #BC684B);
+  border-color: var(--ink, #121110);
 }
 
 .owner-toggle-pill {
@@ -473,21 +483,21 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 6px;
   margin-left: auto;
-  background: var(--terracotta-subtle, #F6EDE8);
-  border: 1px solid var(--terracotta, #BC684B);
-  color: var(--terracotta, #BC684B);
+  background: var(--surf, #FFFFFF);
+  border: 1px solid var(--sand, #DDD3C2);
+  color: var(--ink, #121110);
   padding: 5px 12px;
   border-radius: var(--radius-xs, 2px);
   font-size: 12.5px;
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
   flex-shrink: 0;
 }
 
 .owner-toggle-pill.active {
-  background: var(--terracotta, #BC684B);
+  background: var(--blue-primary, #2878C8);
   color: #fff;
-  border-color: var(--terracotta, #BC684B);
+  border-color: var(--blue-primary, #2878C8);
 }
 
 .map-body-wrapper {
@@ -588,19 +598,20 @@ onBeforeUnmount(() => {
 .card-price {
   font-size: 15px;
   font-weight: 700;
-  color: var(--ac, #174D3A);
+  color: var(--blue-primary, #2878C8);
   display: flex;
   align-items: center;
   gap: 6px;
 }
 
 .badge-maklersiz {
-  font-size: 10px;
-  background: var(--mint, #b9f2d0);
-  color: var(--ac-dark, #103b2e);
-  font-weight: 800;
-  padding: 2px 6px;
-  border-radius: 4px;
+  font-size: 10.5px;
+  background: #ECFDF5;
+  color: #065F46;
+  border: 1px solid #A7F3D0;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: var(--radius-xs, 2px);
 }
 
 .card-title {
@@ -614,7 +625,7 @@ onBeforeUnmount(() => {
 
 .card-meta {
   font-size: 12px;
-  color: var(--mu, #64748b);
+  color: var(--muted, #72746B);
 }
 
 .card-actions {
@@ -627,7 +638,16 @@ onBeforeUnmount(() => {
   padding: 8px 14px;
   font-size: 13px;
   font-weight: 600;
-  border-radius: 8px;
+  border-radius: var(--radius-xs, 4px);
+  background: var(--blue-primary, #2878C8);
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.action-btn:hover {
+  background: var(--blue-deep, #1E60A5);
 }
 
 .close-btn {

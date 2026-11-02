@@ -53,18 +53,15 @@ const submitReport = async () => {
   <div v-if="show" class="modal-backdrop" @click.self="$emit('close')">
     <div class="modal-box">
       <div class="modal-head">
-        <div>
-          <span class="head-badge">Scam Protection</span>
-          <h2 class="head-title">
-            <svg class="modal-head-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
-              <line x1="4" y1="22" x2="4" y2="15" />
-            </svg>
-            {{ t('report_modal_title') }}
-          </h2>
-        </div>
-        <button class="close-btn" @click="$emit('close')" :aria-label="t('close')">
-          <svg class="close-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <h2 class="head-title">
+          <svg class="modal-head-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
+            <line x1="4" y1="22" x2="4" y2="15" />
+          </svg>
+          <span>{{ t('report_modal_title') }}</span>
+        </h2>
+        <button class="ib" @click="$emit('close')" :aria-label="t('close')">
+          <svg class="i" viewBox="0 0 24 24">
             <line x1="18" y1="6" x2="6" y2="18" />
             <line x1="6" y1="6" x2="18" y2="18" />
           </svg>
@@ -130,24 +127,19 @@ const submitReport = async () => {
 
 .modal-head {
   padding: 18px 24px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--sand, #DDD3C2);
+  background: var(--ivory, #F3F0E8);
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-.head-badge {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  color: #c5221f;
-  letter-spacing: 0.5px;
-}
-
 .head-title {
-  margin: 2px 0 0;
-  font-size: 18px;
-  font-weight: 700;
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ink);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -158,29 +150,6 @@ const submitReport = async () => {
   height: 18px;
   color: #c5221f;
   flex-shrink: 0;
-}
-
-.close-btn {
-  background: none;
-  border: none;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  color: #666;
-  transition: background 0.15s ease;
-}
-
-.close-btn:hover {
-  background: #f0f0f0;
-}
-
-.close-svg {
-  width: 18px;
-  height: 18px;
 }
 
 .modal-body {

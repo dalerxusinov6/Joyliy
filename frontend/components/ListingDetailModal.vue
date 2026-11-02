@@ -97,7 +97,7 @@ const sourceViewLabel = computed(() => {
             <span v-if="listing.deal_type !== 'sale'" class="period-label">{{ t('per_month') }}</span>
             <span v-else class="period-label">{{ t('sale_price_lbl') }}</span>
           </div>
-          <div v-if="listing.is_owner" class="terracotta-status-badge">
+          <div v-if="listing.is_owner" class="owner-status-badge">
             <span class="status-badge-dot"></span>
             <span>{{ t('owner_100') }}</span>
           </div>
@@ -356,7 +356,7 @@ const sourceViewLabel = computed(() => {
 }
 
 .exhibit-tag {
-  color: var(--terracotta);
+  color: var(--blue-primary, #2878C8);
   font-weight: 700;
   letter-spacing: 0.1em;
 }
@@ -445,8 +445,8 @@ const sourceViewLabel = computed(() => {
 }
 
 .gallery-thumb-btn.active {
-  border-color: var(--terracotta);
-  box-shadow: 0 0 0 2px var(--terracotta);
+  border-color: var(--blue-primary, #2878C8);
+  box-shadow: 0 0 0 2px var(--blue-primary, #2878C8);
 }
 
 .gallery-thumb-btn img {
@@ -485,13 +485,13 @@ const sourceViewLabel = computed(() => {
   color: var(--muted);
 }
 
-.terracotta-status-badge {
+.owner-status-badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: var(--terracotta-subtle);
-  color: var(--terracotta);
-  border: 1px solid var(--terracotta);
+  background: #ECFDF5;
+  color: #065F46;
+  border: 1px solid #A7F3D0;
   font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.08em;
@@ -503,7 +503,7 @@ const sourceViewLabel = computed(() => {
 .status-badge-dot {
   width: 6px;
   height: 6px;
-  background: var(--terracotta);
+  background: #10B981;
   border-radius: 50%;
 }
 
@@ -564,8 +564,8 @@ const sourceViewLabel = computed(() => {
   width: 36px;
   height: 36px;
   border-radius: 8px;
-  background: var(--terracotta-subtle);
-  color: var(--terracotta);
+  background: rgba(40, 120, 200, 0.1);
+  color: var(--blue-primary, #2878C8);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -627,7 +627,7 @@ const sourceViewLabel = computed(() => {
 }
 
 .prov-source {
-  color: var(--terracotta);
+  color: var(--blue-primary, #2878C8);
   font-weight: 700;
 }
 
@@ -644,7 +644,7 @@ const sourceViewLabel = computed(() => {
 }
 
 .report-action-btn:hover {
-  color: var(--terracotta);
+  color: var(--blue-primary, #2878C8);
 }
 
 .exhibition-cbar {
@@ -697,7 +697,7 @@ const sourceViewLabel = computed(() => {
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
-  color: #BC684B;
+  color: var(--blue-primary, #2878C8);
   letter-spacing: 0.5px;
 }
 

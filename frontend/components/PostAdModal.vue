@@ -239,7 +239,7 @@ const onSubmit = async () => {
   font-size: 10px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  background: var(--terracotta);
+  background: var(--blue-primary, #2878C8);
   color: #FFFFFF;
   padding: 3px 8px;
   border-radius: var(--radius-xs);
@@ -290,7 +290,7 @@ const onSubmit = async () => {
 }
 
 .field-control:focus {
-  border-color: var(--terracotta);
+  border-color: var(--blue-primary, #2878C8);
   outline: none;
 }
 
@@ -316,7 +316,7 @@ const onSubmit = async () => {
 .owner-declaration-box input {
   width: 17px;
   height: 17px;
-  accent-color: var(--terracotta);
+  accent-color: var(--blue-primary, #2878C8);
   margin-top: 2px;
   flex: none;
 }
@@ -349,7 +349,7 @@ const onSubmit = async () => {
 }
 
 .bot-reference a {
-  color: var(--terracotta);
+  color: var(--blue-primary, #2878C8);
   font-weight: 700;
   text-decoration: underline;
 }

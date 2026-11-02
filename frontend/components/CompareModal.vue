@@ -58,24 +58,14 @@ watch(() => compareList.value.length, () => {
   <div v-if="show" class="ov show" @click.self="$emit('close')">
     <div class="sheet compare-sheet">
       <!-- Head -->
-      <div class="top modal-head">
-        <div class="head-title-wrap">
-          <span class="head-badge">Shortlist Battle</span>
-          <h2 class="head-title">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="head-svg">
-              <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
-              <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
-              <path d="M7 21h10"/>
-              <path d="M12 3v18"/>
-              <path d="M3 7h18"/>
-            </svg>
-            <span>{{ t('compare_title') }}</span>
-          </h2>
+      <div class="top modal-header">
+        <div class="header-left">
+          <span class="modal-title">{{ t('compare_title') }}</span>
         </div>
         <div class="head-actions">
           <button v-if="compareList.length" class="clear-btn" @click="clearCompare">{{ t('clear') }}</button>
-          <button class="close-btn" @click="$emit('close')" :aria-label="t('close')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="modal-close-svg">
+          <button class="ib" @click="$emit('close')" :aria-label="t('close')">
+            <svg class="i" viewBox="0 0 24 24">
               <line x1="18" y1="6" x2="6" y2="18"/>
               <line x1="6" y1="6" x2="18" y2="18"/>
             </svg>
@@ -86,18 +76,10 @@ watch(() => compareList.value.length, () => {
       <!-- Body -->
       <div class="bd modal-body">
         <!-- If fewer than 2 items -->
-        <div v-if="compareList.length < 2" class="empty-state">
-          <div class="empty-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="empty-cmp-svg">
-              <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
-              <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
-              <path d="M7 21h10"/>
-              <path d="M12 3v18"/>
-              <path d="M3 7h18"/>
-            </svg>
-          </div>
-          <h3>{{ t('compare_need_2') }}</h3>
-          <p>
+        <div v-if="compareList.length < 2" class="compare-empty-box">
+          <span class="numeral-accent">00</span>
+          <h3 class="empty-title">{{ t('compare_need_2') }}</h3>
+          <p class="empty-desc">
             {{ t('compare_need_2_desc') }}
           </p>
           <div v-if="compareList.length === 1" class="selected-hint">
@@ -255,70 +237,239 @@ watch(() => compareList.value.length, () => {
   max-width: 960px;
 }
 
-.modal-head {
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--border-subtle, #ebe5db);
+.modal-header {
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--sand, #DDD3C2);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  position: sticky;
-  top: 0;
-  background: var(--surface, #ffffff);
-  z-index: 5;
+  background: var(--ivory, #F3F0E8);
 }
 
-@media (min-width: 768px) {
-  .modal-head {
-    padding: 18px 24px;
-  }
-}
-
-.head-badge {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  color: #BC684B;
-  letter-spacing: 0.5px;
-}
-
-.head-title {
-  margin: 2px 0 0;
+.modal-title {
+  font-family: var(--font-serif);
   font-size: 20px;
-  font-weight: 700;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.head-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 }
 
-.head-svg {
-  width: 20px;
-  height: 20px;
-  color: var(--blue-primary, #2878C8);
-  flex-shrink: 0;
+.clear-btn {
+  background: var(--surf, #FFFFFF);
+  border: 1px solid var(--sand, #DDD3C2);
+  padding: 6px 12px;
+  border-radius: var(--radius-xs, 4px);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ink);
+  cursor: pointer;
+  transition: all 0.15s ease;
 }
 
-.modal-close-svg {
-  width: 18px;
-  height: 18px;
+.clear-btn:hover {
+  background: var(--sand-light, #EBE5DB);
 }
 
-.empty-cmp-svg {
-  width: 48px;
-  height: 48px;
-  color: var(--blue-primary, #2878C8);
-  margin-bottom: 12px;
+.modal-body {
+  padding: 24px;
+}
+
+.compare-empty-box {
+  text-align: center;
+  padding: 64px 20px;
+  border: 1px dashed var(--sand, #DDD3C2);
+  border-radius: var(--radius-xs, 4px);
+  background: var(--surf, #FFFFFF);
+}
+
+.empty-title {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  margin: 12px 0 8px;
+  color: var(--ink);
+}
+
+.empty-desc {
+  font-size: 14.5px;
+  color: var(--muted, #72746B);
+  max-width: 440px;
+  margin: 0 auto 20px;
+  line-height: 1.6;
+}
+
+.numeral-accent {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--muted, #72746B);
+  background: var(--sand-light, #EBE5DB);
+  padding: 3px 8px;
+  border-radius: var(--radius-xs, 2px);
+}
+
+.selected-hint {
+  margin-top: 16px;
+  padding: 8px 14px;
+  background: var(--ivory, #F3F0E8);
+  border: 1px solid var(--sand, #DDD3C2);
+  border-radius: var(--radius-xs, 4px);
+  font-size: 13px;
+  color: var(--ink);
+  display: inline-block;
+}
+
+.winner-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px 20px;
+  background: #F0FDF4;
+  border: 1px solid #BBF7D0;
+  border-radius: var(--radius-xs, 4px);
+  margin-bottom: 24px;
+}
+
+.winner-trophy {
+  font-size: 28px;
+  color: #10B981;
 }
 
 .trophy-svg {
-  width: 32px;
-  height: 32px;
-  color: #F59E0B;
-  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  color: #10B981;
+}
+
+.winner-title {
+  margin: 0 0 4px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #065F46;
+}
+
+.winner-desc {
+  margin: 0;
+  font-size: 13px;
+  color: #374151;
+  line-height: 1.45;
+}
+
+.compare-columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 18px;
+}
+
+.compare-col {
+  border: 1px solid var(--sand, #DDD3C2);
+  border-radius: var(--radius-xs, 4px);
+  padding: 16px;
+  background: var(--surf, #FFFFFF);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.remove-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(18, 17, 16, 0.6);
+  color: #ffffff;
+  border: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  font-size: 12px;
+  cursor: pointer;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease;
+}
+
+.remove-btn:hover {
+  background: rgba(18, 17, 16, 0.85);
 }
 
 .remove-svg {
   width: 12px;
   height: 12px;
+}
+
+.img-wrap {
+  aspect-ratio: 16/10;
+  border-radius: var(--radius-xs, 2px);
+  overflow: hidden;
+  margin-bottom: 12px;
+  cursor: pointer;
+  background: var(--sand-light, #EBE5DB);
+}
+
+.img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.col-title {
+  margin: 0 0 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.col-price {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--blue-primary, #2878C8);
+  margin-bottom: 14px;
+}
+
+.attr-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+  font-size: 12.5px;
+}
+
+.attr-row {
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 6px;
+  border-bottom: 1px dashed var(--sand-light, #EBE5DB);
+}
+
+.attr-lbl {
+  color: var(--muted, #72746B);
+}
+
+.attr-val {
+  font-weight: 600;
+  color: var(--ink);
+  text-align: right;
+}
+
+.attr-val.highlight {
+  color: var(--blue-primary, #2878C8);
 }
 
 .inline-svg-check {
@@ -338,246 +489,71 @@ watch(() => compareList.value.length, () => {
   margin-right: 3px;
 }
 
-.head-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.clear-btn {
-  background: none;
-  border: 1px solid var(--sand, #ebe5db);
-  padding: 4px 10px;
-  border-radius: 6px;
-  font-size: 12px;
-  cursor: pointer;
-}
-
-.close-btn {
-  background: none;
-  border: none;
-  font-size: 20px;
-  cursor: pointer;
-  color: #72746b;
-}
-
-.modal-body {
-  padding: 16px;
-  overflow-y: auto;
-  flex: 1;
-}
-
-@media (min-width: 768px) {
-  .modal-body {
-    padding: 20px 24px;
-  }
-}
-
-.empty-state {
-  text-align: center;
-  padding: 40px 20px;
-  max-width: 460px;
-  margin: 0 auto;
-}
-
-.empty-icon {
-  font-size: 48px;
-  margin-bottom: 12px;
-}
-
-.empty-state h3 {
-  margin: 0 0 8px;
-  font-size: 18px;
-  font-weight: 700;
-}
-
-.empty-state p {
-  color: #72746b;
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-.selected-hint {
-  margin-top: 16px;
-  padding: 8px 14px;
-  background: #f8f6f2;
-  border-radius: 8px;
-  font-size: 13px;
-  color: #BC684B;
-}
-
-.winner-banner {
-  display: flex;
-  align-items: flex-start;
-  gap: 14px;
-  padding: 14px 18px;
-  background: linear-gradient(135deg, #fdf8f5 0%, #fff6ee 100%);
-  border: 1px solid #ffd4b8;
-  border-radius: 12px;
-  margin-bottom: 20px;
-}
-
-.winner-trophy {
-  font-size: 30px;
-}
-
-.winner-title {
-  margin: 0 0 4px;
-  font-size: 15px;
-  font-weight: 700;
-  color: #BC684B;
-}
-
-.winner-desc {
-  margin: 0;
-  font-size: 13px;
-  color: #4a4a49;
-  line-height: 1.45;
-}
-
-.compare-columns {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 16px;
-}
-
-.compare-col {
-  border: 1px solid var(--sand, #ebe5db);
-  border-radius: 12px;
-  padding: 14px;
-  background: #ffffff;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-}
-
-.remove-btn {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  background: rgba(0,0,0,0.5);
-  color: #fff;
-  border: none;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  font-size: 12px;
-  cursor: pointer;
-  z-index: 2;
-}
-
-.img-wrap {
-  aspect-ratio: 16/10;
-  border-radius: 8px;
-  overflow: hidden;
-  margin-bottom: 10px;
-  cursor: pointer;
-}
-
-.img-wrap img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.col-title {
-  margin: 0 0 4px;
-  font-size: 13.5px;
-  font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.col-price {
-  font-size: 16px;
-  font-weight: 800;
-  color: #BC684B;
-  margin-bottom: 12px;
-}
-
-.attr-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 16px;
-  font-size: 12.5px;
-}
-
-.attr-row {
-  display: flex;
-  justify-content: space-between;
-  padding-bottom: 6px;
-  border-bottom: 1px dashed #eee;
-}
-
-.attr-lbl {
-  color: #72746b;
-}
-
-.attr-val {
-  font-weight: 600;
-  text-align: right;
-}
-
-.attr-val.highlight {
-  color: #BC684B;
-}
-
 .owner-tag {
-  color: #137333;
+  color: #10B981;
 }
 
 .badge-good {
-  color: #137333;
-  background: #e6f4ea;
+  color: #065F46;
+  background: #ECFDF5;
   padding: 2px 6px;
   border-radius: 4px;
 }
 
 .badge-warn {
-  color: #c5221f;
-  background: #fce8e6;
+  color: #991B1B;
+  background: #FEF2F2;
   padding: 2px 6px;
   border-radius: 4px;
 }
 
 .badge-fair {
-  color: #b06000;
-  background: #fef7e0;
+  color: #1E40AF;
+  background: #EFF6FF;
   padding: 2px 6px;
   border-radius: 4px;
 }
 
 .badge-safe {
-  color: #137333;
+  color: #065F46;
 }
 
 .badge-risk {
-  color: #c5221f;
+  color: #991B1B;
 }
 
 .view-listing-btn {
   margin-top: auto;
   width: 100%;
-  padding: 8px;
-  border-radius: 8px;
-  background: #BC684B;
+  padding: 9px 12px;
+  border-radius: var(--radius-xs, 4px);
+  background: var(--blue-primary, #2878C8);
   color: #ffffff;
   border: none;
   font-weight: 600;
   font-size: 13px;
   cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.view-listing-btn:hover {
+  background: var(--blue-deep, #1E60A5);
 }
 
 @media (max-width: 640px) {
+  .modal-header {
+    padding: 14px 16px;
+  }
+  .modal-body {
+    padding: 16px 14px;
+  }
   .compare-columns {
     display: flex;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     gap: 12px;
     padding-bottom: 8px;
-    scrollbar-width: thin;
+    scrollbar-width: none;
   }
   .compare-col {
     min-width: 260px;

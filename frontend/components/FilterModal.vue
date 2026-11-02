@@ -253,9 +253,9 @@ const onApply = () => {
 }
 
 .audience-select-card.active {
-  background: var(--terracotta-subtle);
-  border-color: var(--terracotta);
-  color: var(--terracotta);
+  background: rgba(40, 120, 200, 0.08);
+  border-color: var(--blue-primary, #2878C8);
+  color: var(--blue-primary, #2878C8);
 }
 
 .aud-icon {
@@ -300,13 +300,13 @@ const onApply = () => {
 }
 
 .owner-highlight {
-  background: var(--terracotta-subtle);
+  background: rgba(40, 120, 200, 0.08);
 }
 
 .amenity-row input {
   width: 17px;
   height: 17px;
-  accent-color: var(--terracotta);
+  accent-color: var(--blue-primary, #2878C8);
 }
 
 .amenity-desc {
