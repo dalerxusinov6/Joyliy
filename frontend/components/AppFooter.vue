@@ -29,11 +29,11 @@ const { t } = useI18n()
         <div class="footer-col about-col">
           <h4 class="col-heading">Joyliy haqida</h4>
           <p class="col-desc">
-            Joyliy — mulk egalari va ijarachilarni to‘g‘ridan-to‘g‘ri bog‘lovchi aqlli proptech platformasi. 0% vositachilik to‘lovi, Qwen AI bozor tahlili va shaffof shartlar bilan orzuingizdagi uyni toping.
+            Joyliy — mulk egalari va ijarachilarni to‘g‘ridan-to‘g‘ri bog‘lovchi aqlli proptech platformasi. 0% vositachilik to‘lovi, sun’iy intellekt bozor tahlili va shaffof shartlar bilan orzuingizdagi uyni toping.
           </p>
           <div class="footer-badges">
             <span class="f-badge">0% Vositachilik</span>
-            <span class="f-badge">Groq Qwen AI</span>
+            <span class="f-badge">Joyliy AI</span>
             <span class="f-badge">Shaffof narxlar</span>
           </div>
         </div>

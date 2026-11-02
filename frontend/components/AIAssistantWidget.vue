@@ -150,7 +150,7 @@ const sendQuestion = async (textToSend?: string) => {
             </div>
             <div>
               <h3 class="bot-name">Joyliy AI Maslahatchi</h3>
-              <span class="bot-subtitle">Groq Qwen AI · Toshkent Ijara Huquqi</span>
+              <span class="bot-subtitle">Joyliy AI · Toshkent Ijara Huquqi</span>
             </div>
           </div>
           <button class="btn-close-drawer" @click="closeChat" aria-label="Yopish">

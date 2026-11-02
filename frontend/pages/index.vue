@@ -379,7 +379,7 @@ const formatPrice = (val: number) => {
                 <path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3" />
               </svg>
             </div>
-            <h4 class="why-card-title">Groq Qwen AI Tahlili</h4>
+            <h4 class="why-card-title">Joyliy Aqlli AI Tahlili</h4>
             <p class="why-card-desc">
               Har bir e’lon sun’iy intellekt tomonidan tahlil qilinib, haqiqiy bozor narxi va xavf darajasi baholanadi.
             </p>

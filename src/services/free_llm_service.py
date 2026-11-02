@@ -433,7 +433,7 @@ class FreeLLMService:
             })
 
         system_prompt = (
-            "Siz Toshkent ko‘chmas mulk bozorining professional mustaqil AI tahlilchisisiz (Groq Qwen). "
+            "Siz Toshkent ko‘chmas mulk bozorining professional mustaqil Joyliy AI tahlilchisisiz. "
             "Foydalanuvchi tabiiy tilda kvartira qidirmoqda. Siz berilgan har bir kvartira e'lonini "
             "foydalanuvchi so'rovi talablari bilan qat'iy va xolis solishtirib chiqishingiz kerak.\n\n"
             "BAHOLASH MEZONLARI:\n"

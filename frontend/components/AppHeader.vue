@@ -24,9 +24,15 @@ const isDark = ref(false)
 onMounted(() => {
   initAuth()
   const saved = localStorage.getItem('joyliy_theme')
-  if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+  if (saved === 'dark') {
     isDark.value = true
     document.documentElement.dataset.theme = 'dark'
+  } else {
+    isDark.value = false
+    document.documentElement.dataset.theme = 'light'
+    if (!saved) {
+      localStorage.setItem('joyliy_theme', 'light')
+    }
   }
 })
 
@@ -124,7 +130,7 @@ const onLangChange = (lang: string) => {
           title="Saqlangan uylar"
         >
           <svg class="i" viewBox="0 0 24 24">
-            <path d="m19 21-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+            <path d="M12 21s-8-5-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 6-8 11-8 11z" />
           </svg>
           <span v-if="favCount > 0" class="fav-count">{{ favCount }}</span>
         </button>

@@ -8,6 +8,7 @@ export default defineNuxtConfig({
       title: 'Joyliy — Toshkentda maklersiz ijara',
       htmlAttrs: {
         lang: 'uz',
+        'data-theme': 'light',
       },
       meta: [
         { charset: 'utf-8' },
@@ -16,7 +17,7 @@ export default defineNuxtConfig({
           name: 'description',
           content: 'Toshkentda egasidan maklersiz ijara kvartiralar qidiruv platformasi.',
         },
-        { name: 'theme-color', content: '#BC684B' },
+        { name: 'theme-color', content: '#F3F4F5' },
       ],
       link: [
         { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg', key: 'icon-svg' },

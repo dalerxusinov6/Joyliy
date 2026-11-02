@@ -197,7 +197,7 @@ const scoreColorClass = computed(() => {
         </span>
       </div>
 
-      <!-- AI Match Insights Pill & Reasons (Grounded Groq Qwen Evaluation) -->
+      <!-- AI Match Insights Pill & Reasons (Grounded Joyliy AI Evaluation) -->
       <div v-if="listing.match_pros && listing.match_pros.length" class="ai-match-container">
         <div class="ai-match-header">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="ai-spark-svg">

@@ -277,7 +277,7 @@ const applyQuick = (type: string, val: string) => {
                     <rect width="6" height="6" x="9" y="9" rx="1" />
                     <path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3" />
                   </svg>
-                  <span>Groq Qwen AI</span>
+                  <span>Joyliy AI</span>
                 </span>
                 <span class="ai-query-text">«{{ aiSearchQuery }}»</span>
               </div>
