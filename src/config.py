@@ -112,6 +112,18 @@ class Settings(BaseSettings):
         default="joyliy-super-secret-jwt-key-2026",
         description="Secret key for signing auth tokens",
     )
+    ADMIN_USERNAME: str = Field(
+        default="admin",
+        description="Admin dashboard master username",
+    )
+    ADMIN_PASSWORD: str = Field(
+        default="joyliy2026!",
+        description="Admin dashboard master password",
+    )
+    ADMIN_JWT_EXPIRE_MINUTES: int = Field(
+        default=1440,
+        description="Admin session lifetime in minutes",
+    )
 
     # AI / LLM Keys (Groq Qwen 27B / GPT-OSS, Gemini 2.0 Flash, OpenRouter)
     QWEN_API_KEY: Optional[str] = Field(

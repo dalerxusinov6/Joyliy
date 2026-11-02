@@ -136,11 +136,18 @@ def _sync_schema_migration(connection) -> None:
 
     if "users" in tables:
         cols = {c["name"] for c in insp.get_columns("users")}
-        if "photo_url" not in cols:
-            try:
-                connection.execute(text("ALTER TABLE users ADD COLUMN photo_url VARCHAR(512)"))
-            except Exception as e:
-                logger.debug("Could not add column photo_url to users: %s", e)
+        for col, ctype in [
+            ("photo_url", "VARCHAR(512)"),
+            ("admin_role", "VARCHAR(32) DEFAULT 'viewer'"),
+            ("email", "VARCHAR(256)"),
+            ("password_hash", "VARCHAR(256)"),
+            ("last_login_at", "TIMESTAMP"),
+        ]:
+            if col not in cols:
+                try:
+                    connection.execute(text(f"ALTER TABLE users ADD COLUMN {col} {ctype}"))
+                except Exception as e:
+                    logger.debug("Could not add column %s to users: %s", col, e)
 
     if "channel_posts" in tables:
         cols = {c["name"] for c in insp.get_columns("channel_posts")}

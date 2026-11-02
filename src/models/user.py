@@ -34,6 +34,10 @@ class User(Base):
     photo_url: Mapped[Optional[str]] = mapped_column(String(512), nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     is_admin: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    admin_role: Mapped[str] = mapped_column(String(32), default="viewer", nullable=False)
+    email: Mapped[Optional[str]] = mapped_column(String(256), unique=True, index=True, nullable=True)
+    password_hash: Mapped[Optional[str]] = mapped_column(String(256), nullable=True)
+    last_login_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
     language_code: Mapped[str] = mapped_column(String(10), default="uz", nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=utc_now, nullable=False

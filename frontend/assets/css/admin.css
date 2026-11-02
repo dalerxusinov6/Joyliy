@@ -1,0 +1,257 @@
+/* Joyliy Enterprise Admin Dashboard - Design System (Linear / Vercel Inspired) */
+
+.admin-root {
+  --ad-bg: #F8FAFC;
+  --ad-surface: #FFFFFF;
+  --ad-card: #FFFFFF;
+  --ad-border: #E2E8F0;
+  --ad-border-subtle: #F1F5F9;
+  --ad-text-main: #0F172A;
+  --ad-text-muted: #64748B;
+  --ad-text-light: #94A3B8;
+  --ad-primary: #2878C8;
+  --ad-primary-hover: #1E60A5;
+  --ad-primary-light: rgba(40, 120, 200, 0.08);
+  --ad-success: #10B981;
+  --ad-success-light: #ECFDF5;
+  --ad-warning: #F59E0B;
+  --ad-warning-light: #FFFBEB;
+  --ad-danger: #EF4444;
+  --ad-danger-light: #FEF2F2;
+  --ad-purple: #8B5CF6;
+  --ad-purple-light: #F5F3FF;
+  --ad-radius-sm: 6px;
+  --ad-radius-md: 10px;
+  --ad-radius-lg: 14px;
+  --ad-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+  --ad-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --ad-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+  --ad-font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --ad-font-mono: 'JetBrains Mono', monospace;
+
+  font-family: var(--ad-font-sans);
+  background-color: var(--ad-bg);
+  color: var(--ad-text-main);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Dark Mode Overrides */
+.admin-root[data-admin-theme="dark"],
+:root[data-theme="dark"] .admin-root {
+  --ad-bg: #090D16;
+  --ad-surface: #0F172A;
+  --ad-card: #131D31;
+  --ad-border: #1E293B;
+  --ad-border-subtle: #1E293B;
+  --ad-text-main: #F8FAFC;
+  --ad-text-muted: #94A3B8;
+  --ad-text-light: #64748B;
+  --ad-primary: #388BFD;
+  --ad-primary-hover: #58A6FF;
+  --ad-primary-light: rgba(56, 139, 253, 0.15);
+  --ad-success-light: rgba(16, 185, 129, 0.15);
+  --ad-warning-light: rgba(245, 158, 11, 0.15);
+  --ad-danger-light: rgba(239, 68, 68, 0.15);
+  --ad-purple-light: rgba(139, 92, 246, 0.15);
+  --ad-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+  --ad-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+}
+
+/* Base Utility Classes for Admin */
+.admin-card {
+  background: var(--ad-card);
+  border: 1px solid var(--ad-border);
+  border-radius: var(--ad-radius-md);
+  box-shadow: var(--ad-shadow-sm);
+  padding: 20px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.admin-card:hover {
+  border-color: rgba(40, 120, 200, 0.35);
+}
+
+.admin-table-wrap {
+  background: var(--ad-card);
+  border: 1px solid var(--ad-border);
+  border-radius: var(--ad-radius-md);
+  overflow-x: auto;
+  box-shadow: var(--ad-shadow-sm);
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 13.5px;
+}
+
+.admin-table th {
+  background: var(--ad-surface);
+  color: var(--ad-text-muted);
+  font-weight: 600;
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--ad-border);
+  white-space: nowrap;
+}
+
+.admin-table td {
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--ad-border-subtle);
+  color: var(--ad-text-main);
+  vertical-align: middle;
+}
+
+.admin-table tr:last-child td {
+  border-bottom: none;
+}
+
+.admin-table tr:hover td {
+  background: var(--ad-primary-light);
+}
+
+/* Badge System */
+.ad-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 9999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.ad-badge-success {
+  background: var(--ad-success-light);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.ad-badge-warning {
+  background: var(--ad-warning-light);
+  color: #D97706;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.ad-badge-danger {
+  background: var(--ad-danger-light);
+  color: #DC2626;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.ad-badge-primary {
+  background: var(--ad-primary-light);
+  color: var(--ad-primary);
+  border: 1px solid rgba(40, 120, 200, 0.3);
+}
+
+.ad-badge-neutral {
+  background: var(--ad-border-subtle);
+  color: var(--ad-text-muted);
+  border: 1px solid var(--ad-border);
+}
+
+/* Buttons */
+.ad-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: var(--ad-radius-sm);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.ad-btn-primary {
+  background: var(--ad-primary);
+  color: #FFFFFF;
+}
+
+.ad-btn-primary:hover {
+  background: var(--ad-primary-hover);
+  transform: translateY(-1px);
+}
+
+.ad-btn-secondary {
+  background: var(--ad-card);
+  border-color: var(--ad-border);
+  color: var(--ad-text-main);
+}
+
+.ad-btn-secondary:hover {
+  background: var(--ad-border-subtle);
+  border-color: var(--ad-text-muted);
+}
+
+.ad-btn-danger {
+  background: var(--ad-danger);
+  color: #FFFFFF;
+}
+
+.ad-btn-danger:hover {
+  background: #DC2626;
+}
+
+.ad-btn-sm {
+  padding: 5px 10px;
+  font-size: 12px;
+}
+
+.ad-btn-icon {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: var(--ad-radius-sm);
+  background: transparent;
+  color: var(--ad-text-muted);
+  border: 1px solid transparent;
+}
+
+.ad-btn-icon:hover {
+  background: var(--ad-border-subtle);
+  color: var(--ad-text-main);
+}
+
+/* Form Controls */
+.ad-input,
+.ad-select,
+.ad-textarea {
+  width: 100%;
+  background: var(--ad-card);
+  border: 1px solid var(--ad-border);
+  border-radius: var(--ad-radius-sm);
+  padding: 8px 12px;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--ad-text-main);
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ad-input:focus,
+.ad-select:focus,
+.ad-textarea:focus {
+  border-color: var(--ad-primary);
+  box-shadow: 0 0 0 3px var(--ad-primary-light);
+}
+
+.ad-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ad-text-muted);
+  margin-bottom: 6px;
+}

@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse, Response
 from src.api.routes import api_router
+from src.api.admin_routes import admin_router
 from src.database import init_db
 
 
@@ -35,6 +36,7 @@ def create_app() -> FastAPI:
     )
 
     app.include_router(api_router)
+    app.include_router(admin_router)
 
     # Mount modern compiled Nuxt frontend (frontend_dist) if available
     base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -92,6 +94,24 @@ def create_app() -> FastAPI:
 
     if static_dir:
         from fastapi.staticfiles import StaticFiles
+
+        @app.get("/admin", include_in_schema=False)
+        @app.get("/admin/{subpath:path}", include_in_schema=False)
+        async def serve_admin_spa(subpath: str = ""):
+            # Check direct file or HTML in static_dir
+            candidates = [
+                os.path.join(static_dir, "admin", subpath),
+                os.path.join(static_dir, "admin", f"{subpath}.html"),
+                os.path.join(static_dir, "admin", subpath, "index.html"),
+                os.path.join(static_dir, "admin", "index.html"),
+                os.path.join(static_dir, "200.html"),
+                os.path.join(static_dir, "index.html"),
+            ]
+            for c in candidates:
+                if os.path.exists(c) and not os.path.isdir(c):
+                    return FileResponse(c)
+            return Response(status_code=404)
+
         app.mount("/", StaticFiles(directory=static_dir, html=True), name="frontend")
     else:
         @app.get("/", response_class=HTMLResponse)

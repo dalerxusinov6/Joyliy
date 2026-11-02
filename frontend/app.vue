@@ -45,9 +45,14 @@ useHead({
   ],
 })
 
+const route = useRoute()
+const isAdminRoute = computed(() => route.path.startsWith('/admin'))
+
 // Fetch initial listings on load
 onMounted(async () => {
-  await fetchListings()
+  if (!route.path.startsWith('/admin')) {
+    await fetchListings()
+  }
 })
 
 const onSelectListing = (item: ListingItem) => {
@@ -103,7 +108,10 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="app-layout">
+  <div v-if="isAdminRoute" class="admin-app-wrapper">
+    <NuxtPage />
+  </div>
+  <div v-else class="app-layout">
     <AppHeader
       @openFavorites="showSaved = true"
       @openProfile="showProfile = true"
