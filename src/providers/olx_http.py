@@ -38,17 +38,18 @@ class OLXHttpListingProvider(BaseListingProvider):
         self._last_status = ProviderStatus.HEALTHY
         self._last_message = "Initialized"
 
+        self.user_agents = [
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+            "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+        ]
         self.api_headers = {
-            "User-Agent": (
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                "AppleWebKit/537.36 (KHTML, like Gecko) "
-                "Chrome/126.0.0.0 Safari/537.36"
-            ),
+            "User-Agent": self.user_agents[0],
             "Accept": "application/json, text/plain, */*",
             "Accept-Language": "uz,ru;q=0.9,en-US;q=0.8,en;q=0.7",
             "Referer": "https://www.olx.uz/nedvizhimost/kvartiry/arenda-dolgosrochnaya/tashkent/",
             "Origin": "https://www.olx.uz",
-            "Sec-Ch-Ua": '"Not/A)Brand";v="8", "Chromium";v="126", "Google Chrome";v="126"',
+            "Sec-Ch-Ua": '"Not_A Brand";v="8", "Chromium";v="131", "Google Chrome";v="131"',
             "Sec-Ch-Ua-Mobile": "?0",
             "Sec-Ch-Ua-Platform": '"Windows"',
             "Sec-Fetch-Dest": "empty",
@@ -56,16 +57,12 @@ class OLXHttpListingProvider(BaseListingProvider):
             "Sec-Fetch-Site": "same-origin",
         }
         self.html_headers = {
-            "User-Agent": (
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                "AppleWebKit/537.36 (KHTML, like Gecko) "
-                "Chrome/126.0.0.0 Safari/537.36"
-            ),
+            "User-Agent": self.user_agents[1],
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
             "Accept-Language": "uz,ru;q=0.9,en-US;q=0.8,en;q=0.7",
-            "Sec-Ch-Ua": '"Not/A)Brand";v="8", "Chromium";v="126", "Google Chrome";v="126"',
+            "Sec-Ch-Ua": '"Not_A Brand";v="8", "Chromium";v="131", "Google Chrome";v="131"',
             "Sec-Ch-Ua-Mobile": "?0",
-            "Sec-Ch-Ua-Platform": '"Windows"',
+            "Sec-Ch-Ua-Platform": '"macOS"',
             "Sec-Fetch-Dest": "document",
             "Sec-Fetch-Mode": "navigate",
             "Sec-Fetch-Site": "none",
@@ -119,11 +116,13 @@ class OLXHttpListingProvider(BaseListingProvider):
         return items
 
     async def _fetch_with_backoff(self, client: httpx.AsyncClient, url: str) -> Optional[str]:
-        """Fetch URL with exponential backoff on transient errors."""
+        """Fetch URL with exponential backoff and rotating User-Agents on transient errors."""
         delay = self.request_delay
         for attempt in range(1, self.max_retries + 1):
+            ua = self.user_agents[(attempt - 1) % len(self.user_agents)]
+            req_headers = {**self.html_headers, "User-Agent": ua}
             try:
-                response = await client.get(url, headers=self.headers, timeout=12.0)
+                response = await client.get(url, headers=req_headers, timeout=12.0)
                 if response.status_code == 200:
                     self._consecutive_failures = 0
                     self._last_status = ProviderStatus.HEALTHY
@@ -135,6 +134,10 @@ class OLXHttpListingProvider(BaseListingProvider):
                         f"Access restricted by OLX access control (HTTP {response.status_code})."
                     )
                     logger.warning("OLX HTML access restricted (HTTP %d) on %s", response.status_code, url)
+                    if attempt < self.max_retries:
+                        await asyncio.sleep(delay)
+                        delay *= 2
+                        continue
                     return None
                 elif response.status_code >= 500:
                     logger.warning(
@@ -173,31 +176,50 @@ class OLXHttpListingProvider(BaseListingProvider):
         self._last_check_at = datetime.now(timezone.utc)
         all_listings: List[RawListingItem] = []
         seen_urls = set()
+        seen_ids = set()
 
         pages_to_fetch = max_pages or (settings.MORNING_SCRAPE_PAGES if deep else 2)
 
         async with httpx.AsyncClient(follow_redirects=True) as client:
-            # 1. Fetch via OLX API (reliable across cloud IPs)
-            api_items = await self._fetch_api_listings(client, max_pages=pages_to_fetch)
-            for it in api_items:
-                if it.canonical_url not in seen_urls:
-                    seen_urls.add(it.canonical_url)
-                    all_listings.append(it)
+            # 1. Fetch via OLX API (reliable and fast)
+            try:
+                api_items = await self._fetch_api_listings(client, max_pages=pages_to_fetch)
+                for it in api_items:
+                    it_id = str(it.source_id) if it.source_id else None
+                    if it.canonical_url not in seen_urls and (not it_id or it_id not in seen_ids):
+                        seen_urls.add(it.canonical_url)
+                        if it_id:
+                            seen_ids.add(it_id)
+                        all_listings.append(it)
+            except Exception as api_err:
+                logger.warning("Error during OLX API collection: %s", api_err)
 
-            # 2. Only attempt HTML search pages if API returned few or no listings
-            if len(all_listings) < (10 if not deep else 30):
-                for url in self.search_urls:
+            # 2. Fetch HTML search pages (complementing API and providing rich card data)
+            html_urls_to_check = list(self.search_urls)
+            if deep or len(all_listings) < 20:
+                for base_search in self.search_urls:
+                    sep = "&" if "?" in base_search else "?"
+                    for p in range(2, min(pages_to_fetch + 1, 4)):
+                        html_urls_to_check.append(f"{base_search}{sep}page={p}")
+
+            for url in html_urls_to_check:
+                try:
                     html = await self._fetch_with_backoff(client, url)
                     if html:
                         parsed = parse_olx_html_list(html, base_url=url)
                         for it in parsed:
-                            if it.canonical_url not in seen_urls:
+                            it_id = str(it.source_id) if it.source_id else None
+                            if it.canonical_url not in seen_urls and (not it_id or it_id not in seen_ids):
                                 seen_urls.add(it.canonical_url)
+                                if it_id:
+                                    seen_ids.add(it_id)
                                 all_listings.append(it)
-                    if len(self.search_urls) > 1:
+                    if len(html_urls_to_check) > 1:
                         await asyncio.sleep(self.request_delay)
+                except Exception as html_err:
+                    logger.warning("Error parsing HTML search URL %s: %s", url, html_err)
 
-            # 3. If live network was restricted, use authentic cached dataset
+            # 3. If live network was restricted and no listings were retrieved, use authentic cached dataset
             if not all_listings:
                 fallback = self._get_fallback_listings()
                 if fallback:

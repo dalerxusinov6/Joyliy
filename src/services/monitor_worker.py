@@ -363,16 +363,18 @@ class MonitorWorker:
                         except Exception as notif_err:
                             logger.error("Error dispatching user notification for #%d: %s", listing.id, notif_err)
 
-                    # Batch broadcast directly to the Telegram channel
+                    # Batch broadcast directly to the Telegram channel (with automatic backfill of existing ads if 0 new)
                     try:
                         channel_posted = await notification_service.broadcast_channel_batch(
                             session,
                             new_listings=new_listings,
+                            allow_backfill=True,
                         )
                         if channel_posted > 0:
+                            post_type = "new" if new_listings else "gap-fill (existing)"
                             self.log_event(
                                 "INFO",
-                                f"Published {channel_posted} new listings directly to Telegram channel {settings.CHANNEL_ID}.",
+                                f"Published {channel_posted} {post_type} listings directly to Telegram channel {settings.CHANNEL_ID}.",
                             )
                     except Exception as ch_err:
                         self.log_event("ERROR", f"Channel broadcast error: {ch_err}")

@@ -287,3 +287,108 @@ async def test_redis_service_locking_and_cache():
     await redis_service.clear_cache("test_*")
     cleared = await redis_service.get_cached("test_key")
     assert cleared is None
+
+
+@pytest.mark.asyncio
+async def test_channel_backfills_older_listings_when_no_new_found(test_session, mock_bot):
+    """
+    Verify requirement: 'e'lon topilmasa o'rnini yopish uchun eski e'lonlar kanalga push qilinsin'.
+    When 0 new listings are discovered, existing listings from DB are pushed to the channel.
+    """
+    from src.services.notification_service import NotificationService
+    service = NotificationService(bot=mock_bot)
+
+    # Seed 1 existing active listing in the DB (already past seen)
+    listing = Listing(
+        source="olx_uz",
+        source_id="backfill_test_1",
+        canonical_url="https://www.olx.uz/d/obyavlenie/backfill-listing-1.html",
+        title="Yunusobod 11-mavze 2 xonali kvartira",
+        price_uzs=4000000,
+        currency="UZS",
+        district="Yunusobod",
+        rooms=2,
+        area=52.0,
+        is_active=True,
+        first_seen_at=datetime.now(timezone.utc),
+        last_seen_at=datetime.now(timezone.utc),
+        posted_to_channel_at=None,
+    )
+    test_session.add(listing)
+    await test_session.commit()
+    await test_session.refresh(listing)
+
+    # When new_listings is empty (0 new listings discovered)
+    posted = await service.broadcast_channel_batch(
+        test_session,
+        new_listings=[],
+        allow_backfill=True,
+    )
+    assert posted >= 1
+    # Verify listing was marked posted
+    await test_session.refresh(listing)
+    assert listing.posted_to_channel_at is not None
+
+
+@pytest.mark.asyncio
+async def test_never_upload_duplicate_to_website(test_session):
+    """
+    Verify requirement: 'saytga bitta e'lon ikki marta hech qachon qayta yuklanmasin'.
+    Ensures that various cross-format duplicates (mobile vs desktop URLs, language prefixes,
+    matching source_ids or content hashes) never create a second row in the database.
+    """
+    # 1. Desktop URL format
+    raw1 = RawListingItem(
+        source="olx_uz",
+        source_id="99887766",
+        canonical_url="https://www.olx.uz/d/obyavlenie/shinam-kvartira-99887766.html",
+        title="Chilonzor 1-mavze shinam kvartira",
+        price_raw="3 500 000 so'm",
+        price_uzs=3500000,
+        currency="UZS",
+        district="Chilonzor",
+        rooms=1,
+        area=38.0,
+        description="Egasidan shinamgina kvartira",
+    )
+    l1, is_new1 = await listing_service.ingest_raw_listing(test_session, raw1)
+    assert is_new1 is True
+
+    # 2. Mobile Uzbek URL format with /oz/ prefix for exact same ad
+    raw2 = RawListingItem(
+        source="olx_uz",
+        source_id=None,  # missing explicit source_id, must be extracted from URL
+        canonical_url="https://m.olx.uz/d/oz/obyavlenie/shinam-kvartira-99887766.html?reason=observed_search",
+        title="Chilonzor 1-mavze shinam kvartira",
+        price_raw="3 500 000 so'm",
+        price_uzs=3500000,
+        currency="UZS",
+        district="Chilonzor",
+        rooms=1,
+        area=38.0,
+        description="Egasidan shinamgina kvartira",
+    )
+    l2, is_new2 = await listing_service.ingest_raw_listing(test_session, raw2)
+    assert is_new2 is False
+    assert l2.id == l1.id
+
+    # 3. Third variant: different URL slug, but same source_id
+    raw3 = RawListingItem(
+        source="olx_uz",
+        source_id="99887766",
+        canonical_url="https://www.olx.uz/d/obyavlenie/arzon-kvartira-99887766.html",
+        title="Chilonzor 1-mavze shinam kvartira",
+        price_raw="3 500 000 so'm",
+        price_uzs=3500000,
+        currency="UZS",
+        district="Chilonzor",
+        rooms=1,
+        area=38.0,
+    )
+    l3, is_new3 = await listing_service.ingest_raw_listing(test_session, raw3)
+    assert is_new3 is False
+    assert l3.id == l1.id
+
+    # Total rows in DB must remain strictly 1
+    total = (await test_session.execute(select(func.count(Listing.id)))).scalar()
+    assert total == 1

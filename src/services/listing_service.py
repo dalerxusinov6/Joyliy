@@ -3,6 +3,7 @@
 from datetime import datetime, timezone, timedelta
 from typing import List, Optional, Tuple, Sequence
 from sqlalchemy import select, and_, or_, desc, func
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -36,8 +37,14 @@ class ListingService:
         3. Secondary: Content hash (normalized title + district + price + rooms)
         Returns (listing, is_new: bool).
         """
-        from src.providers.parser import canonicalize_url
+        from src.providers.parser import canonicalize_url, normalize_url_path, extract_source_id_from_url
         from src.services.queue_service import compute_content_hash, compute_image_fingerprint, queue_service
+
+        # Normalize URL and extract missing source_id if possible
+        if item.canonical_url:
+            item.canonical_url = canonicalize_url(item.canonical_url)
+            if not item.source_id:
+                item.source_id = extract_source_id_from_url(item.canonical_url)
 
         c_hash = compute_content_hash(item.title, item.district, item.price_uzs, item.rooms)
         img_fp = compute_image_fingerprint(item.image_urls)
@@ -56,7 +63,6 @@ class ListingService:
 
         # 2. Primary check: canonical URL (raw, clean, and normalized path)
         if not existing and item.canonical_url:
-            from src.providers.parser import canonicalize_url, normalize_url_path
             clean_url = canonicalize_url(item.canonical_url)
             norm_url = normalize_url_path(item.canonical_url)
             stmt = select(Listing).where(
@@ -73,6 +79,16 @@ class ListingService:
             stmt = select(Listing).where(
                 and_(
                     Listing.content_hash == c_hash,
+                    Listing.is_active == True,
+                )
+            )
+            existing = (await session.execute(stmt)).scalars().first()
+
+        # 4. Secondary check: image fingerprint (if identical apartment photos match an active listing)
+        if not existing and img_fp:
+            stmt = select(Listing).where(
+                and_(
+                    Listing.image_fingerprint == img_fp,
                     Listing.is_active == True,
                 )
             )
@@ -192,7 +208,22 @@ class ListingService:
             checked_at=now,
         )
         session.add(classification)
-        await session.commit()
+        try:
+            await session.commit()
+        except IntegrityError:
+            await session.rollback()
+            conditions = []
+            if item.source_id:
+                conditions.append(and_(Listing.source == item.source, Listing.source_id == str(item.source_id)))
+            if item.canonical_url:
+                conditions.append(Listing.canonical_url == item.canonical_url)
+            if c_hash:
+                conditions.append(Listing.content_hash == c_hash)
+            stmt = select(Listing).options(selectinload(Listing.classification)).where(or_(*conditions))
+            existing_race = (await session.execute(stmt)).scalars().first()
+            if existing_race:
+                return existing_race, False
+            raise
 
         # Enqueue into persistent publishing queue
         try:

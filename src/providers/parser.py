@@ -28,10 +28,10 @@ DISTRICT_PATTERNS: List[Tuple[str, re.Pattern]] = [
 
 
 def canonicalize_url(raw_url: str) -> str:
-    """Strip tracking and ephemeral query parameters to obtain a canonical listing URL."""
+    """Strip tracking, hash, and ephemeral query parameters to obtain a canonical listing URL."""
     if not raw_url:
         return ""
-    parsed = urllib.parse.urlparse(raw_url)
+    parsed = urllib.parse.urlparse(raw_url.strip())
     clean_url = urllib.parse.urlunparse((parsed.scheme, parsed.netloc, parsed.path, "", "", ""))
     return clean_url.rstrip("/")
 
@@ -40,22 +40,26 @@ def normalize_url_path(url: str) -> str:
     """Normalize language path prefixes (/oz/, /d/oz/) for cross-lingual duplicate matching."""
     if not url:
         return ""
-    parsed = urllib.parse.urlparse(url)
+    parsed = urllib.parse.urlparse(url.strip())
     path = parsed.path
     if path.startswith("/d/oz/"):
         path = "/d/" + path[6:]
     elif path.startswith("/oz/"):
         path = "/" + path[4:]
-    return urllib.parse.urlunparse((parsed.scheme, parsed.netloc, path, "", "", "")).rstrip("/")
+    netloc = parsed.netloc.lower()
+    if netloc in ("olx.uz", "m.olx.uz", "www.olx.uz"):
+        netloc = "www.olx.uz"
+    return urllib.parse.urlunparse(("https", netloc, path, "", "", "")).rstrip("/")
 
 
 def extract_source_id_from_url(url: str) -> Optional[str]:
-    """Extract OLX listing ID from URL, e.g. -ID12345.html -> 12345."""
-    match = re.search(r"-ID([a-zA-Z0-9]+)(?:\.html)?", url)
+    """Extract OLX listing ID from URL, e.g. -ID12345.html or -66119940.html."""
+    if not url:
+        return None
+    match = re.search(r"-ID([a-zA-Z0-9]+)(?:\.html)?", url, re.IGNORECASE)
     if match:
         return match.group(1)
-    # Try digits at end of path if standard OLX id structure
-    match2 = re.search(r"/(\d{6,})/?$", url)
+    match2 = re.search(r"[-/](\d{4,})(?:\.html)?(?:$|[?#])", url)
     if match2:
         return match2.group(1)
     return None
@@ -248,6 +252,8 @@ def _parse_prerendered_state(html_content: str, base_url: str = "https://www.olx
         try:
             ad_id = str(ad.get("id"))
             raw_url = ad.get("url") or ""
+            if raw_url and not raw_url.startswith("http"):
+                raw_url = urllib.parse.urljoin(base_url, raw_url)
             canonical = canonicalize_url(raw_url)
             title = ad.get("title", "")
             description = ad.get("description", "")
