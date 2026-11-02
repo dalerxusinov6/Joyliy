@@ -91,7 +91,12 @@ const sendQuestion = async (textToSend?: string) => {
 </script>
 
 <template>
-  <div class="iconly-assistant-wrapper">
+  <div class="iconly-assistant-wrapper" :class="{ 'is-chat-open': isOpen }">
+    <!-- Backdrop for Desktop & Mobile Focus -->
+    <Transition name="fade">
+      <div v-if="isOpen" class="chat-modal-backdrop" @click="isOpen = false" aria-hidden="true"></div>
+    </Transition>
+
     <!-- Floating Trigger Capsule Button (Strictly positioned ABOVE bottom nav) -->
     <button
       v-show="!isOpen"
@@ -243,6 +248,17 @@ const sendQuestion = async (textToSend?: string) => {
 </template>
 
 <style scoped>
+/* Backdrop for Desktop & Mobile Focus */
+.chat-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 1250;
+  pointer-events: auto;
+}
+
 /* Centralized Independent Positioning System */
 .iconly-assistant-wrapper {
   position: fixed;
@@ -250,6 +266,10 @@ const sendQuestion = async (textToSend?: string) => {
   right: 28px;
   z-index: var(--z-chatbot, 1100);
   pointer-events: none;
+}
+
+.iconly-assistant-wrapper.is-chat-open {
+  pointer-events: auto;
 }
 
 @media (max-width: 1023px) {
@@ -285,12 +305,46 @@ const sendQuestion = async (textToSend?: string) => {
   transition: all 0.22s var(--ease);
 }
 
-@media (max-width: 374px) {
+/* MOBILE: ONLY ICON, NO TEXT! */
+@media (max-width: 768px) {
   .iconly-assistant-trigger {
-    padding: 0 12px 0 10px;
-    font-size: 12px;
-    gap: 6px;
-    height: 46px;
+    width: 52px;
+    height: 52px;
+    min-width: 52px;
+    min-height: 52px;
+    padding: 0;
+    border-radius: 50%;
+    justify-content: center;
+    position: relative;
+    box-shadow: 0 8px 24px rgba(40, 120, 200, 0.45);
+  }
+
+  .trigger-text {
+    display: none !important;
+  }
+
+  .trigger-spark-circle {
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .sparkle-svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .online-dot {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    width: 10px;
+    height: 10px;
+    border: 2px solid #ffffff;
+    box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.5);
   }
 }
 
@@ -332,41 +386,74 @@ const sendQuestion = async (textToSend?: string) => {
   position: absolute;
   bottom: 0;
   right: 0;
-  width: 400px;
+  width: 410px;
   max-width: calc(100vw - 32px);
-  height: 560px;
+  height: 580px;
   max-height: calc(100vh - 120px);
-  background: rgba(255, 255, 255, 0.96);
+  background: rgba(255, 255, 255, 0.98);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border: 1px solid rgba(255, 255, 255, 0.95);
   border-radius: var(--radius-card);
-  box-shadow: 0 20px 56px rgba(23, 25, 29, 0.18), 0 4px 16px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 20px 56px rgba(23, 25, 29, 0.22), 0 4px 16px rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  z-index: var(--z-modal, 1200);
+  z-index: 1300;
 }
 
 :root[data-theme="dark"] .iconly-chat-drawer {
-  background: rgba(22, 27, 34, 0.96);
-  border-color: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 20px 56px rgba(0, 0, 0, 0.45);
+  background: rgba(22, 27, 34, 0.98);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 20px 56px rgba(0, 0, 0, 0.55);
 }
 
 /* Dedicated Full-Screen Overlay on Mobile (No overlap, clean keyboard handling) */
-@media (max-width: 767px) {
+@media (max-width: 768px) {
   .iconly-chat-drawer {
     position: fixed;
-    inset: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     width: 100vw;
+    height: 100%;
     height: 100dvh;
     max-height: 100dvh;
     border-radius: 0;
     border: none;
     z-index: var(--z-chat-fullscreen, 1300);
-    padding-top: env(safe-area-inset-top, 0px);
-    padding-bottom: env(safe-area-inset-bottom, 0px);
+    display: flex;
+    flex-direction: column;
+    padding-top: 0;
+    padding-bottom: 0;
+    background: #FFFFFF;
+  }
+
+  :root[data-theme="dark"] .iconly-chat-drawer {
+    background: #161B22;
+  }
+
+  .chat-header-bar {
+    padding-top: max(14px, env(safe-area-inset-top, 14px)) !important;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    padding-bottom: 12px !important;
+  }
+
+  .chat-footer-bar {
+    padding: 10px 14px calc(10px + env(safe-area-inset-bottom, 0px)) 14px !important;
+    background: #FFFFFF !important;
+  }
+
+  :root[data-theme="dark"] .chat-footer-bar {
+    background: #161B22 !important;
+  }
+
+  .chat-text-input {
+    font-size: 16px !important; /* Prevents iOS auto-zoom on input focus */
+    min-height: 46px !important;
+    height: 46px !important;
   }
 }
 

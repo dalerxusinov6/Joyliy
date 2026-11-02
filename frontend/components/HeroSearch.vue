@@ -104,7 +104,8 @@ const applyQuick = (type: string, val: string) => {
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="tab-svg-icon">
                   <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
                 </svg>
-                <span>AI Aqlli Qidiruv</span>
+                <span class="tab-label-desktop">AI Aqlli Qidiruv</span>
+                <span class="tab-label-mobile">AI Qidiruv</span>
                 <span class="ai-chip-pill">Tezkor</span>
               </button>
             </div>
@@ -406,9 +407,16 @@ const applyQuick = (type: string, val: string) => {
 
 .hero-inner-grid {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 28px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 24px;
   align-items: center;
+  width: 100%;
+}
+
+.hero-left-content {
+  min-width: 0;
+  max-width: 100%;
+  width: 100%;
 }
 
 @media (min-width: 1024px) {
@@ -433,7 +441,7 @@ const applyQuick = (type: string, val: string) => {
   font-weight: 600;
   color: var(--blue-deep);
   box-shadow: 0 2px 8px rgba(40, 120, 200, 0.08);
-  margin-bottom: 14px;
+  margin-bottom: 12px;
   max-width: 100%;
 }
 
@@ -441,7 +449,7 @@ const applyQuick = (type: string, val: string) => {
   .hero-badge-pill {
     font-size: 12.5px;
     padding: 6px 14px;
-    margin-bottom: 18px;
+    margin-bottom: 16px;
   }
 }
 
@@ -463,13 +471,15 @@ const applyQuick = (type: string, val: string) => {
 /* Responsive Headings */
 .hero-heading {
   font-family: var(--font-sans);
-  font-size: clamp(23px, 6.5vw, 50px);
+  font-size: clamp(22px, 5.8vw, 48px);
   font-weight: 800;
-  letter-spacing: -0.035em;
-  line-height: 1.16;
+  letter-spacing: -0.02em;
+  word-spacing: 0.05em;
+  line-height: 1.18;
   color: var(--text-primary);
-  margin: 0 0 10px;
-  word-break: break-word;
+  margin: 0 0 8px;
+  word-break: normal;
+  overflow-wrap: break-word;
 }
 
 .heading-gradient {
@@ -480,16 +490,19 @@ const applyQuick = (type: string, val: string) => {
 }
 
 .hero-subheading {
-  font-size: clamp(13px, 3.5vw, 16px);
+  font-size: clamp(12.5px, 3.3vw, 15px);
   color: var(--text-secondary);
-  line-height: 1.5;
-  margin: 0 0 20px;
+  line-height: 1.48;
+  margin: 0 0 16px;
   max-width: 540px;
+  width: 100%;
+  word-break: normal;
+  overflow-wrap: break-word;
 }
 
 @media (min-width: 768px) {
   .hero-subheading {
-    margin-bottom: 24px;
+    margin-bottom: 22px;
   }
 }
 
@@ -504,11 +517,13 @@ const applyQuick = (type: string, val: string) => {
   padding: 4px;
   border-radius: var(--radius-full);
   border: 1px solid rgba(255, 255, 255, 0.9);
-  margin-bottom: 16px;
+  margin-bottom: 14px;
   overflow-x: auto;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
   max-width: 100%;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .mode-tabs-wrapper::-webkit-scrollbar {
@@ -518,6 +533,14 @@ const applyQuick = (type: string, val: string) => {
 :root[data-theme="dark"] .mode-tabs-wrapper {
   background: rgba(22, 27, 34, 0.7);
   border-color: rgba(255, 255, 255, 0.1);
+}
+
+.tab-label-desktop {
+  display: inline;
+}
+
+.tab-label-mobile {
+  display: none;
 }
 
 .mode-pill-tab {
@@ -536,7 +559,21 @@ const applyQuick = (type: string, val: string) => {
   min-height: 36px;
 }
 
-@media (min-width: 375px) {
+@media (max-width: 480px) {
+  .tab-label-desktop {
+    display: none;
+  }
+  .tab-label-mobile {
+    display: inline;
+  }
+  .mode-pill-tab {
+    padding: 7px 11px;
+    font-size: 12px;
+    gap: 4px;
+  }
+}
+
+@media (min-width: 481px) {
   .mode-pill-tab {
     font-size: 13px;
     padding: 8px 16px;
@@ -869,6 +906,7 @@ const applyQuick = (type: string, val: string) => {
 
 @media (max-width: 639px) {
   .field-actions {
+    grid-column: 1 / -1;
     display: grid;
     grid-template-columns: 46px 1fr;
     gap: 8px;
