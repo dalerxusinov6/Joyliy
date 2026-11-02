@@ -56,8 +56,10 @@ const scoreColorClass = computed(() => {
       <img
         v-if="listing.image_urls && listing.image_urls.length"
         :src="listing.image_urls[0]"
-        :alt="listing.title"
+        :alt="listing.title + ' — ' + (tDistrict(listing.district) || 'Toshkent') + ', Joyliy.uz'"
         loading="lazy"
+        width="400"
+        height="300"
         class="card-photo"
       />
       <div v-else class="card-photo-placeholder">
@@ -153,7 +155,9 @@ const scoreColorClass = computed(() => {
 
       <!-- Property Title -->
       <h3 class="property-title">
-        {{ listing.title }}
+        <NuxtLink :to="'/elon/' + listing.id" class="property-title-link">
+          {{ listing.title }}
+        </NuxtLink>
       </h3>
 
       <!-- Location Line -->
@@ -560,6 +564,15 @@ const scoreColorClass = computed(() => {
   -webkit-box-orient: vertical;
   overflow: hidden;
   word-break: break-word;
+}
+
+.property-title-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.property-title-link:hover {
+  color: var(--blue-primary, #2878C8);
 }
 
 @media (min-width: 480px) {

@@ -186,6 +186,12 @@ const navSections = [
         badge: null,
       },
       {
+        label: 'SEO & Qidiruv',
+        to: '/admin/seo',
+        icon: 'search',
+        badge: 'Google',
+      },
+      {
         label: 'Tizim sozlamalari',
         to: '/admin/settings',
         icon: 'settings',
@@ -204,6 +210,7 @@ const commandLinks = [
   { label: 'Foydalanuvchilar va rollar', to: '/admin/users', category: 'Sahifalar' },
   { label: 'Xarita orqali saralash', to: '/admin/map', category: 'Sahifalar' },
   { label: 'Audit xavfsizlik jurnali', to: '/admin/logs', category: 'Sahifalar' },
+  { label: 'SEO va Qidiruv boshqaruvi', to: '/admin/seo', category: 'Sahifalar' },
   { label: 'Tizim sozlamalari', to: '/admin/settings', category: 'Sahifalar' },
 ]
 
@@ -362,6 +369,12 @@ const roleBadgeColor = (role?: string) => {
                     <line x1="18" y1="20" x2="18" y2="10"/>
                     <line x1="12" y1="20" x2="12" y2="4"/>
                     <line x1="6" y1="20" x2="6" y2="14"/>
+                  </svg>
+
+                  <!-- Search / SEO icon -->
+                  <svg v-else-if="item.icon === 'search'" class="item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
                   </svg>
 
                   <!-- Settings icon -->

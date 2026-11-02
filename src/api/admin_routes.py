@@ -21,6 +21,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.config import settings
 from src.database import get_db_session
 from src.services.admin_service import admin_service
+from src.services.seo_service import seo_service
 
 admin_router = APIRouter(prefix="/api/admin", tags=["Enterprise Admin Dashboard"])
 
@@ -640,3 +641,34 @@ async def get_system_settings(
             "session_lifetime_minutes": settings.ADMIN_JWT_EXPIRE_MINUTES,
         },
     }
+
+
+# =================================================================
+# 10. SEO Audit and Sitemap Sync
+# =================================================================
+
+@admin_router.get("/seo/summary")
+async def get_seo_summary(
+    current_admin: Dict[str, Any] = Depends(get_current_admin),
+    session: AsyncSession = Depends(get_db_session),
+):
+    """Retrieve comprehensive technical SEO audit data and sitemap statuses."""
+    return await seo_service.get_seo_audit_summary(session)
+
+
+@admin_router.post("/seo/sync")
+async def sync_sitemaps(
+    current_admin: Dict[str, Any] = Depends(get_current_admin),
+    session: AsyncSession = Depends(get_db_session),
+):
+    """Synchronize XML sitemaps into frontend public and static directories."""
+    base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    frontend_public = os.path.join(base_dir, "frontend", "public")
+    frontend_dist = os.path.join(base_dir, "frontend_dist")
+
+    res = await seo_service.sync_static_sitemaps(frontend_public, session)
+    if os.path.exists(frontend_dist):
+        await seo_service.sync_static_sitemaps(frontend_dist, session)
+
+    return {"success": True, "details": res}
+

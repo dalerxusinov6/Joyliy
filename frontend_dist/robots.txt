@@ -1,0 +1,21 @@
+# Robots.txt for Joyliy.uz - Real Estate Search Platform Uzbekistan
+User-agent: *
+Allow: /
+Allow: /elon/
+Allow: /toshkent/
+Allow: /favicon.ico
+Allow: /favicon.svg
+Allow: /apple-touch-icon.png
+Disallow: /admin/
+Disallow: /api/
+Disallow: /*?*token=*
+Disallow: /*?*auth=*
+Disallow: /*?*session=*
+Disallow: /_nuxt/
+
+# XML Sitemaps
+Sitemap: https://joyliy.uz/sitemap.xml
+Sitemap: https://joyliy.uz/sitemap-listings.xml
+Sitemap: https://joyliy.uz/sitemap-locations.xml
+Sitemap: https://joyliy.uz/sitemap-categories.xml
+Sitemap: https://joyliy.uz/sitemap-pages.xml

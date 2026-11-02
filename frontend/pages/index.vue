@@ -33,6 +33,61 @@ await useAsyncData('listings_ssr', async () => {
   return true
 })
 
+// Dynamic SEO & Structured Data for Homepage
+useSeoMeta({
+  title: 'Joyliy — Toshkentda maklersiz ijara va arzon kvartiralar',
+  description: 'Toshkentda egasidan maklersiz ijara kvartiralar va arzon uylar qidiruv tizimi. Joyliy.uz orqali to‘g‘ridan-to‘g‘ri tekshirilgan e‘lonlar, narx tahlili va fotosuratlar.',
+  canonical: 'https://joyliy.uz/',
+  ogTitle: 'Joyliy — Toshkentda maklersiz ijara va arzon kvartiralar',
+  ogDescription: 'Toshkentda egasidan maklersiz ijara kvartiralar va arzon uylar qidiruv tizimi. Joyliy.uz orqali to‘g‘ridan-to‘g‘ri tekshirilgan e‘lonlar.',
+  ogImage: 'https://joyliy.uz/apple-touch-icon.png',
+  ogUrl: 'https://joyliy.uz/',
+  ogType: 'website',
+  twitterCard: 'summary_large_image',
+  twitterTitle: 'Joyliy — Toshkentda maklersiz ijara',
+  twitterDescription: 'Toshkentda egasidan maklersiz ijara kvartiralar va arzon uylar qidiruv tizimi.',
+  robots: 'index, follow',
+})
+
+useHead({
+  link: [
+    { rel: 'canonical', href: 'https://joyliy.uz/' },
+    { rel: 'alternate', hreflang: 'uz', href: 'https://joyliy.uz/' },
+    { rel: 'alternate', hreflang: 'ru', href: 'https://joyliy.uz/?lang=ru' },
+    { rel: 'alternate', hreflang: 'x-default', href: 'https://joyliy.uz/' },
+  ],
+  script: [
+    {
+      type: 'application/ld+json',
+      children: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@graph': [
+          {
+            '@type': 'WebSite',
+            '@id': 'https://joyliy.uz/#website',
+            'url': 'https://joyliy.uz/',
+            'name': 'Joyliy.uz',
+            'description': 'Toshkentda maklersiz ijara va arzon kvartiralar qidiruv platformasi',
+            'potentialAction': {
+              '@type': 'SearchAction',
+              'target': 'https://joyliy.uz/toshkent?q={search_term_string}',
+              'query-input': 'required name=search_term_string',
+            },
+          },
+          {
+            '@type': 'Organization',
+            '@id': 'https://joyliy.uz/#organization',
+            'name': 'Joyliy.uz',
+            'url': 'https://joyliy.uz/',
+            'logo': 'https://joyliy.uz/apple-touch-icon.png',
+            'sameAs': ['https://t.me/joyliy_uz'],
+          },
+        ],
+      }),
+    },
+  ],
+})
+
 // Curated categories matching Iconly pill tabs
 const rentCategories = computed(() => [
   { key: '', title: t('cat_all'), icon: 'all' },

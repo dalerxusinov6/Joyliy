@@ -37,7 +37,9 @@ const {
 } = useModals()
 
 useHead({
-  title: 'Joyliy — Toshkentda Aqlli Ijara Ekosistemasi',
+  titleTemplate: (titleChunk) => {
+    return titleChunk && !titleChunk.includes('Joyliy') ? `${titleChunk} — Joyliy.uz` : titleChunk || 'Joyliy — Toshkentda maklersiz ijara'
+  },
   link: [
     { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg', key: 'app-icon-svg' },
     { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico', key: 'app-icon-ico' },

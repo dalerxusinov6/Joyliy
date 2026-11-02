@@ -2,12 +2,14 @@
 
 import os
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse, Response
+from sqlalchemy.ext.asyncio import AsyncSession
 from src.api.routes import api_router
 from src.api.admin_routes import admin_router
-from src.database import init_db
+from src.database import init_db, get_db_session, AsyncSessionLocal
+from src.services.seo_service import seo_service
 
 
 @asynccontextmanager
@@ -86,6 +88,57 @@ def create_app() -> FastAPI:
             return FileResponse(p, media_type="image/png")
         return Response(status_code=404)
 
+    # --- Technical SEO & XML Sitemaps Endpoints ---
+    @app.get("/robots.txt", include_in_schema=False)
+    async def robots_txt():
+        p = _find_static_file("robots.txt")
+        if p:
+            return FileResponse(p, media_type="text/plain; charset=utf-8")
+        return Response(
+            content=(
+                "User-agent: *\n"
+                "Allow: /\n"
+                "Allow: /elon/\n"
+                "Allow: /toshkent/\n"
+                "Disallow: /admin/\n"
+                "Disallow: /api/\n"
+                "Disallow: /*?*token=*\n"
+                "Disallow: /*?*auth=*\n"
+                "Disallow: /_nuxt/\n\n"
+                "Sitemap: https://joyliy.uz/sitemap.xml\n"
+                "Sitemap: https://joyliy.uz/sitemap-listings.xml\n"
+                "Sitemap: https://joyliy.uz/sitemap-locations.xml\n"
+                "Sitemap: https://joyliy.uz/sitemap-categories.xml\n"
+                "Sitemap: https://joyliy.uz/sitemap-pages.xml\n"
+            ),
+            media_type="text/plain; charset=utf-8",
+        )
+
+    @app.get("/sitemap.xml", include_in_schema=False)
+    async def sitemap_index():
+        content = seo_service.generate_sitemap_index()
+        return Response(content=content, media_type="application/xml; charset=utf-8")
+
+    @app.get("/sitemap-pages.xml", include_in_schema=False)
+    async def sitemap_pages():
+        content = seo_service.generate_pages_sitemap()
+        return Response(content=content, media_type="application/xml; charset=utf-8")
+
+    @app.get("/sitemap-locations.xml", include_in_schema=False)
+    async def sitemap_locations():
+        content = seo_service.generate_locations_sitemap()
+        return Response(content=content, media_type="application/xml; charset=utf-8")
+
+    @app.get("/sitemap-categories.xml", include_in_schema=False)
+    async def sitemap_categories():
+        content = seo_service.generate_categories_sitemap()
+        return Response(content=content, media_type="application/xml; charset=utf-8")
+
+    @app.get("/sitemap-listings.xml", include_in_schema=False)
+    async def sitemap_listings(session: AsyncSession = Depends(get_db_session)):
+        content = await seo_service.generate_listings_sitemap(session)
+        return Response(content=content, media_type="application/xml; charset=utf-8")
+
     static_dir = None
     if os.path.exists(frontend_dist) and os.path.exists(os.path.join(frontend_dist, "index.html")):
         static_dir = frontend_dist
@@ -109,6 +162,35 @@ def create_app() -> FastAPI:
             ]
             for c in candidates:
                 if os.path.exists(c) and not os.path.isdir(c):
+                    return FileResponse(c)
+            return Response(status_code=404)
+
+        @app.get("/elon/{listing_id}", include_in_schema=False)
+        async def serve_elon_page(listing_id: str):
+            candidates = [
+                os.path.join(static_dir, "elon", f"{listing_id}.html"),
+                os.path.join(static_dir, "elon", listing_id, "index.html"),
+                os.path.join(static_dir, "200.html"),
+                os.path.join(static_dir, "index.html"),
+            ]
+            for c in candidates:
+                if os.path.exists(c) and not os.path.isdir(c):
+                    return FileResponse(c)
+            return Response(status_code=404)
+
+        @app.get("/toshkent", include_in_schema=False)
+        @app.get("/toshkent/{subpath:path}", include_in_schema=False)
+        async def serve_toshkent_pages(subpath: str = ""):
+            clean_sub = subpath.strip("/")
+            candidates = [
+                os.path.join(static_dir, "toshkent", clean_sub, "index.html") if clean_sub else "",
+                os.path.join(static_dir, "toshkent", f"{clean_sub}.html") if clean_sub else "",
+                os.path.join(static_dir, "toshkent", "index.html"),
+                os.path.join(static_dir, "200.html"),
+                os.path.join(static_dir, "index.html"),
+            ]
+            for c in candidates:
+                if c and os.path.exists(c) and not os.path.isdir(c):
                     return FileResponse(c)
             return Response(status_code=404)
 
