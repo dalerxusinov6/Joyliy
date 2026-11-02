@@ -593,6 +593,8 @@ header {
   background: var(--surface);
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -601,6 +603,19 @@ header {
   border-radius: var(--radius-card);
   border: 1px solid var(--border-glass);
   box-shadow: var(--sh-modal);
+}
+
+.sheet::-webkit-scrollbar,
+.sheet .bd::-webkit-scrollbar,
+.ov::-webkit-scrollbar,
+.modal::-webkit-scrollbar,
+.drawer::-webkit-scrollbar,
+.exhibition-sheet::-webkit-scrollbar,
+.exhibition-body::-webkit-scrollbar,
+.no-scrollbar::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
 }
 
 @media (max-width: 767px) {

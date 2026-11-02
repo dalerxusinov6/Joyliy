@@ -74,7 +74,6 @@ const onLangChange = (lang: string) => {
           Taqqoslash
           <span v-if="compareList.length" class="badge-mini">{{ compareList.length }}</span>
         </a>
-        <a href="#tumanlar" class="nav-item" @click.prevent="$emit('openNeighborhoods')">Tumanlar</a>
       </nav>
 
       <span class="sp"></span>

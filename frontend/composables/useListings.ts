@@ -146,49 +146,25 @@ export function useListings() {
     }
   }
 
-  const fetchListings = async (page = 1, append = false) => {
-    if (append) {
-      isLoadingMore.value = true
-    } else {
-      isLoading.value = true
-    }
+  const fetchListings = async () => {
+    isLoading.value = true
 
     try {
       const config = useRuntimeConfig()
       const base = config.public.apiBase || ''
 
-      // Construct params for server-side pagination across entire database
-      const params = new URLSearchParams()
-      params.set('page', String(page))
-      params.set('limit', String(pageSize.value))
-      params.set('sort', filterSort.value || 'new')
-
-      if (filterDistrict.value) params.set('district', filterDistrict.value)
-      if (filterRooms.value) params.set('rooms', filterRooms.value)
-      if (filterMaxPrice.value) params.set('max_price', filterMaxPrice.value)
-      if (filterAudience.value && filterAudience.value !== 'all') {
-        params.set('target_audience', filterAudience.value)
-      }
-      if (filterAmenities.value.owner_only) {
-        params.set('owner_only', 'true')
-      }
-
-      const url = `${base}/api/listings?${params.toString()}`
+      // Fetch all listings across entire database so client-side filters have all apartments
+      const url = `${base}/api/listings?limit=1000`
       const data: any = await $fetch(url)
 
       if (data && data.items) {
         const mapped = data.items.map((item: any, idx: number) => mapRawItem(item, idx))
-        if (append) {
-          listings.value = [...listings.value, ...mapped]
-        } else {
-          listings.value = mapped
-        }
-
+        listings.value = mapped
         totalCount.value = data.total ?? mapped.length
-        totalPages.value = data.total_pages ?? Math.max(1, Math.ceil((data.total || 0) / pageSize.value))
-        currentPage.value = page
-        hasNextPage.value = data.has_next ?? (currentPage.value < totalPages.value)
-        hasPrevPage.value = data.has_previous ?? (currentPage.value > 1)
+        totalPages.value = 1
+        currentPage.value = 1
+        hasNextPage.value = false
+        hasPrevPage.value = false
       }
     } catch (err) {
       console.warn('API fetch fallback, loading default listings:', err)
@@ -198,23 +174,8 @@ export function useListings() {
     }
   }
 
-  const loadMoreListings = async () => {
-    if (hasNextPage.value && !isLoadingMore.value) {
-      await fetchListings(currentPage.value + 1, true)
-    }
-  }
-
-  const goToPage = async (page: number) => {
-    if (page >= 1 && page <= totalPages.value && page !== currentPage.value) {
-      await fetchListings(page, false)
-      if (typeof window !== 'undefined') {
-        const el = document.getElementById('takliflar')
-        if (el) {
-          el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-        }
-      }
-    }
-  }
+  const loadMoreListings = async () => {}
+  const goToPage = async (_page: number) => {}
 
   // AI Match Natural Language Query Execution
   const runAiMatch = async (query: string) => {

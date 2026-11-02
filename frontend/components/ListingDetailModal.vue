@@ -335,6 +335,15 @@ const sourceViewLabel = computed(() => {
 <style scoped>
 .exhibition-sheet {
   max-width: 720px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.exhibition-sheet::-webkit-scrollbar,
+.exhibition-body::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
 }
 
 .exhibition-header {
