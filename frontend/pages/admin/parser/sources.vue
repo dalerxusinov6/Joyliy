@@ -183,3 +183,4 @@ const testConnection = async (sourceId: string) => {
 .sc-v { color: var(--ad-text-main); }
 .sc-link { color: var(--ad-primary); text-decoration: none; word-break: break-all; }
 </style>
+

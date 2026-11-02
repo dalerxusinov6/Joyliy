@@ -436,3 +436,4 @@ onMounted(() => {
   transform: translateX(20px);
 }
 </style>
+

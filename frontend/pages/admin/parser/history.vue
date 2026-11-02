@@ -126,3 +126,4 @@ const formatDate = (dateStr?: string) => {
 .badge-red { background: var(--ad-danger-light); color: var(--ad-danger); }
 .text-emerald { color: #10b981; }
 </style>
+

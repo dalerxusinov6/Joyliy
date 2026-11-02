@@ -105,3 +105,4 @@ async def test_admin_protected_routes():
         settings_data = settings_res.json()
         assert "general" in settings_data
         assert "database" in settings_data
+

@@ -268,3 +268,4 @@ const formatDate = (dateStr?: string) => {
 .btn-cancel { background: var(--ad-bg); border: 1px solid var(--ad-border); padding: 7px 14px; border-radius: var(--ad-radius-sm); font-size: 13px; cursor: pointer; }
 .btn-save { background: var(--ad-primary); color: #fff; border: none; padding: 7px 18px; border-radius: var(--ad-radius-sm); font-size: 13px; font-weight: 600; cursor: pointer; }
 </style>
+

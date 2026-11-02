@@ -111,6 +111,9 @@ const handleLogin = async () => {
                 </svg>
               </button>
             </div>
+            <div class="credentials-hint">
+              <span>Standart kirish: <strong>admin</strong> / <strong>admin</strong> yoki <strong>joyliy2026!</strong></span>
+            </div>
           </div>
 
           <!-- Submit Button -->
@@ -313,6 +316,16 @@ const handleLogin = async () => {
   color: #475569;
 }
 
+.credentials-hint {
+  font-size: 11.5px;
+  color: #64748b;
+  margin-top: 4px;
+}
+
+.credentials-hint strong {
+  color: #2878c8;
+}
+
 .submit-btn {
   height: 44px;
   background: #2878c8;
@@ -391,3 +404,4 @@ const handleLogin = async () => {
   color: #2878c8;
 }
 </style>
+

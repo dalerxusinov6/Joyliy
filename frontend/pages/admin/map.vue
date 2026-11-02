@@ -364,3 +364,4 @@ const formatPrice = (price: number = 0, currency: string = 'USD') => {
   font-weight: 600;
 }
 </style>
+

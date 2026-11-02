@@ -1220,3 +1220,4 @@ const maxGrowthCount = computed(() => {
   }
 }
 </style>
+

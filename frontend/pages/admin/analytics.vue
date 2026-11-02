@@ -330,3 +330,4 @@ const formatNumber = (num: number = 0) => new Intl.NumberFormat('uz-UZ').format(
 
 .i-15 { width: 15px; height: 15px; }
 </style>
+
