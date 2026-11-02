@@ -110,6 +110,24 @@ const maxGrowthCount = computed(() => {
             </div>
           </div>
 
+          <!-- Moderation Queue -->
+          <NuxtLink to="/admin/listings?status=pending" class="kpi-card text-decoration-none">
+            <div class="kpi-top">
+              <span class="kpi-label">Moderatsiya Navbati</span>
+              <div class="kpi-icon-box bg-amber">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="12 6 12 12 16 14"/>
+                </svg>
+              </div>
+            </div>
+            <div class="kpi-value text-amber">{{ formatNumber(stats.listings?.pending || stats.summary?.pending_moderation) }}</div>
+            <div class="kpi-footer">
+              <span class="kpi-sub-text">Saytdan tushgan e‘lonlar</span>
+              <span class="kpi-badge-amber">Tasdiqlash →</span>
+            </div>
+          </NuxtLink>
+
           <!-- New Today -->
           <div class="kpi-card">
             <div class="kpi-top">
@@ -666,6 +684,7 @@ const maxGrowthCount = computed(() => {
 }
 
 .text-emerald { color: #10b981; }
+.text-amber { color: #d97706; }
 .text-purple { color: #8b5cf6; }
 .text-danger { color: #ef4444; }
 
@@ -680,6 +699,15 @@ const maxGrowthCount = computed(() => {
 
 .kpi-sub-text {
   color: var(--ad-text-muted);
+}
+
+.kpi-badge-amber {
+  background: rgba(245, 158, 11, 0.15);
+  color: #d97706;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 10.5px;
 }
 
 .kpi-badge-green {

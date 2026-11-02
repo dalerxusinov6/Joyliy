@@ -270,6 +270,39 @@ const executeDelete = async () => {
   }
 }
 
+// Moderation: Approve / Reject
+const approveListing = async (item: any) => {
+  try {
+    const res = await authFetch(`/api/admin/listings/${item.id}/approve`, {
+      method: 'POST',
+    })
+    if (res && (res.success || res.status === 'success')) {
+      showToast(`E‘lon #${item.id} tasdiqlandi va saytda faollashtirildi!`, 'success')
+      await loadListings()
+    } else {
+      showToast(res?.message || 'Tasdiqlashda xatolik yuz berdi', 'error')
+    }
+  } catch (err) {
+    showToast('Server bilan aloqa xatosi', 'error')
+  }
+}
+
+const rejectListing = async (item: any) => {
+  try {
+    const res = await authFetch(`/api/admin/listings/${item.id}/reject`, {
+      method: 'POST',
+    })
+    if (res && (res.success || res.status === 'success')) {
+      showToast(`E‘lon #${item.id} rad etildi`, 'info')
+      await loadListings()
+    } else {
+      showToast(res?.message || 'Rad etishda xatolik yuz berdi', 'error')
+    }
+  } catch (err) {
+    showToast('Server bilan aloqa xatosi', 'error')
+  }
+}
+
 const formatPrice = (price: number = 0, currency: string = 'USD') => {
   const sym = currency === 'USD' ? '$' : 'so‘m'
   return `${new Intl.NumberFormat('uz-UZ').format(price)} ${sym}`
@@ -305,6 +338,42 @@ const formatDate = (dateStr?: string) => {
             Yangi e‘lon qo‘shish
           </button>
         </div>
+      </div>
+
+      <!-- Quick Status Filter Tabs -->
+      <div class="status-quick-tabs">
+        <button
+          type="button"
+          class="status-tab-btn"
+          :class="{ active: status === '' }"
+          @click="status = ''"
+        >
+          Barchasi ({{ pagination.total }})
+        </button>
+        <button
+          type="button"
+          class="status-tab-btn tab-pending"
+          :class="{ active: status === 'pending' }"
+          @click="status = 'pending'"
+        >
+          ⏳ Moderatsiya (Kutilmoqda)
+        </button>
+        <button
+          type="button"
+          class="status-tab-btn"
+          :class="{ active: status === 'active' }"
+          @click="status = 'active'"
+        >
+          🟢 Faol e‘lonlar
+        </button>
+        <button
+          type="button"
+          class="status-tab-btn"
+          :class="{ active: status === 'archived' }"
+          @click="status = 'archived'"
+        >
+          ⚪ Arxiv
+        </button>
       </div>
 
       <!-- Filters Toolbar Card -->
@@ -486,8 +555,14 @@ const formatDate = (dateStr?: string) => {
                   <span class="source-badge">{{ item.source }}</span>
                 </td>
                 <td>
-                  <span class="status-pill" :class="item.status === 'active' ? 'st-active' : 'st-archived'">
-                    {{ item.status === 'active' ? 'Faol' : 'Arxiv' }}
+                  <span
+                    class="status-pill"
+                    :class="{
+                      'st-active': item.is_active,
+                      'st-pending': !item.is_active || item.status === 'pending',
+                    }"
+                  >
+                    {{ item.is_active ? 'Faol' : 'Kutilmoqda' }}
                   </span>
                 </td>
                 <td>
@@ -500,6 +575,31 @@ const formatDate = (dateStr?: string) => {
                 </td>
                 <td class="text-right text-nowrap">
                   <div class="row-actions">
+                    <!-- Approve for moderation -->
+                    <button
+                      v-if="!item.is_active || item.status === 'pending'"
+                      class="act-btn approve-btn"
+                      @click="approveListing(item)"
+                      title="Tasdiqlash va saytda faollashtirish"
+                    >
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <polyline points="20 6 9 17 4 12"/>
+                      </svg>
+                    </button>
+
+                    <!-- Reject for moderation -->
+                    <button
+                      v-if="!item.is_active || item.status === 'pending'"
+                      class="act-btn reject-btn"
+                      @click="rejectListing(item)"
+                      title="Rad etish"
+                    >
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                      </svg>
+                    </button>
+
                     <!-- Dossier Link -->
                     <NuxtLink :to="`/admin/listings/${item.id}`" class="act-btn" title="Batafsil">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -756,6 +856,80 @@ const formatDate = (dateStr?: string) => {
 
 .primary-btn:hover {
   background: var(--ad-primary-hover);
+}
+
+/* Status Quick Filter Tabs */
+.status-quick-tabs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px 0 10px;
+  scrollbar-width: none;
+}
+
+.status-quick-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.status-tab-btn {
+  padding: 7px 14px;
+  border-radius: var(--ad-radius-md);
+  border: 1px solid var(--ad-border);
+  background: var(--ad-surface);
+  color: var(--ad-text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+
+.status-tab-btn:hover {
+  color: var(--ad-text-main);
+  border-color: var(--ad-border-hover);
+}
+
+.status-tab-btn.active {
+  background: #17191D;
+  color: #FFFFFF;
+  border-color: #17191D;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.status-tab-btn.tab-pending.active {
+  background: #D97706;
+  border-color: #D97706;
+  color: #FFFFFF;
+}
+
+.st-pending {
+  background: #FEF3C7;
+  color: #92400E;
+}
+
+.act-btn.approve-btn {
+  background: #ECFDF5;
+  color: #059669;
+  border-color: #A7F3D0;
+}
+
+.act-btn.approve-btn:hover {
+  background: #059669;
+  color: #FFFFFF;
+  border-color: #059669;
+}
+
+.act-btn.reject-btn {
+  background: #FEF2F2;
+  color: #DC2626;
+  border-color: #FECACA;
+}
+
+.act-btn.reject-btn:hover {
+  background: #DC2626;
+  color: #FFFFFF;
+  border-color: #DC2626;
 }
 
 .btn-i {

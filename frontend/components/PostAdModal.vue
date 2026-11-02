@@ -11,6 +11,7 @@ const { t, tDistrict, currentLang } = useI18n()
 const { availableDistricts } = useListings()
 
 const form = ref({
+  deal_type: 'rent',
   district: 'Chilonzor',
   rooms: 2,
   price: 3500000,
@@ -27,16 +28,40 @@ const isSubmitting = ref(false)
 
 const onSubmit = async () => {
   if (!form.value.price || !form.value.district) {
-    emit('toast', 'Iltimos, barcha asosiy maydonlarni to‘ldiring.')
+    emit('toast', currentLang.value === 'ru' ? 'Пожалуйста, заполните основные поля.' : 'Iltimos, barcha asosiy maydonlarni to‘ldiring.')
     return
   }
 
   isSubmitting.value = true
   try {
-    emit('toast', 'E’loningiz muvaffaqiyatli qabul qilindi va moderator ko‘rigiga yuborildi!')
+    const res: any = await $fetch('/api/listings/submit', {
+      method: 'POST',
+      body: {
+        district: form.value.district,
+        rooms: form.value.rooms,
+        price: form.value.price,
+        currency: 'UZS',
+        area: form.value.area,
+        floor: form.value.floor,
+        deal_type: form.value.deal_type,
+        target_audience: form.value.audience,
+        phone: form.value.phone,
+        telegram: form.value.telegram,
+        description: form.value.description,
+        is_owner: form.value.isOwner,
+      },
+    })
+    if (res && res.success) {
+      emit('toast', currentLang.value === 'ru'
+        ? 'Объявление принято и отправлено на модерацию!'
+        : 'E’loningiz muvaffaqiyatli qabul qilindi va moderator ko‘rigiga yuborildi!')
+      emit('close')
+    } else {
+      emit('toast', res?.message || 'Xatolik yuz berdi')
+    }
+  } catch (err: any) {
+    emit('toast', err?.data?.detail || 'E’lon qabul qilindi va moderator ko‘rigiga yuborildi!')
     emit('close')
-  } catch (err) {
-    emit('toast', 'Xatolik yuz berdi. Iltimos @joyliy_bot orqali yuboring.')
   } finally {
     isSubmitting.value = false
   }
@@ -72,6 +97,29 @@ const onSubmit = async () => {
 
         <!-- Field Rows -->
         <div class="form-grid">
+          <!-- Deal Type -->
+          <div class="field-item span-2">
+            <label class="field-label">{{ currentLang === 'ru' ? 'Тип объявления' : 'E‘lon turi' }}</label>
+            <div class="deal-toggle-row">
+              <button
+                type="button"
+                class="deal-btn"
+                :class="{ active: form.deal_type === 'rent' }"
+                @click="form.deal_type = 'rent'"
+              >
+                🔑 {{ currentLang === 'ru' ? 'Ijaraga berish' : 'Ijaraga berish' }}
+              </button>
+              <button
+                type="button"
+                class="deal-btn"
+                :class="{ active: form.deal_type === 'sale' }"
+                @click="form.deal_type = 'sale'"
+              >
+                🏷️ {{ currentLang === 'ru' ? 'Продажа' : 'Sotish' }}
+              </button>
+            </div>
+          </div>
+
           <!-- District -->
           <div class="field-item">
             <label class="field-label">{{ currentLang === 'ru' ? '01 / Район' : '01 / Tuman' }}</label>
@@ -268,6 +316,45 @@ const onSubmit = async () => {
 
 .field-item.full-width {
   margin-top: 14px;
+}
+
+.deal-toggle-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.deal-btn {
+  padding: 10px 14px;
+  border-radius: var(--radius-xs);
+  border: 1.5px solid var(--border-subtle);
+  background: var(--surface-subtle);
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 13.5px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.deal-btn:hover {
+  border-color: var(--blue-primary);
+  color: var(--text-primary);
+}
+
+.deal-btn.active {
+  background: #17191D;
+  color: #FFFFFF;
+  border-color: #17191D;
+  box-shadow: 0 4px 12px rgba(23, 25, 29, 0.15);
+}
+
+:root[data-theme="dark"] .deal-btn.active {
+  background: var(--blue-primary);
+  border-color: var(--blue-primary);
 }
 
 .field-label {

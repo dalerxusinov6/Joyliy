@@ -106,3 +106,66 @@ async def test_admin_protected_routes():
         assert "general" in settings_data
         assert "database" in settings_data
 
+
+@pytest.mark.asyncio
+async def test_public_ad_submission_and_admin_moderation():
+    """Verify that user posted ads are submitted as pending and require admin approval."""
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as ac:
+        # 1. User submits an ad via public website
+        post_data = {
+            "title": "Chilonzorda yangi 2 xonali kvartira sotiladi",
+            "district": "Chilonzor",
+            "rooms": 2,
+            "price": 550000000,
+            "currency": "UZS",
+            "area": 60.0,
+            "floor": "4/9",
+            "deal_type": "sale",
+            "property_type": "secondary",
+            "phone": "+998901234567",
+            "telegram": "@testowner",
+            "description": "Toza va qulay xonadon",
+            "is_owner": True,
+        }
+        submit_res = await ac.post("/api/listings/submit", json=post_data)
+        assert submit_res.status_code == 201
+        res_json = submit_res.json()
+        assert res_json["success"] is True
+        listing_id = res_json["listing_id"]
+
+        # 2. Check that the listing is NOT active in public listings catalog
+        public_res = await ac.get(f"/api/listings/{listing_id}")
+        assert public_res.status_code == 404 or public_res.json().get("is_active") is False
+
+        # 3. Log in as admin
+        login_res = await ac.post(
+            "/api/admin/auth/login",
+            json={"username": "admin", "password": settings.ADMIN_PASSWORD},
+        )
+        token = login_res.json()["token"]
+        headers = {"Authorization": f"Bearer {token}"}
+
+        # 4. Check listing in admin pending list
+        pending_res = await ac.get("/api/admin/listings?status=pending", headers=headers)
+        assert pending_res.status_code == 200
+        pending_items = pending_res.json()["items"]
+        assert any(item["id"] == listing_id for item in pending_items)
+
+        # 5. Admin approves listing
+        approve_res = await ac.post(
+            f"/api/admin/listings/{listing_id}/approve",
+            headers=headers,
+        )
+        assert approve_res.status_code == 200
+        assert approve_res.json()["success"] is True
+
+        # 6. Verify listing is now active
+        detail_res = await ac.get(f"/api/admin/listings/{listing_id}", headers=headers)
+        assert detail_res.status_code == 200
+        detail_data = detail_res.json()
+        assert detail_data["is_active"] is True
+        assert detail_data["status"] == "active"
+
+

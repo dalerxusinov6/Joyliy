@@ -232,12 +232,13 @@ const applyQuick = (type: string, val: string) => {
                     <div class="field-select-wrap">
                       <select v-model="filterMaxPrice" class="iconly-select" :aria-label="t('max_budget')">
                         <option value="">{{ t('any') }}</option>
-                        <option value="400000000">400 {{ t('mln_som') }}</option>
-                        <option value="600000000">600 {{ t('mln_som') }}</option>
-                        <option value="800000000">800 {{ t('mln_som') }}</option>
-                        <option value="1200000000">1.2 {{ t('mlrd_som') }}</option>
-                        <option value="2000000000">2.0 {{ t('mlrd_som') }}</option>
-                        <option value="3500000000">3.5 {{ t('mlrd_som') }}</option>
+                        <option value="390000000">$30 000 gacha</option>
+                        <option value="650000000">$50 000 gacha</option>
+                        <option value="975000000">$75 000 gacha</option>
+                        <option value="1300000000">$100 000 gacha</option>
+                        <option value="1950000000">$150 000 gacha</option>
+                        <option value="3250000000">$250 000 gacha</option>
+                        <option value="6500000000">$500 000+</option>
                       </select>
                     </div>
                   </div>
@@ -460,15 +461,15 @@ const applyQuick = (type: string, val: string) => {
 
 @media (min-width: 1024px) {
   .hero-inner-grid {
-    grid-template-columns: 1.5fr 0.75fr;
-    gap: 28px;
+    grid-template-columns: 1.65fr 0.75fr;
+    gap: 32px;
   }
 }
 
 @media (min-width: 1280px) {
   .hero-inner-grid {
-    grid-template-columns: 1.55fr 0.75fr;
-    gap: 36px;
+    grid-template-columns: 1.7fr 0.75fr;
+    gap: 40px;
   }
 }
 
@@ -892,8 +893,16 @@ const applyQuick = (type: string, val: string) => {
 
 @media (min-width: 1024px) {
   .console-fields-row {
-    grid-template-columns: 1.2fr 1fr 1.3fr 1.15fr auto;
-    gap: 8px;
+    grid-template-columns: 1.35fr 1fr 1.4fr 1.25fr auto;
+    gap: 10px;
+    align-items: flex-end;
+  }
+}
+
+@media (min-width: 1280px) {
+  .console-fields-row {
+    grid-template-columns: 1.45fr 1.05fr 1.5fr 1.3fr auto;
+    gap: 12px;
     align-items: flex-end;
   }
 }
@@ -922,12 +931,12 @@ const applyQuick = (type: string, val: string) => {
   min-width: 0;
   min-height: 44px;
   height: 44px;
-  padding: 0 20px 0 9px;
+  padding: 0 24px 0 11px;
   background-color: var(--surface-subtle);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
   color: var(--text-primary);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
   outline: none;
   transition: all 0.18s ease;
@@ -939,7 +948,7 @@ const applyQuick = (type: string, val: string) => {
   -moz-appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 6px center;
+  background-position: right 8px center;
   background-size: 11px;
   cursor: pointer;
 }
@@ -948,10 +957,10 @@ const applyQuick = (type: string, val: string) => {
   .iconly-select {
     min-height: 42px;
     height: 42px;
-    padding: 0 18px 0 8px;
-    font-size: 12px;
+    padding: 0 22px 0 9px;
+    font-size: 12.5px;
     border-radius: 10px;
-    background-position: right 6px center;
+    background-position: right 7px center;
   }
 }
 

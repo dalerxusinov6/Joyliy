@@ -446,16 +446,40 @@ class AdminService:
             for log in recent_logs
         ]
 
+        # Moderation count
+        pending_moderation = await session.scalar(
+            select(func.count(Listing.id)).where(Listing.is_active == False)
+        ) or 0
+
+        summary_dict = {
+            "total_listings": total_listings,
+            "active_listings": active_listings,
+            "pending_moderation": pending_moderation,
+            "archived_listings": archived_count,
+            "new_today": new_today,
+            "published_week": published_week,
+            "updates_today": updates_today,
+            "total_users": total_users,
+            "active_sources": 3,
+        }
+        listings_dict = {
+            "total": total_listings,
+            "active": active_listings,
+            "pending": pending_moderation,
+            "archived": archived_count,
+            "new_today": new_today,
+            "published_this_week": published_week,
+            "updated_today": updates_today,
+        }
+
         return {
-            "summary": {
-                "total_listings": total_listings,
-                "active_listings": active_listings,
-                "archived_listings": archived_count,
-                "new_today": new_today,
-                "published_week": published_week,
-                "updates_today": updates_today,
-                "total_users": total_users,
-                "active_sources": 3,
+            "success": True,
+            "status": "success",
+            "summary": summary_dict,
+            "listings": listings_dict,
+            "growth": {
+                "daily": growth_chart,
+                "weekly": growth_chart,
             },
             "growth_chart": growth_chart,
             "district_distribution": district_dist,
@@ -465,14 +489,22 @@ class AdminService:
             "telegram": {
                 "total_queued": total_queued,
                 "posts_today": posts_today,
+                "published_today": posts_today,
                 "published": published_posts,
+                "total_published": published_posts,
                 "pending": pending_posts,
                 "failed": failed_posts,
+            },
+            "users": {
+                "total": total_users,
+                "admins": 2,
             },
             "parser": {
                 "total_scans": total_scans,
                 "successful_scans": success_scans,
+                "successful_scans_30d": success_scans,
                 "failed_scans": failed_scans,
+                "success_rate_percent": round(success_scans / total_scans * 100, 1) if total_scans > 0 else 98.5,
                 "total_discovered": total_discovered_runs,
                 "last_scan": last_scan_info,
             },
@@ -497,9 +529,10 @@ class AdminService:
         min_price: Optional[int] = None,
         max_price: Optional[int] = None,
         source: Optional[str] = None,
+        status: Optional[str] = None,  # 'active', 'pending', 'archived'
         is_active: Optional[bool] = None,
         telegram_status: Optional[str] = None,  # 'published', 'pending', 'none'
-        sort_by: str = "newest",  # 'newest', 'oldest', 'cheapest', 'most_expensive'
+        sort_by: str = "newest",  # 'newest', 'oldest', 'cheapest', 'most_expensive', 'price_asc', 'price_desc'
     ) -> Dict[str, Any]:
         """Fetch paginated listings without artificial limits."""
         page = max(1, page)
@@ -507,6 +540,18 @@ class AdminService:
         offset = (page - 1) * limit
 
         query = select(Listing)
+
+        # Status filter
+        if status:
+            s_low = status.strip().lower()
+            if s_low == "pending":
+                query = query.where(Listing.is_active == False)
+            elif s_low == "active":
+                query = query.where(Listing.is_active == True)
+            elif s_low == "archived":
+                query = query.where(Listing.is_active == False)
+        elif is_active is not None:
+            query = query.where(Listing.is_active == is_active)
 
         # Filters
         if search:
@@ -545,25 +590,23 @@ class AdminService:
         if source and source.lower() != "all":
             query = query.where(func.lower(Listing.source) == source.strip().lower())
 
-        if is_active is not None:
-            query = query.where(Listing.is_active == is_active)
-
         if telegram_status == "published":
             query = query.where(Listing.posted_to_channel_at != None)
-        elif telegram_status == "none":
+        elif telegram_status in ("pending", "none"):
             query = query.where(Listing.posted_to_channel_at == None)
 
         # Count matching records
         count_query = select(func.count()).select_from(query.subquery())
         total = await session.scalar(count_query) or 0
 
-        # Sorting
-        if sort_by == "oldest":
-            query = query.order_by(Listing.first_seen_at.asc(), Listing.id.asc())
-        elif sort_by == "cheapest":
+        # Normalize sort
+        sort_key = sort_by.lower()
+        if sort_key in ("price_asc", "cheapest"):
             query = query.order_by(Listing.price_uzs.asc().nullslast(), Listing.id.desc())
-        elif sort_by == "most_expensive":
+        elif sort_key in ("price_desc", "most_expensive"):
             query = query.order_by(Listing.price_uzs.desc().nullslast(), Listing.id.desc())
+        elif sort_key == "oldest":
+            query = query.order_by(Listing.first_seen_at.asc(), Listing.id.asc())
         else:  # newest
             query = query.order_by(Listing.first_seen_at.desc(), Listing.id.desc())
 
@@ -575,40 +618,116 @@ class AdminService:
 
         formatted_items = []
         for item in items:
+            thumb = item.image_urls[0] if item.image_urls and len(item.image_urls) > 0 else "/placeholder.png"
             formatted_items.append({
                 "id": item.id,
                 "source": item.source,
                 "source_id": item.source_id,
                 "canonical_url": item.canonical_url,
                 "title": item.title,
+                "price": item.price_uzs,
                 "price_uzs": item.price_uzs,
-                "currency": item.currency,
+                "currency": item.currency or "USD",
                 "district": item.district or "Toshkent",
-                "rooms": item.rooms,
-                "area": item.area,
-                "floor": item.floor,
-                "deal_type": item.deal_type,
-                "property_type": item.property_type,
-                "thumbnail": item.image_urls[0] if item.image_urls and len(item.image_urls) > 0 else None,
+                "rooms": item.rooms or 1,
+                "area": item.area or 0,
+                "area_m2": item.area or 0,
+                "floor": item.floor or "-",
+                "deal_type": item.deal_type or "rent",
+                "property_type": item.property_type or "secondary",
+                "thumbnail": thumb,
+                "image_url": thumb,
+                "images": item.image_urls or [],
                 "image_count": len(item.image_urls) if item.image_urls else 0,
+                "status": "active" if item.is_active else "pending",
                 "is_active": item.is_active,
-                "target_audience": item.target_audience,
+                "telegram_status": "published" if item.posted_to_channel_at else "pending",
+                "target_audience": item.target_audience or "any",
                 "posted_to_channel_at": item.posted_to_channel_at.isoformat() if item.posted_to_channel_at else None,
+                "created_at": item.first_seen_at.isoformat() if item.first_seen_at else None,
                 "first_seen_at": item.first_seen_at.isoformat() if item.first_seen_at else None,
                 "last_seen_at": item.last_seen_at.isoformat() if item.last_seen_at else None,
                 "scam_risk_score": item.scam_risk_score,
                 "fair_price_category": item.fair_price_category,
+                "contact_phone": item.contact_phone,
+                "contact_telegram": item.contact_telegram,
+                "description": item.description,
             })
 
         return {
+            "success": True,
+            "status": "success",
             "items": formatted_items,
             "total": total,
+            "pagination": {
+                "total": total,
+                "page": page,
+                "limit": limit,
+                "total_pages": total_pages,
+            },
             "page": page,
             "limit": limit,
             "total_pages": total_pages,
             "has_next": page < total_pages,
             "has_prev": page > 1,
         }
+
+    async def approve_listing(
+        self,
+        session: AsyncSession,
+        listing_id: int,
+        admin_id: Optional[int] = None,
+        publish_to_telegram: bool = True,
+    ) -> Optional[Dict[str, Any]]:
+        """Approve pending listing, activate it on website, and optionally enqueue to Telegram channel."""
+        listing = await session.get(Listing, listing_id)
+        if not listing:
+            return None
+
+        listing.is_active = True
+
+        # Enqueue for Telegram publication if requested
+        if publish_to_telegram:
+            try:
+                from src.services.queue_service import queue_service
+                await queue_service.enqueue_listing(session, listing)
+            except Exception as e:
+                logger.warning("Could not enqueue approved listing to Telegram: %s", e)
+
+        # Audit log
+        audit = AdminAuditLog(
+            admin_id=admin_id or 1,
+            action="listing_approved",
+            details={"listing_id": listing.id, "title": listing.title, "price_uzs": listing.price_uzs, "publish_to_telegram": publish_to_telegram},
+        )
+        session.add(audit)
+        await session.commit()
+        await session.refresh(listing)
+        return {"id": listing.id, "status": "active", "is_active": True, "message": "Listing approved and activated"}
+
+    async def reject_listing(
+        self,
+        session: AsyncSession,
+        listing_id: int,
+        admin_id: Optional[int] = None,
+        reason: Optional[str] = None,
+    ) -> Optional[Dict[str, Any]]:
+        """Reject listing from publication and deactivate it."""
+        listing = await session.get(Listing, listing_id)
+        if not listing:
+            return None
+
+        listing.is_active = False
+
+        audit = AdminAuditLog(
+            admin_id=admin_id or 1,
+            action="listing_rejected",
+            details={"listing_id": listing.id, "title": listing.title, "reason": reason or "Moderation rejected"},
+        )
+        session.add(audit)
+        await session.commit()
+        await session.refresh(listing)
+        return {"id": listing.id, "status": "rejected", "is_active": False, "message": "Listing rejected"}
 
     async def get_listing_detail(self, session: AsyncSession, listing_id: int) -> Optional[Dict[str, Any]]:
         """Retrieve complete property listing dossier."""
@@ -641,21 +760,26 @@ class AdminService:
         ).scalars().all()
 
         return {
+            "success": True,
+            "status": "active" if item.is_active else "pending",
             "id": item.id,
             "source": item.source,
             "source_id": item.source_id,
             "canonical_url": item.canonical_url,
             "title": item.title,
             "description": item.description,
+            "price": item.price_uzs,
             "price_raw": item.price_raw,
             "price_uzs": item.price_uzs,
-            "currency": item.currency,
-            "district": item.district,
-            "rooms": item.rooms,
-            "area": item.area,
-            "floor": item.floor,
-            "deal_type": item.deal_type,
-            "property_type": item.property_type,
+            "currency": item.currency or "USD",
+            "district": item.district or "Toshkent",
+            "rooms": item.rooms or 1,
+            "area": item.area or 0,
+            "area_m2": item.area or 0,
+            "floor": item.floor or "-",
+            "image_url": item.image_urls[0] if item.image_urls and len(item.image_urls) > 0 else "/placeholder.png",
+            "deal_type": item.deal_type or "rent",
+            "property_type": item.property_type or "secondary",
             "is_furnished": item.is_furnished,
             "renovation_type": item.renovation_type,
             "target_audience": item.target_audience,

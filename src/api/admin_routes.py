@@ -235,13 +235,16 @@ async def list_listings(
     min_price: Optional[int] = Query(None),
     max_price: Optional[int] = Query(None),
     source: Optional[str] = Query(None),
+    status: Optional[str] = Query(None),
     is_active: Optional[bool] = Query(None),
     telegram_status: Optional[str] = Query(None),
-    sort_by: str = Query("newest"),
+    sort: Optional[str] = Query(None),
+    sort_by: Optional[str] = Query(None),
     current_admin: Dict[str, Any] = Depends(get_current_admin),
     session: AsyncSession = Depends(get_db_session),
 ):
     """Paginated listing management across full database."""
+    chosen_sort = sort or sort_by or "newest"
     return await admin_service.get_listings(
         session=session,
         page=page,
@@ -254,10 +257,51 @@ async def list_listings(
         min_price=min_price,
         max_price=max_price,
         source=source,
+        status=status,
         is_active=is_active,
         telegram_status=telegram_status,
-        sort_by=sort_by,
+        sort_by=chosen_sort,
     )
+
+
+@admin_router.post("/listings/{listing_id}/approve")
+async def approve_listing(
+    listing_id: int,
+    publish_to_telegram: bool = Query(True),
+    current_admin: Dict[str, Any] = Depends(require_role(["super_admin", "admin", "editor"])),
+    session: AsyncSession = Depends(get_db_session),
+):
+    """Approve a pending listing, activate it on website, and optionally publish to Telegram."""
+    admin_id = int(current_admin.get("sub", 1))
+    res = await admin_service.approve_listing(
+        session=session,
+        listing_id=listing_id,
+        admin_id=admin_id,
+        publish_to_telegram=publish_to_telegram,
+    )
+    if not res:
+        raise HTTPException(status_code=404, detail="Listing not found")
+    return {"success": True, "status": "success", "data": res}
+
+
+@admin_router.post("/listings/{listing_id}/reject")
+async def reject_listing(
+    listing_id: int,
+    reason: Optional[str] = Query(None),
+    current_admin: Dict[str, Any] = Depends(require_role(["super_admin", "admin", "editor"])),
+    session: AsyncSession = Depends(get_db_session),
+):
+    """Reject a listing and deactivate it."""
+    admin_id = int(current_admin.get("sub", 1))
+    res = await admin_service.reject_listing(
+        session=session,
+        listing_id=listing_id,
+        admin_id=admin_id,
+        reason=reason,
+    )
+    if not res:
+        raise HTTPException(status_code=404, detail="Listing not found")
+    return {"success": True, "status": "success", "data": res}
 
 
 @admin_router.get("/listings/{listing_id}")
@@ -270,7 +314,12 @@ async def get_listing_detail(
     detail = await admin_service.get_listing_detail(session, listing_id)
     if not detail:
         raise HTTPException(status_code=404, detail="Listing not found")
-    return detail
+    return {
+        "success": True,
+        "status": "success",
+        "item": detail,
+        **detail,
+    }
 
 
 @admin_router.post("/listings")

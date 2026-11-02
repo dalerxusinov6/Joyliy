@@ -111,6 +111,38 @@ const publishToTelegram = async () => {
   }
 }
 
+const approveListing = async () => {
+  try {
+    const res = await authFetch(`/api/admin/listings/${listingId}/approve`, {
+      method: 'POST',
+    })
+    if (res && (res.success || res.status === 'success')) {
+      showToast('E‘lon tasdiqlandi va saytda faollashtirildi!', 'success')
+      await loadListingDetail()
+    } else {
+      showToast(res?.message || 'Tasdiqlashda xatolik yuz berdi', 'error')
+    }
+  } catch (err) {
+    showToast('Server bilan aloqa xatosi', 'error')
+  }
+}
+
+const rejectListing = async () => {
+  try {
+    const res = await authFetch(`/api/admin/listings/${listingId}/reject`, {
+      method: 'POST',
+    })
+    if (res && (res.success || res.status === 'success')) {
+      showToast('E‘lon rad etildi', 'info')
+      await loadListingDetail()
+    } else {
+      showToast(res?.message || 'Rad etishda xatolik yuz berdi', 'error')
+    }
+  } catch (err) {
+    showToast('Server bilan aloqa xatosi', 'error')
+  }
+}
+
 onMounted(() => {
   loadListingDetail()
 })
@@ -169,6 +201,21 @@ const formatDate = (dateStr?: string) => {
               </svg>
               Asl manba
             </a>
+
+            <button v-if="listing && !listing.is_active" class="approve-action-btn" @click="approveListing">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="btn-icon">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              Tasdiqlash (Aktiv qilish)
+            </button>
+
+            <button v-if="listing && !listing.is_active" class="reject-action-btn" @click="rejectListing">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="btn-icon">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+              Rad etish
+            </button>
 
             <button class="tg-publish-btn" @click="publishToTelegram">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon">
@@ -461,6 +508,48 @@ const formatDate = (dateStr?: string) => {
 
 .st-act { background: var(--ad-success-light); color: var(--ad-success); }
 .st-arc { background: var(--ad-border-subtle); color: var(--ad-text-muted); }
+
+.approve-action-btn {
+  background: #059669;
+  color: #fff;
+  border: none;
+  border-radius: var(--ad-radius-md);
+  padding: 8px 16px;
+  font-size: 13.5px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(5, 150, 105, 0.2);
+}
+
+.approve-action-btn:hover {
+  background: #047857;
+  transform: translateY(-1px);
+}
+
+.reject-action-btn {
+  background: #DC2626;
+  color: #fff;
+  border: none;
+  border-radius: var(--ad-radius-md);
+  padding: 8px 16px;
+  font-size: 13.5px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.2);
+}
+
+.reject-action-btn:hover {
+  background: #B91C1C;
+  transform: translateY(-1px);
+}
 
 .dh-right {
   display: flex;

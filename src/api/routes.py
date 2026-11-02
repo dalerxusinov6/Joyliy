@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import asyncio
+import time
+import uuid
 from datetime import datetime, timezone
 from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
@@ -32,6 +34,7 @@ from src.api.schemas import (
     HealthResponse,
     MonitorStatusResponse,
     ManualListingIngestRequest,
+    PublicAdSubmissionRequest,
     ClassificationResponse,
     TelegramLoginSessionResponse,
     TelegramSessionCheckResponse,
@@ -328,6 +331,70 @@ async def ingest_manual_listing(
     listing, is_new = await listing_service.ingest_raw_listing(session, raw_item)
 
     return to_listing_response(listing)
+
+
+@api_router.post(
+    "/listings/submit",
+    status_code=status.HTTP_201_CREATED,
+)
+async def submit_public_listing(
+    req: PublicAdSubmissionRequest,
+    session: AsyncSession = Depends(get_db_session),
+):
+    """
+    Public ad submission from Joyliy.uz website.
+    Always saved with is_active = False (Pending moderation).
+    Requires administrator approval before appearing in public catalog or Telegram channel.
+    """
+    final_price = req.price or req.price_uzs
+    if not final_price or final_price <= 0:
+        raise HTTPException(status_code=400, detail="Narx ko‘rsatilishi shart")
+
+    now = datetime.now(timezone.utc)
+    unique_suffix = f"{int(time.time())}_{uuid.uuid4().hex[:6]}"
+    source_id = f"web_{unique_suffix}"
+    canonical_url = f"https://joyliy.uz/listings/{unique_suffix}"
+
+    final_title = req.title or f"{req.district}da {req.rooms} xonali xonadon"
+    target_aud = req.target_audience or req.audience or "all"
+    deal = req.deal_type or "rent"
+
+    new_listing = Listing(
+        source="website_user",
+        source_id=source_id,
+        canonical_url=canonical_url,
+        title=final_title,
+        price_raw=f"{final_price} {req.currency}",
+        price_uzs=final_price,
+        currency=req.currency or "UZS",
+        district=req.district,
+        rooms=req.rooms,
+        area=req.area,
+        floor=req.floor or "3/9",
+        deal_type=deal,
+        property_type=req.property_type or "secondary",
+        target_audience=target_aud,
+        contact_phone=req.phone,
+        contact_telegram=req.telegram,
+        description=req.description or "",
+        image_urls=req.image_urls or [],
+        is_active=False,  # ALWAYS False until admin approves!
+        is_furnished=True,
+        first_seen_at=now,
+        last_seen_at=now,
+        posted_to_channel_at=None,
+    )
+
+    session.add(new_listing)
+    await session.commit()
+    await session.refresh(new_listing)
+
+    return {
+        "success": True,
+        "status": "success",
+        "message": "E‘loningiz muvaffaqiyatli qabul qilindi va moderator ko‘rigiga yuborildi. Tasdiqlangach saytda e‘lon qilinadi!",
+        "listing_id": new_listing.id,
+    }
 
 
 # --- Telegram Authentication Routes ---

@@ -136,6 +136,27 @@ class ManualListingIngestRequest(BaseModel):
     image_urls: List[str] = Field(default_factory=list)
 
 
+class PublicAdSubmissionRequest(BaseModel):
+    title: Optional[str] = None
+    district: str
+    rooms: int = 2
+    price: Optional[int] = None
+    price_uzs: Optional[int] = None
+    currency: str = "UZS"
+    area: float = 55.0
+    floor: Optional[str] = "3/9"
+    total_floors: Optional[int] = 9
+    deal_type: str = "rent"
+    property_type: str = "secondary"
+    audience: Optional[str] = "all"
+    target_audience: Optional[str] = "all"
+    phone: Optional[str] = None
+    telegram: Optional[str] = None
+    description: Optional[str] = ""
+    is_owner: bool = True
+    image_urls: List[str] = Field(default_factory=list)
+
+
 class AuthUserResponse(BaseModel):
     id: int
     telegram_id: int
