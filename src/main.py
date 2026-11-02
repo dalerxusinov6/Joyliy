@@ -50,7 +50,7 @@ async def run_application(mode: str = "all"):
             logger.warning("Telegram Bot is disabled (valid BOT_TOKEN not configured).")
 
     # 3. Setup Monitor Worker & Channel Scheduler if requested
-    if mode in ("all", "worker"):
+    if mode in ("all", "worker", "monitor"):
         monitor_worker.start()
         channel_scheduler.start()
         logger.info("Background Monitor Worker and Channel Scheduler started.")
@@ -90,9 +90,8 @@ async def run_application(mode: str = "all"):
     if mode in ("all", "bot") and dp and bot:
         # Determine whether to use webhook or long polling
         bot_mode = (os.getenv("BOT_MODE") or settings.BOT_MODE or "auto").lower()
-        render_external_url = os.getenv("RENDER_EXTERNAL_URL") or settings.WEBSITE_URL
-        if render_external_url and "render" in render_external_url:
-            render_external_url = "https://joyliy.uz"
+        custom_webhook_url = os.getenv("WEBHOOK_URL")
+        render_external_url = os.getenv("RENDER_EXTERNAL_URL")
 
         is_cloud_render = bool(
             os.getenv("RENDER")
@@ -101,14 +100,40 @@ async def run_application(mode: str = "all"):
             or (os.getenv("PORT") and os.getenv("PORT") != "8000")
         )
 
-        use_webhook = (bot_mode == "webhook") or (bot_mode != "polling" and is_cloud_render)
+        use_webhook = (bot_mode == "webhook") or (bot_mode != "polling" and is_cloud_render and bool(custom_webhook_url or render_external_url))
+
+        async def run_bot_polling():
+            # Reset webhook and drop backlog to ensure clean polling state
+            try:
+                await bot.delete_webhook(drop_pending_updates=True)
+                logger.info("Telegram webhook deleted and pending updates cleared.")
+            except Exception as e:
+                logger.warning("Could not delete webhook: %s", e)
+
+            while not stop_event.is_set():
+                try:
+                    logger.info("Starting aiogram dispatcher polling...")
+                    await dp.start_polling(bot, handle_signals=False)
+                except Exception as exc:
+                    exc_str = str(exc)
+                    if "TelegramConflictError" in str(type(exc)) or "terminated by other getUpdates" in exc_str or "Conflict" in exc_str:
+                        logger.warning("Telegram conflict detected (another bot instance running). Backing off for 15s...")
+                        try:
+                            await asyncio.wait_for(stop_event.wait(), timeout=15.0)
+                        except asyncio.TimeoutError:
+                            pass
+                    else:
+                        logger.warning("Telegram bot polling error (%s). Re-checking in 5s...", exc)
+                        try:
+                            await asyncio.wait_for(stop_event.wait(), timeout=5.0)
+                        except asyncio.TimeoutError:
+                            pass
 
         if use_webhook:
             register_bot_webhook(bot, dp)
-            webhook_base = render_external_url or "https://joyliy.uz"
-            if "render" in webhook_base:
-                webhook_base = "https://joyliy.uz"
-            webhook_url = f"{webhook_base.rstrip('/')}/api/telegram-webhook"
+            webhook_base = custom_webhook_url or render_external_url or settings.WEBSITE_URL or "https://joyliy.uz"
+            webhook_url = webhook_base if webhook_base.endswith("/api/telegram-webhook") else f"{webhook_base.rstrip('/')}/api/telegram-webhook"
+            webhook_ok = False
             try:
                 # Reset webhook and drop backlog to ensure clean webhook registration
                 await bot.delete_webhook(drop_pending_updates=True)
@@ -119,36 +144,14 @@ async def run_application(mode: str = "all"):
                     allowed_updates=["message", "callback_query"],
                 )
                 logger.info("Telegram Bot Webhook configured successfully: %s", webhook_url)
+                webhook_ok = True
             except Exception as err:
-                logger.error("Failed to set Telegram webhook: %s", err)
-        else:
-            logger.info("Starting Telegram Bot long-polling (local mode)...")
-            async def run_bot_polling():
-                # Reset webhook and drop backlog to ensure clean polling state
-                try:
-                    await bot.delete_webhook(drop_pending_updates=True)
-                    logger.info("Telegram webhook deleted and pending updates cleared.")
-                except Exception as e:
-                    logger.warning("Could not delete webhook: %s", e)
+                logger.error("Failed to set Telegram webhook (%s): %s. Falling back to polling...", webhook_url, err)
 
-                while not stop_event.is_set():
-                    try:
-                        logger.info("Starting aiogram dispatcher polling...")
-                        await dp.start_polling(bot, handle_signals=False)
-                    except Exception as exc:
-                        exc_str = str(exc)
-                        if "TelegramConflictError" in str(type(exc)) or "terminated by other getUpdates" in exc_str or "Conflict" in exc_str:
-                            logger.warning("Telegram conflict detected (another bot instance running). Backing off for 15s...")
-                            try:
-                                await asyncio.wait_for(stop_event.wait(), timeout=15.0)
-                            except asyncio.TimeoutError:
-                                pass
-                        else:
-                            logger.warning("Telegram bot polling error (%s). Re-checking in 5s...", exc)
-                            try:
-                                await asyncio.wait_for(stop_event.wait(), timeout=5.0)
-                            except asyncio.TimeoutError:
-                                pass
+            if not webhook_ok:
+                tasks.append(asyncio.create_task(run_bot_polling()))
+        else:
+            logger.info("Starting Telegram Bot long-polling...")
             tasks.append(asyncio.create_task(run_bot_polling()))
 
     try:
@@ -187,7 +190,7 @@ def main():
     parser = argparse.ArgumentParser(description="Joyliy Apartment Rental Bot and Monitor")
     parser.add_argument(
         "--mode",
-        choices=["all", "bot", "worker", "api"],
+        choices=["all", "bot", "worker", "monitor", "api"],
         default="all",
         help="Subsystem mode to run (default: all)",
     )

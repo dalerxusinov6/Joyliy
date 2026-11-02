@@ -73,7 +73,7 @@ services:
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-uyda}
       REDIS_URL: redis://redis:6379/0
     command: >
-      python -m src.main --mode monitor
+      python -m src.main --mode worker
 
 volumes:
   postgres_data:

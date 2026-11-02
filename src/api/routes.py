@@ -128,6 +128,7 @@ def to_listing_response(item: Listing) -> ListingResponse:
 
 
 @api_router.get("/health", response_model=HealthResponse)
+@api_router.head("/health")
 async def check_health(session: AsyncSession = Depends(get_db_session)):
     """System health check verifying database connectivity."""
     db_ok = False

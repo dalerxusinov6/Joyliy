@@ -9,12 +9,22 @@ from src.classification.types import ClassificationLabel
 
 @pytest.mark.asyncio
 async def test_api_health(api_client: AsyncClient):
-    """Verify GET /api/health returns 200 and db connectivity."""
+    """Verify GET and HEAD /api/health and /health return 200 and db connectivity."""
     resp = await api_client.get("/api/health")
     assert resp.status_code == 200
     data = resp.json()
     assert data["status"] == "OK"
     assert data["database_connected"] is True
+
+    # Test HEAD requests (vital for cloud load balancer and health check probes)
+    head_resp = await api_client.head("/api/health")
+    assert head_resp.status_code == 200
+
+    head_root_health = await api_client.head("/health")
+    assert head_root_health.status_code == 200
+
+    get_root_health = await api_client.get("/health")
+    assert get_root_health.status_code == 200
 
 
 @pytest.mark.asyncio

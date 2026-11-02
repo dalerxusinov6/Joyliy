@@ -40,6 +40,18 @@ def create_app() -> FastAPI:
     app.include_router(api_router)
     app.include_router(admin_router)
 
+    # Top-level Health Checks supporting both GET and HEAD for Render/AWS/Cloud health checkers
+    @app.get("/health", include_in_schema=False)
+    @app.head("/health", include_in_schema=False)
+    @app.head("/api/health", include_in_schema=False)
+    @app.head("/", include_in_schema=False)
+    async def health_ping():
+        return Response(
+            content='{"status":"OK","healthy":true}',
+            media_type="application/json",
+            status_code=200,
+        )
+
     # Mount modern compiled Nuxt frontend (frontend_dist) if available
     base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     frontend_dist = os.path.join(base_dir, "frontend_dist")
