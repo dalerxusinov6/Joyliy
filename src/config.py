@@ -101,7 +101,7 @@ class Settings(BaseSettings):
         description="Redis connection URL for caching, queues, and distributed locks (e.g. redis://localhost:6379/0)",
     )
     WEBSITE_URL: str = Field(
-        default="https://joyliy.onrender.com",
+        default="https://joyliy.uz",
         description="Public URL of Joyliy frontend website",
     )
     BOT_MODE: str = Field(
@@ -213,11 +213,13 @@ class Settings(BaseSettings):
     @field_validator("WEBSITE_URL", mode="before")
     @classmethod
     def resolve_website_url(cls, v: Any) -> str:
-        import os
-        render_url = os.environ.get("RENDER_EXTERNAL_URL")
-        if render_url and (not v or v == "http://localhost:3000"):
-            return render_url.rstrip("/")
-        return v or "http://localhost:3000"
+        if isinstance(v, str):
+            v = v.strip().rstrip("/")
+            if "render" in v:
+                return "https://joyliy.uz"
+            if v and v != "http://localhost:3000":
+                return v
+        return v or "https://joyliy.uz"
 
     @field_validator("ADMIN_IDS", mode="before")
     @classmethod

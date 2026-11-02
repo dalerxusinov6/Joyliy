@@ -6,7 +6,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PYTHONPATH=/app \
     RENDER=true \
-    WEBSITE_URL=https://joyliy.onrender.com \
+    WEBSITE_URL=https://joyliy.uz \
     BOT_MODE=webhook
 
 WORKDIR /app

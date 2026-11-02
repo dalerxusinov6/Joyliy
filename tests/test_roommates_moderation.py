@@ -122,3 +122,4 @@ async def test_roommate_submission_and_admin_moderation():
         del_res = await ac.delete(f"/api/admin/roommates/{profile_id_2}", headers=headers)
         assert del_res.status_code == 200
         assert del_res.json()["success"] is True
+

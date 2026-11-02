@@ -90,16 +90,14 @@ async def run_application(mode: str = "all"):
     if mode in ("all", "bot") and dp and bot:
         # Determine whether to use webhook or long polling
         bot_mode = (os.getenv("BOT_MODE") or settings.BOT_MODE or "auto").lower()
-        render_external_url = (
-            os.getenv("RENDER_EXTERNAL_URL")
-            or (settings.WEBSITE_URL if "onrender.com" in settings.WEBSITE_URL else None)
-        )
+        render_external_url = os.getenv("RENDER_EXTERNAL_URL") or settings.WEBSITE_URL
+        if render_external_url and "render" in render_external_url:
+            render_external_url = "https://joyliy.uz"
+
         is_cloud_render = bool(
             os.getenv("RENDER")
             or os.getenv("RENDER_SERVICE_ID")
             or os.getenv("RENDER_INSTANCE_ID")
-            or render_external_url
-            or ("onrender.com" in settings.WEBSITE_URL)
             or (os.getenv("PORT") and os.getenv("PORT") != "8000")
         )
 
@@ -107,7 +105,9 @@ async def run_application(mode: str = "all"):
 
         if use_webhook:
             register_bot_webhook(bot, dp)
-            webhook_base = render_external_url or "https://joyliy.onrender.com"
+            webhook_base = render_external_url or "https://joyliy.uz"
+            if "render" in webhook_base:
+                webhook_base = "https://joyliy.uz"
             webhook_url = f"{webhook_base.rstrip('/')}/api/telegram-webhook"
             try:
                 # Reset webhook and drop backlog to ensure clean webhook registration

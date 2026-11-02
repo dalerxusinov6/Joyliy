@@ -81,7 +81,7 @@ class FreeLLMService:
         headers = {
             "Authorization": f"Bearer {key}",
             "Content-Type": "application/json",
-            "HTTP-Referer": "https://joyliy.onrender.com",
+            "HTTP-Referer": "https://joyliy.uz",
             "X-Title": "Joyliy PropTech Qwen",
         }
         for qwen_model in [
@@ -549,7 +549,7 @@ class FreeLLMService:
         headers = {
             "Authorization": f"Bearer {key}",
             "Content-Type": "application/json",
-            "HTTP-Referer": "https://joyliy.onrender.com",
+            "HTTP-Referer": "https://joyliy.uz",
             "X-Title": "Joyliy PropTech",
         }
         payload = {
