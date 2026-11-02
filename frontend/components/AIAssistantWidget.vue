@@ -1,6 +1,14 @@
 <script setup lang="ts">
 import { ref, watch, onUnmounted } from 'vue'
 
+const props = withDefaults(defineProps<{
+  show?: boolean
+}>(), {
+  show: false,
+})
+
+const emit = defineEmits(['close'])
+
 interface ChatMessage {
   id: string
   sender: 'user' | 'ai'
@@ -12,6 +20,19 @@ interface ChatMessage {
 const isOpen = ref(false)
 const inputQuery = ref('')
 const isLoading = ref(false)
+
+watch(() => props.show, (val) => {
+  isOpen.value = val
+}, { immediate: true })
+
+const closeChat = () => {
+  isOpen.value = false
+  emit('close')
+}
+
+const openChat = () => {
+  isOpen.value = true
+}
 
 const messages = ref<ChatMessage[]>([
   {
@@ -94,15 +115,15 @@ const sendQuestion = async (textToSend?: string) => {
   <div class="iconly-assistant-wrapper" :class="{ 'is-chat-open': isOpen }">
     <!-- Backdrop for Desktop & Mobile Focus -->
     <Transition name="fade">
-      <div v-if="isOpen" class="chat-modal-backdrop" @click="isOpen = false" aria-hidden="true"></div>
+      <div v-if="isOpen" class="chat-modal-backdrop" @click="closeChat" aria-hidden="true"></div>
     </Transition>
 
-    <!-- Floating Trigger Capsule Button (Strictly positioned ABOVE bottom nav) -->
+    <!-- Floating Trigger Capsule Button (Desktop only) -->
     <button
       v-show="!isOpen"
       type="button"
       class="iconly-assistant-trigger"
-      @click="isOpen = true"
+      @click="openChat"
       title="Joyliy AI Maslahatchi"
       aria-label="AI Maslahatchi chatini ochish"
     >
@@ -115,11 +136,11 @@ const sendQuestion = async (textToSend?: string) => {
       <span class="online-dot"></span>
     </button>
 
-    <!-- Chat Drawer Panel (Dedicated Fullscreen on Mobile, Floating Drawer on Desktop) -->
+    <!-- Chat Drawer Panel (Mobile Bottom Sheet like SavedModal, Desktop Floating Drawer) -->
     <Transition name="fade-slide">
-      <div v-if="isOpen" class="iconly-chat-drawer">
+      <div v-if="isOpen" class="iconly-chat-drawer sheet assistant-sheet">
         <!-- Drawer Header -->
-        <div class="chat-header-bar">
+        <div class="chat-header-bar top">
           <div class="header-bot-info">
             <div class="bot-avatar-circle">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="bot-svg">
@@ -132,7 +153,7 @@ const sendQuestion = async (textToSend?: string) => {
               <span class="bot-subtitle">Groq Qwen AI · Toshkent Ijara Huquqi</span>
             </div>
           </div>
-          <button class="btn-close-drawer" @click="isOpen = false" aria-label="Yopish">
+          <button class="btn-close-drawer" @click="closeChat" aria-label="Yopish">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="drawer-close-svg">
               <line x1="18" y1="6" x2="6" y2="18" />
               <line x1="6" y1="6" x2="18" y2="18" />
@@ -305,46 +326,10 @@ const sendQuestion = async (textToSend?: string) => {
   transition: all 0.22s var(--ease);
 }
 
-/* MOBILE: ONLY ICON, NO TEXT! */
-@media (max-width: 768px) {
+/* Hide floating trigger button on mobile/tablet — Chatbot lives directly in bottom nav */
+@media (max-width: 1023px) {
   .iconly-assistant-trigger {
-    width: 52px;
-    height: 52px;
-    min-width: 52px;
-    min-height: 52px;
-    padding: 0;
-    border-radius: 50%;
-    justify-content: center;
-    position: relative;
-    box-shadow: 0 8px 24px rgba(40, 120, 200, 0.45);
-  }
-
-  .trigger-text {
     display: none !important;
-  }
-
-  .trigger-spark-circle {
-    width: 100%;
-    height: 100%;
-    background: transparent;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .sparkle-svg {
-    width: 24px;
-    height: 24px;
-  }
-
-  .online-dot {
-    position: absolute;
-    top: 3px;
-    right: 3px;
-    width: 10px;
-    height: 10px;
-    border: 2px solid #ffffff;
-    box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.5);
   }
 }
 
@@ -408,52 +393,65 @@ const sendQuestion = async (textToSend?: string) => {
   box-shadow: 0 20px 56px rgba(0, 0, 0, 0.55);
 }
 
-/* Dedicated Full-Screen Overlay on Mobile (No overlap, clean keyboard handling) */
+/* Mobile Bottom Sheet (identical to SavedModal) */
 @media (max-width: 768px) {
+  .chat-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-modal, 1200);
+    background: rgba(23, 25, 29, 0.6);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+
   .iconly-chat-drawer {
     position: fixed;
-    top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    width: 100vw;
-    height: 100%;
-    height: 100dvh;
-    max-height: 100dvh;
-    border-radius: 0;
-    border: none;
+    top: auto;
+    width: 100%;
+    max-width: 100%;
+    height: 92dvh;
+    max-height: 92dvh;
+    border-radius: 24px 24px 0 0;
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    border-bottom: none;
+    box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.3);
+    animation: slideUpSheet 0.25s var(--ease);
     z-index: var(--z-chat-fullscreen, 1300);
     display: flex;
     flex-direction: column;
     padding-top: 0;
     padding-bottom: 0;
     background: #FFFFFF;
+    overflow: hidden;
   }
 
   :root[data-theme="dark"] .iconly-chat-drawer {
     background: #161B22;
+    border-color: rgba(255, 255, 255, 0.12);
   }
 
   .chat-header-bar {
-    padding-top: max(14px, env(safe-area-inset-top, 14px)) !important;
-    padding-left: 16px !important;
-    padding-right: 16px !important;
-    padding-bottom: 12px !important;
+    padding: 16px 20px;
+    background: rgba(240, 247, 253, 0.92);
+    border-bottom: 1px solid var(--border-subtle);
   }
 
   .chat-footer-bar {
-    padding: 10px 14px calc(10px + env(safe-area-inset-bottom, 0px)) 14px !important;
-    background: #FFFFFF !important;
+    padding: 10px 14px calc(12px + env(safe-area-inset-bottom, 0px)) 14px;
+    background: #FFFFFF;
   }
 
   :root[data-theme="dark"] .chat-footer-bar {
-    background: #161B22 !important;
+    background: #161B22;
   }
 
   .chat-text-input {
     font-size: 16px !important; /* Prevents iOS auto-zoom on input focus */
-    min-height: 46px !important;
-    height: 46px !important;
+    min-height: 46px;
+    height: 46px;
   }
 }
 

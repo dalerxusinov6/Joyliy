@@ -201,10 +201,10 @@ const formatPrice = (p: number) => {
 </script>
 
 <template>
-  <div v-if="show" class="modal-backdrop" @click.self="$emit('close')">
-    <div class="modal-box">
+  <div v-if="show" class="ov show" @click.self="$emit('close')">
+    <div class="sheet roommates-sheet">
       <!-- Modal Header -->
-      <div class="modal-head">
+      <div class="top modal-head">
         <div class="head-title-wrap">
           <span class="head-badge">Joyliy Ecosystem</span>
           <h2 class="head-title">
@@ -455,37 +455,26 @@ const formatPrice = (p: number) => {
 </template>
 
 <style scoped>
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(18, 17, 16, 0.65);
-  backdrop-filter: blur(5px);
-  z-index: 1200;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-}
-
-.modal-box {
-  background: var(--surf, #ffffff);
-  border: 1px solid var(--sand, #ebe5db);
-  border-radius: 16px;
-  width: 100%;
-  max-width: 760px;
-  max-height: 90vh;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+.roommates-sheet {
+  max-width: 880px;
 }
 
 .modal-head {
-  padding: 18px 24px;
-  border-bottom: 1px solid var(--sand, #ebe5db);
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-subtle, #ebe5db);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  position: sticky;
+  top: 0;
+  background: var(--surface, #ffffff);
+  z-index: 5;
+}
+
+@media (min-width: 768px) {
+  .modal-head {
+    padding: 18px 24px;
+  }
 }
 
 .head-badge {
@@ -588,9 +577,15 @@ const formatPrice = (p: number) => {
 }
 
 .modal-body {
-  padding: 20px 24px;
+  padding: 16px;
   overflow-y: auto;
   flex: 1;
+}
+
+@media (min-width: 768px) {
+  .modal-body {
+    padding: 20px 24px;
+  }
 }
 
 .filter-pills {

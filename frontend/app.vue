@@ -29,6 +29,7 @@ const {
   showCompare,
   showRoommates,
   showNeighborhoods,
+  showAssistant,
   showReport,
   reportingListingId,
   toastMessage,
@@ -79,7 +80,8 @@ const isAnyModalOpen = computed(() => {
     showCompare.value ||
     showRoommates.value ||
     showNeighborhoods.value ||
-    showReport.value
+    showReport.value ||
+    showAssistant.value
   )
 })
 
@@ -180,8 +182,11 @@ onUnmounted(() => {
       @toast="showToast"
     />
 
-    <!-- AI Virtual Rental Advisor Floating Widget -->
-    <AIAssistantWidget />
+    <!-- AI Virtual Rental Advisor Floating Widget / Mobile Bottom Sheet -->
+    <AIAssistantWidget
+      :show="showAssistant"
+      @close="showAssistant = false"
+    />
 
     <!-- Floating Comparison Bar -->
     <Transition name="slide-fade">
@@ -220,9 +225,10 @@ onUnmounted(() => {
 
     <!-- Mobile Bottom Navigation (Floating Pill Capsule - Iconly Mobile Reference: ONLY ICONS) -->
     <nav class="bn" aria-label="Mobil navigatsiya">
+      <!-- 1. Bosh sahifa -->
       <button
         type="button"
-        :class="{ on: !showMap && !showRoommates && !showCompare && !showSaved }"
+        :class="{ on: !showRoommates && !showCompare && !showAssistant && !showSaved }"
         @click="scrollToResults"
         aria-label="Bosh sahifa"
         title="Bosh sahifa"
@@ -233,20 +239,7 @@ onUnmounted(() => {
         </svg>
       </button>
 
-      <button
-        type="button"
-        :class="{ on: showMap }"
-        @click="showMap = true"
-        aria-label="Xarita"
-        title="Xarita"
-      >
-        <svg class="i" viewBox="0 0 24 24">
-          <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" />
-          <line x1="8" y1="2" x2="8" y2="18" />
-          <line x1="16" y1="6" x2="16" y2="22" />
-        </svg>
-      </button>
-
+      <!-- 2. Hamxona (Roommates) -->
       <button
         type="button"
         :class="{ on: showRoommates }"
@@ -262,6 +255,7 @@ onUnmounted(() => {
         </svg>
       </button>
 
+      <!-- 3. Taqqoslash (Compare) -->
       <button
         type="button"
         class="btn-with-badge"
@@ -280,6 +274,21 @@ onUnmounted(() => {
         <span v-if="compareList.length > 0" class="bn-badge">{{ compareList.length }}</span>
       </button>
 
+      <!-- 4. Chatbot (AI Maslahatchi) -->
+      <button
+        type="button"
+        class="btn-with-badge"
+        :class="{ on: showAssistant }"
+        @click="showAssistant = true"
+        aria-label="AI Maslahatchi"
+        title="AI Maslahatchi"
+      >
+        <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+        </svg>
+      </button>
+
+      <!-- 5. Saqlanganlar (Saved) -->
       <button
         type="button"
         class="btn-with-badge"
