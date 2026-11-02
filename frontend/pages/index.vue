@@ -109,6 +109,53 @@ const remainingListings = computed(() => {
   return filteredListings.value.slice(1)
 })
 
+// Progressive disclosure / "Ko'proq ko'rish" across all filtered database listings
+const PAGE_SIZE = 12
+const displayCount = ref(13) // 1 featured + 12 in grid
+const isLoadingMore = ref(false)
+
+const visibleRemainingListings = computed(() => {
+  if (!remainingListings.value.length) return []
+  return remainingListings.value.slice(0, displayCount.value - 1)
+})
+
+const hasMoreListings = computed(() => {
+  return filteredListings.value.length > displayCount.value
+})
+
+const nextBatchCount = computed(() => {
+  const remaining = filteredListings.value.length - displayCount.value
+  return Math.min(PAGE_SIZE, Math.max(0, remaining))
+})
+
+const loadMoreListings = () => {
+  isLoadingMore.value = true
+  setTimeout(() => {
+    displayCount.value += PAGE_SIZE
+    isLoadingMore.value = false
+  }, 100)
+}
+
+// Reset display limit when user applies any filter across the database
+watch(
+  [
+    filterDistrict,
+    filterRooms,
+    filterMaxPrice,
+    filterCategory,
+    filterAudience,
+    filterSort,
+    () => filterAmenities.value.owner_only,
+    () => filterAmenities.value.mebel,
+    () => filterAmenities.value.kond,
+    () => filterAmenities.value.kir,
+    () => filterAmenities.value.net,
+  ],
+  () => {
+    displayCount.value = 13
+  }
+)
+
 const formatPrice = (val: number) => {
   return (val || 0).toLocaleString('ru-RU').replace(/\u00a0/g, ' ') + ' so‘m'
 }
@@ -294,13 +341,29 @@ const formatPrice = (val: number) => {
         </div>
 
         <!-- Remaining Listings Grid (Fluid responsive layout) -->
-        <div v-if="remainingListings.length" class="grid catalog-listings-grid">
+        <div v-if="visibleRemainingListings.length" class="grid catalog-listings-grid">
           <ListingCard
-            v-for="item in remainingListings"
+            v-for="item in visibleRemainingListings"
             :key="item.id"
             :listing="item"
             @select="onSelectListing"
           />
+        </div>
+
+        <!-- Load More Action (Ko'proq ko'rish) -->
+        <div v-if="hasMoreListings" class="catalog-pagination-wrap">
+          <button
+            type="button"
+            class="btn-load-more"
+            :disabled="isLoadingMore"
+            @click="loadMoreListings"
+          >
+            <span v-if="isLoadingMore" class="load-spinner"></span>
+            <span v-else>Ko‘proq ko‘rish (+{{ nextBatchCount }} ta e’lon)</span>
+            <svg v-if="!isLoadingMore" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="arr-down-mini">
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </button>
         </div>
 
         <!-- Empty State -->
@@ -1288,4 +1351,68 @@ const formatPrice = (val: number) => {
   color: #60a5fa;
 }
 
+.catalog-pagination-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 36px;
+  margin-bottom: 24px;
+}
+
+.btn-load-more {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 28px;
+  background: #ffffff;
+  color: var(--text-primary);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:root[data-theme="dark"] .btn-load-more {
+  background: #161b22;
+  color: #f0f6fc;
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.btn-load-more:hover:not(:disabled) {
+  transform: translateY(-2px);
+  border-color: var(--blue-primary);
+  color: var(--blue-primary);
+  box-shadow: 0 8px 24px rgba(40, 120, 200, 0.12);
+}
+
+.btn-load-more:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.arr-down-mini {
+  width: 16px;
+  height: 16px;
+}
+
+.load-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(40, 120, 200, 0.2);
+  border-top-color: var(--blue-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 </style>

@@ -149,7 +149,7 @@ async def get_listings(
     owner_only: bool = Query(False, description="Filter only likely-owner listings"),
     sort: str = Query("new", description="Sort order: 'new', 'lo', 'hi', 'area_desc'"),
     page: Optional[int] = Query(None, ge=1, description="1-indexed page number"),
-    limit: int = Query(500, ge=1, le=2000, description="Items limit (allows loading entire catalog)"),
+    limit: int = Query(1000, ge=1, le=5000, description="Items limit (allows loading entire catalog)"),
     offset: int = Query(0, ge=0, description="0-indexed offset (used if page is omitted)"),
     session: AsyncSession = Depends(get_db_session),
 ):

@@ -154,7 +154,7 @@ export function useListings() {
       const base = config.public.apiBase || ''
 
       // Fetch all listings across entire database so client-side filters have all apartments
-      const url = `${base}/api/listings?limit=1000`
+      const url = `${base}/api/listings?limit=2000`
       const data: any = await $fetch(url)
 
       if (data && data.items) {
