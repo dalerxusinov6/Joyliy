@@ -124,6 +124,10 @@ class MonitorWorker:
         self._is_paused = False
         self.log_event("INFO", "Monitor worker resumed by administrator.")
 
+    @property
+    def schedule_times(self) -> List[str]:
+        return self.scheduled_times
+
     def set_schedule_times(self, times: List[str]) -> bool:
         """Update daily scheduled discovery slots (HH:MM in Asia/Tashkent)."""
         import re

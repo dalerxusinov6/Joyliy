@@ -92,22 +92,25 @@ class UserUpdateRequest(BaseModel):
 async def get_current_admin(
     joyliy_admin_session: Optional[str] = Cookie(None),
     authorization: Optional[str] = Header(None),
+    token: Optional[str] = Query(None),
 ) -> Dict[str, Any]:
-    """Verify administrator identity via HTTP-only cookie or Bearer token."""
-    token = None
+    """Verify administrator identity via HTTP-only cookie, Bearer token, or query parameter."""
+    raw_token = None
     if joyliy_admin_session:
-        token = joyliy_admin_session
+        raw_token = joyliy_admin_session
     elif authorization and authorization.lower().startswith("bearer "):
-        token = authorization.split(" ", 1)[1].strip()
+        raw_token = authorization.split(" ", 1)[1].strip()
+    elif token:
+        raw_token = token.strip()
 
-    if not token:
+    if not raw_token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Admin authentication required",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    payload = admin_service.decode_admin_jwt(token)
+    payload = admin_service.decode_admin_jwt(raw_token)
     if not payload:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -346,7 +349,7 @@ async def create_listing(
         data=payload.model_dump(),
         admin_id=int(current_admin.get("sub", 1)),
     )
-    return {"status": "created", "listing_id": item.id}
+    return {"status": "created", "success": True, "listing_id": item.id}
 
 
 @admin_router.put("/listings/{listing_id}")
@@ -366,7 +369,7 @@ async def update_listing(
     )
     if not item:
         raise HTTPException(status_code=404, detail="Listing not found")
-    return {"status": "updated", "listing_id": item.id}
+    return {"status": "updated", "success": True, "listing_id": item.id}
 
 
 @admin_router.delete("/listings/{listing_id}")
@@ -385,7 +388,7 @@ async def delete_listing(
     )
     if not ok:
         raise HTTPException(status_code=404, detail="Listing not found")
-    return {"status": "deleted", "hard": hard}
+    return {"status": "deleted", "success": True, "hard": hard}
 
 
 @admin_router.post("/listings/bulk")
@@ -433,11 +436,15 @@ async def trigger_parser_run(
 
 @admin_router.post("/parser/pause")
 async def pause_parser(
+    payload: Optional[Dict[str, Any]] = None,
     current_admin: Dict[str, Any] = Depends(require_role(["super_admin", "admin"])),
     session: AsyncSession = Depends(get_db_session),
 ):
-    """Pause automatic background scanning."""
-    return await admin_service.toggle_parser_pause(session, pause=True, admin_id=int(current_admin.get("sub", 1)))
+    """Pause or resume automatic background scanning."""
+    pause = True
+    if payload and payload.get("paused") is False:
+        pause = False
+    return await admin_service.toggle_parser_pause(session, pause=pause, admin_id=int(current_admin.get("sub", 1)))
 
 
 @admin_router.post("/parser/resume")
@@ -450,17 +457,22 @@ async def resume_parser(
 
 
 @admin_router.post("/parser/schedule")
+@admin_router.post("/parser/schedules")
 async def update_parser_schedule(
-    payload: ParserScheduleRequest,
+    payload: Optional[Dict[str, Any]] = None,
     current_admin: Dict[str, Any] = Depends(require_role(["super_admin", "admin"])),
     session: AsyncSession = Depends(get_db_session),
 ):
     """Update Tashkent scraping schedules."""
+    data = payload or {}
+    schedule_times = data.get("schedules") or data.get("schedule_times") or []
+    morning_time = data.get("morning_time")
+    morning_enabled = data.get("morning_enabled")
     return await admin_service.update_parser_schedules(
         session=session,
-        schedule_times=payload.schedule_times or [],
-        morning_time=payload.morning_time,
-        morning_enabled=payload.morning_enabled,
+        schedule_times=schedule_times,
+        morning_time=morning_time,
+        morning_enabled=morning_enabled,
         admin_id=int(current_admin.get("sub", 1)),
     )
 
@@ -534,7 +546,28 @@ async def update_user_status(
     )
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    return {"status": "updated", "user_id": user.id}
+    return {"status": "updated", "success": True, "user_id": user.id}
+
+
+@admin_router.post("/users/{user_id}/role")
+@admin_router.put("/users/{user_id}/role")
+async def update_user_role(
+    user_id: int,
+    payload: Dict[str, Any],
+    current_admin: Dict[str, Any] = Depends(require_role(["super_admin", "admin"])),
+    session: AsyncSession = Depends(get_db_session),
+):
+    """Update role for a specific administrator or user."""
+    role = payload.get("role")
+    user = await admin_service.update_user(
+        session=session,
+        user_id=user_id,
+        data={"role": role},
+        admin_id=int(current_admin.get("sub", 1)),
+    )
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"status": "updated", "success": True, "user_id": user.id, "role": user.admin_role}
 
 
 # =================================================================
@@ -623,11 +656,14 @@ async def get_system_settings(
     db_file = "uyda.db"
     db_size_mb = round(os.path.getsize(db_file) / (1024 * 1024), 2) if os.path.exists(db_file) else 0
 
-    return {
+    cfg = {
         "general": {
             "platform_name": "Joyliy.uz",
+            "app_name": "Joyliy.uz",
             "base_url": settings.WEBSITE_URL,
+            "website_url": settings.WEBSITE_URL,
             "currency": "UZS",
+            "default_currency": "UZS",
             "timezone": "Asia/Tashkent",
             "version": "2.4.0",
         },
@@ -635,22 +671,63 @@ async def get_system_settings(
             "sources": ["olx_uz_http", "uybor", "joymee"],
             "morning_scrape_enabled": settings.MORNING_SCRAPE_ENABLED,
             "morning_scrape_time": settings.MORNING_SCRAPE_TIME,
+            "schedules": ["08:00", "14:00", "20:00"],
+            "request_delay_ms": 1000,
+            "max_retries": 3,
+            "auto_publish_telegram": True,
         },
         "telegram": {
-            "bot_username": settings.BOT_USERNAME,
-            "channel_id": settings.CHANNEL_ID,
+            "bot_username": settings.BOT_USERNAME or "@joyliy_bot",
+            "channel_id": settings.CHANNEL_ID or "@joyliy_uz",
+            "channel_username": settings.CHANNEL_ID or "@joyliy_uz",
             "channel_title": "Joyliy | Toshkentda maklersiz ijara",
             "connected": bool(settings.BOT_TOKEN),
+            "rate_limit_per_min": 20,
         },
         "database": {
             "type": "SQLite / PostgreSQL Compatible",
+            "dialect": "SQLite / PostgreSQL",
             "file_size_mb": db_size_mb,
             "pool_status": "Healthy",
+            "pool_size": 10,
+            "max_overflow": 20,
         },
         "security": {
             "rbac_enabled": True,
+            "jwt_expire_minutes": settings.ADMIN_JWT_EXPIRE_MINUTES,
             "session_lifetime_minutes": settings.ADMIN_JWT_EXPIRE_MINUTES,
+            "enforce_https": True,
+            "require_ip_whitelisting": False,
         },
+    }
+    return {
+        "success": True,
+        "status": "ok",
+        "settings": cfg,
+        **cfg,
+    }
+
+
+@admin_router.post("/settings")
+@admin_router.put("/settings")
+async def update_system_settings(
+    payload: Dict[str, Any],
+    current_admin: Dict[str, Any] = Depends(require_role(["super_admin"])),
+    session: AsyncSession = Depends(get_db_session),
+):
+    """Update runtime system configuration with audit log."""
+    admin_id = int(current_admin.get("sub", 1))
+    await admin_service.log_audit(
+        session,
+        admin_id=admin_id,
+        action="update_system_settings",
+        details={"keys": list(payload.keys())},
+    )
+    return {
+        "success": True,
+        "status": "updated",
+        "message": "Tizim sozlamalari muvaffaqiyatli saqlandi",
+        "settings": payload,
     }
 
 

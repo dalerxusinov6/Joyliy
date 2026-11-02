@@ -556,6 +556,17 @@ const maxGrowthCount = computed(() => {
           </div>
         </div>
       </div>
+
+      <!-- Error Fallback State -->
+      <div v-else class="dashboard-error-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="error-icon">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <p class="error-msg">Statistika ma‘lumotlarini yuklashda xatolik yuz berdi</p>
+        <button class="retry-btn" @click="loadOverview">Qayta urinish</button>
+      </div>
     </div>
   </AdminShell>
 </template>
@@ -624,6 +635,44 @@ const maxGrowthCount = computed(() => {
   gap: 16px;
   color: var(--ad-text-muted);
 }
+
+.dashboard-error-box {
+  background: var(--ad-surface);
+  border: 1px solid var(--ad-border);
+  border-radius: var(--ad-radius-lg);
+  padding: 60px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  text-align: center;
+}
+
+.error-icon {
+  width: 36px;
+  height: 36px;
+  color: var(--ad-danger, #ef4444);
+}
+
+.error-msg {
+  font-size: 14px;
+  color: var(--ad-text-muted);
+  margin: 0;
+}
+
+.retry-btn {
+  background: var(--ad-primary);
+  color: #fff;
+  border: none;
+  padding: 8px 18px;
+  border-radius: var(--ad-radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+.retry-btn:hover { opacity: 0.9; }
 
 .spinner-circle {
   width: 32px;

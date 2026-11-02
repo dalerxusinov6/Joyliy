@@ -47,8 +47,9 @@ const loadSettings = async () => {
   isLoading.value = true
   try {
     const res = await authFetch('/api/admin/settings')
-    if (res && res.settings) {
-      settingsForm.value = { ...settingsForm.value, ...res.settings }
+    const cfg = res?.settings || res
+    if (cfg && (cfg.general || cfg.parser)) {
+      settingsForm.value = { ...settingsForm.value, ...cfg }
     }
   } catch (err) {
     showToast('Sozlamalarni yuklashda xatolik', 'error')

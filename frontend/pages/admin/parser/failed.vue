@@ -16,9 +16,11 @@ const loadFailed = async () => {
   isLoading.value = true
   try {
     const res = await authFetch('/api/admin/parser/status')
-    if (res && res.history) {
-      failedTasks.value = res.history.filter((h: any) => h.status === 'failed')
-    }
+    const list = res?.history || res?.recent_runs || []
+    failedTasks.value = list.filter((h: any) => {
+      const st = String(h?.status || '').toLowerCase()
+      return st === 'failed' || st === 'error'
+    })
   } catch (err: any) {
     showToast('Xatoliklarni yuklashda muammo', 'error')
   } finally {

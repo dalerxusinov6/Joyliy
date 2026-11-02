@@ -16,9 +16,7 @@ const loadHistory = async () => {
   isLoading.value = true
   try {
     const res = await authFetch('/api/admin/parser/status')
-    if (res && res.history) {
-      history.value = res.history
-    }
+    history.value = res?.history || res?.recent_runs || []
   } catch (err: any) {
     showToast('Tarixni yuklashda xatolik', 'error')
   } finally {

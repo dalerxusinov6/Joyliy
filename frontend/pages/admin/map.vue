@@ -49,13 +49,25 @@ const getCoordinates = (item: any): [number, number] => {
 const loadYandexMaps = (): Promise<any> => {
   return new Promise((resolve, reject) => {
     if (typeof window === 'undefined') return reject('No window')
-    if ((window as any).ymaps) {
+    if ((window as any).ymaps && (window as any).ymaps.Map) {
       ;(window as any).ymaps.ready(() => resolve((window as any).ymaps))
       return
     }
 
+    const existing = document.getElementById('yandex-maps-sdk')
+    if (existing) {
+      if ((window as any).ymaps) {
+        ;(window as any).ymaps.ready(() => resolve((window as any).ymaps))
+      } else {
+        existing.addEventListener('load', () => (window as any).ymaps.ready(() => resolve((window as any).ymaps)))
+        existing.addEventListener('error', () => reject('Yandex Maps API yuklanmadi'))
+      }
+      return
+    }
+
     const script = document.createElement('script')
-    script.src = 'https://api-maps.yandex.ru/2.1/?lang=uz_UZ&apikey='
+    script.id = 'yandex-maps-sdk'
+    script.src = 'https://api-maps.yandex.ru/2.1/?lang=uz_UZ'
     script.type = 'text/javascript'
     script.onload = () => {
       ;(window as any).ymaps.ready(() => resolve((window as any).ymaps))
