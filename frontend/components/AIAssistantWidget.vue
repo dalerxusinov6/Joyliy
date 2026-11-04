@@ -69,7 +69,6 @@ onBeforeUnmount(() => { window.removeEventListener('keydown', onKey); if (import
 </template>
 
 <style scoped>
-.p-glass { background: var(--glass-strong); backdrop-filter: blur(18px) saturate(1.2); -webkit-backdrop-filter: blur(18px) saturate(1.2); border: 1px solid var(--glass-line); box-shadow: var(--sh-floating); }
 .as-wrap { position: fixed; right: calc(20px + env(safe-area-inset-right, 0px)); bottom: calc(20px + env(safe-area-inset-bottom, 0px)); z-index: var(--z-chatbot); display: grid; justify-items: end; gap: 10px; }
 .as-wrap.hidden { display: none; }
 .as-tip { max-width: 260px; padding: 12px 14px 12px 16px; border-radius: 18px 18px 6px 18px; font: 600 13px/1.4 var(--font-sans); color: var(--tx); display: flex; gap: 10px; align-items: flex-start; animation: rise .5s .8s both; }

@@ -283,7 +283,6 @@ onBeforeUnmount(() => clearTimeout(timer))
 .p-trust { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 26px; }
 .p-trust span { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; font-size: 13px; font-weight: 600; color: var(--tx); }
 .p-trust svg { width: 15px; height: 15px; stroke: var(--ok); fill: none; stroke-width: 2; }
-.p-glass { background: var(--glass); backdrop-filter: blur(18px) saturate(1.2); -webkit-backdrop-filter: blur(18px) saturate(1.2); border: 1px solid var(--glass-line); box-shadow: var(--sh-floating); }
 
 .p-aidemo { border-radius: 28px; padding: 22px; display: grid; gap: 16px; cursor: pointer; text-align: left; width: 100%; color: var(--tx); font: inherit; animation: p-rise .8s .2s both; }
 .p-aidemo-h { display: flex; align-items: center; gap: 12px; }
