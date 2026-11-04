@@ -298,7 +298,7 @@ onBeforeUnmount(() => clearTimeout(timer))
 .p-aidemo-f { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding-top: 12px; border-top: 1px solid var(--bd); font-size: 13px; }
 .p-aidemo-f b { font-size: 20px; font-weight: 700; letter-spacing: -.02em; }
 
-.p-search { border-radius: 28px; padding: 10px; margin-bottom: 28px; background: var(--glass-strong); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border: 1px solid var(--glass-line); box-shadow: var(--sh-floating); }
+.p-search { border-radius: 28px; padding: 10px; margin-bottom: 28px; background: var(--glass-strong); backdrop-filter: blur(28px) saturate(1.35); -webkit-backdrop-filter: blur(28px) saturate(1.35); border: 1px solid var(--glass-line); box-shadow: var(--sh-floating); }
 .p-modes { display: flex; gap: 4px; padding: 2px 2px 10px; flex-wrap: wrap; }
 .p-modes button { border: 0; background: transparent; border-radius: 999px; padding: 9px 16px; font: 700 13px var(--font-sans); cursor: pointer; color: var(--tx-muted); display: inline-flex; gap: 8px; align-items: center; }
 .p-modes button[aria-pressed="true"] { background: var(--accent-black); color: var(--on-ink); }

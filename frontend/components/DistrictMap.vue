@@ -73,17 +73,36 @@ const makeLayout = () =>
     },
   )
 
+const RADIUS: Record<string, number> = { Chilonzor: 3400, Yunusobod: 3800, 'Mirzo Ulug‘bek': 4400, Yakkasaroy: 2200, Mirobod: 2300, Shayxontohur: 2300, Olmazor: 2800, Uchtepa: 3000, Yashnobod: 2800, Sergeli: 4000, Bektemir: 3500, Yangihayot: 3500 }
+let touched = false
+const circles: Record<string, any> = {}
+const pick = (name: string) => { touched = true; sel.value = name }
+
 const render = () => {
   if (!map || !ymaps) return
   map.geoObjects.removeAll()
+  const ink = dark.value ? 'D5C8B5' : '514437'
   const Layout = makeLayout()
+  for (const k of Object.keys(circles)) delete circles[k]
+  for (const p of pins.value) {
+    const on = p.name === sel.value
+    const c = new ymaps.Circle([[p.nb!.center_lat, p.nb!.center_lon], RADIUS[p.nb!.id] || 3000], { hintContent: `${tDistrict(p.name)} · ${p.count} ta e’lon` }, {
+      fillColor: ink + (on ? '33' : '0d'), strokeColor: ink, strokeOpacity: on ? 0.95 : 0.35, strokeWidth: on ? 2.5 : 1.2,
+      strokeStyle: on ? 'solid' : 'shortdash', zIndex: on ? 200 : 100, cursor: 'pointer',
+    })
+    c.events.add('click', () => pick(p.name))
+    c.events.add('mouseenter', () => { if (p.name !== sel.value) c.options.set('fillColor', ink + '26') })
+    c.events.add('mouseleave', () => { if (p.name !== sel.value) c.options.set('fillColor', ink + '0d') })
+    circles[p.name] = c
+    map.geoObjects.add(c)
+  }
   for (const p of pins.value) {
     const pm = new ymaps.Placemark(
       [p.nb!.center_lat, p.nb!.center_lon],
       { name: tDistrict(p.name), count: p.count, cls: p.name === sel.value ? 'on' : '', hintContent: `${tDistrict(p.name)} · ${p.count} ta e’lon` },
       { iconLayout: Layout, iconOffset: [0, 0], zIndex: p.name === sel.value ? 900 : 500, hasBalloon: false },
     )
-    pm.events.add('click', () => { sel.value = p.name })
+    pm.events.add('click', () => pick(p.name))
     map.geoObjects.add(pm)
   }
 }
@@ -106,8 +125,8 @@ const initMap = async () => {
 
 const zoom = (d: number) => map?.setZoom(Math.max(9, Math.min(17, map.getZoom() + d)), { duration: 250 })
 const locate = () => {
-  const nb = byName(sel.value)
-  if (map && nb) map.setCenter([nb.center_lat, nb.center_lon], 13, { duration: 400 })
+  const c = circles[sel.value]
+  if (map && c) map.setBounds(c.geometry.getBounds(), { checkZoomRange: true, duration: 400, zoomMargin: 36 })
 }
 
 let mo: MutationObserver | null = null
@@ -119,10 +138,10 @@ onMounted(() => {
 })
 onBeforeUnmount(() => { mo?.disconnect(); if (map) { map.destroy(); map = null } })
 
-watch([pins, sel], () => {
+watch([pins, sel, dark], () => {
   render()
-  const nb = byName(sel.value)
-  if (map && nb) map.panTo([nb.center_lat, nb.center_lon], { duration: 400, flying: false })
+  const c = circles[sel.value]
+  if (map && c && touched) map.setBounds(c.geometry.getBounds(), { checkZoomRange: true, duration: 450, zoomMargin: 36 })
 })
 
 /* schematic fallback projection */
@@ -144,7 +163,7 @@ const py = (lat: number) => ((LAT0 - lat) / (LAT0 - LAT1)) * 100
           <circle class="road" cx="50" cy="52" r="26" vector-effect="non-scaling-stroke" />
           <path class="river" vector-effect="non-scaling-stroke" d="M30 0 C 36 26, 28 44, 38 64 S 42 90, 36 100" />
         </svg>
-        <button v-for="p in pins" :key="p.name" type="button" class="pin" :style="{ left: px(p.nb!.center_lon) + '%', top: py(p.nb!.center_lat) + '%' }" :aria-pressed="sel === p.name" @click="sel = p.name">{{ tDistrict(p.name) }}<small>{{ p.count }}</small></button>
+        <button v-for="p in pins" :key="p.name" type="button" class="pin" :style="{ left: px(p.nb!.center_lon) + '%', top: py(p.nb!.center_lat) + '%' }" :aria-pressed="sel === p.name" @click="pick(p.name)">{{ tDistrict(p.name) }}<small>{{ p.count }}</small></button>
       </template>
 
       <div v-if="ready && !fallback" class="zoom">
@@ -183,10 +202,10 @@ const py = (lat: number) => ((LAT0 - lat) / (LAT0 - LAT1)) * 100
 .pin[aria-pressed="true"] { background: var(--accent-black); color: var(--on-ink); z-index: 3; }
 .pin small { font-weight: 500; opacity: .7; margin-left: 4px; }
 .zoom { position: absolute; right: 14px; top: 14px; z-index: 5; display: grid; gap: 8px; }
-.zoom button { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--glass-line); background: var(--glass-strong); backdrop-filter: blur(18px) saturate(1.2); -webkit-backdrop-filter: blur(18px) saturate(1.2); box-shadow: var(--sh-floating); display: grid; place-items: center; cursor: pointer; color: var(--tx); }
+.zoom button { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--glass-line); background: var(--glass-strong); backdrop-filter: blur(28px) saturate(1.35); -webkit-backdrop-filter: blur(28px) saturate(1.35); box-shadow: var(--sh-floating); display: grid; place-items: center; cursor: pointer; color: var(--tx); }
 .zoom button:hover { background: var(--surface); }
 .zoom svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; }
-.note { position: absolute; left: 14px; bottom: 14px; z-index: 5; font-size: 12px; font-weight: 600; color: var(--tx-muted); background: var(--glass-strong); backdrop-filter: blur(18px) saturate(1.2); -webkit-backdrop-filter: blur(18px) saturate(1.2); border: 1px solid var(--glass-line); padding: 7px 12px; border-radius: 999px; }
+.note { position: absolute; left: 14px; bottom: 14px; z-index: 5; font-size: 12px; font-weight: 600; color: var(--tx-muted); background: var(--glass-strong); backdrop-filter: blur(28px) saturate(1.35); -webkit-backdrop-filter: blur(28px) saturate(1.35); border: 1px solid var(--glass-line); padding: 7px 12px; border-radius: 999px; }
 .side { background: var(--surface); border-radius: 28px; padding: 22px; display: flex; flex-direction: column; gap: 10px; min-width: 0; max-height: 600px; }
 .side h3 { margin: 0; font: 600 28px var(--font-sans); letter-spacing: -.03em; }
 .meta { margin: 0; color: var(--tx-muted); font-size: 14px; }

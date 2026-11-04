@@ -92,7 +92,7 @@
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
   /* Joyliy premium extensions */
   --brand-sand: #D5C8B5;
-  --glass: rgba(245, 241, 233, 0.74);
+  --glass: rgba(245, 241, 233, 0.62);
   --glass-strong: rgba(250, 247, 241, 0.92);
   --glass-line: rgba(255, 255, 255, 0.7);
   --on-ink: #F5F1E9;
@@ -140,7 +140,7 @@
   --terracotta-subtle: rgba(213, 200, 181, 0.14);
   --olive: #9DBB95;
   --olive-subtle: #2A3326;
-  --glass: rgba(32, 30, 27, 0.74);
+  --glass: rgba(32, 30, 27, 0.58);
   --glass-strong: rgba(36, 34, 30, 0.92);
   --glass-line: rgba(255, 255, 255, 0.09);
   --on-ink: #1B1A17;

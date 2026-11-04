@@ -101,7 +101,7 @@ const route = useRoute()
 <style scoped>
 .hdr { position: fixed; top: calc(14px + env(safe-area-inset-top, 0px)); left: 0; right: 0; z-index: var(--z-header); transition: top .3s; }
 .hdr .wrap { display: flex; }
-.cap { flex: 1; min-width: 0; display: flex; align-items: center; gap: 6px; border-radius: 999px; padding: 6px; background: var(--glass); backdrop-filter: blur(18px) saturate(1.2); -webkit-backdrop-filter: blur(18px) saturate(1.2); border: 1px solid var(--glass-line); box-shadow: var(--sh-floating); transition: background .3s; }
+.cap { flex: 1; min-width: 0; display: flex; align-items: center; gap: 6px; border-radius: 999px; padding: 6px; background: var(--glass); backdrop-filter: blur(28px) saturate(1.35); -webkit-backdrop-filter: blur(28px) saturate(1.35); border: 1px solid var(--glass-line); box-shadow: var(--sh-floating); transition: background .3s; }
 .hdr.compact { top: calc(8px + env(safe-area-inset-top, 0px)); }
 .hdr.compact .cap { background: var(--glass-strong); }
 .logo { display: flex; align-items: center; gap: 10px; padding: 4px 12px 4px 6px; text-decoration: none; color: var(--tx); }

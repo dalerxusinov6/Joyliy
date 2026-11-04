@@ -588,7 +588,7 @@ h2 em, h3 em { font-style: normal; font-weight: 600; color: var(--blue-primary);
 
 .stats { position: relative; border-radius: 28px; overflow: hidden; isolation: isolate; padding: clamp(18px, 4vw, 56px); min-height: 360px; display: flex; align-items: flex-end; }
 .stats :deep(.hero-scene) { z-index: -1; }
-.stat-panel { border-radius: 28px; padding: clamp(18px, 3vw, 32px); display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; width: 100%; background: var(--glass); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border: 1px solid var(--glass-line); }
+.stat-panel { border-radius: 28px; padding: clamp(18px, 3vw, 32px); display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; width: 100%; background: var(--glass); backdrop-filter: blur(28px) saturate(1.35); -webkit-backdrop-filter: blur(28px) saturate(1.35); border: 1px solid var(--glass-line); }
 .stat-panel div { display: grid; gap: 6px; }
 .stat-panel b { font: 300 clamp(2rem, 4vw, 3.2rem)/1 var(--font-sans); letter-spacing: -.05em; color: var(--tx); }
 .stat-panel span { font-size: 13px; color: var(--blue-primary); font-weight: 600; }
