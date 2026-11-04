@@ -1,6 +1,19 @@
 import { ref, computed } from 'vue'
 import { useNeighborhoods } from '~/composables/useNeighborhoods'
 
+const cleanText = (v: any): string =>
+  String(v || '')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/(p|div|li)>/gi, '\n')
+    .replace(/<[^>]*>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&quot;/g, '"')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
+
 const SHARED_RE = /sherik|подсел|подсл|койк|koika|sheriklik|комнату для|xona beriladi/i
 
 export interface ListingItem {
@@ -136,7 +149,7 @@ export function useListings() {
       rooms: item.rooms !== undefined && item.rooms !== null ? item.rooms : 2,
       area: item.area || 54,
       floor: item.floor || '3/9',
-      description: item.description || '',
+      description: cleanText(item.description),
       contact_phone: item.contact_phone || undefined,
       contact_telegram: item.contact_telegram || undefined,
       target_audience: item.target_audience || 'any',
@@ -258,7 +271,7 @@ export function useListings() {
             rooms: item.rooms !== undefined && item.rooms !== null ? item.rooms : 2,
             area: item.area || 54,
             floor: item.floor || '3/9',
-            description: item.description || '',
+            description: cleanText(item.description),
             contact_phone: item.contact_phone || undefined,
             contact_telegram: item.contact_telegram || undefined,
             target_audience: item.target_audience || 'any',

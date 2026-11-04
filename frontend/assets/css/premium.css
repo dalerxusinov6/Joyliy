@@ -70,7 +70,7 @@
 }
 
 /* ---------- Yandex Map: warm palette, custom pins ---------- */
-.ymap-wrap [class*="-ground-pane"] { filter: sepia(.42) saturate(.85) hue-rotate(-8deg) brightness(1) contrast(1.04); }
+.ymap-wrap [class*="-ground-pane"] { filter: sepia(.45) saturate(.62) hue-rotate(-8deg) brightness(1.01) contrast(1.04); }
 .ymap-wrap.dark [class*="-ground-pane"] { filter: invert(1) hue-rotate(180deg) sepia(.4) saturate(.75) brightness(.78) contrast(.92); }
 .ymap-wrap [class*="-copyrights-pane"] { opacity: .65; }
 .ymap-wrap [class*="-places-pane"] { pointer-events: auto; }

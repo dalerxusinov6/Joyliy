@@ -337,6 +337,7 @@ onBeforeUnmount(() => clearTimeout(timer))
 
 @media (max-width: 1100px) { .p-row { grid-template-columns: repeat(2, minmax(0, 1fr)); } .p-go { grid-column: 1 / -1; } }
 @media (max-width: 1023px) { .p-hero-in { grid-template-columns: minmax(0, 1fr); } .p-aidemo { display: none; } }
+@media (max-width: 1023px) { .p-hero { min-height: auto; } .p-hero-in { flex: none; } .p-search { margin-bottom: calc(var(--mobile-nav-height) + var(--mobile-nav-bottom) + 32px); } }
 @media (max-width: 767px) {
   .p-hero-fade { background: linear-gradient(180deg, color-mix(in srgb, var(--bg) 95%, transparent) 0%, color-mix(in srgb, var(--bg) 75%, transparent) 50%, color-mix(in srgb, var(--bg) 20%, transparent) 80%); }
   .p-hero-in { padding-top: calc(100px + env(safe-area-inset-top, 0px)); }

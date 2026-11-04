@@ -9,6 +9,7 @@ const { messages, isLoading, quick, init, send } = useAssistant()
 const { listings, selectedListing } = useListings()
 
 const input = ref('')
+const inputId = useId()
 const box = ref<HTMLElement | null>(null)
 
 const scroll = async () => {
@@ -62,8 +63,8 @@ const openListing = (id: number) => {
       <button v-for="q in quick" :key="q" type="button" @click="send(q)">{{ q }}</button>
     </div>
     <form @submit.prevent="submit">
-      <label class="sr" for="chat-in">{{ t('send_message') }}</label>
-      <input id="chat-in" v-model="input" autocomplete="off" :placeholder="t('chat_placeholder')" />
+      <label class="sr" :for="inputId">{{ t('send_message') }}</label>
+      <input :id="inputId" v-model="input" autocomplete="off" :placeholder="t('chat_placeholder')" />
       <button class="send" type="submit" :aria-label="t('send_message')" :disabled="isLoading">
         <svg viewBox="0 0 24 24"><path d="M4 12l16-8-6 16-2.5-6.5z" /></svg>
       </button>

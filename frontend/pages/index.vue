@@ -505,6 +505,7 @@ h2 em, h3 em { font-style: normal; font-weight: 600; color: var(--blue-primary);
 .spark { width: 16px; height: 16px; fill: currentColor; flex: none; }
 .head { display: flex; justify-content: space-between; align-items: end; gap: 20px; flex-wrap: wrap; margin-bottom: clamp(22px, 3vw, 40px); }
 .head-acts { display: flex; gap: 8px; flex-wrap: wrap; }
+@media (max-width: 640px) { .head-acts { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; max-width: 100%; margin-inline: -2px; padding-bottom: 2px; } .head-acts > * { flex: none; } .head > div:first-child { min-width: 0; } }
 .btn-line, .btn-dark, .btn-light, .btn-ghost { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 999px; padding: 12px 20px; font: 600 14px var(--font-sans); cursor: pointer; text-decoration: none; white-space: nowrap; transition: background .2s, border-color .2s; }
 .btn-line { background: transparent; border: 1px solid var(--brand-sand); color: var(--tx); }
 .btn-line:hover { border-color: var(--blue-primary); }

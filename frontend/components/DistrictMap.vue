@@ -193,4 +193,5 @@ const py = (lat: number) => ((LAT0 - lat) / (LAT0 - LAT1)) * 100
 .guide { background: none; border: 0; padding: 0; font: 700 13px var(--font-sans); color: var(--blue-primary); cursor: pointer; text-align: left; }
 .scroll { overflow-y: auto; display: grid; gap: 2px; margin-inline: -8px; }
 @media (max-width: 960px) { .mapbox { grid-template-columns: 1fr; } .map { min-height: 440px; } }
+@media (max-width: 640px) { .zoom { right: 10px; top: 10px; gap: 6px; } .zoom button { width: 38px; height: 38px; } .note { left: 10px; bottom: 10px; max-width: calc(100% - 20px); } .side { max-height: none; } .scroll { max-height: 420px; } }
 </style>

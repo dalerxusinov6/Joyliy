@@ -234,22 +234,22 @@ onUnmounted(() => {
 
     <!-- Mobile Bottom Navigation (Floating Pill Capsule - Iconly Mobile Reference: ONLY ICONS) -->
     <nav class="bn" :aria-label="t('mobile_nav')">
-      <button type="button" :class="{ on: bnActive === 'home' }" :aria-label="t('home')" @click="bnHome">
+      <button type="button" :class="{ on: bnActive === 'home' }" :aria-label="t('home')" :title="t('home')" @click="bnHome">
         <svg class="i" viewBox="0 0 24 24"><path d="M3 11l9-7 9 7" /><path d="M5 10v10h14V10" /></svg>
-        <span class="bn-l">{{ t('home') }}</span>
       </button>
-      <button type="button" :class="{ on: bnActive === 'search' }" aria-label="Qidiruv" @click="bnSearch">
+      <button type="button" :class="{ on: bnActive === 'search' }" aria-label="Qidiruv" title="Qidiruv" @click="bnSearch">
         <svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" /><path d="M20 20l-4-4" /></svg>
-        <span class="bn-l">Qidiruv</span>
       </button>
-      <button type="button" class="btn-with-badge" :class="{ on: showSaved }" :aria-label="t('saved')" @click="showSaved = true">
+      <button type="button" class="btn-with-badge" :class="{ on: showCompare }" :aria-label="t('compare')" :title="t('compare')" @click="showCompare = true">
+        <svg class="i" viewBox="0 0 24 24"><path d="M7 4v16M17 4v16M3 8h8M13 16h8" /></svg>
+        <span v-if="compareList.length > 0" class="bn-badge">{{ compareList.length }}</span>
+      </button>
+      <button type="button" class="btn-with-badge" :class="{ on: showSaved }" :aria-label="t('saved')" :title="t('saved')" @click="showSaved = true">
         <svg class="i" viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" /></svg>
-        <span class="bn-l">{{ t('saved') }}</span>
         <span v-if="favCount > 0" class="bn-badge">{{ favCount }}</span>
       </button>
-      <button type="button" :class="{ on: showProfile }" :aria-label="t('profile')" @click="showProfile = true">
+      <button type="button" :class="{ on: showProfile }" :aria-label="t('profile')" :title="t('profile')" @click="showProfile = true">
         <svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" /><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" /></svg>
-        <span class="bn-l">{{ t('profile') }}</span>
       </button>
     </nav>
   </div>
@@ -264,5 +264,5 @@ main { flex: 1; }
 .tray-x { border: 0; background: none; color: inherit; cursor: pointer; opacity: .7; font-size: 18px; width: 26px; height: 26px; }
 .tray-enter-active, .tray-leave-active { transition: all .25s ease; }
 .tray-enter-from, .tray-leave-to { opacity: 0; transform: translate(-50%, 20px); }
-@media (max-width: 1023px) { .tray { bottom: calc(var(--mobile-nav-height) + var(--mobile-nav-bottom) + 20px + env(safe-area-inset-bottom, 0px)); left: 16px; transform: none; max-width: calc(100% - 100px); } .tray-enter-from, .tray-leave-to { transform: translateY(20px); } }
+@media (max-width: 1023px) { .tray { display: none; } }
 </style>

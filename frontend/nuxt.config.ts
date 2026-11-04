@@ -12,7 +12,7 @@ export default defineNuxtConfig({
       },
       meta: [
         { charset: 'utf-8' },
-        { name: 'viewport', content: 'width=device-width, initial-scale=1, viewport-fit=cover' },
+        { name: 'viewport', content: 'width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content' },
         {
           name: 'description',
           content: 'Toshkentda egasidan maklersiz ijara kvartiralar qidiruv platformasi.',

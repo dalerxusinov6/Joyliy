@@ -25,9 +25,13 @@ watch(
   { immediate: true },
 )
 
-watch(isOpen, (o) => {
+watch(isOpen, async (o) => {
   if (!import.meta.client) return
   document.body.classList.toggle('chat-open', o)
+  if (o && window.matchMedia('(min-width: 768px)').matches) {
+    await nextTick()
+    setTimeout(() => (document.querySelector('#as-panel input') as HTMLInputElement | null)?.focus({ preventScroll: true }), 260)
+  }
 })
 
 const open = () => { isOpen.value = true }
@@ -53,6 +57,10 @@ onBeforeUnmount(() => { window.removeEventListener('keydown', onKey); if (import
       <span class="t">Joyliy AI<small>Maslahatchi · onlayn</small></span>
     </button>
   </div>
+
+  <Transition name="scrim">
+    <div v-if="isOpen" class="as-scrim" aria-hidden="true" @click="close"></div>
+  </Transition>
 
   <Transition name="as">
     <div v-if="isOpen" id="as-panel" class="as p-glass" role="dialog" aria-label="Joyliy AI maslahatchi">
@@ -88,6 +96,9 @@ onBeforeUnmount(() => { window.removeEventListener('keydown', onKey); if (import
 .x svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; }
 .as > :deep(.chat) { flex: 1; min-height: 0; }
 .as.p-glass { background: color-mix(in srgb, var(--bg) 97%, transparent); }
+.as-scrim { position: fixed; inset: 0; z-index: calc(var(--z-chat-fullscreen) - 1); background: rgba(20, 19, 17, .38); backdrop-filter: blur(10px) saturate(1.1); -webkit-backdrop-filter: blur(10px) saturate(1.1); }
+.scrim-enter-active, .scrim-leave-active { transition: opacity .25s; }
+.scrim-enter-from, .scrim-leave-to { opacity: 0; }
 .as-enter-active, .as-leave-active { transition: opacity .2s, transform .25s; }
 .as-enter-from, .as-leave-to { opacity: 0; transform: translateY(16px); }
 @keyframes rise { from { transform: translateY(16px); } to { transform: none; } }
@@ -96,7 +107,7 @@ onBeforeUnmount(() => { window.removeEventListener('keydown', onKey); if (import
 @media (max-width: 1023px) { .as-wrap { bottom: calc(var(--mobile-nav-height) + var(--mobile-nav-bottom) + 20px + env(safe-area-inset-bottom, 0px)); right: 16px; } .as-btn { height: 56px; padding: 0 16px 0 8px; font-size: 14px; } .orb { width: 40px; height: 40px; } .t small { display: none; } }
 @media (max-width: 767px) {
   .as-btn { width: 56px; padding: 0; justify-content: center; } .t { display: none; } .as-tip { display: none; }
-  .as { left: 0; right: 0; bottom: 0; width: auto; height: min(82svh, 680px); border-radius: 24px 24px 0 0; padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .as { left: 0; right: 0; bottom: 0; width: auto; height: min(84dvh, 680px); border-radius: 24px 24px 0 0; padding-bottom: env(safe-area-inset-bottom, 0px); }
 }
 @media (prefers-reduced-motion: reduce) { .orb, .orb::after, .as-tip { animation: none; } }
 </style>
