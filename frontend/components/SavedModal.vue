@@ -2,126 +2,41 @@
 import { useI18n } from '~/composables/useI18n'
 import { useFavorites } from '~/composables/useFavorites'
 import { useListings, type ListingItem } from '~/composables/useListings'
-import ListingCard from '~/components/ListingCard.vue'
+import ModalShell from '~/components/ModalShell.vue'
 
-defineProps<{
-  show: boolean
-}>()
-
+defineProps<{ show: boolean }>()
 const emit = defineEmits(['close', 'select'])
-const { t } = useI18n()
+const { t, tDistrict } = useI18n()
 const { favorites } = useFavorites()
-const { listings } = useListings()
+const { listings, compareList, toggleCompare } = useListings()
+const { showCompare } = useModals()
 
-const savedListings = computed(() => {
-  return listings.value.filter((l) => favorites.value.includes(l.id))
-})
+const saved = computed(() => listings.value.filter((l) => favorites.value.includes(l.id)))
+const money = (v: number) => (v >= 1e9 ? `${(v / 1e9).toLocaleString('ru-RU', { maximumFractionDigits: 2 })} mlrd` : `${(v / 1e6).toLocaleString('ru-RU', { maximumFractionDigits: 1 })} mln`)
+
+const compareAll = () => {
+  compareList.value = []
+  saved.value.slice(0, 3).forEach((l) => toggleCompare(l))
+  emit('close')
+  showCompare.value = true
+}
+const pick = (l: ListingItem) => { emit('close'); emit('select', l) }
 </script>
 
 <template>
-  <div v-if="show" class="ov show" @click.self="$emit('close')">
-    <div class="sheet saved-sheet">
-      <!-- Header -->
-      <div class="top saved-header">
-        <div class="header-left">
-          <span class="saved-title">{{ t('saved_title_with_count', { count: savedListings.length }) }}</span>
-        </div>
-        <button class="ib" @click="$emit('close')" :aria-label="t('close')">
-          <svg class="i" viewBox="0 0 24 24">
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-          </svg>
-        </button>
-      </div>
-
-      <div class="bd saved-body">
-        <div v-if="savedListings.length" class="grid saved-grid">
-          <ListingCard
-            v-for="item in savedListings"
-            :key="item.id"
-            :listing="item"
-            @select="$emit('select', item)"
-          />
-        </div>
-
-        <!-- Empty Monograph State -->
-        <div v-else class="saved-empty-box">
-          <span class="numeral-accent">00</span>
-          <h3 class="empty-title">{{ t('saved_empty_title') }}</h3>
-          <p class="empty-desc">
-            {{ t('saved_empty_desc') }}
-          </p>
-          <button class="btn p" type="button" @click="$emit('close')">
-            {{ t('back_to_catalog') }}
-          </button>
-        </div>
-      </div>
+  <ModalShell :show="show" drawer :title="t('saved_title_with_count', { count: saved.length })" @close="emit('close')">
+    <div v-if="!saved.length" class="empty-box">
+      <b>{{ t('saved_empty_title') }}</b>
+      <p class="p-muted">{{ t('saved_empty_desc') }}</p>
+      <button type="button" class="pbtn dark" @click="emit('close')">{{ t('back_to_catalog') }}</button>
     </div>
-  </div>
+    <template v-else>
+      <button v-for="l in saved" :key="l.id" type="button" class="mrow" @click="pick(l)">
+        <span class="th"><img v-if="l.image_urls && l.image_urls[0]" :src="l.image_urls[0]" alt="" loading="lazy" referrerpolicy="no-referrer" /></span>
+        <span><b>{{ l.rooms }} xonali · {{ tDistrict(l.district) }}</b><small>{{ l.area }} m² · {{ l.floor }}</small></span>
+        <span class="pr">{{ money(l.price_uzs) }}</span>
+      </button>
+      <button v-if="saved.length > 1" type="button" class="pbtn line" @click="compareAll">{{ t('compare') }}</button>
+    </template>
+  </ModalShell>
 </template>
-
-<style scoped>
-.saved-sheet {
-  max-width: 880px;
-}
-
-.saved-header {
-  padding: 18px 24px;
-}
-
-.header-left {
-  display: flex;
-  flex-direction: column;
-}
-
-.saved-title {
-  font-family: var(--font-serif);
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--ink);
-}
-
-.saved-body {
-  padding: 24px;
-}
-
-.saved-grid {
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 20px;
-}
-
-.saved-empty-box {
-  text-align: center;
-  padding: 64px 20px;
-  border: 1px dashed var(--sand);
-  border-radius: var(--radius-xs);
-  background: var(--surf);
-}
-
-.empty-title {
-  font-family: var(--font-serif);
-  font-size: 22px;
-  margin: 12px 0 8px;
-}
-
-.empty-desc {
-  font-size: 14.5px;
-  color: var(--muted);
-  max-width: 440px;
-  margin: 0 auto 24px;
-  line-height: 1.6;
-}
-
-@media (max-width: 640px) {
-  .saved-header {
-    padding: 14px 16px;
-  }
-  .saved-body {
-    padding: 16px 14px;
-  }
-  .saved-grid {
-    grid-template-columns: 1fr;
-    gap: 14px;
-  }
-}
-</style>

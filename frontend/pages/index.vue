@@ -5,6 +5,10 @@ import { useModals } from '~/composables/useModals'
 import HeroSearch from '~/components/HeroSearch.vue'
 import ListingCard from '~/components/ListingCard.vue'
 import HeroScene from '~/components/HeroScene.vue'
+import AssistantChat from '~/components/AssistantChat.vue'
+import DistrictMap from '~/components/DistrictMap.vue'
+import RoommatesPanel from '~/components/RoommatesPanel.vue'
+import { useNeighborhoods } from '~/composables/useNeighborhoods'
 
 const { t, tDistrict } = useI18n()
 const {
@@ -29,10 +33,16 @@ const {
   aiParsedCriteria,
   isAiSearching,
   resetAiMatch,
+  runAiMatch,
+  marketDiff,
+  isNewListing,
 } = useListings()
 
-const { showFilters, showMap, showPostAd, showRoommates, showNeighborhoods, showAssistant } = useModals()
+const { showFilters, showPostAd, showNeighborhoods } = useModals()
 const assistantPrefill = useState<string>('assistant_prefill', () => '')
+const { load: loadNb, byName: nbByName } = useNeighborhoods()
+onMounted(loadNb)
+const { showToast } = useModals()
 
 await useAsyncData('listings_ssr', async () => {
   await fetchListings()
@@ -99,9 +109,7 @@ const rentCategories = computed(() => [
   { key: 'mk', title: t('cat_no_agent') },
   { key: 'fair_cheap', title: t('cat_below_market') },
   { key: '3days', title: t('cat_new_listings') },
-  { key: '1', title: t('cat_1room') },
-  { key: '2', title: t('cat_2room') },
-  { key: '3', title: t('cat_3room') },
+  { key: 'metro', title: t('metro_near') },
   { key: 'room', title: t('cat_roommates') },
 ])
 const saleCategories = computed(() => [
@@ -109,10 +117,20 @@ const saleCategories = computed(() => [
   { key: 'mk', title: t('cat_from_owner') },
   { key: 'fair_cheap', title: t('cat_cheap_price') },
   { key: '3days', title: t('cat_new_listings') },
-  { key: '1', title: t('cat_1room') },
-  { key: '2', title: t('cat_2room') },
-  { key: '3', title: t('cat_3room') },
+  { key: 'metro', title: t('metro_near') },
 ])
+const catCount = (key: string) => {
+  const deal = filterDealType.value
+  return listings.value.filter((l) => {
+    if ((l.deal_type || 'rent') !== deal) return false
+    if (key === 'mk') return l.is_owner
+    if (key === 'fair_cheap') { const d = marketDiff(l); return d !== null && d <= -10 }
+    if (key === '3days') return isNewListing(l)
+    if (key === 'metro') return !!l.near_metro
+    if (key === 'room') return l.is_shared_room
+    return true
+  }).length
+}
 const activeCategories = computed(() => (filterDealType.value === 'sale' ? saleCategories.value : rentCategories.value))
 
 const audienceOptions = computed(() => [
@@ -222,10 +240,9 @@ const stats = computed(() => {
 })
 
 /* ---------- AI advisor ---------- */
-const advisorQuestions = computed(() => [t('q_tax'), t('q_deposit'), t('q_utilities'), t('q_fraud')])
-const askAdvisor = (q?: string) => {
-  assistantPrefill.value = q || ''
-  showAssistant.value = true
+const onShowAll = async (q: string) => {
+  await runAiMatch(q)
+  document.getElementById('katalog')?.scrollIntoView({ behavior: 'smooth' })
 }
 
 const toTop = () => { if (import.meta.client) window.scrollTo({ top: 0, behavior: 'smooth' }) }
@@ -245,12 +262,15 @@ const money = (v: number) => `${(v / 1e6).toLocaleString('ru-RU', { maximumFract
             <h2>{{ catalogTitle }}</h2>
           </div>
           <div class="head-acts">
-            <button type="button" class="btn-line" @click="showMap = true">
+            <a class="btn-line" href="#xarita">
               <svg viewBox="0 0 24 24" class="ic"><path d="M1 6v16l7-4 8 4 7-4V2l-7 4-8-4z" /><path d="M8 2v16M16 6v16" /></svg>{{ t('map') }}
-            </button>
+            </a>
             <button type="button" class="btn-line" @click="showFilters = true">
               <svg viewBox="0 0 24 24" class="ic"><path d="M4 7h10M18 7h2M4 17h4M12 17h8" /><circle cx="16" cy="7" r="2" /><circle cx="10" cy="17" r="2" /></svg>{{ t('more_filters') }}
             </button>
+            <a class="btn-line" href="https://t.me/joyliy_bot" target="_blank" rel="noopener" title="Yangi e’lonlar xabarnomasini Telegram bot orqali yoqing">
+              <svg viewBox="0 0 24 24" class="ic"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z" /><path d="M10 20a2 2 0 0 0 4 0" /></svg>Qidiruvni kuzatish
+            </a>
             <button v-if="hasActiveFilters" type="button" class="btn-line" @click="clearFilters">{{ t('reset_filter') }} ×</button>
           </div>
         </div>
@@ -266,7 +286,7 @@ const money = (v: number) => `${(v / 1e6).toLocaleString('ru-RU', { maximumFract
 
         <template v-else>
           <div class="chips" role="group" aria-label="Toifalar">
-            <button v-for="cat in activeCategories" :key="cat.key" type="button" class="chip" :aria-pressed="filterCategory === cat.key" @click="filterCategory = cat.key">{{ cat.title }}</button>
+            <button v-for="cat in activeCategories" :key="cat.key" type="button" class="chip" :aria-pressed="filterCategory === cat.key" @click="filterCategory = cat.key">{{ cat.title }}<small>{{ catCount(cat.key) }}</small></button>
           </div>
           <div v-if="filterDealType === 'rent'" class="aud">
             <span class="label">{{ t('tenants_lbl') }}</span>
@@ -282,6 +302,7 @@ const money = (v: number) => `${(v / 1e6).toLocaleString('ru-RU', { maximumFract
           </div>
         </template>
 
+        <p v-if="!isLoading && !isAiSearching" class="sum">{{ filteredListings.length }} ta e’lon</p>
         <div v-if="isLoading || isAiSearching" class="grid">
           <div v-for="n in 8" :key="n" class="skel"><div class="sk-ph"></div><div class="sk-l"></div><div class="sk-l s"></div></div>
         </div>
@@ -325,18 +346,17 @@ const money = (v: number) => `${(v / 1e6).toLocaleString('ru-RU', { maximumFract
           <div>
             <p class="label lt">Joyliy AI maslahatchi</p>
             <h2>Ijara bo‘yicha savolingizga <em>darhol javob.</em></h2>
-            <p class="sub">Shartnoma, zalog, kommunal to‘lovlar va firibgarlikdan himoya — Toshkent ijara amaliyoti bo‘yicha maslahat, qonuniy asos va amaliy tavsiyalar bilan.</p>
-            <button type="button" class="btn-light" @click="askAdvisor()">
-              <svg viewBox="0 0 24 24" class="spark"><path d="M12 2l2.2 6.3L20.5 10l-6.3 2.2L12 18.5l-2.2-6.3L3.5 10l6.3-1.7z" /></svg>
-              Maslahatchini ochish
-            </button>
+            <p class="sub">Shartnoma, zalog, kommunal to‘lovlar va firibgarlikdan himoya — Toshkent ijara amaliyoti bo‘yicha maslahat. Uy qidirish so‘rovlarini ham tushunadi.</p>
+            <div class="cap">
+              <div><svg viewBox="0 0 24 24" class="ic"><path d="M6 3h9l4 4v14H6z" /><path d="M9 12h7M9 16h7M14 3v5h5" /></svg><span><b>Shartnoma va soliq</b>ijara.soliq.uz orqali ro‘yxatdan o‘tkazish tartibi</span></div>
+              <div><svg viewBox="0 0 24 24" class="ic"><circle cx="12" cy="12" r="9" /><path d="M12 6v12M15 9.5c-.5-1-1.6-1.5-3-1.5-1.7 0-3 .9-3 2s1.3 1.8 3 2 3 .9 3 2-1.3 2-3 2c-1.4 0-2.5-.5-3-1.5" /></svg><span><b>Zalog va kommunal</b>Depozit qaytarilishi va to‘lovlar kimning zimmasida</span></div>
+              <div><svg viewBox="0 0 24 24" class="ic"><path d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6z" /><path d="M9 12l2 2 4-4" /></svg><span><b>Firibgarlikdan himoya</b>Oldindan to‘lov, avans va soxta e’lon belgilari</span></div>
+              <div><svg viewBox="0 0 24 24" class="ic"><circle cx="11" cy="11" r="7" /><path d="M20 20l-4-4" /></svg><span><b>Uy topish</b>“Yakkasaroyda 2 xonali, 8 mln gacha” kabi so‘rovlar</span></div>
+            </div>
           </div>
-          <div class="adv-qs">
-            <p class="label lt">Ko‘p beriladigan savollar</p>
-            <button v-for="q in advisorQuestions" :key="q" type="button" @click="askAdvisor(q)">
-              <span>{{ q }}</span>
-              <svg viewBox="0 0 24 24" class="ic"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
-            </button>
+          <div class="inline-chat">
+            <div class="ihd"><span class="orb lg" aria-hidden="true"></span><div><b>Joyliy AI</b><span>{{ t('bot_subtitle') }}</span></div></div>
+            <AssistantChat class="ichat" @select="onSelectListing" @showAll="onShowAll" />
           </div>
         </div>
       </div>
@@ -347,13 +367,18 @@ const money = (v: number) => `${(v / 1e6).toLocaleString('ru-RU', { maximumFract
       <div class="wrap">
         <div class="head">
           <div><p class="label">Hududlar</p><h2>Qayerdan uy <em>qidiryapsiz?</em></h2></div>
-          <button type="button" class="btn-line" @click="showNeighborhoods = true">Tumanlar qo‘llanmasi →</button>
+          <p class="muted">Har bir tumanning infratuzilma bahosi, narx darajasi va faol e’lonlari. Tumanni bosib e’lonlarini oching.</p>
         </div>
         <div class="loc">
           <button v-for="d in districtCards" :key="d.name" type="button" class="lc" @click="pickDistrict(d.name)">
             <img v-if="d.img" :src="d.img" alt="" loading="lazy" referrerpolicy="no-referrer" />
-            <span class="t"><b>{{ tDistrict(d.name) }}</b><span>{{ t('district_apts_count', { count: d.count }) }}<template v-if="d.avg"> · ijara o‘rtacha {{ money(d.avg) }}</template></span></span>
+            <span v-if="nbByName(d.name)" class="score">{{ nbByName(d.name)!.overall_score }} / 10</span>
+            <span class="t"><b>{{ tDistrict(d.name) }}</b><span>{{ t('district_apts_count', { count: d.count }) }}<template v-if="nbByName(d.name)"> · {{ nbByName(d.name)!.price_tier.split(' (')[0] }}</template></span></span>
           </button>
+        </div>
+        <div class="cities" aria-label="Shaharlar">
+          <span class="city on">Toshkent shahri <small>{{ stats.total }} e’lon</small></span>
+          <span v-for="c in ['Samarqand', 'Buxoro', 'Farg‘ona', 'Andijon', 'Namangan']" :key="c" class="city">{{ c }} <small>tez kunda</small></span>
         </div>
       </div>
     </section>
@@ -374,30 +399,25 @@ const money = (v: number) => `${(v / 1e6).toLocaleString('ru-RU', { maximumFract
       </div>
     </section>
 
-    <!-- MAP + ROOMMATES -->
-    <section class="sec pt0">
-      <div class="wrap duo">
-        <div class="tile map-tile">
-          <div class="map-art" aria-hidden="true">
-            <svg viewBox="0 0 100 60" preserveAspectRatio="none">
-              <polyline points="14,62 22,52 30,44 40,36 48,30 58,26 70,22 84,18" fill="none" stroke="#B5483A" stroke-width=".8" opacity=".6" />
-              <polyline points="20,10 32,18 44,24 52,30 62,36 74,40 88,44" fill="none" stroke="#3D5F8C" stroke-width=".8" opacity=".6" />
-              <polyline points="56,2 56,14 55,26 54,34 53,42" fill="none" stroke="#4F7A4A" stroke-width=".8" opacity=".6" />
-            </svg>
-            <span v-for="(d, i) in districtCards.slice(0, 6)" :key="d.name" class="pin" :style="{ left: [30, 58, 72, 46, 22, 64][i] + '%', top: [44, 26, 40, 60, 66, 72][i] + '%' }">{{ tDistrict(d.name) }} <small>{{ d.count }}</small></span>
-          </div>
-          <div class="tile-body">
-            <p class="label">Xarita</p>
-            <h3>Xaritadan o‘zingizga mos <em>uy toping.</em></h3>
-            <button type="button" class="btn-dark" @click="showMap = true">Xaritani ochish</button>
-          </div>
+    <!-- MAP -->
+    <section id="xarita" class="sec pt0">
+      <div class="wrap">
+        <div class="head">
+          <div><p class="label">Xarita</p><h2>Xaritadan o‘zingizga mos <em>uy toping.</em></h2></div>
+          <p class="muted">Tuman markazlari haqiqiy koordinatalar bo‘yicha joylashtirilgan. Tumanni bosing — e’lonlar o‘ng tomonda chiqadi.</p>
         </div>
-        <div class="tile rm-tile">
-          <p class="label">{{ t('roommates_tab') }}</p>
-          <h3>Birga yashash uchun <em>sherik toping.</em></h3>
-          <p class="muted">Talabalar va yosh mutaxassislar uchun anketa to‘ldiring, mos hamxonalar bilan bog‘laning.</p>
-          <button type="button" class="btn-dark" @click="showRoommates = true">Hamxona qidirish</button>
+        <DistrictMap @select="onSelectListing" @guide="showNeighborhoods = true" />
+      </div>
+    </section>
+
+    <!-- ROOMMATES -->
+    <section id="hamxona" class="sec pt0">
+      <div class="wrap">
+        <div class="head">
+          <div><p class="label">{{ t('roommates_tab') }}</p><h2>Birga yashash uchun <em>sherik toping.</em></h2></div>
+          <p class="muted">Talabalar va yosh mutaxassislar uchun: anketa to‘ldiring yoki mos hamxonalar bilan bog‘laning.</p>
         </div>
+        <RoommatesPanel @toast="showToast" />
       </div>
     </section>
 
@@ -453,6 +473,24 @@ const money = (v: number) => `${(v / 1e6).toLocaleString('ru-RU', { maximumFract
 </template>
 
 <style scoped>
+.chip small { font-weight: 500; opacity: .7; margin-left: 6px; }
+.sum { margin: 0 0 18px; font-size: 14px; color: var(--tx-muted); }
+.cap { display: grid; gap: 2px; margin-top: 28px; }
+.cap div { display: grid; grid-template-columns: 28px 1fr; gap: 12px; padding: 12px 0; border-top: 1px solid rgba(213, 200, 181, .16); font-size: 14px; color: #CFC6B8; }
+.cap b { display: block; color: #F5F1E9; font-weight: 700; }
+.cap .ic { color: var(--brand-sand); margin-top: 2px; width: 20px; height: 20px; }
+.inline-chat { background: var(--bg); color: var(--tx); border-radius: 28px; height: 560px; overflow: hidden; box-shadow: 0 30px 60px -30px rgba(0, 0, 0, .6); display: flex; flex-direction: column; min-width: 0; }
+.ihd { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--bd); flex: none; }
+.ihd b { display: block; font-weight: 700; }
+.ihd span:not(.orb) { font-size: 12px; color: var(--tx-muted); }
+.orb.lg { width: 32px; height: 32px; }
+.ichat { flex: 1; min-height: 0; }
+.lc .score { position: absolute; top: 14px; left: 14px; z-index: 1; padding: 6px 10px; border-radius: 999px; background: rgba(245, 241, 233, .92); color: #262521; font: 700 12px var(--font-sans); }
+.cities { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 22px; }
+.city { padding: 9px 15px; border-radius: 999px; border: 1px solid var(--brand-sand); font: 600 14px var(--font-sans); }
+.city.on { background: var(--accent-black); color: var(--on-ink); border-color: var(--accent-black); }
+.city small { font-weight: 500; opacity: .7; margin-left: 6px; }
+
 .home { overflow-x: clip; }
 .sec { padding-block: clamp(64px, 8vw, 112px); }
 .sec.pt0 { padding-top: 0; }
@@ -508,7 +546,7 @@ h2 em, h3 em { font-style: normal; font-weight: 600; color: var(--blue-primary);
 .tabs button[aria-pressed="true"] { background: var(--surface); color: var(--tx); }
 .ed { display: grid; grid-template-columns: repeat(12, 1fr); gap: 20px; }
 
-.adv { background: var(--panel); color: #F5F1E9; border-radius: clamp(24px, 4vw, 44px); padding: clamp(24px, 5.5vw, 76px); display: grid; grid-template-columns: 1fr 1fr; gap: clamp(28px, 5vw, 72px); align-items: center; }
+.adv { background: var(--panel); color: #F5F1E9; border-radius: clamp(24px, 4vw, 44px); padding: clamp(24px, 5.5vw, 76px); display: grid; grid-template-columns: .9fr 1.1fr; gap: clamp(28px, 5vw, 72px); align-items: center; }
 .adv h2 { color: #F5F1E9; margin-bottom: 16px; }
 .adv h2 em { color: var(--brand-sand); }
 .adv .sub { color: #CFC6B8; max-width: 42ch; margin: 0 0 26px; }

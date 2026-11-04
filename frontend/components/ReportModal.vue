@@ -1,14 +1,10 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useI18n } from '~/composables/useI18n'
+import ModalShell from '~/components/ModalShell.vue'
 
-const props = defineProps<{
-  show: boolean
-  listingId: number | null
-}>()
-
+const props = defineProps<{ show: boolean; listingId: number | null }>()
 const emit = defineEmits(['close', 'toast'])
-
 const { t } = useI18n()
 
 const reason = ref('PREPAYMENT_SCAM')
@@ -27,21 +23,16 @@ const submitReport = async () => {
   if (!props.listingId) return
   isSubmitting.value = true
   try {
-    const config = useRuntimeConfig()
-    const base = config.public.apiBase || ''
+    const base = (useRuntimeConfig().public.apiBase as string) || ''
     await $fetch(`${base}/api/scam/report`, {
       method: 'POST',
-      body: {
-        listing_id: props.listingId,
-        reason: reason.value,
-        details: details.value,
-      },
+      body: { listing_id: props.listingId, reason: reason.value, details: details.value },
     })
-    emit('toast', t('report_modal_title') + ': OK')
+    emit('toast', 'Shikoyat yuborildi. Rahmat!')
     emit('close')
     details.value = ''
   } catch (err) {
-    emit('toast', 'OK')
+    emit('toast', 'Shikoyat qabul qilindi')
     emit('close')
   } finally {
     isSubmitting.value = false
@@ -50,183 +41,21 @@ const submitReport = async () => {
 </script>
 
 <template>
-  <div v-if="show" class="modal-backdrop" @click.self="$emit('close')">
-    <div class="modal-box">
-      <div class="modal-head">
-        <h2 class="head-title">
-          <svg class="modal-head-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
-            <line x1="4" y1="22" x2="4" y2="15" />
-          </svg>
-          <span>{{ t('report_modal_title') }}</span>
-        </h2>
-        <button class="ib" @click="$emit('close')" :aria-label="t('close')">
-          <svg class="i" viewBox="0 0 24 24">
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-          </svg>
-        </button>
+  <ModalShell :show="show" :title="t('report_modal_title')" @close="emit('close')">
+    <p class="p-muted">{{ t('report_modal_desc', { id: listingId ?? '' }) }}</p>
+    <div class="fld">
+      <span>{{ t('report_reason_lbl') }}</span>
+      <div class="radios">
+        <label v-for="r in reasonsList" :key="r.val"><input v-model="reason" type="radio" name="report-reason" :value="r.val" /><span>{{ r.label }}</span></label>
       </div>
-
-      <form @submit.prevent="submitReport" class="modal-body">
-        <p class="desc">
-          {{ t('report_modal_desc', { id: listingId }) }}
-        </p>
-
-        <div class="form-group">
-          <label>{{ t('report_reason_lbl') }}</label>
-          <div class="radio-list">
-            <label v-for="r in reasonsList" :key="r.val" class="radio-label">
-              <input type="radio" v-model="reason" :value="r.val" />
-              <span>{{ r.label }}</span>
-            </label>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label>{{ t('report_details_lbl') }}</label>
-          <textarea
-            v-model="details"
-            rows="3"
-            :placeholder="t('report_details_placeholder')"
-          ></textarea>
-        </div>
-
-        <div class="modal-actions">
-          <button type="button" class="cancel-btn" @click="$emit('close')">{{ t('cancel') }}</button>
-          <button type="submit" class="submit-btn" :disabled="isSubmitting">
-            {{ isSubmitting ? t('sending') : t('send_report') }}
-          </button>
-        </div>
-      </form>
     </div>
-  </div>
+    <div class="fld">
+      <label for="report-details">{{ t('report_details_lbl') }}</label>
+      <textarea id="report-details" v-model="details" :placeholder="t('report_details_placeholder')"></textarea>
+    </div>
+    <template #footer>
+      <button type="button" class="pbtn line" @click="emit('close')">{{ t('cancel') }}</button>
+      <button type="button" class="pbtn dark" :disabled="isSubmitting" @click="submitReport">{{ isSubmitting ? t('sending') : t('send_report') }}</button>
+    </template>
+  </ModalShell>
 </template>
-
-<style scoped>
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(18, 17, 16, 0.65);
-  backdrop-filter: blur(5px);
-  z-index: 1300;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-}
-
-.modal-box {
-  background: #ffffff;
-  border-radius: 16px;
-  width: 100%;
-  max-width: 520px;
-  overflow: hidden;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-}
-
-.modal-head {
-  padding: 18px 24px;
-  border-bottom: 1px solid var(--sand, #DDD3C2);
-  background: var(--ivory, #F3F0E8);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.head-title {
-  margin: 0;
-  font-family: var(--font-serif);
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--ink);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.modal-head-svg {
-  width: 18px;
-  height: 18px;
-  color: #c5221f;
-  flex-shrink: 0;
-}
-
-.modal-body {
-  padding: 20px 24px;
-}
-
-.desc {
-  font-size: 13px;
-  color: #666;
-  margin-top: 0;
-  margin-bottom: 16px;
-}
-
-.form-group {
-  margin-bottom: 16px;
-}
-
-.form-group label {
-  display: block;
-  font-size: 13px;
-  font-weight: 600;
-  margin-bottom: 8px;
-}
-
-.radio-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.radio-label {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  font-size: 13px;
-  cursor: pointer;
-  line-height: 1.4;
-}
-
-.radio-label input {
-  margin-top: 3px;
-}
-
-textarea {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-family: inherit;
-  font-size: 13px;
-}
-
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 20px;
-}
-
-.cancel-btn {
-  padding: 8px 16px;
-  background: #eee;
-  border: none;
-  border-radius: 8px;
-  font-size: 13px;
-  cursor: pointer;
-}
-
-.submit-btn {
-  padding: 8px 20px;
-  background: #c5221f;
-  color: #ffffff;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 13px;
-  cursor: pointer;
-}
-</style>
-

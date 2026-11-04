@@ -1,4 +1,7 @@
 import { ref, computed } from 'vue'
+import { useNeighborhoods } from '~/composables/useNeighborhoods'
+
+const SHARED_RE = /sherik|подсел|подсл|койк|koika|sheriklik|комнату для|xona beriladi/i
 
 export interface ListingItem {
   id: number
@@ -23,6 +26,8 @@ export interface ListingItem {
   metro_name?: string
   metro_minutes?: number
   days_ago?: number
+  published_at?: string
+  near_metro?: boolean
   is_shared_room?: boolean
   amenities?: string[]
   disclaimer?: string
@@ -49,6 +54,8 @@ export interface ListingItem {
 }
 
 export function useListings() {
+  const { byName: nbByName } = useNeighborhoods()
+
   const listings = useState<ListingItem[]>('listings', () => [])
   const isLoading = useState<boolean>('listings_loading', () => false)
   const isLoadingMore = useState<boolean>('listings_loading_more', () => false)
@@ -87,6 +94,16 @@ export function useListings() {
     net: false,
     owner_only: false,
   }))
+
+  const detectAmenities = (item: any): string[] => {
+    const txt = `${item.title || ''} ${item.description || ''}`.toLowerCase()
+    const out: string[] = []
+    if (/мебел|mebel|jihoz/.test(txt) || item.is_furnished === true && /мебел|mebel|jihoz/.test(txt)) out.push('mebel')
+    if (/кондиц|konditsioner|kondisioner/.test(txt)) out.push('kond')
+    if (/стиральн|kir yuvish|стирал/.test(txt)) out.push('kir')
+    if (/wi-?fi|интернет|internet/.test(txt)) out.push('net')
+    return out
+  }
 
   const mapRawItem = (item: any, idx: number): ListingItem => {
     const isOwner =
@@ -129,8 +146,10 @@ export function useListings() {
       metro_name: item.metro_station || item.district || 'Metro',
       metro_minutes: Math.max(3, Math.round((item.metro_distance_m || 500) / 75)),
       days_ago: daysAgo,
-      is_shared_room: item.rooms === 0,
-      amenities: ['mebel', 'kond', 'kir', 'net'],
+      published_at: targetDateStr || undefined,
+      is_shared_room: item.rooms === 0 || SHARED_RE.test(`${item.title || ''} ${item.description || ''}`),
+      near_metro: /metro|метро/i.test(`${item.title || ''} ${item.description || ''}`),
+      amenities: detectAmenities(item),
       disclaimer: item.disclaimer || 'Egasidan ekanligi mustaqil tasdiqlanmagan.',
       source_attribution: item.source_attribution || 'Tashqi manba (OLX Uzbekistan)',
 
@@ -151,6 +170,18 @@ export function useListings() {
       property_type: item.property_type,
     }
   }
+
+  const marketDiff = (l: ListingItem): number | null => {
+    if (l.price_diff_percent) return Math.round(l.price_diff_percent)
+    if ((l.deal_type || 'rent') !== 'rent' || l.is_shared_room) return null
+    const nb: any = nbByName(l.district)
+    if (!nb) return null
+    const k = Math.max(1, Math.min(l.rooms || 2, 3))
+    const bench = nb[`avg_rent_${k}room_uzs`]
+    if (!bench) return null
+    return Math.round(((l.price_uzs - bench) / bench) * 100)
+  }
+  const isNewListing = (l: ListingItem) => !!l.published_at && Date.now() - new Date(l.published_at).getTime() < 3 * 864e5
 
   const fetchListings = async () => {
     isLoading.value = true
@@ -238,7 +269,7 @@ export function useListings() {
             metro_minutes: Math.max(3, Math.round((item.metro_distance_m || 500) / 75)),
             days_ago: 0,
             is_shared_room: item.rooms === 0,
-            amenities: ['mebel', 'kond', 'kir', 'net'],
+            amenities: detectAmenities(item),
             disclaimer: item.disclaimer || 'Egasidan ekanligi mustaqil tasdiqlanmagan.',
             source_attribution: item.source_attribution || 'Tashqi manba (OLX Uzbekistan)',
 
@@ -359,13 +390,18 @@ export function useListings() {
     if (filterCategory.value === 'room') result = result.filter((item) => item.is_shared_room)
     if (filterCategory.value === 'stu') result = result.filter((item) => item.price_uzs <= 2700000)
     if (filterCategory.value === 'mk') result = result.filter((item) => item.is_owner)
-    if (filterCategory.value === '3days') result = result.filter((item) => (item.days_ago || 0) <= 3)
+    if (filterCategory.value === 'metro') result = result.filter((item) => !!item.near_metro)
+    if (filterCategory.value === '3days') result = result.filter((item) => isNewListing(item))
     if (filterCategory.value === 'today') result = result.filter((item) => (item.days_ago || 0) === 0)
-    if (filterCategory.value === 'fair_cheap') result = result.filter((item) => item.fair_price_category === 'BELOW_MARKET')
+    if (filterCategory.value === 'fair_cheap') result = result.filter((item) => { const d = marketDiff(item); return d !== null && d <= -10 })
 
     // Target Audience filter ('family', 'female', 'male') - applies for rent only
     if (filterDealType.value === 'rent' && filterAudience.value && filterAudience.value !== 'all') {
       result = result.filter((item) => item.target_audience === filterAudience.value)
+    }
+
+    for (const key of ['mebel', 'kond', 'kir', 'net'] as const) {
+      if (filterAmenities.value[key]) result = result.filter((item) => (item.amenities || []).includes(key))
     }
 
     // Owner only amenity toggle
@@ -419,6 +455,9 @@ export function useListings() {
     filterAmenities,
     availableDistricts,
     fetchListings,
+    mapRawItem,
+    marketDiff,
+    isNewListing,
 
     // Server Pagination & Unlimited Discovery
     currentPage,

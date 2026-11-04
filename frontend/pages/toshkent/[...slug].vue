@@ -279,323 +279,80 @@ useHead(() => {
     ],
   }
 })
+const goListing = (l: ListingItem) => navigateTo(`/elon/${l.id}`)
 </script>
 
 <template>
-  <div class="seo-landing-container">
-    <!-- Breadcrumbs Navigation -->
-    <nav class="breadcrumb-container" aria-label="Breadcrumb">
-      <ol class="breadcrumb-list">
-        <li class="breadcrumb-item">
-          <NuxtLink to="/" class="breadcrumb-link">{{ t('nav_home') || 'Bosh sahifa' }}</NuxtLink>
-        </li>
-        <li class="breadcrumb-sep">/</li>
-        <li class="breadcrumb-item">
-          <NuxtLink to="/toshkent" class="breadcrumb-link">Toshkent</NuxtLink>
-        </li>
-        <li v-if="slugArray.length > 0" class="breadcrumb-sep">/</li>
-        <li v-if="slugArray.length > 0" class="breadcrumb-item current" aria-current="page">
-          <span>{{ seoInfo.breadcrumb }}</span>
-        </li>
-      </ol>
-    </nav>
+  <div class="seo">
+    <div class="wrap">
+      <nav aria-label="Breadcrumb" class="bc">
+        <ol>
+          <li><NuxtLink to="/">{{ t('home') }}</NuxtLink></li>
+          <li aria-hidden="true">/</li>
+          <li><NuxtLink to="/toshkent">Toshkent</NuxtLink></li>
+          <template v-if="slugArray.length > 0">
+            <li aria-hidden="true">/</li>
+            <li class="cur" aria-current="page">{{ seoInfo.breadcrumb }}</li>
+          </template>
+        </ol>
+      </nav>
 
-    <!-- Hero Header -->
-    <header class="seo-hero-header">
-      <h1 class="landing-h1">{{ seoInfo.h1 }}</h1>
-      <p class="landing-intro">{{ seoInfo.description }}</p>
+      <header class="hd">
+        <p class="p-label">Toshkent · katalog</p>
+        <h1>{{ seoInfo.h1 }}</h1>
+        <p class="intro">{{ seoInfo.description }}</p>
+        <div class="chips">
+          <NuxtLink v-for="c in [['rooms_1', '/toshkent/1-xonali-kvartiralar', '1 xonali'], ['rooms_2', '/toshkent/2-xonali-kvartiralar', '2 xonali'], ['rooms_3', '/toshkent/3-xonali-kvartiralar', '3 xonali'], ['cheap', '/toshkent/arzon-kvartiralar', 'Arzon narxlar'], ['sale', '/toshkent/sotiladigan-uylar', 'Sotiladigan'], ['rent', '/toshkent/ijaraga-kvartiralar', 'Ijara']]" :key="c[0]" :to="c[1]" class="chip" :class="{ on: pageType === c[0] }">{{ c[2] }}</NuxtLink>
+        </div>
+        <p class="count"><b>{{ matchedListings.length }} ta</b> e’lon topildi</p>
+      </header>
 
-      <!-- Quick Room Count Filter Chips -->
-      <div class="category-pills-row">
-        <NuxtLink
-          to="/toshkent/1-xonali-kvartiralar"
-          class="pill-link"
-          :class="{ active: pageType === 'rooms_1' }"
-        >
-          1 xonali
-        </NuxtLink>
-        <NuxtLink
-          to="/toshkent/2-xonali-kvartiralar"
-          class="pill-link"
-          :class="{ active: pageType === 'rooms_2' }"
-        >
-          2 xonali
-        </NuxtLink>
-        <NuxtLink
-          to="/toshkent/3-xonali-kvartiralar"
-          class="pill-link"
-          :class="{ active: pageType === 'rooms_3' }"
-        >
-          3 xonali
-        </NuxtLink>
-        <NuxtLink
-          to="/toshkent/arzon-kvartiralar"
-          class="pill-link"
-          :class="{ active: pageType === 'cheap' }"
-        >
-          Arzon narxlar
-        </NuxtLink>
-        <NuxtLink
-          to="/toshkent/sotiladigan-uylar"
-          class="pill-link"
-          :class="{ active: pageType === 'sale' }"
-        >
-          Sotiladigan
-        </NuxtLink>
-        <NuxtLink
-          to="/toshkent/ijaraga-kvartiralar"
-          class="pill-link"
-          :class="{ active: pageType === 'rent' }"
-        >
-          Ijara
-        </NuxtLink>
+      <div v-if="matchedListings.length === 0" class="empty">
+        <b>Bu mezon bo‘yicha hozircha e’lonlar yo‘q</b>
+        <p>Boshqa tuman yoki parametrlarni tanlab ko‘ring yoki barcha Toshkent e’lonlarini ko‘ring.</p>
+        <NuxtLink to="/toshkent" class="pbtn dark">Barcha e’lonlarni ko‘rish</NuxtLink>
+      </div>
+      <div v-else class="grid">
+        <ListingCard v-for="item in matchedListings" :key="item.id" :listing="item" @select="goListing" />
       </div>
 
-      <!-- Count Summary -->
-      <div class="meta-counter-bar">
-        <span class="counter-highlight">{{ matchedListings.length }} ta</span> e‘lon topildi
-      </div>
-    </header>
-
-    <!-- Empty State if no listings -->
-    <div v-if="matchedListings.length === 0" class="empty-results-card">
-      <div class="empty-icon">🏠</div>
-      <h2 class="empty-title">Bu mezon bo‘yicha hozircha e‘lonlar yo‘q</h2>
-      <p class="empty-desc">
-        Boshqa tuman yoki parametrlarni tanlab ko‘ring yoki barcha Toshkent e‘lonlarini ko‘ring.
-      </p>
-      <NuxtLink to="/toshkent" class="reset-link-btn">
-        Barcha e‘lonlarni ko‘rish
-      </NuxtLink>
+      <section class="dirs">
+        <h2>Toshkent tumanlari bo‘yicha qidiruv</h2>
+        <div class="dg">
+          <NuxtLink v-for="d in DISTRICT_LIST" :key="d.slug" :to="'/toshkent/' + d.slug" class="da" :class="{ on: activeDistrict?.uz === d.name }">
+            <b>{{ tDistrict(d.name) }}</b><span>tumanidagi kvartiralar</span>
+          </NuxtLink>
+        </div>
+      </section>
     </div>
-
-    <!-- Listings Grid -->
-    <div v-else class="listings-catalog-grid">
-      <ListingCard
-        v-for="item in matchedListings"
-        :key="item.id"
-        :listing="item"
-      />
-    </div>
-
-    <!-- Internal Linking: Explore Districts of Tashkent -->
-    <section class="districts-link-directory">
-      <h2 class="directory-heading">Toshkent tumanlari bo‘yicha qidiruv</h2>
-      <div class="districts-link-grid">
-        <NuxtLink
-          v-for="d in DISTRICT_LIST"
-          :key="d.slug"
-          :to="'/toshkent/' + d.slug"
-          class="district-anchor-card"
-          :class="{ active: activeDistrict?.uz === d.name }"
-        >
-          <span class="d-name">{{ d.name }}</span>
-          <span class="d-sub">tumanidagi kvartiralar</span>
-        </NuxtLink>
-      </div>
-    </section>
   </div>
 </template>
 
 <style scoped>
-.seo-landing-container {
-  max-width: 1240px;
-  margin: 0 auto;
-  padding: 24px 20px 80px;
-}
-
-.breadcrumb-container {
-  margin-bottom: 24px;
-}
-
-.breadcrumb-list {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  font-size: 13px;
-  color: var(--muted, #6B7280);
-}
-
-.breadcrumb-link {
-  color: var(--muted, #6B7280);
-  text-decoration: none;
-  transition: color 0.15s ease;
-}
-
-.breadcrumb-link:hover {
-  color: var(--blue-primary, #514437);
-}
-
-.breadcrumb-sep {
-  color: #D1D5DB;
-}
-
-.breadcrumb-item.current {
-  color: var(--ink, #1F2937);
-  font-weight: 500;
-}
-
-.seo-hero-header {
-  margin-bottom: 32px;
-}
-
-.landing-h1 {
-  font-size: 32px;
-  font-weight: 800;
-  color: #111827;
-  letter-spacing: -0.02em;
-  margin: 0 0 12px;
-}
-
-.landing-intro {
-  font-size: 15px;
-  color: #4B5563;
-  line-height: 1.6;
-  max-width: 760px;
-  margin: 0 0 20px;
-}
-
-.category-pills-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-.pill-link {
-  display: inline-flex;
-  align-items: center;
-  padding: 8px 16px;
-  background: #FFFFFF;
-  border: 1px solid #E5E7EB;
-  border-radius: 9999px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #374151;
-  text-decoration: none;
-  transition: all 0.15s ease;
-}
-
-.pill-link:hover {
-  background: #F9FAFB;
-  border-color: #D1D5DB;
-}
-
-.pill-link.active {
-  background: var(--blue-primary, #514437);
-  border-color: var(--blue-primary, #514437);
-  color: #FFFFFF;
-}
-
-.meta-counter-bar {
-  font-size: 14px;
-  color: #6B7280;
-}
-
-.counter-highlight {
-  font-weight: 700;
-  color: #111827;
-}
-
-.listings-catalog-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 24px;
-}
-
-.empty-results-card {
-  text-align: center;
-  padding: 60px 20px;
-  background: #FFFFFF;
-  border-radius: 16px;
-  border: 1px solid #E5E7EB;
-  margin-bottom: 48px;
-}
-
-.empty-icon {
-  font-size: 40px;
-  margin-bottom: 12px;
-}
-
-.empty-title {
-  font-size: 20px;
-  font-weight: 700;
-  color: #111827;
-  margin-bottom: 8px;
-}
-
-.empty-desc {
-  font-size: 14px;
-  color: #6B7280;
-  margin-bottom: 20px;
-}
-
-.reset-link-btn {
-  display: inline-flex;
-  align-items: center;
-  padding: 10px 20px;
-  background: var(--blue-primary, #514437);
-  color: #FFFFFF;
-  border-radius: 10px;
-  font-weight: 600;
-  font-size: 14px;
-  text-decoration: none;
-}
-
-.districts-link-directory {
-  margin-top: 60px;
-  padding-top: 36px;
-  border-top: 1px solid #E5E7EB;
-}
-
-.directory-heading {
-  font-size: 20px;
-  font-weight: 700;
-  color: #111827;
-  margin-bottom: 20px;
-}
-
-.districts-link-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 12px;
-}
-
-.district-anchor-card {
-  display: flex;
-  flex-direction: column;
-  padding: 14px;
-  background: #FFFFFF;
-  border: 1px solid #E5E7EB;
-  border-radius: 12px;
-  text-decoration: none;
-  transition: all 0.15s ease;
-}
-
-.district-anchor-card:hover {
-  border-color: var(--blue-primary, #514437);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-}
-
-.district-anchor-card.active {
-  border-color: var(--blue-primary, #514437);
-  background: #F0F7FF;
-}
-
-.d-name {
-  font-size: 14px;
-  font-weight: 700;
-  color: #111827;
-}
-
-.d-sub {
-  font-size: 11px;
-  color: #6B7280;
-  margin-top: 2px;
-}
+.seo { padding-top: 110px; padding-bottom: 96px; }
+.bc ol { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; font-size: 13px; color: var(--tx-muted); }
+.bc a { color: inherit; text-decoration: none; }
+.bc a:hover { color: var(--tx); }
+.bc .cur { color: var(--tx); font-weight: 600; }
+.hd { display: grid; gap: 14px; margin: 28px 0 40px; }
+h1 { margin: 0; font: 300 clamp(2rem, 4.4vw, 3.6rem)/1.06 var(--font-sans); letter-spacing: -.04em; max-width: 22ch; text-wrap: balance; }
+.intro { margin: 0; color: var(--tx-muted); max-width: 64ch; }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip { border: 1px solid var(--brand-sand); border-radius: 999px; padding: 9px 16px; font: 700 13px var(--font-sans); color: var(--tx); text-decoration: none; }
+.chip:hover { border-color: var(--blue-primary); }
+.chip.on { background: var(--accent-black); color: var(--on-ink); border-color: var(--accent-black); }
+.count { margin: 0; color: var(--tx-muted); font-size: 14px; }
+.count b { color: var(--tx); }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 30px 20px; }
+.empty { padding: 56px 20px; text-align: center; border: 1px dashed var(--brand-sand); border-radius: 28px; display: grid; gap: 12px; justify-items: center; }
+.empty b { font: 600 22px var(--font-sans); }
+.empty p { margin: 0; color: var(--tx-muted); max-width: 44ch; }
+.dirs { margin-top: 80px; }
+.dirs h2 { margin: 0 0 20px; font: 300 clamp(1.6rem, 3vw, 2.4rem)/1.1 var(--font-sans); letter-spacing: -.03em; }
+.dg { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
+.da { display: grid; gap: 2px; padding: 16px; border-radius: 20px; background: var(--surface); text-decoration: none; color: var(--tx); }
+.da:hover { background: var(--surface-subtle); }
+.da.on { background: var(--accent-black); color: var(--on-ink); }
+.da b { font-weight: 700; }
+.da span { font-size: 12px; opacity: .7; }
 </style>
-

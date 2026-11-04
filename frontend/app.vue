@@ -19,7 +19,7 @@ import ReportModal from '~/components/ReportModal.vue'
 
 const { t } = useI18n()
 const { count: favCount } = useFavorites()
-const { selectedListing, filterCategory, fetchListings, compareList, clearCompare } = useListings()
+const { selectedListing, filterCategory, fetchListings, compareList, clearCompare, runAiMatch } = useListings()
 const {
   showFilters,
   showMap,
@@ -78,6 +78,12 @@ const bnSearch = async () => {
   if (route.path !== '/') await navigateTo('/')
   window.scrollTo({ top: 0, behavior: 'smooth' })
   setTimeout(() => (document.getElementById('p-ai-in') as HTMLInputElement | null)?.focus({ preventScroll: true }), 450)
+}
+
+const onAssistantShowAll = async (q: string) => {
+  showAssistant.value = false
+  await runAiMatch(q)
+  document.getElementById('katalog')?.scrollIntoView({ behavior: 'smooth' })
 }
 
 const scrollToResults = () => {
@@ -209,35 +215,15 @@ onUnmounted(() => {
     <AIAssistantWidget
       :show="showAssistant"
       @close="showAssistant = false"
+      @showAll="onAssistantShowAll"
     />
 
-    <!-- Floating Comparison Bar -->
-    <Transition name="slide-fade">
-      <div v-if="compareList.length > 0 && !showCompare" class="floating-compare-bar">
-        <div class="fc-left">
-          <span class="fc-pill">
-            <svg class="fc-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-              <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
-              <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
-              <path d="M7 21h10"/>
-              <path d="M12 3v18"/>
-              <path d="M3 7h18"/>
-            </svg>
-            <span>{{ compareList.length }}</span>
-          </span>
-          <span class="fc-label">{{ t('compare_floating_label') }}</span>
-        </div>
-        <div class="fc-right">
-          <button class="fc-btn-view" @click="showCompare = true">
-            {{ t('compare') }}
-          </button>
-          <button class="fc-btn-clear" @click="clearCompare" :title="t('clear')" :aria-label="t('clear')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="fc-close-svg">
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-          </button>
-        </div>
+    <!-- Floating comparison tray -->
+    <Transition name="tray">
+      <div v-if="compareList.length > 0 && !showCompare" class="tray">
+        <span class="tray-t">{{ compareList.length }} ta xonadon taqqoslashda</span>
+        <button type="button" class="tray-go" :disabled="compareList.length < 2" @click="showCompare = true">{{ t('compare') }}</button>
+        <button type="button" class="tray-x" :title="t('clear')" :aria-label="t('clear')" @click="clearCompare">×</button>
       </div>
     </Transition>
 
@@ -270,125 +256,13 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-.app-layout {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-main {
-  flex: 1;
-}
-
-.floating-compare-bar {
-  position: fixed;
-  bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1050;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  background: var(--accent-black);
-  color: var(--on-ink);
-  padding: 8px 10px 8px 16px;
-  border-radius: var(--radius-full, 9999px);
-  box-shadow: 0 12px 32px rgba(23, 25, 29, 0.22);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  white-space: nowrap;
-}
-
-@media (max-width: 767px) {
-  /* On mobile, comparison is integrated into bottom nav capsule with counter badge */
-  .floating-compare-bar {
-    display: none !important;
-  }
-}
-
-.fc-left {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.fc-pill {
-  background: var(--blue-primary, #514437);
-  color: #ffffff;
-  font-size: 11px;
-  font-weight: 700;
-  padding: 3px 8px;
-  border-radius: 999px;
-  font-family: var(--font-mono);
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.fc-svg {
-  width: 13px;
-  height: 13px;
-}
-
-.fc-close-svg {
-  width: 12px;
-  height: 12px;
-}
-
-.fc-label {
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.fc-right {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.fc-btn-view {
-  background: var(--blue-primary, #514437);
-  color: #ffffff;
-  border: none;
-  font-size: 12.5px;
-  font-weight: 700;
-  padding: 6px 14px;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: opacity 0.18s;
-}
-
-.fc-btn-view:hover {
-  opacity: 0.92;
-}
-
-.fc-btn-clear {
-  background: rgba(255, 255, 255, 0.15);
-  color: #ffffff;
-  border: none;
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-}
-
-.slide-fade-enter-active,
-.slide-fade-leave-active {
-  transition: all 0.25s ease;
-}
-
-.slide-fade-enter-from,
-.slide-fade-leave-to {
-  transform: translate(-50%, 20px);
-  opacity: 0;
-}
-
-@media (max-width: 640px) {
-  .slide-fade-enter-from,
-  .slide-fade-leave-to {
-    transform: translateY(20px);
-  }
-}
+.app-layout { min-height: 100vh; display: flex; flex-direction: column; }
+main { flex: 1; }
+.tray { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 1050; display: flex; align-items: center; gap: 12px; padding: 8px 8px 8px 18px; border-radius: 999px; background: var(--accent-black); color: var(--on-ink); font: 600 13px var(--font-sans); box-shadow: var(--sh-floating); max-width: calc(100% - 220px); white-space: nowrap; }
+.tray-go { border: 0; border-radius: 999px; padding: 9px 16px; background: var(--on-ink); color: var(--accent-black); font: 700 13px var(--font-sans); cursor: pointer; }
+.tray-go:disabled { opacity: .5; cursor: not-allowed; }
+.tray-x { border: 0; background: none; color: inherit; cursor: pointer; opacity: .7; font-size: 18px; width: 26px; height: 26px; }
+.tray-enter-active, .tray-leave-active { transition: all .25s ease; }
+.tray-enter-from, .tray-leave-to { opacity: 0; transform: translate(-50%, 20px); }
+@media (max-width: 1023px) { .tray { bottom: calc(var(--mobile-nav-height) + var(--mobile-nav-bottom) + 20px + env(safe-area-inset-bottom, 0px)); left: 16px; transform: none; max-width: calc(100% - 100px); } .tray-enter-from, .tray-leave-to { transform: translateY(20px); } }
 </style>

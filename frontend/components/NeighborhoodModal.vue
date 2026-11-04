@@ -1,362 +1,75 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
 import { useListings } from '~/composables/useListings'
+import { useNeighborhoods } from '~/composables/useNeighborhoods'
+import { useI18n } from '~/composables/useI18n'
+import ModalShell from '~/components/ModalShell.vue'
 
-const props = defineProps<{
-  show: boolean
-}>()
-
+const props = defineProps<{ show: boolean }>()
 const emit = defineEmits(['close', 'selectDistrict'])
+const { filterDistrict, listings } = useListings()
+const { items, load } = useNeighborhoods()
+const { tDistrict } = useI18n()
 
-const { filterDistrict } = useListings()
+watch(() => props.show, (v) => { if (v) load() }, { immediate: true })
 
-interface DistrictInfo {
-  name: string
-  score: number
-  metro_count: number
-  avg_price_uzs: number
-  parks_count: number
-  universities_count: number
-  safety_score: number
-  description: string
-}
+const active = ref('')
+const current = computed(() => items.value.find((d) => d.id === active.value) || items.value[0])
+watch(items, (v) => { if (v.length && !active.value) active.value = v[0].id }, { immediate: true })
 
-const districts = ref<DistrictInfo[]>([])
-const isLoading = ref(false)
+const LBL: Record<string, string> = { metro: 'Metro', transport: 'Transport', markets: 'Bozor va do‘konlar', education: 'Ta’lim', parks: 'Bog‘lar', healthcare: 'Sog‘liqni saqlash', safety: 'Xavfsizlik' }
+const money = (v: number) => `${(v / 1e6).toLocaleString('ru-RU', { maximumFractionDigits: 1 })} mln`
+const countFor = (name: string) => listings.value.filter((l) => l.district === (name === 'Yangihayot' ? 'Yangi Hayot' : name)).length
 
-const loadDistricts = async () => {
-  isLoading.value = true
-  try {
-    const config = useRuntimeConfig()
-    const base = config.public.apiBase || ''
-    const res: any = await $fetch(`${base}/api/neighborhoods`)
-    if (res && res.districts) {
-      districts.value = res.districts.map((d: any) => ({
-        name: d.name,
-        score: d.overall_score || 88,
-        metro_count: d.metro_stations?.length || 3,
-        avg_price_uzs: d.average_price_uzs || 4500000,
-        parks_count: d.parks_count || 4,
-        universities_count: d.universities_count || 5,
-        safety_score: d.safety_rating || 90,
-        description: d.description || 'Toshkentning nufuzli va qulay tumanlaridan biri.',
-      }))
-    }
-  } catch (err) {
-    // fallback
-    districts.value = [
-      { name: 'Mirobod', score: 94, metro_count: 4, avg_price_uzs: 6500000, parks_count: 5, universities_count: 6, safety_score: 95, description: 'Markaziy biznes va nufuzli yashash hududi, premium kafelar va elchixonalar.' },
-      { name: 'Yakkasaroy', score: 91, metro_count: 3, avg_price_uzs: 5800000, parks_count: 4, universities_count: 4, safety_score: 93, description: 'Tinch, ko‘kalamzor, diplomatik hudud va milliy bog‘lar yaqini.' },
-      { name: 'Chilonzor', score: 89, metro_count: 8, avg_price_uzs: 3800000, parks_count: 6, universities_count: 7, safety_score: 88, description: 'Toshkentning eng yirik va qulay transportli tumani, talabalar va oilalar uchun ideal.' },
-      { name: 'Yunusobod', score: 90, metro_count: 6, avg_price_uzs: 4200000, parks_count: 5, universities_count: 5, safety_score: 90, description: 'Mega Planet, bozorlar, xiyobonlar va yashil mavzelar bilan mashhur.' },
-      { name: 'Mirzo Ulug‘bek', score: 92, metro_count: 5, avg_price_uzs: 5200000, parks_count: 6, universities_count: 8, safety_score: 92, description: 'Akademik va ilmiy markaz, TTZ, Buyuk Ipak Yo‘li, ekologik toza havo.' },
-      { name: 'Shayxontohur', score: 87, metro_count: 5, avg_price_uzs: 4800000, parks_count: 4, universities_count: 4, safety_score: 89, description: 'Tarixiy markaz, Chorsu, Samarqand Darvoza va qulay infratuzilma.' },
-    ]
-  } finally {
-    isLoading.value = false
-  }
-}
-
-onMounted(() => {
-  loadDistricts()
-})
-
-const chooseDistrict = (dName: string) => {
-  filterDistrict.value = dName
-  emit('selectDistrict', dName)
+const choose = () => {
+  if (!current.value) return
+  const n = current.value.name_uz === 'Yangihayot' ? 'Yangi Hayot' : current.value.name_uz
+  filterDistrict.value = n
+  emit('selectDistrict', n)
   emit('close')
-  const el = document.getElementById('katalog')
-  if (el) el.scrollIntoView({ behavior: 'smooth' })
-}
-
-const formatPrice = (p: number) => {
-  return `${(p / 1000000).toFixed(1)} mln so‘m`
+  document.getElementById('katalog')?.scrollIntoView({ behavior: 'smooth' })
 }
 </script>
 
 <template>
-  <div v-if="show" class="modal-backdrop" @click.self="$emit('close')">
-    <div class="modal-box">
-      <!-- Head -->
-      <div class="modal-head">
-        <div>
-          <span class="head-badge">Neighborhood Intelligence</span>
-          <h2 class="head-title">
-            <svg class="modal-head-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M3 21h18M5 21V7l8-4v18M13 21V11l6 3v7" />
-            </svg>
-            Toshkent Tumanlari Reytingi
-          </h2>
-        </div>
-        <button class="close-btn" @click="$emit('close')" aria-label="Yopish">
-          <svg class="close-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-          </svg>
-        </button>
-      </div>
-
-      <!-- Body -->
-      <div class="modal-body">
-        <p class="intro-p">
-          Joyliy tahliliy platformasi har bir tumanning transport, xavfsizlik, ta’lim va bozor narxlarini solishtiradi:
-        </p>
-
-        <div class="districts-grid">
-          <div v-for="d in districts" :key="d.name" class="d-card">
-            <div class="d-top">
-              <h3 class="d-name">{{ d.name }}</h3>
-              <span class="d-score">
-                <svg class="score-star-svg" viewBox="0 0 24 24" fill="currentColor">
-                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                </svg>
-                {{ d.score }}/100
-              </span>
-            </div>
-
-            <p class="d-desc">{{ d.description }}</p>
-
-            <div class="d-stats">
-              <div class="stat-cell">
-                <span class="s-label">O‘rtacha ijara</span>
-                <span class="s-val price">~{{ formatPrice(d.avg_price_uzs) }}</span>
-              </div>
-              <div class="stat-cell">
-                <span class="s-label">Metro bekatlari</span>
-                <span class="s-val">
-                  <svg class="stat-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="4" y="3" width="16" height="15" rx="3" />
-                    <line x1="4" y1="11" x2="20" y2="11" />
-                    <circle cx="8.5" cy="15.5" r="1.5" />
-                    <circle cx="15.5" cy="15.5" r="1.5" />
-                    <path d="M6 18l-2 3M18 18l2 3" />
-                  </svg>
-                  {{ d.metro_count }} ta
-                </span>
-              </div>
-              <div class="stat-cell">
-                <span class="s-label">Xavfsizlik</span>
-                <span class="s-val">
-                  <svg class="stat-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                  </svg>
-                  {{ d.safety_score }}%
-                </span>
-              </div>
-              <div class="stat-cell">
-                <span class="s-label">Parklar</span>
-                <span class="s-val">
-                  <svg class="stat-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 2L7 10h3l-4 7h6v5h2v-5h6l-4-7h3z" />
-                  </svg>
-                  {{ d.parks_count }} ta
-                </span>
-              </div>
-            </div>
-
-            <button type="button" class="d-btn" @click="chooseDistrict(d.name)">
-              Ushbu tumandagi uylarni ko‘rish →
-            </button>
-          </div>
-        </div>
-      </div>
+  <ModalShell :show="show" wide title="Tumanlar qo‘llanmasi" @close="emit('close')">
+    <div class="tabs-row" role="group" aria-label="Tumanlar">
+      <button v-for="d in items" :key="d.id" type="button" :aria-pressed="current && current.id === d.id" @click="active = d.id">{{ tDistrict(d.name_uz) }}</button>
     </div>
-  </div>
+    <div v-if="!current" class="empty-box"><b>Ma’lumot yuklanmoqda…</b></div>
+    <template v-else>
+      <div class="meta">
+        <span class="pbdg dark">{{ current.overall_score }} / 10</span>
+        <span class="pbdg">{{ current.price_tier }}</span>
+        <span class="pbdg">{{ countFor(current.name_uz) }} ta faol e’lon</span>
+      </div>
+      <p class="desc">{{ current.description_uz }}</p>
+      <div class="scores">
+        <div v-for="(v, k) in current.scores" :key="k"><span>{{ LBL[k] || k }}</span><span class="bar"><i :style="{ width: v * 10 + '%' }"></i></span><b>{{ v }}</b></div>
+      </div>
+      <dl class="rent">
+        <div><dt>1 xonali ijara</dt><dd>~{{ money(current.avg_rent_1room_uzs) }}</dd></div>
+        <div><dt>2 xonali ijara</dt><dd>~{{ money(current.avg_rent_2room_uzs) }}</dd></div>
+        <div><dt>3 xonali ijara</dt><dd>~{{ money(current.avg_rent_3room_uzs) }}</dd></div>
+      </dl>
+      <div class="fld"><span>Diqqatga sazovor joylar</span><div class="tagrow"><span v-for="h in current.highlights_uz" :key="h">{{ h }}</span></div></div>
+    </template>
+    <template #footer>
+      <button type="button" class="pbtn dark" :disabled="!current" @click="choose">{{ current ? tDistrict(current.name_uz) : '' }} e’lonlarini ko‘rish</button>
+    </template>
+  </ModalShell>
 </template>
 
 <style scoped>
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(18, 17, 16, 0.65);
-  backdrop-filter: blur(5px);
-  z-index: 1200;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-}
-
-.modal-box {
-  background: var(--surf, #ffffff);
-  border: 1px solid var(--sand, #ebe5db);
-  border-radius: 16px;
-  width: 100%;
-  max-width: 840px;
-  max-height: 90vh;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-}
-
-.modal-head {
-  padding: 18px 24px;
-  border-bottom: 1px solid var(--sand, #ebe5db);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.head-badge {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  color: var(--blue-primary, #514437);
-  letter-spacing: 0.5px;
-}
-
-.head-title {
-  margin: 2px 0 0;
-  font-size: 20px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.modal-head-svg {
-  width: 22px;
-  height: 22px;
-  color: var(--blue-primary, #514437);
-  flex-shrink: 0;
-}
-
-.close-btn {
-  background: none;
-  border: none;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  color: #72746b;
-  transition: background 0.15s ease;
-}
-
-.close-btn:hover {
-  background: rgba(0, 0, 0, 0.05);
-}
-
-.close-svg {
-  width: 18px;
-  height: 18px;
-}
-
-.score-star-svg {
-  width: 13px;
-  height: 13px;
-  color: #f59e0b;
-}
-
-.stat-svg {
-  width: 13px;
-  height: 13px;
-  display: inline-block;
-  vertical-align: -2px;
-  margin-right: 3px;
-  color: #64748b;
-}
-
-.modal-body {
-  padding: 20px 24px;
-  overflow-y: auto;
-  flex: 1;
-}
-
-.intro-p {
-  color: #72746b;
-  font-size: 13.5px;
-  margin-top: 0;
-  margin-bottom: 16px;
-}
-
-.districts-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 16px;
-}
-
-.d-card {
-  border: 1px solid var(--sand, #ebe5db);
-  border-radius: 12px;
-  padding: 16px;
-  background: #ffffff;
-  display: flex;
-  flex-direction: column;
-}
-
-.d-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 6px;
-}
-
-.d-name {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 700;
-}
-
-.d-score {
-  font-size: 12px;
-  font-weight: 700;
-  background: rgba(81, 68, 55, 0.1);
-  color: var(--blue-primary, #514437);
-  padding: 2px 8px;
-  border-radius: 12px;
-}
-
-.d-desc {
-  font-size: 12px;
-  color: #72746b;
-  margin: 0 0 12px;
-  line-height: 1.4;
-  flex: 1;
-}
-
-.d-stats {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  background: #fcfbf9;
-  padding: 10px;
-  border-radius: 8px;
-  margin-bottom: 12px;
-  font-size: 11.5px;
-}
-
-.s-label {
-  display: block;
-  color: #888;
-}
-
-.s-val {
-  font-weight: 700;
-}
-
-.s-val.price {
-  color: var(--blue-primary, #514437);
-}
-
-.d-btn {
-  padding: 8px;
-  border-radius: 8px;
-  background: #f5f2ed;
-  color: #1c1c1b;
-  border: none;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.d-btn:hover {
-  background: var(--blue-primary, #514437);
-  color: #ffffff;
-}
+.tabs-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.tabs-row button { border: 1px solid var(--brand-sand); background: transparent; border-radius: 999px; padding: 8px 14px; font: 700 13px var(--font-sans); cursor: pointer; color: var(--tx); }
+.tabs-row button[aria-pressed="true"] { background: var(--accent-black); color: var(--on-ink); border-color: var(--accent-black); }
+.meta { display: flex; gap: 8px; flex-wrap: wrap; }
+.desc { margin: 0; color: var(--blue-primary); max-width: 66ch; }
+.scores { display: grid; gap: 8px; }
+.scores div { display: grid; grid-template-columns: 140px 1fr 36px; gap: 12px; align-items: center; font-size: 13px; }
+.rent { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--bd); border: 1px solid var(--bd); border-radius: 20px; overflow: hidden; margin: 0; }
+.rent div { background: var(--bg); padding: 14px 16px; display: grid; gap: 4px; }
+.rent dt { font: 600 10px var(--font-sans); letter-spacing: .14em; text-transform: uppercase; color: var(--tx-muted); }
+.rent dd { margin: 0; font: 700 17px var(--font-sans); }
+@media (max-width: 600px) { .scores div { grid-template-columns: 100px 1fr 30px; } .rent { grid-template-columns: 1fr; } }
 </style>
-

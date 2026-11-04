@@ -9,7 +9,7 @@ const emit = defineEmits(['select'])
 
 const { t, tDistrict } = useI18n()
 const { isFavorite, toggleFavorite } = useFavorites()
-const { isInCompare, toggleCompare } = useListings()
+const { isInCompare, toggleCompare, marketDiff } = useListings()
 
 const imgFailed = ref(false)
 const imgLoaded = ref(false)
@@ -24,12 +24,11 @@ const money = (v: number) => {
 }
 
 const market = computed(() => {
-  const cat = (l.value.fair_price_category || '').toLowerCase()
-  const d = l.value.price_diff_percent
-  if (cat === 'below_market') return { cls: 'good', label: d ? `Bozordan ${Math.abs(Math.round(d))}% arzon` : t('below_market_label') }
-  if (cat === 'above_market') return { cls: 'high', label: d ? `Bozordan ${Math.abs(Math.round(d))}% qimmat` : t('above_market_label') }
-  if (cat === 'fair_price' && d != null) return { cls: '', label: t('at_market_label') }
-  return null
+  const d = marketDiff(l.value)
+  if (d === null) return null
+  if (d <= -10) return { cls: 'good', label: `Bozordan ${Math.abs(d)}% arzon` }
+  if (d >= 10) return { cls: 'high', label: `Bozordan ${d}% qimmat` }
+  return { cls: '', label: t('at_market_label') }
 })
 
 const ago = computed(() => {
@@ -93,7 +92,7 @@ const onKey = (e: KeyboardEvent) => { if (e.key === 'Enter') emit('select', l.va
           <svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6z" /><path d="M9 12l2 2 4-4" /></svg>{{ t('badge_owner') }}
         </span>
         <span v-else-if="market?.cls === 'good'" class="bdg">{{ t('badge_below_market') }}</span>
-        <span v-else-if="l.metro_station" class="bdg">{{ t('metro_near') }}</span>
+        <span v-else-if="l.near_metro" class="bdg">{{ t('metro_near') }}</span>
       </div>
       <span v-if="photoCount > 1" class="bdg count">
         <svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z" /><circle cx="12" cy="13" r="3.5" /></svg>{{ photoCount }}

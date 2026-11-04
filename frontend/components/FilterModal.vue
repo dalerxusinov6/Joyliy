@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import { useI18n } from '~/composables/useI18n'
 import { useListings } from '~/composables/useListings'
+import ModalShell from '~/components/ModalShell.vue'
 
-defineProps<{
-  show: boolean
-}>()
-
+defineProps<{ show: boolean }>()
 const emit = defineEmits(['close'])
 const { t } = useI18n()
 const { filterAmenities, filterSort, filterAudience } = useListings()
@@ -15,12 +13,18 @@ const sortOptions = computed(() => [
   { value: 'lo', label: t('sort_low') },
   { value: 'hi', label: t('sort_high') },
 ])
-
 const audienceList = computed(() => [
   { value: 'all', label: t('aud_all') },
   { value: 'family', label: t('aud_family') },
   { value: 'female', label: t('aud_female') },
   { value: 'male', label: t('aud_male') },
+])
+const amenityList = computed(() => [
+  { key: 'owner_only', title: t('amenity_owner_title'), sub: t('amenity_owner_sub') },
+  { key: 'mebel', title: t('amenity_furniture_title'), sub: t('amenity_furniture_sub') },
+  { key: 'kond', title: t('amenity_ac_title'), sub: t('amenity_ac_sub') },
+  { key: 'kir', title: t('amenity_wm_title'), sub: t('amenity_wm_sub') },
+  { key: 'net', title: t('amenity_wifi_title'), sub: t('amenity_wifi_sub') },
 ])
 
 const onReset = () => {
@@ -32,332 +36,35 @@ const onReset = () => {
   filterAudience.value = 'all'
   filterSort.value = 'new'
 }
-
-const onApply = () => {
-  emit('close')
-}
 </script>
 
 <template>
-  <div v-if="show" class="ov show" @click.self="$emit('close')">
-    <div class="sheet filter-sheet">
-      <!-- Header -->
-      <div class="top filter-header">
-        <div class="filter-header-left">
-          <span class="filter-heading-text">{{ t('filter_advanced_title') }}</span>
-        </div>
-        <button class="ib" @click="$emit('close')" :aria-label="t('close')">
-          <svg class="i" viewBox="0 0 24 24">
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-          </svg>
-        </button>
-      </div>
-
-      <div class="bd filter-body">
-        <!-- Sort Segment -->
-        <div class="filter-section">
-          <span class="editorial-meta">{{ t('sort_order') }}</span>
-          <div class="sort-segmented">
-            <button
-              v-for="opt in sortOptions"
-              :key="opt.value"
-              type="button"
-              class="sort-tab"
-              :class="{ active: filterSort === opt.value }"
-              @click="filterSort = opt.value"
-            >
-              {{ opt.label }}
-            </button>
-          </div>
-        </div>
-
-        <!-- Audience Grid -->
-        <div class="filter-section">
-          <span class="editorial-meta">{{ t('tenant_category') }}</span>
-          <div class="audience-select-grid">
-            <button
-              v-for="aud in audienceList"
-              :key="aud.value"
-              type="button"
-              class="audience-select-card"
-              :class="{ active: filterAudience === aud.value }"
-              @click="filterAudience = aud.value"
-            >
-              <span class="aud-icon">
-                <svg v-if="aud.value === 'all'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="f-svg">
-                  <circle cx="12" cy="12" r="10" />
-                  <line x1="2" y1="12" x2="22" y2="12" />
-                  <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-                </svg>
-                <svg v-else-if="aud.value === 'family'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="f-svg">
-                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                  <circle cx="9" cy="7" r="4" />
-                  <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                  <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                </svg>
-                <svg v-else-if="aud.value === 'female'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="f-svg">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                  <circle cx="12" cy="7" r="4" />
-                </svg>
-                <svg v-else-if="aud.value === 'male'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="f-svg">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                  <circle cx="12" cy="7" r="4" />
-                </svg>
-              </span>
-              <span class="aud-text">{{ aud.label }}</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Amenities Checklist -->
-        <div class="filter-section">
-          <span class="editorial-meta">{{ t('amenities_criteria') }}</span>
-          <div class="amenities-container">
-            <!-- Owner Only -->
-            <label class="amenity-row owner-highlight">
-              <input type="checkbox" v-model="filterAmenities.owner_only" />
-              <div class="amenity-desc">
-                <span class="amenity-title">{{ t('amenity_owner_title') }}</span>
-                <span class="amenity-sub">{{ t('amenity_owner_sub') }}</span>
-              </div>
-            </label>
-
-            <!-- Mebel -->
-            <label class="amenity-row">
-              <input type="checkbox" v-model="filterAmenities.mebel" />
-              <div class="amenity-desc">
-                <span class="amenity-title">{{ t('amenity_furniture_title') }}</span>
-                <span class="amenity-sub">{{ t('amenity_furniture_sub') }}</span>
-              </div>
-            </label>
-
-            <!-- Konditsioner -->
-            <label class="amenity-row">
-              <input type="checkbox" v-model="filterAmenities.kond" />
-              <div class="amenity-desc">
-                <span class="amenity-title">{{ t('amenity_ac_title') }}</span>
-                <span class="amenity-sub">{{ t('amenity_ac_sub') }}</span>
-              </div>
-            </label>
-
-            <!-- Kir yuvish -->
-            <label class="amenity-row">
-              <input type="checkbox" v-model="filterAmenities.kir" />
-              <div class="amenity-desc">
-                <span class="amenity-title">{{ t('amenity_wm_title') }}</span>
-                <span class="amenity-sub">{{ t('amenity_wm_sub') }}</span>
-              </div>
-            </label>
-
-            <!-- Wi-Fi -->
-            <label class="amenity-row">
-              <input type="checkbox" v-model="filterAmenities.net" />
-              <div class="amenity-desc">
-                <span class="amenity-title">{{ t('amenity_wifi_title') }}</span>
-                <span class="amenity-sub">{{ t('amenity_wifi_sub') }}</span>
-              </div>
-            </label>
-          </div>
-        </div>
-      </div>
-
-      <!-- Action Footer Bar -->
-      <div class="cbar filter-cbar">
-        <button class="btn" type="button" @click="onReset">{{ t('clear') }}</button>
-        <button class="btn p" type="button" @click="onApply">{{ t('apply_filters') }}</button>
+  <ModalShell :show="show" :title="t('filter_advanced_title')" @close="emit('close')">
+    <div class="fld">
+      <span>{{ t('sort_order') }}</span>
+      <div class="togs">
+        <button v-for="o in sortOptions" :key="o.value" type="button" :aria-pressed="filterSort === o.value" @click="filterSort = o.value as any">{{ o.label }}</button>
       </div>
     </div>
-  </div>
+    <div class="fld">
+      <span>{{ t('tenant_category') }}</span>
+      <div class="togs">
+        <button v-for="o in audienceList" :key="o.value" type="button" :aria-pressed="filterAudience === o.value" @click="filterAudience = o.value">{{ o.label }}</button>
+      </div>
+    </div>
+    <div class="fld">
+      <span>{{ t('amenities_criteria') }}</span>
+      <div class="checks">
+        <label v-for="a in amenityList" :key="a.key">
+          <input v-model="(filterAmenities as any)[a.key]" type="checkbox" />
+          <span><b>{{ a.title }}</b><span>{{ a.sub }}</span></span>
+        </label>
+      </div>
+      <p class="p-note">Qulayliklar e’lon matnidan aniqlanadi.</p>
+    </div>
+    <template #footer>
+      <button type="button" class="pbtn line" @click="onReset">{{ t('clear') }}</button>
+      <button type="button" class="pbtn dark" @click="emit('close')">{{ t('apply_filters') }}</button>
+    </template>
+  </ModalShell>
 </template>
-
-<style scoped>
-.filter-sheet {
-  max-width: 540px;
-}
-
-.filter-header {
-  padding: 18px 24px;
-}
-
-.filter-header-left {
-  display: flex;
-  flex-direction: column;
-}
-
-.filter-heading-text {
-  font-family: var(--font-serif);
-  font-size: 19px;
-  font-weight: 600;
-  color: var(--ink);
-}
-
-.filter-body {
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.filter-section {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.sort-segmented {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  background: var(--sand-light);
-  border: 1px solid var(--sand);
-  border-radius: var(--radius-xs);
-  padding: 3px;
-}
-
-.sort-tab {
-  padding: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--muted);
-  border-radius: var(--radius-xs);
-  transition: all 0.15s ease;
-  text-align: center;
-}
-
-.sort-tab.active {
-  background: var(--surf);
-  color: var(--ink);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-}
-
-.audience-select-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
-}
-
-.audience-select-card {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 14px;
-  background: var(--surf);
-  border: 1px solid var(--sand);
-  border-radius: var(--radius-xs);
-  cursor: pointer;
-  transition: all 0.18s ease;
-}
-
-.audience-select-card:hover {
-  border-color: var(--ink);
-}
-
-.audience-select-card.active {
-  background: rgba(81, 68, 55, 0.08);
-  border-color: var(--blue-primary, #514437);
-  color: var(--blue-primary, #514437);
-}
-
-.aud-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.f-svg {
-  width: 16px;
-  height: 16px;
-}
-
-.aud-text {
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.amenities-container {
-  background: var(--surf);
-  border: 1px solid var(--sand);
-  border-radius: var(--radius-xs);
-  overflow: hidden;
-}
-
-.amenity-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--sand-light);
-  cursor: pointer;
-  transition: background 0.15s ease;
-}
-
-.amenity-row:last-child {
-  border-bottom: none;
-}
-
-.amenity-row:hover {
-  background: var(--ivory);
-}
-
-.owner-highlight {
-  background: rgba(81, 68, 55, 0.08);
-}
-
-.amenity-row input {
-  width: 17px;
-  height: 17px;
-  accent-color: var(--blue-primary, #514437);
-}
-
-.amenity-desc {
-  display: flex;
-  flex-direction: column;
-}
-
-.amenity-title {
-  font-size: 13.5px;
-  font-weight: 600;
-  color: var(--ink);
-}
-
-.amenity-sub {
-  font-size: 11px;
-  color: var(--muted);
-}
-
-.filter-cbar {
-  display: flex;
-  gap: 10px;
-}
-
-.filter-cbar .btn.p {
-  flex: 2;
-}
-
-.filter-cbar .btn:first-child {
-  flex: 1;
-}
-
-@media (max-width: 640px) {
-  .filter-header {
-    padding: 14px 18px;
-  }
-  .filter-body {
-    padding: 16px 18px 24px;
-    gap: 18px;
-  }
-  .filter-cbar {
-    padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
-    position: sticky;
-    bottom: 0;
-    background: var(--surf);
-    border-top: 1px solid var(--sand);
-    z-index: 10;
-  }
-  .filter-cbar .btn {
-    min-height: 46px;
-    font-size: 13.5px;
-    font-weight: 600;
-  }
-}
-</style>

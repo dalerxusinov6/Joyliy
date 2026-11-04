@@ -1,267 +1,78 @@
 <script setup lang="ts">
 import { useI18n } from '~/composables/useI18n'
-const { t } = useI18n()
+import { useListings } from '~/composables/useListings'
+
+const { t, tDistrict } = useI18n()
+const { filterCategory, filterDealType, filterDistrict, filterPropertyType, aiSearchActive, resetAiMatch } = useListings()
+const route = useRoute()
+
+const go = async (fn: () => void) => {
+  if (aiSearchActive.value) await resetAiMatch()
+  fn()
+  if (route.path !== '/') await navigateTo('/#katalog')
+  else document.getElementById('katalog')?.scrollIntoView({ behavior: 'smooth' })
+}
+const cat = (key: string, deal: 'rent' | 'sale' = 'rent') => go(() => { filterDealType.value = deal; filterCategory.value = key; filterPropertyType.value = ''; filterDistrict.value = '' })
+const dist = (d: string) => go(() => { filterDistrict.value = d; filterCategory.value = '' })
+const districts = ['Chilonzor', 'Yunusobod', 'Mirzo Ulug‘bek', 'Mirobod', 'Yakkasaroy', 'Yashnobod']
 </script>
 
 <template>
-  <footer class="iconly-footer">
+  <footer class="ft">
     <div class="wrap">
-      <!-- Top Masthead of Footer -->
-      <div class="footer-top-bar">
-        <div class="footer-brand">
-          <div class="brand-logo-mark-sm">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="logo-icon-sm">
-              <path d="M3 10.5 12 3l9 7.5V20a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 20v-9.5z" />
-              <circle cx="12" cy="13" r="2.2" fill="currentColor" />
-            </svg>
-          </div>
-          <span class="footer-brand-title">Joyliy<span class="brand-tld">.uz</span></span>
-          <span class="footer-brand-sub">{{ t('footer_brand_sub') }}</span>
+      <div class="grid">
+        <div class="brand">
+          <NuxtLink to="/" class="logo" aria-label="Joyliy">
+            <svg viewBox="0 0 40 40" aria-hidden="true"><rect class="a" x="1" y="1" width="38" height="38" rx="19" /><path class="b" d="M12 29V17l8-6 8 6v12" fill="none" stroke-width="1.6" /><path class="c" d="M16.5 29v-6.5a3.5 3.5 0 0 1 7 0V29" /></svg>
+            <b>Joyliy</b>
+          </NuxtLink>
+          <p>{{ t('footer_about_desc') }}</p>
         </div>
-        <div class="footer-edition">
-          <span>{{ t('footer_edition') }}</span>
+        <div>
+          <h4>{{ t('footer_catalog') }}</h4>
+          <ul>
+            <li><button type="button" @click="cat('')">{{ t('footer_all_apts') }}</button></li>
+            <li><button type="button" @click="cat('mk')">{{ t('footer_no_agent') }}</button></li>
+            <li><button type="button" @click="cat('fair_cheap')">{{ t('footer_cheap') }}</button></li>
+            <li><button type="button" @click="cat('3days')">{{ t('footer_new') }}</button></li>
+            <li><button type="button" @click="cat('room')">{{ t('footer_roommates') }}</button></li>
+          </ul>
         </div>
-      </div>
-
-      <!-- Main Columns Grid -->
-      <div class="footer-columns-grid">
-        <!-- Col 1: About / Statement -->
-        <div class="footer-col about-col">
-          <h4 class="col-heading">{{ t('footer_about_title') }}</h4>
-          <p class="col-desc">
-            {{ t('footer_about_desc') }}
-          </p>
-          <div class="footer-badges">
-            <span class="f-badge">{{ t('footer_badge_0pct') }}</span>
-            <span class="f-badge">{{ t('footer_badge_ai') }}</span>
-            <span class="f-badge">{{ t('footer_badge_fair') }}</span>
-          </div>
+        <div>
+          <h4>{{ t('footer_districts') }}</h4>
+          <ul>
+            <li v-for="d in districts" :key="d"><button type="button" @click="dist(d)">{{ tDistrict(d) }}</button></li>
+          </ul>
         </div>
-
-        <!-- Col 2: Directory -->
-        <div class="footer-col">
-          <h4 class="col-heading">{{ t('footer_catalog') }}</h4>
-          <a href="#katalog" class="footer-link">{{ t('footer_all_apts') }}</a>
-          <a href="#katalog" class="footer-link">{{ t('footer_no_agent') }}</a>
-          <a href="#katalog" class="footer-link">{{ t('footer_cheap') }}</a>
-          <a href="#katalog" class="footer-link">{{ t('footer_new') }}</a>
-          <a href="#katalog" class="footer-link">{{ t('footer_roommates') }}</a>
-        </div>
-
-        <!-- Col 3: Districts -->
-        <div class="footer-col">
-          <h4 class="col-heading">{{ t('footer_districts') }}</h4>
-          <a href="#katalog" class="footer-link">{{ t('district_chilonzor') }}</a>
-          <a href="#katalog" class="footer-link">{{ t('district_yunusobod') }}</a>
-          <a href="#katalog" class="footer-link">{{ t('district_mirzo') }}</a>
-          <a href="#katalog" class="footer-link">{{ t('district_mirobod') }}</a>
-          <a href="#katalog" class="footer-link">{{ t('district_yakkasaroy') }}</a>
-          <a href="#katalog" class="footer-link">{{ t('district_yashnobod') }}</a>
-        </div>
-
-        <!-- Col 4: Telegram & Contacts -->
-        <div class="footer-col">
-          <h4 class="col-heading">{{ t('footer_contacts') }}</h4>
-          <a href="https://t.me/joyliy_bot" target="_blank" rel="noopener" class="footer-link special-link">
-            <svg class="foot-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="m22 2-11 11M22 2l-7 20-4-9-9-4z" />
-            </svg>
-            <span>Telegram Bot: @joyliy_bot</span>
-          </a>
-          <a href="https://t.me/joyliy_uz" target="_blank" rel="noopener" class="footer-link special-link">
-            <svg class="foot-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="m3 11 18-5v12L3 14v-3z" />
-              <path d="M11.6 16.8a3 3 0 1 1-5.8-1.6" />
-            </svg>
-            <span>Telegram Kanal: @joyliy_uz</span>
-          </a>
-          <a href="mailto:salom@joyliy.uz" class="footer-link">
-            <svg class="foot-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-              <polyline points="22,6 12,13 2,6" />
-            </svg>
-            <span>salom@joyliy.uz</span>
-          </a>
-          <span class="city-location">{{ t('footer_city') }}</span>
+        <div>
+          <h4>{{ t('footer_contacts') }}</h4>
+          <ul>
+            <li><a href="https://t.me/joyliy_bot" target="_blank" rel="noopener">Telegram bot · @joyliy_bot</a></li>
+            <li><a href="https://t.me/joyliy_uz" target="_blank" rel="noopener">Kanal · @joyliy_uz</a></li>
+            <li><a href="mailto:salom@joyliy.uz">salom@joyliy.uz</a></li>
+            <li>{{ t('footer_city') }}</li>
+          </ul>
         </div>
       </div>
-
-      <!-- Bottom Legal Line -->
-      <div class="footer-bottom-line">
-        <div class="legal-left">
-          {{ t('footer_rights') }}
-        </div>
-        <div class="legal-right">
-          {{ t('footer_disclaimer') }}
-        </div>
-      </div>
+      <div class="fine"><span>{{ t('footer_rights') }}</span><span>{{ t('footer_disclaimer') }}</span></div>
     </div>
   </footer>
 </template>
 
 <style scoped>
-.iconly-footer {
-  background: var(--surface);
-  border-top: 1px solid var(--border-subtle);
-  padding: 56px 0 32px;
-  margin-top: 48px;
-}
-
-.footer-top-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-bottom: 24px;
-  border-bottom: 1px solid var(--border-subtle);
-  margin-bottom: 36px;
-  flex-wrap: wrap;
-  gap: 16px;
-}
-
-.footer-brand {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.brand-logo-mark-sm {
-  width: 28px;
-  height: 28px;
-  background: var(--blue-gradient);
-  color: #ffffff;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.logo-icon-sm {
-  width: 16px;
-  height: 16px;
-}
-
-.footer-brand-title {
-  font-family: var(--font-sans);
-  font-size: 20px;
-  font-weight: 800;
-  color: var(--text-primary);
-  letter-spacing: -0.02em;
-}
-
-.brand-tld {
-  color: var(--blue-primary);
-}
-
-.footer-brand-sub {
-  font-size: 13px;
-  color: var(--text-secondary);
-  margin-left: 6px;
-}
-
-.footer-edition {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--blue-deep);
-}
-
-.footer-columns-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 32px;
-  margin-bottom: 40px;
-}
-
-@media (min-width: 640px) {
-  .footer-columns-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (min-width: 1024px) {
-  .footer-columns-grid {
-    grid-template-columns: 1.4fr 1fr 1fr 1.2fr;
-    gap: 40px;
-  }
-}
-
-.col-heading {
-  font-family: var(--font-sans);
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 0 0 16px;
-}
-
-.col-desc {
-  font-size: 13.5px;
-  color: var(--text-secondary);
-  line-height: 1.6;
-  margin: 0 0 16px;
-}
-
-.footer-badges {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
-.f-badge {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--blue-deep);
-  background: var(--blue-pale);
-  padding: 3px 9px;
-  border-radius: var(--radius-full);
-}
-
-.footer-link {
-  display: block;
-  font-size: 13.5px;
-  color: var(--text-secondary);
-  margin-bottom: 10px;
-  transition: color 0.15s ease;
-}
-
-.footer-link:hover {
-  color: var(--blue-primary);
-}
-
-.special-link {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--text-primary);
-  font-weight: 600;
-}
-
-.special-link:hover {
-  color: var(--blue-primary);
-}
-
-.foot-icon {
-  width: 16px;
-  height: 16px;
-  flex-shrink: 0;
-  color: var(--blue-primary);
-}
-
-.city-location {
-  display: block;
-  font-size: 12px;
-  color: var(--text-secondary);
-  margin-top: 14px;
-}
-
-.footer-bottom-line {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-top: 24px;
-  border-top: 1px solid var(--border-subtle);
-  font-size: 12px;
-  color: var(--text-secondary);
-  flex-wrap: wrap;
-  gap: 10px;
-}
+.ft { padding-block: 72px 40px; color: var(--tx-muted); font-size: 14px; background: transparent; border: 0; }
+.grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 32px; border-top: 1px solid var(--brand-sand); padding-top: 40px; }
+.brand { display: grid; gap: 14px; align-content: start; }
+.brand p { margin: 0; max-width: 38ch; }
+.logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--tx); }
+.logo svg { width: 32px; height: 32px; }
+.a { fill: var(--accent-black); } .b { stroke: var(--bg); } .c { fill: var(--brand-sand); }
+.logo b { font: 800 20px/1 var(--font-sans); letter-spacing: -.04em; }
+h4 { margin: 0 0 14px; font: 600 11px var(--font-sans); letter-spacing: .16em; text-transform: uppercase; color: var(--tx); }
+ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+a, button { text-decoration: none; background: none; border: 0; padding: 0; cursor: pointer; color: inherit; text-align: left; font: inherit; }
+a:hover, button:hover { color: var(--tx); }
+.fine { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-top: 40px; font-size: 12px; }
+@media (max-width: 900px) { .grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 480px) { .grid { grid-template-columns: 1fr; } }
 </style>
