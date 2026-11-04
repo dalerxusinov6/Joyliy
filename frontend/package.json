@@ -15,5 +15,11 @@
     "three": "^0.186.1",
     "vue": "^3.5.44",
     "vue-router": "^5.4.0"
-  }
+  },
+  "browserslist": [
+    "> 0.2%",
+    "not dead",
+    "Safari >= 14",
+    "iOS >= 14"
+  ]
 }

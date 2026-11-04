@@ -202,10 +202,10 @@ const py = (lat: number) => ((LAT0 - lat) / (LAT0 - LAT1)) * 100
 .pin[aria-pressed="true"] { background: var(--accent-black); color: var(--on-ink); z-index: 3; }
 .pin small { font-weight: 500; opacity: .7; margin-left: 4px; }
 .zoom { position: absolute; right: 14px; top: 14px; z-index: 5; display: grid; gap: 8px; }
-.zoom button { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--glass-line); background: var(--glass-strong); backdrop-filter: blur(28px) saturate(1.35); -webkit-backdrop-filter: blur(28px) saturate(1.35); box-shadow: var(--sh-floating); display: grid; place-items: center; cursor: pointer; color: var(--tx); }
+.zoom button { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--glass-line); background: var(--glass-strong); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); box-shadow: var(--sh-floating); display: grid; place-items: center; cursor: pointer; color: var(--tx); }
 .zoom button:hover { background: var(--surface); }
 .zoom svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; }
-.note { position: absolute; left: 14px; bottom: 14px; z-index: 5; font-size: 12px; font-weight: 600; color: var(--tx-muted); background: var(--glass-strong); backdrop-filter: blur(28px) saturate(1.35); -webkit-backdrop-filter: blur(28px) saturate(1.35); border: 1px solid var(--glass-line); padding: 7px 12px; border-radius: 999px; }
+.note { position: absolute; left: 14px; bottom: 14px; z-index: 5; font-size: 12px; font-weight: 600; color: var(--tx-muted); background: var(--glass-strong); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); border: 1px solid var(--glass-line); padding: 7px 12px; border-radius: 999px; }
 .side { background: var(--surface); border-radius: 28px; padding: 22px; display: flex; flex-direction: column; gap: 10px; min-width: 0; max-height: 600px; }
 .side h3 { margin: 0; font: 600 28px var(--font-sans); letter-spacing: -.03em; }
 .meta { margin: 0; color: var(--tx-muted); font-size: 14px; }

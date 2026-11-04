@@ -140,9 +140,9 @@
   --terracotta-subtle: rgba(213, 200, 181, 0.14);
   --olive: #9DBB95;
   --olive-subtle: #2A3326;
-  --glass: rgba(32, 30, 27, 0.58);
-  --glass-strong: rgba(36, 34, 30, 0.92);
-  --glass-line: rgba(255, 255, 255, 0.09);
+  --glass: rgba(27, 26, 23, 0.65);
+  --glass-strong: rgba(32, 30, 27, 0.82);
+  --glass-line: rgba(255, 255, 255, 0.12);
   --on-ink: #1B1A17;
   --panel: #121110;
   --ok: #9DBB95; --ok-bg: #2A3326; --warn: #E0B26E; --warn-bg: #3A3022; --bad: #E39484; --bad-bg: #3D2722;
@@ -273,16 +273,16 @@ svg.i {
 /* Frosted Glass Utilities */
 .glass-pill {
   background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
   border: 1px solid var(--border-glass);
   border-radius: var(--radius-full);
 }
 
 .glass-panel {
   background: rgba(255, 255, 255, 0.82);
-  backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
   border: 1px solid var(--border-glass);
   border-radius: var(--radius-card);
 }
@@ -382,8 +382,8 @@ header {
   top: 0;
   z-index: var(--z-header);
   background: rgba(243, 244, 245, 0.88);
-  backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border-subtle);
   transition: background 0.3s ease;
 }

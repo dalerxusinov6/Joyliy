@@ -233,7 +233,7 @@ const failed = ref<Record<number, boolean>>({})
 .dt.overlay { position: fixed; inset: 0; z-index: var(--z-modal); background: var(--bg); overflow-y: auto; overscroll-behavior: contain; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); animation: pagein .35s cubic-bezier(.2, .7, .2, 1); }
 .dt:not(.overlay) { padding-top: 84px; }
 @keyframes pagein { from { transform: translateY(24px); opacity: .6; } to { transform: none; opacity: 1; } }
-.top { position: sticky; top: 0; z-index: 3; padding-block: 10px; background: var(--bg); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-bottom: 1px solid var(--bd); }
+.top { position: sticky; top: 0; z-index: 3; padding-block: 10px; background: color-mix(in srgb, var(--bg) 85%, transparent); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); border-bottom: 1px solid var(--bd); }
 .dt:not(.overlay) .top { position: static; background: transparent; border: 0; backdrop-filter: none; padding-top: 8px; }
 .row { display: flex; align-items: center; gap: 8px; }
 .crumb { font-size: 13px; color: var(--tx-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }

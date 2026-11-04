@@ -270,21 +270,21 @@ onBeforeUnmount(() => clearTimeout(timer))
 </template>
 
 <style scoped>
-.p-hero { position: relative; z-index: 0; top: auto; min-height: min(940px, 100svh); display: flex; flex-direction: column; overflow: hidden; isolation: isolate; }
-.p-hero > .wrap { width: 100%; }
-.p-hero :deep(.hero-scene) { z-index: -2; }
-.p-hero-fade { position: absolute; inset: 0; z-index: -1; background: linear-gradient(100deg, color-mix(in srgb, var(--bg) 94%, transparent) 0%, color-mix(in srgb, var(--bg) 60%, transparent) 36%, transparent 62%); }
-.p-hero-in { flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 40px; align-items: center; padding-top: calc(130px + env(safe-area-inset-top, 0px)); padding-bottom: 28px; }
+.p-hero { position: relative; z-index: 0; top: auto; min-height: min(940px, 100svh); display: flex; flex-direction: column; overflow: hidden; }
+.p-hero > .wrap { width: 100%; position: relative; z-index: 2; }
+.p-hero :deep(.hero-scene) { z-index: 0; }
+.p-hero-fade { position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(100deg, color-mix(in srgb, var(--bg) 94%, transparent) 0%, color-mix(in srgb, var(--bg) 60%, transparent) 36%, transparent 62%); }
+.p-hero-in { flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 40px; align-items: center; padding-top: calc(130px + env(safe-area-inset-top, 0px)); padding-bottom: 28px; position: relative; z-index: 2; }
 .p-label { font: 600 11px/1.2 var(--font-sans); letter-spacing: .16em; text-transform: uppercase; color: var(--tx-muted); margin: 0; }
 .p-h1 { margin: 20px 0 0; font-family: var(--font-sans); font-size: clamp(2.1rem, 4.2vw, 4rem); font-weight: 300; line-height: 1.02; letter-spacing: -.05em; color: var(--tx); text-wrap: balance; }
 .p-h1 span { display: block; }
 .p-h1 em { font-style: normal; font-weight: 600; color: var(--blue-primary); }
 .p-lede { margin: 22px 0 0; max-width: 46ch; font-size: clamp(15px, 1.3vw, 17px); color: var(--blue-primary); }
 .p-trust { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 26px; }
-.p-trust span { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; font-size: 13px; font-weight: 600; color: var(--tx); }
+.p-trust span { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; font-size: 13px; font-weight: 600; color: var(--tx); background: var(--glass); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); border: 1px solid var(--glass-line); box-shadow: var(--sh-floating); }
 .p-trust svg { width: 15px; height: 15px; stroke: var(--ok); fill: none; stroke-width: 2; }
 
-.p-aidemo { border-radius: 28px; padding: 22px; display: grid; gap: 16px; cursor: pointer; text-align: left; width: 100%; color: var(--tx); font: inherit; animation: p-rise .8s .2s both; }
+.p-aidemo { border-radius: 28px; padding: 22px; display: grid; gap: 16px; cursor: pointer; text-align: left; width: 100%; color: var(--tx); font: inherit; background: var(--glass); -webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px); border: 1px solid var(--glass-line); box-shadow: var(--sh-floating); animation: p-rise .8s .2s both; }
 .p-aidemo-h { display: flex; align-items: center; gap: 12px; }
 .p-aidemo-h b { display: block; font-weight: 700; font-size: 15px; }
 .p-aidemo-h small { font-size: 12px; color: var(--tx-muted); }
@@ -298,7 +298,7 @@ onBeforeUnmount(() => clearTimeout(timer))
 .p-aidemo-f { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding-top: 12px; border-top: 1px solid var(--bd); font-size: 13px; }
 .p-aidemo-f b { font-size: 20px; font-weight: 700; letter-spacing: -.02em; }
 
-.p-search { border-radius: 28px; padding: 10px; margin-bottom: 28px; background: var(--glass-strong); backdrop-filter: blur(28px) saturate(1.35); -webkit-backdrop-filter: blur(28px) saturate(1.35); border: 1px solid var(--glass-line); box-shadow: var(--sh-floating); }
+.p-search { border-radius: 28px; padding: 10px; margin-bottom: 28px; background: var(--glass-strong); -webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px); border: 1px solid var(--glass-line); box-shadow: var(--sh-floating); }
 .p-modes { display: flex; gap: 4px; padding: 2px 2px 10px; flex-wrap: wrap; }
 .p-modes button { border: 0; background: transparent; border-radius: 999px; padding: 9px 16px; font: 700 13px var(--font-sans); cursor: pointer; color: var(--tx-muted); display: inline-flex; gap: 8px; align-items: center; }
 .p-modes button[aria-pressed="true"] { background: var(--accent-black); color: var(--on-ink); }

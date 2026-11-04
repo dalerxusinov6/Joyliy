@@ -19,16 +19,17 @@ const { count: favCount } = useFavorites()
 const { user, initAuth } = useAuth()
 const { compareList, filterDealType, filterPropertyType, aiSearchActive, resetAiMatch } = useListings()
 
-const isDark = ref(false)
+const isDark = ref(true)
 const compact = ref(false)
 const onScroll = () => { compact.value = window.scrollY > 40 }
 
 onMounted(() => {
   initAuth()
   const saved = localStorage.getItem('joyliy_theme')
-  isDark.value = saved === 'dark'
-  document.documentElement.dataset.theme = isDark.value ? 'dark' : 'light'
-  if (!saved) localStorage.setItem('joyliy_theme', 'light')
+  isDark.value = saved ? saved === 'dark' : true
+  const theme = isDark.value ? 'dark' : 'light'
+  document.documentElement.dataset.theme = theme
+  if (!saved) localStorage.setItem('joyliy_theme', 'dark')
   onScroll()
   window.addEventListener('scroll', onScroll, { passive: true })
 })
@@ -101,9 +102,9 @@ const route = useRoute()
 <style scoped>
 .hdr { position: fixed; top: calc(14px + env(safe-area-inset-top, 0px)); left: 0; right: 0; z-index: var(--z-header); transition: top .3s; }
 .hdr .wrap { display: flex; }
-.cap { flex: 1; min-width: 0; display: flex; align-items: center; gap: 6px; border-radius: 999px; padding: 6px; background: var(--glass); backdrop-filter: blur(28px) saturate(1.35); -webkit-backdrop-filter: blur(28px) saturate(1.35); border: 1px solid var(--glass-line); box-shadow: var(--sh-floating); transition: background .3s; }
+.cap { flex: 1; min-width: 0; display: flex; align-items: center; gap: 6px; border-radius: 999px; padding: 6px; background: var(--glass); -webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px); border: 1px solid var(--glass-line); box-shadow: var(--sh-floating); transition: background .3s; }
 .hdr.compact { top: calc(8px + env(safe-area-inset-top, 0px)); }
-.hdr.compact .cap { background: var(--glass-strong); }
+.hdr.compact .cap { background: var(--glass-strong); -webkit-backdrop-filter: blur(28px); backdrop-filter: blur(28px); }
 .logo { display: flex; align-items: center; gap: 10px; padding: 4px 12px 4px 6px; text-decoration: none; color: var(--tx); }
 .logo svg { width: 32px; height: 32px; }
 .lm-bg { fill: var(--accent-black); } .lm-l { stroke: var(--bg); } .lm-d { fill: var(--brand-sand); }

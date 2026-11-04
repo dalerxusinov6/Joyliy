@@ -96,7 +96,7 @@ onBeforeUnmount(() => { window.removeEventListener('keydown', onKey); if (import
 .x svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; }
 .as > :deep(.chat) { flex: 1; min-height: 0; }
 .as.p-glass { background: color-mix(in srgb, var(--bg) 97%, transparent); }
-.as-scrim { position: fixed; inset: 0; z-index: calc(var(--z-chat-fullscreen) - 1); background: rgba(20, 19, 17, .38); backdrop-filter: blur(10px) saturate(1.1); -webkit-backdrop-filter: blur(10px) saturate(1.1); }
+.as-scrim { position: fixed; inset: 0; z-index: calc(var(--z-chat-fullscreen) - 1); background: rgba(20, 19, 17, .38); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
 .scrim-enter-active, .scrim-leave-active { transition: opacity .25s; }
 .scrim-enter-from, .scrim-leave-to { opacity: 0; }
 .as-enter-active, .as-leave-active { transition: opacity .2s, transform .25s; }
