@@ -661,7 +661,7 @@ const formatPrice = (p: number) => {
 
 .spec-val.price {
   font-weight: 700;
-  color: var(--blue-primary, #2878C8);
+  color: var(--blue-primary, #514437);
 }
 
 .tags-row {
@@ -692,7 +692,7 @@ const formatPrice = (p: number) => {
   margin-top: auto;
   padding: 9px 14px;
   border-radius: var(--radius-xs, 4px);
-  background: var(--blue-primary, #2878C8);
+  background: var(--blue-primary, #514437);
   color: #ffffff;
   border: none;
   font-size: 13px;
@@ -784,7 +784,7 @@ const formatPrice = (p: number) => {
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
-  border-color: var(--blue-primary, #2878C8);
+  border-color: var(--blue-primary, #514437);
   outline: none;
 }
 
@@ -793,7 +793,7 @@ const formatPrice = (p: number) => {
   margin-top: 18px;
   padding: 12px;
   border-radius: var(--radius-xs, 4px);
-  background: var(--blue-primary, #2878C8);
+  background: var(--blue-primary, #514437);
   color: #ffffff;
   border: none;
   font-weight: 700;
@@ -870,7 +870,7 @@ const formatPrice = (p: number) => {
 
 .send-btn {
   padding: 8px 16px;
-  background: var(--blue-primary, #2878C8);
+  background: var(--blue-primary, #514437);
   color: #ffffff;
   border: none;
   border-radius: var(--radius-xs, 4px);

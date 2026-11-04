@@ -488,7 +488,7 @@ useHead(() => {
 }
 
 .breadcrumb-link:hover {
-  color: var(--blue-primary, #2878C8);
+  color: var(--blue-primary, #514437);
 }
 
 .breadcrumb-sep {
@@ -536,7 +536,7 @@ useHead(() => {
   display: inline-flex;
   align-items: center;
   padding: 12px 24px;
-  background: var(--blue-primary, #2878C8);
+  background: var(--blue-primary, #514437);
   color: #FFFFFF;
   border-radius: 10px;
   text-decoration: none;
@@ -640,8 +640,8 @@ useHead(() => {
 }
 
 .action-pill-btn.active {
-  border-color: #2878C8;
-  color: #2878C8;
+  border-color: #514437;
+  color: #514437;
 }
 
 .btn-svg {
@@ -728,7 +728,7 @@ useHead(() => {
 }
 
 .thumb-button.active {
-  border-color: #2878C8;
+  border-color: #514437;
 }
 
 .thumb-button img {
@@ -854,7 +854,7 @@ useHead(() => {
   gap: 10px;
   width: 100%;
   padding: 14px;
-  background: var(--blue-primary, #2878C8);
+  background: var(--blue-primary, #514437);
   color: #FFFFFF;
   border-radius: 12px;
   font-weight: 700;

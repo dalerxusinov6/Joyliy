@@ -12,29 +12,27 @@ const emit = defineEmits([
   'openMap',
   'openRoommates',
   'openCompare',
-  'openNeighborhoods'
+  'openNeighborhoods',
 ])
 const { currentLang, setLang, t } = useI18n()
 const { count: favCount } = useFavorites()
 const { user, initAuth } = useAuth()
-const { compareList } = useListings()
+const { compareList, filterDealType, filterPropertyType, aiSearchActive, resetAiMatch } = useListings()
 
 const isDark = ref(false)
+const compact = ref(false)
+const onScroll = () => { compact.value = window.scrollY > 40 }
 
 onMounted(() => {
   initAuth()
   const saved = localStorage.getItem('joyliy_theme')
-  if (saved === 'dark') {
-    isDark.value = true
-    document.documentElement.dataset.theme = 'dark'
-  } else {
-    isDark.value = false
-    document.documentElement.dataset.theme = 'light'
-    if (!saved) {
-      localStorage.setItem('joyliy_theme', 'light')
-    }
-  }
+  isDark.value = saved === 'dark'
+  document.documentElement.dataset.theme = isDark.value ? 'dark' : 'light'
+  if (!saved) localStorage.setItem('joyliy_theme', 'light')
+  onScroll()
+  window.addEventListener('scroll', onScroll, { passive: true })
 })
+onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
 
 const toggleTheme = () => {
   isDark.value = !isDark.value
@@ -43,512 +41,96 @@ const toggleTheme = () => {
   localStorage.setItem('joyliy_theme', theme)
 }
 
-const onLangChange = (lang: string) => {
-  setLang(lang.toLowerCase() as any)
+const goDeal = async (deal: 'rent' | 'sale') => {
+  if (aiSearchActive.value) await resetAiMatch()
+  filterDealType.value = deal
+  filterPropertyType.value = ''
+  if (route.path !== '/') await navigateTo('/#katalog')
+  else document.getElementById('katalog')?.scrollIntoView({ behavior: 'smooth' })
 }
+const route = useRoute()
 </script>
 
 <template>
-  <header class="iconly-header">
-    <div class="wrap hd">
-      <!-- Left: Logo & Wordmark -->
-      <NuxtLink to="/" class="brand-link" aria-label="Joyliy.uz bosh sahifasi">
-        <div class="brand-logo-mark">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="logo-icon">
-            <path d="M3 10.5 12 3l9 7.5V20a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 20v-9.5z" />
-            <circle cx="12" cy="13" r="2.2" fill="currentColor" />
-          </svg>
+  <nav class="hdr" :class="{ compact }" aria-label="Asosiy navigatsiya">
+    <div class="wrap">
+      <div class="cap">
+        <NuxtLink to="/" class="logo" aria-label="Joyliy — bosh sahifa">
+          <svg viewBox="0 0 40 40" aria-hidden="true"><rect class="lm-bg" x="1" y="1" width="38" height="38" rx="19" /><path class="lm-l" d="M12 29V17l8-6 8 6v12" fill="none" stroke-width="1.6" /><path class="lm-d" d="M16.5 29v-6.5a3.5 3.5 0 0 1 7 0V29" /></svg>
+          <b>Joyliy</b><i>.UZ</i>
+        </NuxtLink>
+
+        <div class="links">
+          <NuxtLink to="/" class="lnk" exact-active-class="on">{{ t('home') }}</NuxtLink>
+          <button type="button" class="lnk" @click="goDeal('sale')">Sotuv</button>
+          <button type="button" class="lnk" @click="goDeal('rent')">Ijara</button>
+          <button type="button" class="lnk" @click="emit('openMap')">{{ t('map') }}</button>
+          <button type="button" class="lnk" @click="emit('openRoommates')">{{ t('roommates_tab') }}</button>
         </div>
-        <div class="brand-identity">
-          <span class="brand-name">Joyliy<span class="brand-tld">.uz</span></span>
-        </div>
-      </NuxtLink>
 
-      <!-- Center: Clean Floating Pill Navigation (Hidden on mobile/tablet, desktop only) -->
-      <nav class="d iconly-nav" :aria-label="t('mobile_nav')">
-        <a href="#katalog" class="nav-item">{{ t('home') }}</a>
-        <a href="#katalog" class="nav-item" @click.prevent="$emit('filterMaklersiz')">{{ t('no_agent') }}</a>
-        <a href="#xarita" class="nav-item" @click.prevent="$emit('openMap')">{{ t('map') }}</a>
-        <a href="#hamxona" class="nav-item" @click.prevent="$emit('openRoommates')">{{ t('roommates_tab') }}</a>
-        <a href="#taqqoslash" class="nav-item" @click.prevent="$emit('openCompare')">
-          {{ t('compare') }}
-          <span v-if="compareList.length" class="badge-mini">{{ compareList.length }}</span>
-        </a>
-      </nav>
-
-      <span class="sp"></span>
-
-      <!-- Right: Responsive Controls & Dark CTA Pill -->
-      <div class="header-right">
-        <!-- Language Switcher Pill -->
-        <div class="lang-pill" role="group" aria-label="Tilni tanlash">
-          <button
-            type="button"
-            class="lang-choice"
-            :class="{ active: currentLang === 'uz' }"
-            @click="onLangChange('uz')"
-          >
-            UZ
+        <div class="right">
+          <div class="lang hide-m" role="group" aria-label="Til">
+            <button v-for="lg in ['uz', 'ru', 'en']" :key="lg" type="button" :aria-pressed="currentLang === lg" @click="setLang(lg as any)">{{ lg.toUpperCase() }}</button>
+          </div>
+          <button type="button" class="ib" :aria-label="isDark ? t('theme_light') : t('theme_dark')" @click="toggleTheme">
+            <svg v-if="isDark" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M5 19l1.5-1.5M17.5 6.5L19 5" /></svg>
+            <svg v-else viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" /></svg>
           </button>
-          <button
-            type="button"
-            class="lang-choice"
-            :class="{ active: currentLang === 'ru' }"
-            @click="onLangChange('ru')"
-          >
-            RU
+          <button type="button" class="ib hide-m" :aria-label="t('compare')" @click="emit('openCompare')">
+            <svg viewBox="0 0 24 24"><path d="M7 4v16M17 4v16M3 8h8M13 16h8" /></svg>
+            <span v-if="compareList.length" class="dot">{{ compareList.length }}</span>
+          </button>
+          <button type="button" class="ib hide-m" :aria-label="t('saved')" @click="emit('openFavorites')">
+            <svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" /></svg>
+            <span v-if="favCount" class="dot">{{ favCount }}</span>
+          </button>
+          <button type="button" class="ib hide-m" :aria-label="user ? user.first_name : t('profile')" @click="emit('openProfile')">
+            <img v-if="user && user.photo_url" :src="user.photo_url" class="ava" alt="" />
+            <span v-else-if="user && user.first_name" class="ini">{{ user.first_name[0].toUpperCase() }}</span>
+            <svg v-else viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" /><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" /></svg>
+          </button>
+          <button type="button" class="cta" @click="emit('openNew')">
+            <span class="long">{{ t('post_ad') }}</span><span class="short">+ {{ t('post_ad_short') }}</span>
           </button>
         </div>
-
-        <!-- Theme Toggle -->
-        <button
-          class="ib theme-btn"
-          @click="toggleTheme"
-          :aria-label="isDark ? t('theme_light') : t('theme_dark')"
-          :title="isDark ? t('theme_light') : t('theme_dark')"
-        >
-          <svg v-if="isDark" class="i" viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="5" />
-            <line x1="12" y1="1" x2="12" y2="3" />
-            <line x1="12" y1="21" x2="12" y2="23" />
-            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
-            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
-            <line x1="1" y1="12" x2="3" y2="12" />
-            <line x1="21" y1="12" x2="23" y2="12" />
-          </svg>
-          <svg v-else class="i" viewBox="0 0 24 24">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-          </svg>
-        </button>
-
-        <!-- Saved Listings (Visible on tablet/desktop, mobile has bottom bar) -->
-        <button
-          class="ib saved-btn desktop-only"
-          @click="$emit('openFavorites')"
-          :aria-label="t('saved')"
-          :title="t('saved_houses')"
-        >
-          <svg class="i" viewBox="0 0 24 24">
-            <path d="M12 21s-8-5-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 6-8 11-8 11z" />
-          </svg>
-          <span v-if="favCount > 0" class="fav-count">{{ favCount }}</span>
-        </button>
-
-        <!-- Profile (Desktop only) -->
-        <button
-          class="profile-btn desktop-only"
-          @click="$emit('openProfile')"
-          :aria-label="t('profile')"
-          :title="user ? user.first_name : t('profile')"
-        >
-          <img v-if="user && user.photo_url" :src="user.photo_url" class="user-avatar" alt="Avatar" />
-          <span v-else-if="user && user.first_name" class="user-initial">
-            {{ user.first_name[0].toUpperCase() }}
-          </span>
-          <svg v-else class="i" viewBox="0 0 24 24">
-            <circle cx="12" cy="8" r="4" />
-            <path d="M4 21a8 8 0 0 1 16 0" />
-          </svg>
-        </button>
-
-        <!-- Iconly Black Capsule CTA Button -->
-        <button class="btn btn-dark cta-post" @click="$emit('openNew')" :title="t('post_ad')">
-          <svg class="cta-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <line x1="12" y1="5" x2="12" y2="19" />
-            <line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
-          <span class="cta-text-full">{{ t('post_ad') }}</span>
-          <span class="cta-text-short">{{ t('post_ad_short') }}</span>
-        </button>
       </div>
     </div>
-  </header>
+  </nav>
 </template>
 
 <style scoped>
-.iconly-header {
-  position: sticky;
-  top: 0;
-  z-index: var(--z-header, 100);
-  background: rgba(243, 244, 245, 0.88);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--border-subtle);
-  transition: all 0.25s ease;
-}
-
-:root[data-theme="dark"] .iconly-header {
-  background: rgba(14, 18, 23, 0.88);
-}
-
-.brand-link {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
-}
-
-@media (min-width: 640px) {
-  .brand-link {
-    gap: 10px;
-  }
-}
-
-.brand-logo-mark {
-  width: 32px;
-  height: 32px;
-  background: var(--blue-gradient);
-  color: #ffffff;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 14px rgba(40, 120, 200, 0.3);
-  transition: all 0.2s var(--ease);
-  flex-shrink: 0;
-}
-
-@media (min-width: 768px) {
-  .brand-logo-mark {
-    width: 36px;
-    height: 36px;
-    border-radius: 12px;
-  }
-}
-
-.brand-link:hover .brand-logo-mark {
-  transform: scale(1.05);
-  box-shadow: 0 6px 18px rgba(40, 120, 200, 0.4);
-}
-
-.logo-icon {
-  width: 17px;
-  height: 17px;
-  color: #ffffff;
-}
-
-@media (min-width: 768px) {
-  .logo-icon {
-    width: 20px;
-    height: 20px;
-  }
-}
-
-.brand-identity {
-  display: flex;
-  align-items: center;
-}
-
-.brand-name {
-  font-family: var(--font-sans);
-  font-size: clamp(16px, 4.4vw, 20px);
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  color: var(--text-primary);
-  line-height: 1;
-  white-space: nowrap;
-}
-
-.brand-tld {
-  color: var(--blue-primary);
-  font-weight: 700;
-}
-
-/* Center Desktop Nav */
-.iconly-nav {
-  display: none;
-  align-items: center;
-  gap: 6px;
-  margin-left: 24px;
-  background: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  padding: 4px 6px;
-  border-radius: var(--radius-full);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-}
-
-:root[data-theme="dark"] .iconly-nav {
-  background: rgba(22, 27, 34, 0.6);
-  border-color: rgba(255, 255, 255, 0.08);
-}
-
-.nav-item {
-  color: var(--text-secondary);
-  font-size: 13.5px;
-  font-weight: 600;
-  padding: 7px 14px;
-  border-radius: var(--radius-full);
-  transition: all 0.18s var(--ease);
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  white-space: nowrap;
-}
-
-.nav-item:hover {
-  color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.8);
-}
-
-:root[data-theme="dark"] .nav-item:hover {
-  background: rgba(255, 255, 255, 0.08);
-}
-
-/* Header Right Controls */
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-@media (min-width: 375px) {
-  .header-right {
-    gap: 8px;
-  }
-}
-
-@media (min-width: 768px) {
-  .header-right {
-    gap: 10px;
-  }
-}
-
-.desktop-only {
-  display: none !important;
-}
-
-@media (min-width: 1024px) {
-  .desktop-only {
-    display: inline-flex !important;
-  }
-}
-
-/* Language Pill Switcher */
-.lang-pill {
-  display: inline-flex;
-  align-items: center;
-  background: rgba(255, 255, 255, 0.8);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-full);
-  padding: 2px;
-  height: 34px;
-}
-
-@media (min-width: 768px) {
-  .lang-pill {
-    padding: 3px;
-    height: 36px;
-  }
-}
-
-:root[data-theme="dark"] .lang-pill {
-  background: rgba(22, 27, 34, 0.8);
-}
-
-.lang-choice {
-  font-family: var(--font-sans);
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--text-secondary);
-  padding: 3px 7px;
-  border-radius: var(--radius-full);
-  transition: all 0.18s ease;
-  min-height: 28px;
-}
-
-@media (min-width: 768px) {
-  .lang-choice {
-    font-size: 11.5px;
-    padding: 4px 10px;
-  }
-}
-
-.lang-choice.active {
-  background: #17191D;
-  color: #FFFFFF;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
-}
-
-:root[data-theme="dark"] .lang-choice.active {
-  background: var(--blue-primary);
-  color: #FFFFFF;
-}
-
-.theme-btn {
-  min-width: 36px;
-  min-height: 36px;
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-full);
-  border: 1px solid var(--border-subtle);
-  background: var(--surface);
-  color: var(--text-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.18s var(--ease);
-}
-
-@media (min-width: 768px) {
-  .theme-btn {
-    min-width: 38px;
-    min-height: 38px;
-    width: 38px;
-    height: 38px;
-  }
-}
-
-.theme-btn:hover {
-  border-color: var(--blue-primary);
-  color: var(--blue-primary);
-}
-
-.badge-mini {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--blue-primary);
-  color: #fff;
-  font-size: 10px;
-  font-weight: 700;
-  width: 17px;
-  height: 17px;
-  border-radius: 50%;
-}
-
-.saved-btn {
-  position: relative;
-  width: 38px;
-  height: 38px;
-  border-radius: var(--radius-full);
-  border: 1px solid var(--border-subtle);
-  background: var(--surface);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-primary);
-}
-
-.fav-count {
-  position: absolute;
-  top: -3px;
-  right: -3px;
-  background: #EF4444;
-  color: #fff;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 700;
-  width: 17px;
-  height: 17px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.profile-btn {
-  width: 38px;
-  height: 38px;
-  border-radius: var(--radius-full);
-  border: 1px solid var(--border-subtle);
-  background: var(--surface);
-  color: var(--text-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.18s var(--ease);
-}
-
-.profile-btn:hover {
-  border-color: var(--blue-primary);
-}
-
-.user-avatar {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 50%;
-}
-
-.user-initial {
-  font-family: var(--font-sans);
-  font-weight: 700;
-  color: var(--blue-primary);
-  font-size: 14px;
-}
-
-.cta-post {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  height: 36px;
-  padding: 0 12px;
-  font-size: 12.5px;
-  font-weight: 700;
-  border-radius: var(--radius-full);
-  white-space: nowrap;
-  background: #17191D;
-  color: #ffffff;
-  border: none;
-  box-shadow: 0 4px 12px rgba(23, 25, 29, 0.15);
-  transition: all 0.18s var(--ease);
-}
-
-@media (min-width: 375px) {
-  .cta-post {
-    padding: 0 14px;
-    font-size: 13px;
-    height: 38px;
-  }
-}
-
-:root[data-theme="dark"] .cta-post {
-  background: var(--blue-primary);
-}
-
-.cta-post:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(23, 25, 29, 0.22);
-}
-
-.cta-post:active {
-  transform: scale(0.97);
-}
-
-.cta-plus {
-  width: 13px;
-  height: 13px;
-  flex-shrink: 0;
-}
-
-.cta-text-full {
-  display: none;
-}
-
-.cta-text-short {
-  display: inline;
-}
-
-@media (min-width: 768px) {
-  .cta-post {
-    height: 42px;
-    padding: 0 20px;
-    font-size: 13.5px;
-  }
-  .cta-text-full {
-    display: inline;
-  }
-  .cta-text-short {
-    display: none;
-  }
-}
-
-@media (min-width: 1024px) {
-  .iconly-nav {
-    display: inline-flex;
-  }
+.hdr { position: fixed; top: calc(14px + env(safe-area-inset-top, 0px)); left: 0; right: 0; z-index: var(--z-header); transition: top .3s; }
+.hdr .wrap { display: flex; }
+.cap { flex: 1; min-width: 0; display: flex; align-items: center; gap: 6px; border-radius: 999px; padding: 6px; background: var(--glass); backdrop-filter: blur(18px) saturate(1.2); -webkit-backdrop-filter: blur(18px) saturate(1.2); border: 1px solid var(--glass-line); box-shadow: var(--sh-floating); transition: background .3s; }
+.hdr.compact { top: calc(8px + env(safe-area-inset-top, 0px)); }
+.hdr.compact .cap { background: var(--glass-strong); }
+.logo { display: flex; align-items: center; gap: 10px; padding: 4px 12px 4px 6px; text-decoration: none; color: var(--tx); }
+.logo svg { width: 32px; height: 32px; }
+.lm-bg { fill: var(--accent-black); } .lm-l { stroke: var(--bg); } .lm-d { fill: var(--brand-sand); }
+.logo b { font: 800 20px/1 var(--font-sans); letter-spacing: -.04em; }
+.logo i { font: 500 10px var(--font-sans); color: var(--tx-muted); font-style: normal; letter-spacing: .1em; align-self: flex-end; margin-bottom: 3px; }
+.links { display: flex; gap: 2px; margin: 0 auto; }
+.lnk { padding: 10px 14px; border-radius: 999px; text-decoration: none; font: 500 14px var(--font-sans); color: var(--tx); background: transparent; border: 0; cursor: pointer; }
+.lnk:hover, .lnk.on { background: var(--surface); }
+.right { margin-left: auto; display: flex; align-items: center; gap: 2px; }
+.lang { display: flex; background: color-mix(in srgb, var(--tx) 6%, transparent); border-radius: 999px; padding: 3px; margin-right: 4px; }
+.lang button { border: 0; background: transparent; padding: 6px 9px; border-radius: 999px; font: 600 11px var(--font-sans); letter-spacing: .06em; cursor: pointer; color: var(--tx-muted); }
+.lang button[aria-pressed="true"] { background: var(--surface); color: var(--tx); }
+.ib { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; border: 0; background: transparent; cursor: pointer; position: relative; color: var(--tx); flex: none; }
+.ib:hover { background: color-mix(in srgb, var(--tx) 7%, transparent); }
+.ib svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.ava { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
+.ini { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--surface-subtle); font: 700 13px var(--font-sans); }
+.dot { position: absolute; top: 5px; right: 5px; min-width: 16px; height: 16px; border-radius: 8px; background: var(--blue-primary); color: var(--on-ink); font: 700 10px/16px var(--font-sans); text-align: center; padding: 0 4px; }
+.cta { margin-left: 6px; border: 0; border-radius: 999px; padding: 12px 22px; background: var(--accent-black); color: var(--on-ink); font: 600 14px var(--font-sans); cursor: pointer; white-space: nowrap; transition: background .2s; }
+.cta:hover { background: var(--blue-primary); }
+.cta .short { display: none; }
+@media (max-width: 1180px) { .links { display: none; } }
+@media (max-width: 767px) {
+  .hide-m { display: none; }
+  .logo i { display: none; }
+  .cta { padding: 10px 14px; font-size: 13px; }
+  .cta .long { display: none; }
+  .cta .short { display: inline; }
 }
 </style>

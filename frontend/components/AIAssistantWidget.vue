@@ -21,11 +21,17 @@ interface ChatMessage {
 }
 
 const isOpen = ref(false)
+const assistantPrefill = useState<string>('assistant_prefill', () => '')
 const inputQuery = ref('')
 const isLoading = ref(false)
 
 watch(() => props.show, (val) => {
   isOpen.value = val
+  if (val && assistantPrefill.value) {
+    const q = assistantPrefill.value
+    assistantPrefill.value = ''
+    setTimeout(() => sendQuestion(q), 50)
+  }
 }, { immediate: true })
 
 const closeChat = () => {
@@ -335,21 +341,32 @@ const sendQuestion = async (textToSend?: string) => {
   border: 1px solid rgba(255, 255, 255, 0.35);
   font-size: 13px;
   font-weight: 700;
-  box-shadow: 0 10px 28px rgba(40, 120, 200, 0.38);
+  box-shadow: 0 10px 28px rgba(81, 68, 55, 0.38);
   cursor: pointer;
   transition: all 0.22s var(--ease);
 }
 
-/* Hide floating trigger button on mobile/tablet — Chatbot lives directly in bottom nav */
+/* Premium: prominent AI capsule on every screen size */
+.iconly-assistant-trigger { height: 64px; padding: 0 24px 0 10px; gap: 12px; background: var(--accent-black); color: var(--on-ink); border: 0; font-size: 15px; box-shadow: 0 20px 44px -14px rgba(38, 37, 33, 0.75); }
+.iconly-assistant-trigger .trigger-spark-circle { width: 44px; height: 44px; background: radial-gradient(circle at 35% 30%, #FBF8F2, #D5C8B5 45%, #514437); color: #262521; position: relative; animation: joy-breathe 4s ease-in-out infinite; }
+.iconly-assistant-trigger .trigger-spark-circle::after { content: ""; position: absolute; inset: -6px; border-radius: 50%; border: 1px solid rgba(213, 200, 181, .7); animation: joy-ring 2.6s ease-out infinite; }
+.iconly-assistant-trigger .online-dot { background: #7FB27A; box-shadow: none; }
+@keyframes joy-breathe { 50% { transform: scale(.93); } }
+@keyframes joy-ring { from { transform: scale(.85); opacity: 1; } to { transform: scale(1.35); opacity: 0; } }
 @media (max-width: 1023px) {
-  .iconly-assistant-trigger {
-    display: none !important;
-  }
+  .iconly-assistant-trigger { height: 54px; padding: 0 16px 0 7px; font-size: 13px; }
+  .iconly-assistant-trigger .trigger-spark-circle { width: 40px; height: 40px; }
+  .iconly-assistant-trigger .online-dot { display: none; }
 }
+@media (max-width: 767px) {
+  .iconly-assistant-trigger { width: 56px; height: 56px; padding: 0; justify-content: center; }
+  .iconly-assistant-trigger .trigger-text { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .iconly-assistant-trigger .trigger-spark-circle, .iconly-assistant-trigger .trigger-spark-circle::after { animation: none; } }
 
 .iconly-assistant-trigger:hover {
   transform: translateY(-2px);
-  box-shadow: 0 14px 34px rgba(40, 120, 200, 0.48);
+  box-shadow: 0 14px 34px rgba(81, 68, 55, 0.48);
 }
 
 .iconly-assistant-trigger:active {
@@ -500,7 +517,7 @@ const sendQuestion = async (textToSend?: string) => {
   align-items: center;
   justify-content: center;
   font-size: 17px;
-  box-shadow: 0 4px 12px rgba(40, 120, 200, 0.25);
+  box-shadow: 0 4px 12px rgba(81, 68, 55, 0.25);
 }
 
 .bot-name {
@@ -574,7 +591,7 @@ const sendQuestion = async (textToSend?: string) => {
 .prompt-pill-btn:hover {
   background: var(--blue-pale);
   color: var(--blue-deep);
-  border-color: rgba(40, 120, 200, 0.3);
+  border-color: rgba(81, 68, 55, 0.3);
 }
 
 /* Messages */
@@ -610,7 +627,7 @@ const sendQuestion = async (textToSend?: string) => {
 }
 
 .user .message-bubble {
-  background: #17191D;
+  background: #262521;
   color: #FFFFFF;
   border-bottom-right-radius: 4px;
   box-shadow: 0 4px 12px rgba(23, 25, 29, 0.15);
@@ -640,7 +657,7 @@ const sendQuestion = async (textToSend?: string) => {
 }
 
 .legal-references-box {
-  background: rgba(40, 120, 200, 0.08);
+  background: rgba(81, 68, 55, 0.08);
   border-left: 3px solid var(--blue-primary);
 }
 

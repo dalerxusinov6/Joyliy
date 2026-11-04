@@ -439,7 +439,7 @@ watch(() => compareList.value.length, () => {
 .col-price {
   font-size: 16px;
   font-weight: 700;
-  color: var(--blue-primary, #2878C8);
+  color: var(--blue-primary, #514437);
   margin-bottom: 14px;
 }
 
@@ -469,7 +469,7 @@ watch(() => compareList.value.length, () => {
 }
 
 .attr-val.highlight {
-  color: var(--blue-primary, #2878C8);
+  color: var(--blue-primary, #514437);
 }
 
 .inline-svg-check {
@@ -527,7 +527,7 @@ watch(() => compareList.value.length, () => {
   width: 100%;
   padding: 9px 12px;
   border-radius: var(--radius-xs, 4px);
-  background: var(--blue-primary, #2878C8);
+  background: var(--blue-primary, #514437);
   color: #ffffff;
   border: none;
   font-weight: 600;

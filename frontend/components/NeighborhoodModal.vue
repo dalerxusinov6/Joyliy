@@ -202,7 +202,7 @@ const formatPrice = (p: number) => {
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
-  color: var(--blue-primary, #2878C8);
+  color: var(--blue-primary, #514437);
   letter-spacing: 0.5px;
 }
 
@@ -218,7 +218,7 @@ const formatPrice = (p: number) => {
 .modal-head-svg {
   width: 22px;
   height: 22px;
-  color: var(--blue-primary, #2878c8);
+  color: var(--blue-primary, #514437);
   flex-shrink: 0;
 }
 
@@ -304,8 +304,8 @@ const formatPrice = (p: number) => {
 .d-score {
   font-size: 12px;
   font-weight: 700;
-  background: rgba(40, 120, 200, 0.1);
-  color: var(--blue-primary, #2878C8);
+  background: rgba(81, 68, 55, 0.1);
+  color: var(--blue-primary, #514437);
   padding: 2px 8px;
   border-radius: 12px;
 }
@@ -339,7 +339,7 @@ const formatPrice = (p: number) => {
 }
 
 .s-val.price {
-  color: var(--blue-primary, #2878C8);
+  color: var(--blue-primary, #514437);
 }
 
 .d-btn {
@@ -355,7 +355,7 @@ const formatPrice = (p: number) => {
 }
 
 .d-btn:hover {
-  background: var(--blue-primary, #2878C8);
+  background: var(--blue-primary, #514437);
   color: #ffffff;
 }
 </style>

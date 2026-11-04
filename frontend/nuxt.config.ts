@@ -17,7 +17,7 @@ export default defineNuxtConfig({
           name: 'description',
           content: 'Toshkentda egasidan maklersiz ijara kvartiralar qidiruv platformasi.',
         },
-        { name: 'theme-color', content: '#F3F4F5' },
+        { name: 'theme-color', content: '#F5F1E9' },
       ],
       link: [
         { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg', key: 'icon-svg' },
@@ -34,7 +34,7 @@ export default defineNuxtConfig({
         },
         {
           rel: 'stylesheet',
-          href: 'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap',
+          href: 'https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap',
         },
       ],
       script: [

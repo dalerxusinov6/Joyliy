@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useI18n } from '~/composables/useI18n'
 import { useListings } from '~/composables/useListings'
+import HeroScene from '~/components/HeroScene.vue'
 
 const emit = defineEmits(['openFilters'])
-const { t, tDistrict } = useI18n()
+const { t, tDistrict, currentLang } = useI18n()
 const {
+  listings,
+  filteredListings,
   filterDistrict,
   filterRooms,
   filterMaxPrice,
@@ -13,371 +16,253 @@ const {
   filterDealType,
   filterPropertyType,
   availableDistricts,
-  aiSearchQuery,
   isAiSearching,
   aiSearchActive,
   runAiMatch,
   resetAiMatch,
 } = useListings()
 
-const searchMode = ref<'rent' | 'buy' | 'ai'>('rent')
+const searchMode = ref<'ai' | 'rent' | 'buy'>('ai')
 const aiInput = ref('')
 
-// Initialize searchMode to match filterDealType
-if (filterDealType.value === 'sale') {
-  searchMode.value = 'buy'
+const scrollToCatalog = () => {
+  const el = document.getElementById('katalog')
+  if (el) el.scrollIntoView({ behavior: 'smooth' })
 }
 
-const setMode = (mode: 'rent' | 'buy' | 'ai') => {
+const setMode = async (mode: 'ai' | 'rent' | 'buy') => {
   searchMode.value = mode
+  if (mode === 'ai') return
+  if (aiSearchActive.value) await resetAiMatch()
+  filterMaxPrice.value = ''
   if (mode === 'rent') {
     filterDealType.value = 'rent'
-    filterMaxPrice.value = ''
     filterPropertyType.value = ''
-  } else if (mode === 'buy') {
+  } else {
     filterDealType.value = 'sale'
-    filterMaxPrice.value = ''
     filterAudience.value = 'all'
   }
 }
 
 const handleAiSearch = async () => {
-  if (!aiInput.value.trim()) return
-  await runAiMatch(aiInput.value)
-  const el = document.getElementById('katalog')
-  if (el) el.scrollIntoView({ behavior: 'smooth' })
+  const q = aiInput.value.trim()
+  if (!q) return
+  scrollToCatalog()
+  await runAiMatch(q)
 }
 
 const applyAiPrompt = async (prompt: string) => {
   aiInput.value = prompt
   searchMode.value = 'ai'
+  scrollToCatalog()
   await runAiMatch(prompt)
-  const el = document.getElementById('katalog')
-  if (el) el.scrollIntoView({ behavior: 'smooth' })
 }
 
-const onSearch = () => {
-  const el = document.getElementById('katalog')
-  if (el) {
-    el.scrollIntoView({ behavior: 'smooth' })
+const examples = computed(() => [
+  { label: t('ex_chilonzor'), prompt: t('prompt_chilonzor') },
+  { label: t('ex_yunusobod'), prompt: t('prompt_yunusobod') },
+  { label: t('ex_mirobod'), prompt: t('prompt_mirobod') },
+])
+
+const budgetOptions = computed(() =>
+  filterDealType.value === 'sale'
+    ? [300_000_000, 500_000_000, 800_000_000, 1_200_000_000, 2_000_000_000]
+    : [3_000_000, 4_000_000, 6_000_000, 8_000_000, 12_000_000],
+)
+
+const money = (v: number) => {
+  if (v >= 1e9) return `${(v / 1e9).toLocaleString('ru-RU', { maximumFractionDigits: 1 })} mlrd`
+  return `${(v / 1e6).toLocaleString('ru-RU', { maximumFractionDigits: 1 })} mln`
+}
+
+/* ---------- Hero AI demo: types a query, shows what AI extracts, counts real listings ---------- */
+const DEMOS = computed(() =>
+  currentLang.value === 'ru'
+    ? ['В Чиланзаре возле метро до 4 млн 2-комнатная', 'Юнусабад без маклера для семьи', 'Мирабад 3-комнатная с мебелью']
+    : ['Chilonzorda metro yaqinida 4 mln gacha 2 xonali', 'Yunusobodda maklersiz oila uchun 3 xonali', 'Mirobodda 3 xonali jihozlangan'],
+)
+const DISTRICT_ALIASES: Record<string, string[]> = {
+  Chilonzor: ['chilonzor', 'чиланзар'],
+  Yunusobod: ['yunusobod', 'юнусабад'],
+  'Mirzo Ulug‘bek': ['mirzo', 'улугбек'],
+  Yakkasaroy: ['yakkasaroy', 'яккасарай'],
+  Mirobod: ['mirobod', 'мирабад'],
+  Shayxontohur: ['shayxontohur', 'шайхантахур'],
+  Sergeli: ['sergeli', 'сергели'],
+  Olmazor: ['olmazor', 'алмазар'],
+  Yashnobod: ['yashnobod', 'яшнабад'],
+  Uchtepa: ['uchtepa', 'учтепа'],
+}
+const parseDemo = (q: string) => {
+  const s = q.toLowerCase()
+  const tok: [string, string][] = []
+  const f: any = {}
+  for (const [n, al] of Object.entries(DISTRICT_ALIASES)) if (al.some((a) => s.includes(a))) { f.district = n; tok.push(['Hudud', tDistrict(n)]); break }
+  const rm = /(\d)\s*-?\s*(xona|комн)/.exec(s)
+  if (rm) { f.rooms = +rm[1]; tok.push(['Xonalar', rm[1]]) }
+  const pm = /(\d+(?:[.,]\d+)?)\s*(mln|млн)/.exec(s)
+  if (pm) { f.max = parseFloat(pm[1].replace(',', '.')) * 1e6; tok.push(['Byudjet', `${pm[1]} mln gacha`]) }
+  if (/metro|метро/.test(s)) tok.push(['Joylashuv', 'Metro yaqin'])
+  if (/maklersiz|без маклера/.test(s)) { f.owner = true; tok.push(['Manba', 'Maklersiz']) }
+  if (/oila|семь/.test(s)) tok.push(['Kim uchun', 'Oila'])
+  if (/jihoz|мебел/.test(s)) tok.push(['Qulaylik', 'Jihozlangan'])
+  const count = listings.value.filter((l) =>
+    (l.deal_type || 'rent') === 'rent' &&
+    (!f.district || l.district === f.district) &&
+    (!f.rooms || l.rooms === f.rooms) &&
+    (!f.max || l.price_uzs <= f.max) &&
+    (!f.owner || l.is_owner),
+  ).length
+  return { tok, count }
+}
+const typed = ref('')
+const demoTokens = ref<[string, string][]>([])
+const demoCount = ref<number | null>(null)
+const demoQuery = ref('')
+let timer: any = null
+let idx = 0
+const runDemo = () => {
+  const q = DEMOS.value[idx % DEMOS.value.length]
+  idx++
+  demoQuery.value = q
+  demoTokens.value = []
+  demoCount.value = null
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  const done = () => {
+    const r = parseDemo(q)
+    demoTokens.value = r.tok
+    demoCount.value = r.count
+    timer = setTimeout(runDemo, 4200)
   }
+  if (reduce) { typed.value = q; return done() }
+  let i = 0
+  const type = () => {
+    typed.value = q.slice(0, i++)
+    if (i <= q.length) timer = setTimeout(type, 28)
+    else timer = setTimeout(done, 250)
+  }
+  type()
 }
-
-const applyQuick = (type: string, val: string) => {
-  if (type === 'district') filterDistrict.value = val
-  if (type === 'rooms') filterRooms.value = val
-  if (type === 'audience') filterAudience.value = val
-  onSearch()
-}
+onMounted(runDemo)
+onBeforeUnmount(() => clearTimeout(timer))
 </script>
 
 <template>
-  <section class="iconly-hero-section">
+  <section id="top" class="p-hero">
+    <ClientOnly><HeroScene variant="hero" /></ClientOnly>
+    <div class="p-hero-fade" aria-hidden="true"></div>
+
+    <div class="wrap p-hero-in">
+      <div class="p-hero-copy">
+        <p class="p-label">Toshkent · ijara va sotuv</p>
+        <h1 class="p-h1">
+          <span>Uyingizni toping.</span>
+          <span class="l2">Yangi <em>hayotingizni</em> boshlang.</span>
+        </h1>
+        <p class="p-lede">Orzuyingizdagi uy, ishonchli e’lonlar va qulay qidiruv — barchasi bir joyda.</p>
+        <div class="p-trust">
+          <span class="p-glass"><svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 6" /></svg>0% vositachilik</span>
+          <span class="p-glass"><svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 6" /></svg>AI narx tahlili</span>
+          <span class="p-glass"><svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 6" /></svg>Firibgarlik tekshiruvi</span>
+        </div>
+      </div>
+
+      <button type="button" class="p-aidemo p-glass" aria-label="AI qidiruv misolini ishga tushirish" @click="applyAiPrompt(demoQuery)">
+        <span class="p-aidemo-h">
+          <span class="p-orb" aria-hidden="true"></span>
+          <span><b>Joyliy AI qidiruv</b><small>Oddiy so‘z bilan yozing — AI tushunadi</small></span>
+        </span>
+        <span class="p-typed">{{ typed }}</span>
+        <span class="p-toks">
+          <span v-for="(tk, i) in demoTokens" :key="tk[0] + i" class="p-tok" :style="{ animationDelay: i * 80 + 'ms' }"><i>{{ tk[0] }}</i>{{ tk[1] }}</span>
+        </span>
+        <span class="p-aidemo-f">
+          <span><b>{{ demoCount ?? '—' }}</b> ta mos uy</span>
+          <span class="p-link">Sinab ko‘rish →</span>
+        </span>
+      </button>
+    </div>
+
     <div class="wrap">
-      <!-- Atmospheric Hero Dashboard Container (Iconly Large Rounded Banner) -->
-      <div class="atmospheric-hero-card">
-        <div class="hero-inner-grid">
-          <!-- Left: Hero Headline, Tabs & Search Panel -->
-          <div class="hero-left-content">
-            <!-- Top Tag Pill -->
-            <div class="hero-badge-pill">
-              <span class="pulse-dot"></span>
-              <span>{{ t('hero_badge') }}</span>
-            </div>
+      <div class="p-search">
+        <div class="p-modes" role="group" aria-label="Qidiruv rejimi">
+          <button type="button" class="ai-tab" :aria-pressed="searchMode === 'ai'" @click="setMode('ai')">
+            <svg viewBox="0 0 24 24" class="spark"><path d="M12 2l2.2 6.3L20.5 10l-6.3 2.2L12 18.5l-2.2-6.3L3.5 10l6.3-1.7z" /></svg>
+            {{ t('mode_ai') }}
+          </button>
+          <button type="button" :aria-pressed="searchMode === 'rent'" @click="setMode('rent')">{{ t('mode_rent') }}</button>
+          <button type="button" :aria-pressed="searchMode === 'buy'" @click="setMode('buy')">{{ t('mode_buy') }}</button>
+        </div>
 
-            <!-- Headline matching prompt -->
-            <h1 class="hero-heading">
-              {{ t('hero_title_prefix') }} <span class="heading-gradient">{{ t('hero_title_highlight') }}</span>
-            </h1>
-
-            <p class="hero-subheading">
-              {{ t('hero_subheading') }}
-            </p>
-
-            <!-- Mode Switcher Tabs (Iconly Pill Tabs - Touch-Friendly Scrollable) -->
-            <div class="mode-tabs-wrapper" role="tablist" :aria-label="t('mode_rent')">
-              <button
-                type="button"
-                role="tab"
-                class="mode-pill-tab"
-                :class="{ active: searchMode === 'rent' }"
-                @click="setMode('rent')"
-              >
-                {{ t('mode_rent') }}
-              </button>
-              <button
-                type="button"
-                role="tab"
-                class="mode-pill-tab"
-                :class="{ active: searchMode === 'buy' }"
-                @click="setMode('buy')"
-              >
-                {{ t('mode_buy') }}
-              </button>
-              <button
-                type="button"
-                role="tab"
-                class="mode-pill-tab ai-tab-special"
-                :class="{ active: searchMode === 'ai' }"
-                @click="setMode('ai')"
-              >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="tab-svg-icon">
-                  <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
-                </svg>
-                <span class="tab-label-desktop">{{ t('mode_ai') }}</span>
-                <span class="tab-label-mobile">{{ t('mode_ai_mobile') }}</span>
-                <span class="ai-chip-pill">{{ t('fast_badge') }}</span>
-              </button>
-            </div>
-
-            <!-- Floating White Search Console (Iconly Card Surface) -->
-            <div class="floating-search-console">
-              <!-- AI Search Interface -->
-              <div v-if="searchMode === 'ai'" class="ai-console-block">
-                <div class="ai-input-wrapper">
-                  <div class="ai-input-prefix">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="sparkle-icon">
-                      <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
-                    </svg>
-                  </div>
-                  <input
-                    v-model="aiInput"
-                    type="text"
-                    :placeholder="t('ai_search_placeholder')"
-                    class="ai-search-input"
-                    :aria-label="t('mode_ai')"
-                    @keydown.enter.prevent="handleAiSearch"
-                  />
-                  <button
-                    type="button"
-                    class="btn-iconly-search"
-                    :disabled="isAiSearching || !aiInput.trim()"
-                    @click="handleAiSearch"
-                  >
-                    <span v-if="!isAiSearching">{{ t('ai_search_btn') }}</span>
-                    <span v-else>{{ t('ai_analyzing') }}</span>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="arrow-icon">
-                      <line x1="5" y1="12" x2="19" y2="12" />
-                      <polyline points="12 5 19 12 12 19" />
-                    </svg>
-                  </button>
-                </div>
-
-                <!-- Quick Prompt Suggestions (Horizontal Scroll) -->
-                <div class="ai-prompts-row">
-                  <span class="prompts-title">{{ t('examples') }}</span>
-                  <div class="prompts-scroll">
-                    <button type="button" class="prompt-pill" @click="applyAiPrompt(t('prompt_chilonzor'))">
-                      <svg class="prompt-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect width="16" height="16" x="4" y="3" rx="2"/>
-                        <path d="M4 11h16"/>
-                        <path d="M12 3v8"/>
-                        <path d="m8 19-2 3"/>
-                        <path d="m18 22-2-3"/>
-                        <circle cx="8" cy="15" r="1"/>
-                        <circle cx="16" cy="15" r="1"/>
-                      </svg>
-                      <span>{{ t('ex_chilonzor') }}</span>
-                    </button>
-                    <button type="button" class="prompt-pill" @click="applyAiPrompt(t('prompt_yunusobod'))">
-                      <svg class="prompt-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
-                        <circle cx="9" cy="7" r="4"/>
-                        <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
-                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                      </svg>
-                      <span>{{ t('ex_yunusobod') }}</span>
-                    </button>
-                    <button type="button" class="prompt-pill" @click="applyAiPrompt(t('prompt_mirobod'))">
-                      <svg class="prompt-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-                      </svg>
-                      <span>{{ t('ex_mirobod') }}</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Standard Filters Interface (Rent & Buy) -->
-              <div v-else class="standard-console-block">
-                <div class="console-fields-row">
-                  <!-- District -->
-                  <div class="field-item">
-                    <label class="field-lbl">{{ t('district') }}</label>
-                    <div class="field-select-wrap">
-                      <select v-model="filterDistrict" class="iconly-select" :aria-label="t('select_district')">
-                        <option value="">{{ t('all') }}</option>
-                        <option v-for="d in availableDistricts" :key="d" :value="d">{{ tDistrict(d) }}</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <!-- Rooms -->
-                  <div class="field-item">
-                    <label class="field-lbl">{{ t('rooms_count') }}</label>
-                    <div class="field-select-wrap">
-                      <select v-model="filterRooms" class="iconly-select" :aria-label="t('rooms_count')">
-                        <option value="">{{ t('any') }}</option>
-                        <option value="1">{{ t('room_1') }}</option>
-                        <option value="2">{{ t('room_2') }}</option>
-                        <option value="3">{{ t('room_3') }}</option>
-                        <option value="4">{{ t('room_4_plus') }}</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <!-- Price: Rent vs Buy -->
-                  <div class="field-item" v-if="searchMode === 'buy'">
-                    <label class="field-lbl">{{ t('max_budget') }}</label>
-                    <div class="field-select-wrap">
-                      <select v-model="filterMaxPrice" class="iconly-select" :aria-label="t('max_budget')">
-                        <option value="">{{ t('any') }}</option>
-                        <option value="390000000">$30 000 gacha</option>
-                        <option value="650000000">$50 000 gacha</option>
-                        <option value="975000000">$75 000 gacha</option>
-                        <option value="1300000000">$100 000 gacha</option>
-                        <option value="1950000000">$150 000 gacha</option>
-                        <option value="3250000000">$250 000 gacha</option>
-                        <option value="6500000000">$500 000+</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div class="field-item" v-else>
-                    <label class="field-lbl">{{ t('max_budget') }}</label>
-                    <div class="field-select-wrap">
-                      <select v-model="filterMaxPrice" class="iconly-select" :aria-label="t('max_budget')">
-                        <option value="">{{ t('any') }}</option>
-                        <option value="3000000">3 {{ t('mln_som') }}</option>
-                        <option value="4000000">4 {{ t('mln_som') }}</option>
-                        <option value="6000000">6 {{ t('mln_som') }}</option>
-                        <option value="8000000">8 {{ t('mln_som') }}</option>
-                        <option value="12000000">12 {{ t('mln_som') }}</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <!-- Buy: Property Type vs Rent: Target Audience -->
-                  <div class="field-item" v-if="searchMode === 'buy'">
-                    <label class="field-lbl">{{ t('property_type') }}</label>
-                    <div class="field-select-wrap">
-                      <select v-model="filterPropertyType" class="iconly-select" :aria-label="t('property_type')">
-                        <option value="">{{ t('all') }}</option>
-                        <option value="new_building">{{ t('type_new_building') }}</option>
-                        <option value="secondary">{{ t('type_secondary') }}</option>
-                        <option value="house">{{ t('type_house') }}</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div class="field-item" v-else>
-                    <label class="field-lbl">{{ t('for_whom') }}</label>
-                    <div class="field-select-wrap">
-                      <select v-model="filterAudience" class="iconly-select" :aria-label="t('for_whom')">
-                        <option value="all">{{ t('all') }}</option>
-                        <option value="family">{{ t('aud_family') }}</option>
-                        <option value="female">{{ t('aud_female') }}</option>
-                        <option value="male">{{ t('aud_male') }}</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <!-- Action Buttons (Responsive Layout) -->
-                  <div class="field-actions">
-                    <button
-                      type="button"
-                      class="btn-iconly-filter"
-                      @click="$emit('openFilters')"
-                      :title="t('more_filters')"
-                      :aria-label="t('more_filters')"
-                    >
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="filter-icon">
-                        <line x1="4" y1="21" x2="4" y2="14" />
-                        <line x1="4" y1="10" x2="4" y2="3" />
-                        <line x1="12" y1="21" x2="12" y2="12" />
-                        <line x1="12" y1="8" x2="12" y2="3" />
-                        <line x1="20" y1="21" x2="20" y2="16" />
-                        <line x1="20" y1="12" x2="20" y2="3" />
-                        <line x1="1" y1="14" x2="7" y2="14" />
-                        <line x1="9" y1="8" x2="15" y2="8" />
-                        <line x1="17" y1="16" x2="23" y2="16" />
-                      </svg>
-                    </button>
-
-                    <button type="button" class="btn-iconly-submit" @click="onSearch" :aria-label="t('search')">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="search-icon">
-                        <circle cx="11" cy="11" r="8" />
-                        <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                      </svg>
-                      <span>{{ t('search') }}</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Active AI Search Filter Status -->
-            <div v-if="aiSearchActive" class="ai-active-status">
-              <div class="ai-status-left">
-                <span class="ai-badge-live">
-                  <svg class="ai-chip-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect width="16" height="16" x="4" y="4" rx="2" />
-                    <rect width="6" height="6" x="9" y="9" rx="1" />
-                    <path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3" />
-                  </svg>
-                  <span>Joyliy AI</span>
-                </span>
-                <span class="ai-query-text">«{{ aiSearchQuery }}»</span>
-              </div>
-              <button type="button" class="ai-reset-btn" @click="resetAiMatch" :aria-label="t('reset_filter')">
-                <span>{{ t('reset_filter') }}</span>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="reset-svg">
-                  <line x1="18" y1="6" x2="6" y2="18" />
-                  <line x1="6" y1="6" x2="18" y2="18" />
-                </svg>
-              </button>
-            </div>
+        <form v-if="searchMode === 'ai'" role="search" aria-label="AI qidiruv" @submit.prevent="handleAiSearch">
+          <div class="p-ai-row">
+            <label class="p-ai-input" for="p-ai-in">
+              <svg viewBox="0 0 24 24" class="spark"><path d="M12 2l2.2 6.3L20.5 10l-6.3 2.2L12 18.5l-2.2-6.3L3.5 10l6.3-1.7z" /></svg>
+              <input id="p-ai-in" v-model="aiInput" autocomplete="off" :placeholder="t('ai_search_placeholder')" />
+            </label>
+            <button class="p-btn-dark p-ai-go" type="submit" :disabled="isAiSearching">
+              <svg viewBox="0 0 24 24" class="spark"><path d="M12 2l2.2 6.3L20.5 10l-6.3 2.2L12 18.5l-2.2-6.3L3.5 10l6.3-1.7z" /></svg>
+              {{ isAiSearching ? t('ai_analyzing') : t('ai_search_btn') }}
+            </button>
           </div>
-
-          <!-- Right: Hero Visual Showcase (Desktop Only) -->
-          <div class="hero-right-visual">
-            <div class="visual-stack">
-              <!-- Background Architectural Photo with Glass Overlay -->
-              <div class="visual-photo-card">
-                <img
-                  src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80"
-                  alt="Toshkent premium xonadon"
-                  class="visual-img"
-                  loading="eager"
-                />
-                <div class="visual-photo-glass-bottom">
-                  <div class="spec-col">
-                    <span class="spec-label">{{ t('spec_area') }}</span>
-                    <span class="spec-val">85 m²</span>
-                  </div>
-                  <div class="spec-sep"></div>
-                  <div class="spec-col">
-                    <span class="spec-label">{{ t('spec_rooms') }}</span>
-                    <span class="spec-val">{{ t('spec_rooms_val') }}</span>
-                  </div>
-                  <div class="spec-sep"></div>
-                  <div class="spec-col">
-                    <span class="spec-label">{{ t('spec_floor') }}</span>
-                    <span class="spec-val">4 / 9</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Floating Circular Score Indicator Badge (Matching 9.4 Ring Badge in Image 1) -->
-              <div class="floating-score-badge">
-                <div class="score-ring">
-                  <span class="score-number">9.4</span>
-                </div>
-                <div class="score-meta">
-                  <span class="score-title">{{ t('hero_match_title') }}</span>
-                  <span class="score-sub">{{ t('hero_match_sub') }}</span>
-                </div>
-              </div>
-            </div>
+          <div class="p-ex">
+            <span class="p-label">{{ t('examples') }}</span>
+            <button v-for="ex in examples" :key="ex.label" type="button" class="p-chipbtn" @click="applyAiPrompt(ex.prompt)">{{ ex.label }}</button>
           </div>
+        </form>
+
+        <form v-else class="p-row" role="search" aria-label="Filtrlar bo‘yicha qidirish" @submit.prevent="scrollToCatalog">
+          <div class="p-f">
+            <label for="p-dist">{{ t('district') }}</label>
+            <select id="p-dist" v-model="filterDistrict">
+              <option value="">{{ t('all_districts') }}</option>
+              <option v-for="d in availableDistricts" :key="d" :value="d">{{ tDistrict(d) }}</option>
+            </select>
+          </div>
+          <div class="p-f">
+            <label for="p-type">{{ t('property_type') }}</label>
+            <select id="p-type" v-model="filterPropertyType">
+              <option value="">{{ t('all') }}</option>
+              <option value="new_building">{{ t('type_new_building') }}</option>
+              <option value="secondary">{{ t('type_secondary') }}</option>
+              <option value="house">{{ t('type_house') }}</option>
+            </select>
+          </div>
+          <div class="p-f">
+            <label for="p-budget">{{ t('max_budget') }}</label>
+            <select id="p-budget" v-model="filterMaxPrice">
+              <option value="">{{ t('any') }}</option>
+              <option v-for="b in budgetOptions" :key="b" :value="String(b)">{{ money(b) }} so‘mgacha</option>
+            </select>
+          </div>
+          <div class="p-f">
+            <label for="p-rooms">{{ t('rooms_count') }}</label>
+            <select id="p-rooms" v-model="filterRooms">
+              <option value="">{{ t('any') }}</option>
+              <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4+</option>
+            </select>
+          </div>
+          <div v-if="searchMode === 'rent'" class="p-f">
+            <label for="p-aud">{{ t('for_whom') }}</label>
+            <select id="p-aud" v-model="filterAudience">
+              <option value="all">{{ t('aud_all') }}</option>
+              <option value="family">{{ t('aud_family') }}</option>
+              <option value="female">{{ t('aud_female') }}</option>
+              <option value="male">{{ t('aud_male') }}</option>
+            </select>
+          </div>
+          <button class="p-btn-dark p-go" type="submit">
+            <svg viewBox="0 0 24 24" class="ic"><circle cx="11" cy="11" r="7" /><path d="M20 20l-4-4" /></svg>
+            {{ t('search') }}
+          </button>
+        </form>
+
+        <div class="p-foot">
+          <button type="button" class="p-link" @click="emit('openFilters')">
+            <svg viewBox="0 0 24 24" class="ic"><path d="M4 7h10M18 7h2M4 17h4M12 17h8" /><circle cx="16" cy="7" r="2" /><circle cx="10" cy="17" r="2" /></svg>
+            {{ t('more_filters') }}
+          </button>
+          <span class="p-label">{{ filteredListings.length }} ta mos e’lon</span>
         </div>
       </div>
     </div>
@@ -385,878 +270,78 @@ const applyQuick = (type: string, val: string) => {
 </template>
 
 <style scoped>
-.iconly-hero-section {
-  padding: 16px 0 24px;
-}
-
-@media (min-width: 640px) {
-  .iconly-hero-section {
-    padding: 24px 0 32px;
-  }
-}
-
-@media (min-width: 1024px) {
-  .iconly-hero-section {
-    padding: 32px 0 44px;
-  }
-}
-
-/* Atmospheric Hero Card */
-.atmospheric-hero-card {
-  background: var(--hero-gradient);
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.9);
-  box-shadow: 0 16px 48px -8px rgba(40, 120, 200, 0.12), 0 4px 16px rgba(0, 0, 0, 0.02);
-  padding: 16px 12px;
-  position: relative;
-  overflow: hidden;
-}
-
-@media (min-width: 375px) {
-  .atmospheric-hero-card {
-    padding: 18px 14px;
-    border-radius: 24px;
-  }
-}
-
-@media (min-width: 480px) {
-  .atmospheric-hero-card {
-    padding: 24px 18px;
-    border-radius: 28px;
-  }
-}
-
-@media (min-width: 768px) {
-  .atmospheric-hero-card {
-    padding: 36px 32px;
-    border-radius: var(--radius-hero);
-  }
-}
-
-@media (min-width: 1200px) {
-  .atmospheric-hero-card {
-    padding: 48px 44px;
-  }
-}
-
-:root[data-theme="dark"] .atmospheric-hero-card {
-  background: linear-gradient(135deg, #161B22 0%, #1A2332 60%, #151D29 100%);
-  border-color: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 16px 48px -8px rgba(0, 0, 0, 0.4);
-}
-
-.hero-inner-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 24px;
-  align-items: center;
-  width: 100%;
-}
-
-.hero-left-content {
-  min-width: 0;
-  max-width: 100%;
-  width: 100%;
-}
-
-@media (min-width: 1024px) {
-  .hero-inner-grid {
-    grid-template-columns: 1.65fr 0.75fr;
-    gap: 32px;
-  }
-}
-
-@media (min-width: 1280px) {
-  .hero-inner-grid {
-    grid-template-columns: 1.7fr 0.75fr;
-    gap: 40px;
-  }
-}
-
-/* Badge Pill */
-.hero-badge-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.9);
-  padding: 5px 12px;
-  border-radius: var(--radius-full);
-  font-size: 11.5px;
-  font-weight: 600;
-  color: var(--blue-deep);
-  box-shadow: 0 2px 8px rgba(40, 120, 200, 0.08);
-  margin-bottom: 12px;
-  max-width: 100%;
-}
-
-@media (min-width: 480px) {
-  .hero-badge-pill {
-    font-size: 12.5px;
-    padding: 6px 14px;
-    margin-bottom: 16px;
-  }
-}
-
-:root[data-theme="dark"] .hero-badge-pill {
-  background: rgba(56, 139, 253, 0.15);
-  border-color: rgba(56, 139, 253, 0.3);
-  color: #58A6FF;
-}
-
-.pulse-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #10B981;
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
-  flex-shrink: 0;
-}
-
-/* Responsive Headings */
-.hero-heading {
-  font-family: var(--font-sans);
-  font-size: clamp(22px, 5.8vw, 48px);
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  word-spacing: 0.05em;
-  line-height: 1.18;
-  color: var(--text-primary);
-  margin: 0 0 8px;
-  word-break: normal;
-  overflow-wrap: break-word;
-}
-
-.heading-gradient {
-  color: var(--blue-primary);
-  background: linear-gradient(135deg, #2878C8 0%, #175B9B 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.hero-subheading {
-  font-size: clamp(12.5px, 3.3vw, 15px);
-  color: var(--text-secondary);
-  line-height: 1.48;
-  margin: 0 0 16px;
-  max-width: 540px;
-  width: 100%;
-  word-break: normal;
-  overflow-wrap: break-word;
-}
-
-@media (min-width: 768px) {
-  .hero-subheading {
-    margin-bottom: 22px;
-  }
-}
-
-/* Mode Switcher Tabs (Scrollable on narrow mobile screens) */
-.mode-tabs-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  padding: 4px;
-  border-radius: var(--radius-full);
-  border: 1px solid rgba(255, 255, 255, 0.9);
-  margin-bottom: 14px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
-  max-width: 100%;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.mode-tabs-wrapper::-webkit-scrollbar {
-  display: none;
-}
-
-:root[data-theme="dark"] .mode-tabs-wrapper {
-  background: rgba(22, 27, 34, 0.7);
-  border-color: rgba(255, 255, 255, 0.1);
-}
-
-.tab-label-desktop {
-  display: inline;
-}
-
-.tab-label-mobile {
-  display: none;
-}
-
-.mode-pill-tab {
-  font-family: var(--font-sans);
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  padding: 7px 12px;
-  border-radius: var(--radius-full);
-  transition: all 0.2s var(--ease);
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  white-space: nowrap;
-  flex-shrink: 0;
-  min-height: 36px;
-}
-
-@media (max-width: 480px) {
-  .tab-label-desktop {
-    display: none;
-  }
-  .tab-label-mobile {
-    display: inline;
-  }
-  .mode-pill-tab {
-    padding: 7px 11px;
-    font-size: 12px;
-    gap: 4px;
-  }
-}
-
-@media (min-width: 481px) {
-  .mode-pill-tab {
-    font-size: 13px;
-    padding: 8px 16px;
-  }
-}
-
-.mode-pill-tab:hover {
-  color: var(--text-primary);
-}
-
-.mode-pill-tab.active {
-  background: #17191D;
-  color: #FFFFFF;
-  box-shadow: 0 3px 10px rgba(23, 25, 29, 0.18);
-}
-
-:root[data-theme="dark"] .mode-pill-tab.active {
-  background: var(--blue-primary);
-}
-
-.ai-tab-special {
-  position: relative;
-}
-
-.tab-svg-icon {
-  width: 15px;
-  height: 15px;
-  flex-shrink: 0;
-}
-
-.ai-chip-pill {
-  font-size: 9.5px;
-  font-weight: 700;
-  background: rgba(40, 120, 200, 0.18);
-  color: var(--blue-primary);
-  padding: 2px 6px;
-  border-radius: var(--radius-full);
-}
-
-.mode-pill-tab.active .ai-chip-pill {
-  background: rgba(255, 255, 255, 0.22);
-  color: #ffffff;
-}
-
-/* Floating White Search Console */
-.floating-search-console {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border-radius: var(--radius-card);
-  border: 1px solid rgba(255, 255, 255, 0.95);
-  box-shadow: 0 12px 36px rgba(40, 120, 200, 0.09), 0 2px 10px rgba(0, 0, 0, 0.03);
-  padding: 12px;
-  transition: all 0.25s var(--ease);
-}
-
-@media (min-width: 480px) {
-  .floating-search-console {
-    padding: 16px;
-  }
-}
-
-@media (min-width: 768px) {
-  .floating-search-console {
-    padding: 18px 22px;
-  }
-}
-
-:root[data-theme="dark"] .floating-search-console {
-  background: rgba(22, 27, 34, 0.92);
-  border-color: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
-}
-
-/* AI Mode Console */
-.ai-console-block {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.ai-input-wrapper {
-  display: flex;
-  align-items: center;
-  background: var(--surface-subtle);
-  border: 1.5px solid var(--border-subtle);
-  border-radius: var(--radius-full);
-  padding: 5px 6px 5px 16px;
-  transition: all 0.2s var(--ease);
-}
-
-@media (max-width: 639px) {
-  .ai-input-wrapper {
-    flex-direction: column;
-    align-items: stretch;
-    border-radius: var(--radius-md);
-    padding: 8px 10px;
-    gap: 8px;
-  }
-}
-
-.ai-input-wrapper:focus-within {
-  border-color: var(--blue-primary);
-  background: #FFFFFF;
-  box-shadow: 0 0 0 3px rgba(40, 120, 200, 0.15);
-}
-
-:root[data-theme="dark"] .ai-input-wrapper:focus-within {
-  background: #1C222B;
-}
-
-.ai-input-prefix {
-  display: flex;
-  align-items: center;
-  color: var(--blue-primary);
-  margin-right: 10px;
-}
-
-@media (max-width: 639px) {
-  .ai-input-prefix {
-    display: none;
-  }
-}
-
-.sparkle-icon {
-  width: 20px;
-  height: 20px;
-}
-
-.ai-search-input {
-  flex: 1;
-  border: none;
-  background: transparent;
-  outline: none;
-  font-size: 14px;
-  color: var(--text-primary);
-  min-width: 0;
-  min-height: 40px;
-}
-
-.ai-search-input::placeholder {
-  color: var(--text-secondary);
-}
-
-.btn-iconly-search {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-height: 44px;
-  height: 44px;
-  padding: 0 20px;
-  border-radius: var(--radius-full);
-  background: #17191D;
-  color: #FFFFFF;
-  font-size: 13.5px;
-  font-weight: 700;
-  border: none;
-  white-space: nowrap;
-  box-shadow: 0 4px 14px rgba(23, 25, 29, 0.2);
-  transition: all 0.2s var(--ease);
-}
-
-@media (max-width: 639px) {
-  .btn-iconly-search {
-    width: 100%;
-  }
-}
-
-:root[data-theme="dark"] .btn-iconly-search {
-  background: var(--blue-primary);
-}
-
-.btn-iconly-search:hover:not(:disabled) {
-  transform: translateY(-1px);
-}
-
-.btn-iconly-search:active {
-  transform: scale(0.98);
-}
-
-.btn-iconly-search:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-
-.arrow-icon {
-  width: 15px;
-  height: 15px;
-}
-
-/* AI Prompts Row (Horizontal Touch Scroll) */
-.ai-prompts-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 0 2px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
-}
-
-.prompts-title {
-  font-size: 11.5px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  flex-shrink: 0;
-}
-
-.prompts-scroll {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-
-.prompts-scroll::-webkit-scrollbar {
-  display: none;
-}
-
-.prompt-pill {
-  font-size: 11.5px;
-  font-weight: 500;
-  color: var(--text-secondary);
-  background: rgba(40, 120, 200, 0.08);
-  border: 1px solid rgba(40, 120, 200, 0.12);
-  padding: 4px 10px;
-  border-radius: var(--radius-full);
-  white-space: nowrap;
-  transition: all 0.15s ease;
-  min-height: 30px;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.prompt-svg {
-  width: 13px;
-  height: 13px;
-  color: var(--blue-primary);
-  flex-shrink: 0;
-}
-
-.prompt-pill:hover {
-  background: rgba(40, 120, 200, 0.15);
-  color: var(--blue-deep);
-}
-
-/* Standard Console Grid */
-.console-fields-row {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 10px;
-}
-
-@media (max-width: 639px) {
-  .console-fields-row {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px 8px;
-  }
-}
-
-@media (min-width: 640px) {
-  .console-fields-row {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-  }
-}
-
-@media (min-width: 1024px) {
-  .console-fields-row {
-    grid-template-columns: 1.35fr 1fr 1.4fr 1.25fr auto;
-    gap: 10px;
-    align-items: flex-end;
-  }
-}
-
-@media (min-width: 1280px) {
-  .console-fields-row {
-    grid-template-columns: 1.45fr 1.05fr 1.5fr 1.3fr auto;
-    gap: 12px;
-    align-items: flex-end;
-  }
-}
-
-.field-item {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 0;
-}
-
-.field-lbl {
-  font-size: 11.5px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  padding-left: 2px;
-}
-
-.field-select-wrap {
-  position: relative;
-  min-width: 0;
-}
-
-.iconly-select {
-  width: 100%;
-  min-width: 0;
-  min-height: 44px;
-  height: 44px;
-  padding: 0 24px 0 11px;
-  background-color: var(--surface-subtle);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-sm);
-  color: var(--text-primary);
-  font-size: 13px;
-  font-weight: 500;
-  outline: none;
-  transition: all 0.18s ease;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 8px center;
-  background-size: 11px;
-  cursor: pointer;
-}
-
-@media (max-width: 639px) {
-  .iconly-select {
-    min-height: 42px;
-    height: 42px;
-    padding: 0 22px 0 9px;
-    font-size: 12.5px;
-    border-radius: 10px;
-    background-position: right 7px center;
-  }
-}
-
-.iconly-select:focus {
-  border-color: var(--blue-primary);
-  background: #FFFFFF;
-}
-
-.field-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-@media (max-width: 639px) {
-  .field-actions {
-    grid-column: 1 / -1;
-    display: grid;
-    grid-template-columns: 46px 1fr;
-    gap: 8px;
-    width: 100%;
-    margin-top: 4px;
-  }
-}
-
-.btn-iconly-filter {
-  min-width: 44px;
-  min-height: 44px;
-  width: 44px;
-  height: 44px;
-  border-radius: var(--radius-full);
-  border: 1px solid var(--border-subtle);
-  background: var(--surface);
-  color: var(--text-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.18s ease;
-  flex-shrink: 0;
-}
-
-@media (max-width: 639px) {
-  .btn-iconly-filter {
-    width: 46px;
-    height: 46px;
-  }
-}
-
-.btn-iconly-filter:hover {
-  border-color: var(--blue-primary);
-  color: var(--blue-primary);
-}
-
-.filter-icon {
-  width: 18px;
-  height: 18px;
-}
-
-.btn-iconly-submit {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  min-height: 44px;
-  height: 44px;
-  padding: 0 22px;
-  border-radius: var(--radius-full);
-  background: #17191D;
-  color: #FFFFFF;
-  font-size: 13.5px;
-  font-weight: 700;
-  border: none;
-  white-space: nowrap;
-  box-shadow: 0 4px 14px rgba(23, 25, 29, 0.18);
-  transition: all 0.2s var(--ease);
-}
-
-@media (max-width: 639px) {
-  .btn-iconly-submit {
-    width: 100%;
-    height: 46px;
-  }
-}
-
-:root[data-theme="dark"] .btn-iconly-submit {
-  background: var(--blue-primary);
-}
-
-.btn-iconly-submit:hover {
-  transform: translateY(-1px);
-}
-
-.btn-iconly-submit:active {
-  transform: scale(0.98);
-}
-
-.search-icon {
-  width: 16px;
-  height: 16px;
-}
-
-/* Active Status Pill */
-.ai-active-status {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: rgba(40, 120, 200, 0.1);
-  border: 1px solid rgba(40, 120, 200, 0.2);
-  border-radius: var(--radius-full);
-  padding: 8px 16px;
-  margin-top: 14px;
-  font-size: 12.5px;
-  gap: 8px;
-}
-
-@media (max-width: 639px) {
-  .ai-active-status {
-    flex-direction: column;
-    align-items: flex-start;
-    border-radius: var(--radius-sm);
-    padding: 10px 14px;
-  }
-  .ai-reset-btn {
-    align-self: flex-end;
-  }
-}
-
-.ai-status-left {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.ai-badge-live {
-  background: var(--blue-primary);
-  color: #ffffff;
-  font-size: 10.5px;
-  font-weight: 700;
-  padding: 3px 8px;
-  border-radius: var(--radius-full);
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.ai-chip-svg {
-  width: 13px;
-  height: 13px;
-}
-
-.ai-query-text {
-  color: var(--blue-deep);
-  font-weight: 600;
-  word-break: break-word;
-}
-
-.ai-reset-btn {
-  color: var(--blue-deep);
-  font-size: 12px;
-  font-weight: 700;
-  border: none;
-  background: none;
-  min-height: 32px;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  cursor: pointer;
-}
-
-.reset-svg {
-  width: 13px;
-  height: 13px;
-}
-
-/* Right: Visual Showcase (Desktop Only) */
-.hero-right-visual {
-  display: none;
-}
-
-@media (min-width: 1024px) {
-  .hero-right-visual {
-    display: block;
-    position: relative;
-  }
-}
-
-.visual-stack {
-  position: relative;
-}
-
-.visual-photo-card {
-  position: relative;
-  border-radius: var(--radius-card);
-  overflow: hidden;
-  box-shadow: 0 20px 48px -12px rgba(40, 120, 200, 0.25);
-  border: 3px solid rgba(255, 255, 255, 0.95);
-  aspect-ratio: 4/3;
-}
-
-.visual-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.visual-photo-glass-bottom {
-  position: absolute;
-  bottom: 12px;
-  left: 12px;
-  right: 12px;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.9);
-  border-radius: var(--radius-inner);
-  padding: 10px 18px;
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-}
-
-:root[data-theme="dark"] .visual-photo-glass-bottom {
-  background: rgba(22, 27, 34, 0.85);
-}
-
-.spec-col {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.spec-label {
-  font-size: 11px;
-  color: var(--text-secondary);
-}
-
-.spec-val {
-  font-size: 13.5px;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.spec-sep {
-  width: 1px;
-  height: 20px;
-  background: var(--border-subtle);
-}
-
-/* Floating Circular Score Badge */
-.floating-score-badge {
-  position: absolute;
-  top: -16px;
-  right: -16px;
-  background: #FFFFFF;
-  border-radius: var(--radius-full);
-  padding: 6px 14px 6px 6px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  box-shadow: 0 10px 28px rgba(40, 120, 200, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.9);
-}
-
-:root[data-theme="dark"] .floating-score-badge {
-  background: #1C222B;
-}
-
-.score-ring {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  border: 3px solid #10B981;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13.5px;
-  font-weight: 800;
-  color: var(--text-primary);
-}
-
-.score-meta {
-  display: flex;
-  flex-direction: column;
-}
-
-.score-title {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.score-sub {
-  font-size: 10.5px;
-  color: var(--text-secondary);
-}
+.p-hero { position: relative; z-index: 0; top: auto; min-height: min(940px, 100svh); display: flex; flex-direction: column; overflow: hidden; isolation: isolate; }
+.p-hero > .wrap { width: 100%; }
+.p-hero :deep(.hero-scene) { z-index: -2; }
+.p-hero-fade { position: absolute; inset: 0; z-index: -1; background: linear-gradient(100deg, color-mix(in srgb, var(--bg) 94%, transparent) 0%, color-mix(in srgb, var(--bg) 60%, transparent) 36%, transparent 62%); }
+.p-hero-in { flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 40px; align-items: center; padding-top: calc(130px + env(safe-area-inset-top, 0px)); padding-bottom: 28px; }
+.p-label { font: 600 11px/1.2 var(--font-sans); letter-spacing: .16em; text-transform: uppercase; color: var(--tx-muted); margin: 0; }
+.p-h1 { margin: 20px 0 0; font-family: var(--font-sans); font-size: clamp(2.1rem, 4.2vw, 4rem); font-weight: 300; line-height: 1.02; letter-spacing: -.05em; color: var(--tx); text-wrap: balance; }
+.p-h1 span { display: block; }
+.p-h1 em { font-style: normal; font-weight: 600; color: var(--blue-primary); }
+.p-lede { margin: 22px 0 0; max-width: 46ch; font-size: clamp(15px, 1.3vw, 17px); color: var(--blue-primary); }
+.p-trust { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 26px; }
+.p-trust span { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; font-size: 13px; font-weight: 600; color: var(--tx); }
+.p-trust svg { width: 15px; height: 15px; stroke: var(--ok); fill: none; stroke-width: 2; }
+.p-glass { background: var(--glass); backdrop-filter: blur(18px) saturate(1.2); -webkit-backdrop-filter: blur(18px) saturate(1.2); border: 1px solid var(--glass-line); box-shadow: var(--sh-floating); }
+
+.p-aidemo { border-radius: 28px; padding: 22px; display: grid; gap: 16px; cursor: pointer; text-align: left; width: 100%; color: var(--tx); font: inherit; animation: p-rise .8s .2s both; }
+.p-aidemo-h { display: flex; align-items: center; gap: 12px; }
+.p-aidemo-h b { display: block; font-weight: 700; font-size: 15px; }
+.p-aidemo-h small { font-size: 12px; color: var(--tx-muted); }
+.p-orb { width: 40px; height: 40px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #FBF8F2, #D5C8B5 45%, #514437); flex: none; position: relative; animation: p-breathe 4s ease-in-out infinite; }
+.p-orb::after { content: ""; position: absolute; inset: -6px; border-radius: 50%; border: 1px solid rgba(213, 200, 181, .7); animation: p-ring 2.6s ease-out infinite; }
+.p-typed { font-size: 17px; font-weight: 500; line-height: 1.45; min-height: 3em; }
+.p-typed::after { content: ""; display: inline-block; width: 2px; height: 1.1em; background: var(--blue-primary); margin-left: 2px; vertical-align: -.15em; animation: p-blink 1s steps(1) infinite; }
+.p-toks { display: flex; flex-wrap: wrap; gap: 6px; min-height: 30px; }
+.p-tok { display: inline-flex; gap: 6px; align-items: center; padding: 6px 11px; border-radius: 999px; background: var(--surface); font-size: 12px; font-weight: 700; animation: p-tokin .3s both; }
+.p-tok i { font-style: normal; color: var(--tx-muted); font-weight: 500; }
+.p-aidemo-f { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding-top: 12px; border-top: 1px solid var(--bd); font-size: 13px; }
+.p-aidemo-f b { font-size: 20px; font-weight: 700; letter-spacing: -.02em; }
+
+.p-search { border-radius: 28px; padding: 10px; margin-bottom: 28px; background: var(--glass-strong); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border: 1px solid var(--glass-line); box-shadow: var(--sh-floating); }
+.p-modes { display: flex; gap: 4px; padding: 2px 2px 10px; flex-wrap: wrap; }
+.p-modes button { border: 0; background: transparent; border-radius: 999px; padding: 9px 16px; font: 700 13px var(--font-sans); cursor: pointer; color: var(--tx-muted); display: inline-flex; gap: 8px; align-items: center; }
+.p-modes button[aria-pressed="true"] { background: var(--accent-black); color: var(--on-ink); }
+.p-modes .ai-tab[aria-pressed="false"] { color: var(--blue-primary); }
+.spark { width: 16px; height: 16px; fill: currentColor; flex: none; }
+.ic { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; flex: none; }
+.p-ai-row { display: flex; gap: 8px; }
+.p-ai-input { flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; background: var(--surface); border-radius: 20px; padding: 6px 8px 6px 18px; color: var(--blue-primary); }
+.p-ai-input:focus-within { box-shadow: 0 0 0 2px var(--blue-primary); }
+.p-ai-input .spark { width: 20px; height: 20px; }
+.p-ai-input input { flex: 1; min-width: 0; border: 0; background: transparent; font: 500 16px var(--font-sans); padding: 14px 0; color: var(--tx); }
+.p-ai-input input:focus { outline: none; }
+.p-btn-dark { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 0; background: var(--accent-black); color: var(--on-ink); font: 600 14px var(--font-sans); cursor: pointer; white-space: nowrap; transition: background .2s; }
+.p-btn-dark:hover { background: var(--blue-primary); }
+.p-btn-dark:disabled { opacity: .6; cursor: progress; }
+.p-ai-go { border-radius: 16px; padding: 0 24px; min-height: 56px; }
+.p-ex { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; padding: 10px 6px 2px; }
+.p-ex .p-label { margin-right: 4px; }
+.p-chipbtn { border: 1px solid var(--brand-sand); background: transparent; border-radius: 999px; padding: 7px 13px; font: 600 13px var(--font-sans); cursor: pointer; color: var(--tx); }
+.p-chipbtn:hover { background: var(--surface); }
+.p-row { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)) auto; gap: 6px; }
+.p-f { background: var(--surface); border-radius: 18px; padding: 10px 16px; display: grid; gap: 2px; min-width: 0; }
+.p-f label { font: 600 10px var(--font-sans); letter-spacing: .14em; text-transform: uppercase; color: var(--tx-muted); }
+.p-f select { appearance: none; border: 0; background: transparent; font: 600 14px var(--font-sans); color: var(--tx); padding: 0; cursor: pointer; width: 100%; min-width: 0; }
+.p-f select:focus-visible { outline: none; }
+.p-f:focus-within { box-shadow: 0 0 0 2px var(--blue-primary); }
+.p-go { border-radius: 18px; padding: 0 26px; min-height: 58px; }
+.p-foot { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 8px 2px; flex-wrap: wrap; }
+.p-link { background: none; border: 0; padding: 4px 0; font: 700 13px var(--font-sans); cursor: pointer; display: inline-flex; gap: 6px; align-items: center; color: var(--blue-primary); }
+
+@keyframes p-rise { from { transform: translateY(16px); } to { transform: none; } }
+@keyframes p-breathe { 50% { transform: scale(.93); } }
+@keyframes p-ring { from { transform: scale(.85); opacity: 1; } to { transform: scale(1.35); opacity: 0; } }
+@keyframes p-blink { 50% { opacity: 0; } }
+@keyframes p-tokin { from { transform: scale(.9); } to { transform: none; } }
+
+@media (max-width: 1100px) { .p-row { grid-template-columns: repeat(2, minmax(0, 1fr)); } .p-go { grid-column: 1 / -1; } }
+@media (max-width: 1023px) { .p-hero-in { grid-template-columns: minmax(0, 1fr); } .p-aidemo { display: none; } }
+@media (max-width: 767px) {
+  .p-hero-fade { background: linear-gradient(180deg, color-mix(in srgb, var(--bg) 95%, transparent) 0%, color-mix(in srgb, var(--bg) 75%, transparent) 50%, color-mix(in srgb, var(--bg) 20%, transparent) 80%); }
+  .p-hero-in { padding-top: calc(100px + env(safe-area-inset-top, 0px)); }
+}
+@media (max-width: 600px) { .p-ai-row { flex-direction: column; } .p-ai-go { min-height: 50px; } }
+@media (prefers-reduced-motion: reduce) { .p-aidemo, .p-orb, .p-orb::after, .p-typed::after, .p-tok { animation: none !important; } }
 </style>

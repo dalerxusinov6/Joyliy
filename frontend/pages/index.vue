@@ -4,8 +4,9 @@ import { useListings, type ListingItem } from '~/composables/useListings'
 import { useModals } from '~/composables/useModals'
 import HeroSearch from '~/components/HeroSearch.vue'
 import ListingCard from '~/components/ListingCard.vue'
+import HeroScene from '~/components/HeroScene.vue'
 
-const { t, tDistrict, formatPrice } = useI18n()
+const { t, tDistrict } = useI18n()
 const {
   listings,
   filteredListings,
@@ -23,17 +24,21 @@ const {
   availableDistricts,
   fetchListings,
   totalCount,
+  aiSearchActive,
+  aiSearchQuery,
+  aiParsedCriteria,
+  isAiSearching,
+  resetAiMatch,
 } = useListings()
 
-const { showFilters, showMap, showPostAd } = useModals()
+const { showFilters, showMap, showPostAd, showRoommates, showNeighborhoods, showAssistant } = useModals()
+const assistantPrefill = useState<string>('assistant_prefill', () => '')
 
-// Pre-fetch during SSR and client navigation
 await useAsyncData('listings_ssr', async () => {
   await fetchListings()
   return true
 })
 
-// Dynamic SEO & Structured Data for Homepage
 useSeoMeta({
   title: 'Joyliy — Toshkentda maklersiz ijara va arzon kvartiralar',
   description: 'Toshkentda egasidan maklersiz ijara kvartiralar va arzon uylar qidiruv tizimi. Joyliy.uz orqali to‘g‘ridan-to‘g‘ri tekshirilgan e‘lonlar, narx tahlili va fotosuratlar.',
@@ -88,63 +93,45 @@ useHead({
   ],
 })
 
-// Curated categories matching Iconly pill tabs
+/* ---------- catalog ---------- */
 const rentCategories = computed(() => [
-  { key: '', title: t('cat_all'), icon: 'all' },
-  { key: 'mk', title: t('cat_no_agent'), icon: 'home' },
-  { key: 'fair_cheap', title: t('cat_below_market'), icon: 'discount' },
-  { key: '3days', title: t('cat_new_listings'), icon: 'zap' },
-  { key: '1', title: t('cat_1room'), icon: 'room' },
-  { key: '2', title: t('cat_2room'), icon: 'room' },
-  { key: '3', title: t('cat_3room'), icon: 'room' },
-  { key: 'room', title: t('cat_roommates'), icon: 'users' },
+  { key: '', title: t('cat_all') },
+  { key: 'mk', title: t('cat_no_agent') },
+  { key: 'fair_cheap', title: t('cat_below_market') },
+  { key: '3days', title: t('cat_new_listings') },
+  { key: '1', title: t('cat_1room') },
+  { key: '2', title: t('cat_2room') },
+  { key: '3', title: t('cat_3room') },
+  { key: 'room', title: t('cat_roommates') },
 ])
-
 const saleCategories = computed(() => [
-  { key: '', title: t('cat_all'), icon: 'all' },
-  { key: 'mk', title: t('cat_from_owner'), icon: 'home' },
-  { key: 'fair_cheap', title: t('cat_cheap_price'), icon: 'discount' },
-  { key: '3days', title: t('cat_new_listings'), icon: 'zap' },
-  { key: '1', title: t('cat_1room'), icon: 'room' },
-  { key: '2', title: t('cat_2room'), icon: 'room' },
-  { key: '3', title: t('cat_3room'), icon: 'room' },
+  { key: '', title: t('cat_all') },
+  { key: 'mk', title: t('cat_from_owner') },
+  { key: 'fair_cheap', title: t('cat_cheap_price') },
+  { key: '3days', title: t('cat_new_listings') },
+  { key: '1', title: t('cat_1room') },
+  { key: '2', title: t('cat_2room') },
+  { key: '3', title: t('cat_3room') },
 ])
+const activeCategories = computed(() => (filterDealType.value === 'sale' ? saleCategories.value : rentCategories.value))
 
-const activeCategories = computed(() => {
-  return filterDealType.value === 'sale' ? saleCategories.value : rentCategories.value
-})
-
-// Audience options
 const audienceOptions = computed(() => [
-  { key: 'all', title: t('aud_all'), type: 'all' },
-  { key: 'family', title: t('aud_family'), type: 'family' },
-  { key: 'female', title: t('aud_female'), type: 'female' },
-  { key: 'male', title: t('aud_male'), type: 'male' },
+  { key: 'all', title: t('aud_all') },
+  { key: 'family', title: t('aud_family') },
+  { key: 'female', title: t('aud_female') },
+  { key: 'male', title: t('aud_male') },
 ])
 
-const getAudienceCount = (key: string) => {
-  if (key === 'all') return listings.value.length
-  return listings.value.filter((x) => x.target_audience === key).length
-}
+const onSelectListing = (item: ListingItem) => { selectedListing.value = item }
 
-const getDistrictCount = (name: string) => {
-  return listings.value.filter((x) => x.district === name).length
-}
-
-const selectCategory = (catKey: string) => {
-  filterCategory.value = catKey
-}
-
-const onSelectListing = (item: ListingItem) => {
-  selectedListing.value = item
-}
-
-const clearFilters = () => {
+const clearFilters = async () => {
+  if (aiSearchActive.value) await resetAiMatch()
   filterDistrict.value = ''
   filterRooms.value = ''
   filterMaxPrice.value = ''
   filterCategory.value = ''
   filterAudience.value = 'all'
+  filterPropertyType.value = ''
   filterAmenities.value.owner_only = false
   filterAmenities.value.mebel = false
   filterAmenities.value.kond = false
@@ -153,1340 +140,439 @@ const clearFilters = () => {
   filterSort.value = 'new'
 }
 
-const hasActiveFilters = computed(() => {
-  return (
-    !!filterDistrict.value ||
-    !!filterRooms.value ||
-    !!filterMaxPrice.value ||
-    !!filterCategory.value ||
-    filterAudience.value !== 'all' ||
-    filterAmenities.value.owner_only ||
-    filterAmenities.value.mebel ||
-    filterAmenities.value.kond ||
-    filterAmenities.value.kir ||
-    filterAmenities.value.net ||
-    filterSort.value !== 'new'
-  )
-})
+const hasActiveFilters = computed(() =>
+  aiSearchActive.value ||
+  !!filterDistrict.value || !!filterRooms.value || !!filterMaxPrice.value || !!filterCategory.value || !!filterPropertyType.value ||
+  filterAudience.value !== 'all' || filterAmenities.value.owner_only || filterAmenities.value.mebel ||
+  filterAmenities.value.kond || filterAmenities.value.kir || filterAmenities.value.net || filterSort.value !== 'new',
+)
 
-// Dominant featured listing vs grid listings
-const dominantFeatured = computed(() => {
-  if (!filteredListings.value.length) return null
-  return filteredListings.value[0]
-})
-
-const remainingListings = computed(() => {
-  if (!filteredListings.value.length) return []
-  return filteredListings.value.slice(1)
-})
-
-// Progressive disclosure / "Ko'proq ko'rish" across all filtered database listings
 const PAGE_SIZE = 12
-const displayCount = ref(13) // 1 featured + 12 in grid
-const isLoadingMore = ref(false)
+const displayCount = ref(PAGE_SIZE)
+const visibleListings = computed(() => filteredListings.value.slice(0, displayCount.value))
+const hasMore = computed(() => filteredListings.value.length > displayCount.value)
+const nextBatch = computed(() => Math.min(PAGE_SIZE, filteredListings.value.length - displayCount.value))
+watch(
+  [filterDistrict, filterRooms, filterMaxPrice, filterCategory, filterAudience, filterDealType, filterPropertyType, filterSort, aiSearchActive, () => ({ ...filterAmenities.value })],
+  () => { displayCount.value = PAGE_SIZE },
+)
 
-const visibleRemainingListings = computed(() => {
-  if (!remainingListings.value.length) return []
-  return remainingListings.value.slice(0, displayCount.value - 1)
+const aiTokens = computed(() => {
+  const c: any = aiParsedCriteria.value || {}
+  const out: [string, string][] = []
+  if (c.district) out.push(['Hudud', tDistrict(c.district)])
+  if (c.rooms) out.push(['Xonalar', String(c.rooms)])
+  if (c.max_price_uzs) out.push(['Byudjet', `${(c.max_price_uzs / 1e6).toLocaleString('ru-RU', { maximumFractionDigits: 1 })} mln gacha`])
+  if (c.target_audience && c.target_audience !== 'any') out.push(['Kim uchun', t(`aud_${c.target_audience}`)])
+  if (c.owner_only) out.push(['Manba', t('cat_no_agent')])
+  if (c.near_metro) out.push(['Joylashuv', t('metro_near')])
+  return out
 })
 
-const hasMoreListings = computed(() => {
-  return filteredListings.value.length > displayCount.value
+const catalogTitle = computed(() => {
+  if (aiSearchActive.value) return `AI: ${filteredListings.value.length} ta mos uy`
+  return filterDealType.value === 'sale' ? t('catalog_title_sale') : t('catalog_title_rent')
 })
 
-const nextBatchCount = computed(() => {
-  const remaining = filteredListings.value.length - displayCount.value
-  return Math.min(PAGE_SIZE, Math.max(0, remaining))
+/* ---------- featured / latest ---------- */
+const featuredDeal = ref<'rent' | 'sale'>('rent')
+const featured = computed(() => {
+  const pool = listings.value
+    .filter((l) => (l.deal_type || 'rent') === featuredDeal.value && (l.image_urls || []).length >= 3 && l.area >= 40 && l.area <= 220 && !l.is_shared_room && (l.scam_risk_score ?? 0) <= 25)
+    .sort((a, b) => Number(b.is_owner) - Number(a.is_owner) || b.price_uzs - a.price_uzs)
+  const seen = new Set<string>()
+  const pick: ListingItem[] = []
+  for (const l of pool) { if (seen.has(l.district)) continue; seen.add(l.district); pick.push(l); if (pick.length === 4) break }
+  return pick
 })
+const latest = computed(() => [...listings.value].filter((l) => !l.is_shared_room && (l.image_urls || []).length).sort((a, b) => (a.days_ago ?? 0) - (b.days_ago ?? 0) || b.id - a.id).slice(0, 14))
+const rail = ref<HTMLElement | null>(null)
+const railBy = (d: number) => rail.value?.scrollBy({ left: d * 320, behavior: 'smooth' })
 
-const loadMoreListings = () => {
-  isLoadingMore.value = true
-  setTimeout(() => {
-    displayCount.value += PAGE_SIZE
-    isLoadingMore.value = false
-  }, 100)
+/* ---------- districts ---------- */
+const districtCards = computed(() =>
+  availableDistricts.value
+    .map((d) => {
+      const ls = listings.value.filter((x) => x.district === d)
+      const rent = ls.filter((x) => (x.deal_type || 'rent') === 'rent')
+      const avg = rent.length ? Math.round(rent.reduce((s, x) => s + x.price_uzs, 0) / rent.length) : 0
+      const img = ls.find((x) => (x.image_urls || []).length && !x.is_shared_room)?.image_urls[0]
+      return { name: d, count: ls.length, avg, img }
+    })
+    .filter((d) => d.count > 0)
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 8),
+)
+const pickDistrict = async (d: string) => {
+  if (aiSearchActive.value) await resetAiMatch()
+  filterDistrict.value = d
+  filterCategory.value = ''
+  document.getElementById('katalog')?.scrollIntoView({ behavior: 'smooth' })
 }
 
-// Reset display limit when user applies any filter across the database
-watch(
-  [
-    filterDistrict,
-    filterRooms,
-    filterMaxPrice,
-    filterCategory,
-    filterAudience,
-    filterDealType,
-    filterPropertyType,
-    filterSort,
-    () => filterAmenities.value.owner_only,
-    () => filterAmenities.value.mebel,
-    () => filterAmenities.value.kond,
-    () => filterAmenities.value.kir,
-    () => filterAmenities.value.net,
-  ],
-  () => {
-    displayCount.value = 13
+/* ---------- stats (live from loaded listings) ---------- */
+const stats = computed(() => {
+  const all = listings.value
+  return {
+    total: totalCount.value || all.length,
+    today: all.filter((x) => (x.days_ago ?? 99) === 0).length,
+    districts: new Set(all.map((x) => x.district).filter(Boolean)).size,
+    owner: all.filter((x) => x.is_owner).length,
   }
-)
+})
+
+/* ---------- AI advisor ---------- */
+const advisorQuestions = computed(() => [t('q_tax'), t('q_deposit'), t('q_utilities'), t('q_fraud')])
+const askAdvisor = (q?: string) => {
+  assistantPrefill.value = q || ''
+  showAssistant.value = true
+}
+
+const toTop = () => { if (import.meta.client) window.scrollTo({ top: 0, behavior: 'smooth' }) }
+const money = (v: number) => `${(v / 1e6).toLocaleString('ru-RU', { maximumFractionDigits: 1 })} mln`
 </script>
 
 <template>
-  <div class="iconly-homepage">
-    <!-- Hero with Atmospheric Dashboard Banner & Console -->
+  <div class="home">
     <HeroSearch @openFilters="showFilters = true" />
 
-    <!-- Curated Category Strip (Pill Tabs - Smooth Edge Touch Scroll) -->
-    <div class="wrap">
-      <div class="category-pill-container">
-        <div class="category-pill-scroll">
-          <button
-            v-for="cat in activeCategories"
-            :key="cat.key"
-            type="button"
-            class="category-pill-btn"
-            :class="{ active: filterCategory === cat.key }"
-            @click="selectCategory(cat.key)"
-          >
-            <!-- SVG icons for categories -->
-            <svg v-if="cat.icon === 'home'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="cat-svg">
-              <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-              <polyline points="9 22 9 12 15 12 15 22" />
-            </svg>
-            <svg v-else-if="cat.icon === 'discount'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="cat-svg">
-              <line x1="19" y1="5" x2="5" y2="19" />
-              <circle cx="6.5" cy="6.5" r="2.5" />
-              <circle cx="17.5" cy="17.5" r="2.5" />
-            </svg>
-            <svg v-else-if="cat.icon === 'zap'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="cat-svg">
-              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-            </svg>
-            <svg v-else-if="cat.icon === 'users'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="cat-svg">
-              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-              <circle cx="9" cy="7" r="4" />
-              <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-            </svg>
-            <span>{{ cat.title }}</span>
+    <!-- CATALOG -->
+    <section id="katalog" class="sec">
+      <div class="wrap">
+        <div class="head">
+          <div>
+            <p class="label">{{ aiSearchActive ? 'AI qidiruv natijalari' : 'Katalog' }}</p>
+            <h2>{{ catalogTitle }}</h2>
+          </div>
+          <div class="head-acts">
+            <button type="button" class="btn-line" @click="showMap = true">
+              <svg viewBox="0 0 24 24" class="ic"><path d="M1 6v16l7-4 8 4 7-4V2l-7 4-8-4z" /><path d="M8 2v16M16 6v16" /></svg>{{ t('map') }}
+            </button>
+            <button type="button" class="btn-line" @click="showFilters = true">
+              <svg viewBox="0 0 24 24" class="ic"><path d="M4 7h10M18 7h2M4 17h4M12 17h8" /><circle cx="16" cy="7" r="2" /><circle cx="10" cy="17" r="2" /></svg>{{ t('more_filters') }}
+            </button>
+            <button v-if="hasActiveFilters" type="button" class="btn-line" @click="clearFilters">{{ t('reset_filter') }} ×</button>
+          </div>
+        </div>
+
+        <div v-if="aiSearchActive" class="ai-banner">
+          <span class="orb" aria-hidden="true"></span>
+          <div class="toks">
+            <span class="tok q">“{{ aiSearchQuery }}”</span>
+            <span v-for="(tk, i) in aiTokens" :key="i" class="tok"><i>{{ tk[0] }}</i>{{ tk[1] }}</span>
+          </div>
+          <button type="button" class="link" @click="clearFilters">Oddiy katalogga qaytish</button>
+        </div>
+
+        <template v-else>
+          <div class="chips" role="group" aria-label="Toifalar">
+            <button v-for="cat in activeCategories" :key="cat.key" type="button" class="chip" :aria-pressed="filterCategory === cat.key" @click="filterCategory = cat.key">{{ cat.title }}</button>
+          </div>
+          <div v-if="filterDealType === 'rent'" class="aud">
+            <span class="label">{{ t('tenants_lbl') }}</span>
+            <button v-for="a in audienceOptions" :key="a.key" type="button" class="chip sm" :aria-pressed="filterAudience === a.key" @click="filterAudience = a.key">{{ a.title }}</button>
+            <label class="sort">
+              <span class="sr">{{ t('sort_order') }}</span>
+              <select v-model="filterSort">
+                <option value="new">{{ t('sort_new') }}</option>
+                <option value="lo">{{ t('sort_low') }}</option>
+                <option value="hi">{{ t('sort_high') }}</option>
+              </select>
+            </label>
+          </div>
+        </template>
+
+        <div v-if="isLoading || isAiSearching" class="grid">
+          <div v-for="n in 8" :key="n" class="skel"><div class="sk-ph"></div><div class="sk-l"></div><div class="sk-l s"></div></div>
+        </div>
+        <div v-else-if="visibleListings.length" class="grid">
+          <ListingCard v-for="item in visibleListings" :key="item.id" :listing="item" @select="onSelectListing" />
+        </div>
+        <div v-else class="empty">
+          <b>{{ t('empty_listings_title') }}</b>
+          <p>{{ t('empty_listings_desc') }}</p>
+          <button type="button" class="btn-dark" @click="clearFilters">{{ t('reset_filter') }}</button>
+        </div>
+        <div v-if="hasMore && !isLoading" class="more">
+          <button type="button" class="btn-line" @click="displayCount += PAGE_SIZE">{{ t('load_more_btn', { count: nextBatch }) }}</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURED -->
+    <section v-if="featured.length" class="sec pt0">
+      <div class="wrap">
+        <div class="head">
+          <div><p class="label">Tanlov</p><h2>Tavsiya etilgan <em>uylar</em></h2></div>
+          <div class="tabs" role="group" aria-label="Tavsiyalar turi">
+            <button type="button" :aria-pressed="featuredDeal === 'rent'" @click="featuredDeal = 'rent'">Ijara</button>
+            <button type="button" :aria-pressed="featuredDeal === 'sale'" @click="featuredDeal = 'sale'">Sotuv</button>
+          </div>
+        </div>
+        <div class="ed">
+          <ListingCard v-if="featured[0]" :listing="featured[0]" size="big" @select="onSelectListing" />
+          <ListingCard v-if="featured[1]" :listing="featured[1]" size="mid" @select="onSelectListing" />
+          <ListingCard v-if="featured[2]" :listing="featured[2]" size="mid" @select="onSelectListing" />
+          <ListingCard v-if="featured[3]" :listing="featured[3]" size="wide" @select="onSelectListing" />
+        </div>
+      </div>
+    </section>
+
+    <!-- AI ADVISOR -->
+    <section id="maslahatchi" class="sec pt0">
+      <div class="wrap">
+        <div class="adv">
+          <div>
+            <p class="label lt">Joyliy AI maslahatchi</p>
+            <h2>Ijara bo‘yicha savolingizga <em>darhol javob.</em></h2>
+            <p class="sub">Shartnoma, zalog, kommunal to‘lovlar va firibgarlikdan himoya — Toshkent ijara amaliyoti bo‘yicha maslahat, qonuniy asos va amaliy tavsiyalar bilan.</p>
+            <button type="button" class="btn-light" @click="askAdvisor()">
+              <svg viewBox="0 0 24 24" class="spark"><path d="M12 2l2.2 6.3L20.5 10l-6.3 2.2L12 18.5l-2.2-6.3L3.5 10l6.3-1.7z" /></svg>
+              Maslahatchini ochish
+            </button>
+          </div>
+          <div class="adv-qs">
+            <p class="label lt">Ko‘p beriladigan savollar</p>
+            <button v-for="q in advisorQuestions" :key="q" type="button" @click="askAdvisor(q)">
+              <span>{{ q }}</span>
+              <svg viewBox="0 0 24 24" class="ic"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DISTRICTS -->
+    <section id="tumanlar" class="sec pt0">
+      <div class="wrap">
+        <div class="head">
+          <div><p class="label">Hududlar</p><h2>Qayerdan uy <em>qidiryapsiz?</em></h2></div>
+          <button type="button" class="btn-line" @click="showNeighborhoods = true">Tumanlar qo‘llanmasi →</button>
+        </div>
+        <div class="loc">
+          <button v-for="d in districtCards" :key="d.name" type="button" class="lc" @click="pickDistrict(d.name)">
+            <img v-if="d.img" :src="d.img" alt="" loading="lazy" referrerpolicy="no-referrer" />
+            <span class="t"><b>{{ tDistrict(d.name) }}</b><span>{{ t('district_apts_count', { count: d.count }) }}<template v-if="d.avg"> · ijara o‘rtacha {{ money(d.avg) }}</template></span></span>
           </button>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- Main Catalog Section: Tanlangan takliflar -->
-    <div class="wrap">
-      <section id="katalog" class="catalog-section">
-        <!-- Section Header -->
-        <div class="section-heading-bar">
-          <div class="heading-left">
-            <h2 class="section-title">
-              {{ filterDealType === 'sale' ? t('catalog_title_sale') : t('catalog_title_rent') }}
-              <span class="catalog-total-pill" v-if="filteredListings.length > 0">
-                {{ t('listings_count_suffix', { count: filteredListings.length }) }}
-              </span>
-            </h2>
-            <p class="section-subtitle">
-              {{ filterDealType === 'sale' ? t('catalog_sub_sale') : t('catalog_sub_rent') }}
-            </p>
-          </div>
-
-          <!-- Catalog Actions -->
-          <div class="heading-actions">
-            <button class="btn-map-action" type="button" @click="showMap = true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="action-icon">
-                <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" />
-                <line x1="8" y1="2" x2="8" y2="18" />
-                <line x1="16" y1="6" x2="16" y2="22" />
-              </svg>
-              <span>{{ t('map') }}</span>
-            </button>
-
-            <button v-if="hasActiveFilters" class="btn-clear-action" type="button" @click="clearFilters">
-              <span>{{ t('clear') }}</span>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="action-icon">
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </button>
+    <!-- LATEST -->
+    <section v-if="latest.length" class="sec pt0">
+      <div class="wrap">
+        <div class="head">
+          <div><p class="label">So‘nggi kunlar</p><h2>Yangi <em>e’lonlar</em></h2></div>
+          <div class="rail-ctrl">
+            <button type="button" aria-label="Oldingi" @click="railBy(-1)"><svg viewBox="0 0 24 24" class="ic"><path d="M15 6l-6 6 6 6" /></svg></button>
+            <button type="button" aria-label="Keyingi" @click="railBy(1)"><svg viewBox="0 0 24 24" class="ic"><path d="M9 6l6 6-6 6" /></svg></button>
           </div>
         </div>
-
-        <!-- Audience Filter Pill Strip (Only for Rentals) -->
-        <div class="audience-pill-row" v-if="filterDealType === 'rent'">
-          <span class="aud-lbl">{{ t('tenants_lbl') }}</span>
-          <div class="aud-scroll">
-            <button
-              v-for="aud in audienceOptions"
-              :key="aud.key"
-              type="button"
-              class="aud-pill-btn"
-              :class="{ active: filterAudience === aud.key }"
-              @click="filterAudience = aud.key"
-            >
-              <span>{{ aud.title }}</span>
-              <span class="aud-pill-count" v-if="getAudienceCount(aud.key) > 0">
-                {{ getAudienceCount(aud.key) }}
-              </span>
-            </button>
-          </div>
+        <div ref="rail" class="rail">
+          <ListingCard v-for="item in latest" :key="item.id" :listing="item" size="rail" @select="onSelectListing" />
         </div>
+      </div>
+    </section>
 
-        <!-- Dominant Featured Showcase Card (Matching Image 2 Mobile Hero / Desktop Spec Overlay) -->
-        <div v-if="dominantFeatured" class="iconly-featured-card" @click="onSelectListing(dominantFeatured)">
-          <div class="featured-media-frame">
-            <img
-              v-if="dominantFeatured.image_urls && dominantFeatured.image_urls.length"
-              :src="dominantFeatured.image_urls[0]"
-              :alt="dominantFeatured.title"
-              class="featured-photo"
-              loading="lazy"
-            />
-            <div v-else class="featured-placeholder">
-              <span>Joyliy</span>
-            </div>
-
-            <!-- Top Left Tag -->
-            <div class="featured-top-left-tag">
-              <span v-if="dominantFeatured.deal_type === 'sale'" class="hot-rent-pill">
-                <span>{{ t('featured_for_sale') }}</span>
-              </span>
-              <span v-else class="hot-rent-pill">
-                <svg viewBox="0 0 24 24" fill="currentColor" class="flame-svg">
-                  <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" />
-                </svg>
-                <span>{{ t('featured_hot_deal') }}</span>
-              </span>
-              <span v-if="dominantFeatured.is_owner" class="owner-pill">
-                {{ dominantFeatured.deal_type === 'sale' ? t('from_owner') : t('no_agent') }}
-              </span>
-            </div>
-
-            <!-- Bottom Floating Frosted Glass Specs Overlay -->
-            <div class="featured-frosted-specs-overlay">
-              <div class="frosted-spec-cell">
-                <span class="f-lbl">{{ t('spec_area') }}</span>
-                <span class="f-val">{{ dominantFeatured.area }} m²</span>
-              </div>
-              <div class="frosted-spec-div"></div>
-              <div class="frosted-spec-cell">
-                <span class="f-lbl">{{ t('spec_rooms') }}</span>
-                <span class="f-val">{{ t('rooms_spec', { rooms: dominantFeatured.rooms }) }}</span>
-              </div>
-              <div class="frosted-spec-div"></div>
-              <div class="frosted-spec-cell">
-                <span class="f-lbl">{{ t('spec_floor') }}</span>
-                <span class="f-val">{{ dominantFeatured.floor || '3/9' }}</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="featured-content-plate">
-            <div class="featured-price-row">
-              <div class="price-side">
-                <span class="f-price-value">{{ formatPrice(dominantFeatured.price_uzs) }}</span>
-                <span v-if="dominantFeatured.deal_type !== 'sale'" class="f-price-period">{{ t('per_month') }}</span>
-              </div>
-              <div class="f-score-indicator" title="Sifat ko‘rsatkichi">
-                <span>9.4</span>
-              </div>
-            </div>
-
-            <h3 class="f-card-title">
-              {{ dominantFeatured.title }}
-            </h3>
-
-            <div class="f-location-row">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="pin-mini">
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                <circle cx="12" cy="10" r="3" />
-              </svg>
-              <span>{{ tDistrict(dominantFeatured.district) }} · {{ t('min_to_metro', { min: dominantFeatured.metro_minutes || 5 }) }}</span>
-            </div>
-
-            <div class="f-action-bar">
-              <button class="btn btn-dark inspect-cta" type="button">
-                <span>{{ t('featured_inspect') }}</span>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="arrow-mini">
-                  <line x1="5" y1="12" x2="19" y2="12" />
-                  <polyline points="12 5 19 12 12 19" />
-                </svg>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Remaining Listings Grid (Fluid responsive layout) -->
-        <div v-if="visibleRemainingListings.length" class="grid catalog-listings-grid">
-          <ListingCard
-            v-for="item in visibleRemainingListings"
-            :key="item.id"
-            :listing="item"
-            @select="onSelectListing"
-          />
-        </div>
-
-        <!-- Load More Action (Ko'proq ko'rish) -->
-        <div v-if="hasMoreListings" class="catalog-pagination-wrap">
-          <button
-            type="button"
-            class="btn-load-more"
-            :disabled="isLoadingMore"
-            @click="loadMoreListings"
-          >
-            <span v-if="isLoadingMore" class="load-spinner"></span>
-            <span v-else>{{ t('load_more_btn', { count: nextBatchCount }) }}</span>
-            <svg v-if="!isLoadingMore" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="arr-down-mini">
-              <polyline points="6 9 12 15 18 9" />
+    <!-- MAP + ROOMMATES -->
+    <section class="sec pt0">
+      <div class="wrap duo">
+        <div class="tile map-tile">
+          <div class="map-art" aria-hidden="true">
+            <svg viewBox="0 0 100 60" preserveAspectRatio="none">
+              <polyline points="14,62 22,52 30,44 40,36 48,30 58,26 70,22 84,18" fill="none" stroke="#B5483A" stroke-width=".8" opacity=".6" />
+              <polyline points="20,10 32,18 44,24 52,30 62,36 74,40 88,44" fill="none" stroke="#3D5F8C" stroke-width=".8" opacity=".6" />
+              <polyline points="56,2 56,14 55,26 54,34 53,42" fill="none" stroke="#4F7A4A" stroke-width=".8" opacity=".6" />
             </svg>
-          </button>
-        </div>
-
-        <!-- Empty State -->
-        <div v-if="!dominantFeatured" class="empty-state-card">
-          <div class="empty-icon-wrap">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="empty-search-svg">
-              <circle cx="11" cy="11" r="8" />
-              <line x1="21" y1="21" x2="16.65" y2="16.65" />
-            </svg>
+            <span v-for="(d, i) in districtCards.slice(0, 6)" :key="d.name" class="pin" :style="{ left: [30, 58, 72, 46, 22, 64][i] + '%', top: [44, 26, 40, 60, 66, 72][i] + '%' }">{{ tDistrict(d.name) }} <small>{{ d.count }}</small></span>
           </div>
-          <h3>{{ t('empty_listings_title') }}</h3>
-          <p>{{ t('empty_listings_desc') }}</p>
-          <button class="btn btn-dark" type="button" @click="clearFilters">{{ t('reset_filter') }}</button>
-        </div>
-      </section>
-
-      <!-- Popular Districts in Tashkent Section -->
-      <section id="tumanlar" class="districts-section">
-        <div class="section-heading-bar">
-          <div class="heading-left">
-            <h2 class="section-title">
-              {{ t('districts_section_title') }}
-            </h2>
-            <p class="section-subtitle">
-              {{ t('districts_section_sub') }}
-            </p>
+          <div class="tile-body">
+            <p class="label">Xarita</p>
+            <h3>Xaritadan o‘zingizga mos <em>uy toping.</em></h3>
+            <button type="button" class="btn-dark" @click="showMap = true">Xaritani ochish</button>
           </div>
         </div>
-
-        <div class="districts-grid">
-          <button
-            v-for="d in availableDistricts.slice(0, 6)"
-            :key="d"
-            type="button"
-            class="district-pill-card"
-            :class="{ active: filterDistrict === d }"
-            @click="filterDistrict = filterDistrict === d ? '' : d"
-          >
-            <div class="district-info-left">
-              <span class="district-name-bold">{{ tDistrict(d) }}</span>
-              <span class="district-count-tag">{{ t('district_apts_count', { count: getDistrictCount(d) }) }}</span>
-            </div>
-            <div class="district-arrow-circle">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="d-arr">
-                <polyline points="9 18 15 12 9 6" />
-              </svg>
-            </div>
-          </button>
+        <div class="tile rm-tile">
+          <p class="label">{{ t('roommates_tab') }}</p>
+          <h3>Birga yashash uchun <em>sherik toping.</em></h3>
+          <p class="muted">Talabalar va yosh mutaxassislar uchun anketa to‘ldiring, mos hamxonalar bilan bog‘laning.</p>
+          <button type="button" class="btn-dark" @click="showRoommates = true">Hamxona qidirish</button>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <!-- Why Joyliy.uz Trust Section -->
-      <section class="why-joyliy-section">
-        <div class="why-heading-wrap">
-          <h2 class="section-title">{{ t('why_title') }}</h2>
-          <p class="section-subtitle">{{ t('why_sub') }}</p>
-        </div>
-
-        <div class="why-cards-grid">
-          <div class="why-card">
-            <div class="why-icon-circle">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="why-svg">
-                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                <circle cx="9" cy="7" r="4" />
-                <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-              </svg>
-            </div>
-            <h4 class="why-card-title">{{ t('why_1_title') }}</h4>
-            <p class="why-card-desc">
-              {{ t('why_1_desc') }}
-            </p>
-          </div>
-
-          <div class="why-card">
-            <div class="why-icon-circle">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="why-svg">
-                <rect width="16" height="16" x="4" y="4" rx="2" />
-                <rect width="6" height="6" x="9" y="9" rx="1" />
-                <path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3" />
-              </svg>
-            </div>
-            <h4 class="why-card-title">{{ t('why_2_title') }}</h4>
-            <p class="why-card-desc">
-              {{ t('why_2_desc') }}
-            </p>
-          </div>
-
-          <div class="why-card">
-            <div class="why-icon-circle">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="why-svg">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                <path d="m9 12 2 2 4-4" />
-              </svg>
-            </div>
-            <h4 class="why-card-title">{{ t('why_3_title') }}</h4>
-            <p class="why-card-desc">
-              {{ t('why_3_desc') }}
-            </p>
+    <!-- STATS + WHY -->
+    <section class="sec pt0">
+      <div class="wrap">
+        <div class="head"><div><p class="label">{{ t('why_title') }}</p><h2>Uy-joy ijarasining <em>yangi standarti</em></h2></div></div>
+        <div class="stats">
+          <ClientOnly><HeroScene variant="stats" /></ClientOnly>
+          <div class="stat-panel">
+            <div><b>{{ stats.total.toLocaleString('ru-RU') }}</b><span>Faol e’lonlar</span></div>
+            <div><b>{{ stats.today }}</b><span>Bugun qo‘shilgan</span></div>
+            <div><b>{{ stats.districts }}</b><span>Qamrab olingan tumanlar</span></div>
+            <div><b>{{ stats.owner }}</b><span>Egasidan deb aniqlangan</span></div>
           </div>
         </div>
-      </section>
+        <div class="why">
+          <div><b>0%</b><h3>Vositachilik to‘lovi yo‘q</h3><p>Makler va ortiqcha komissiyasiz. Mulk egasi bilan to‘g‘ridan-to‘g‘ri, shaffof shartnoma tuzing.</p></div>
+          <div><b>AI</b><h3>Bozor narxi tahlili</h3><p>Har bir e’lon tumandagi o‘xshash xonadonlar bilan solishtiriladi: arzonmi, bozor narxidami yoki qimmatmi.</p></div>
+          <div><b>Xavfsiz</b><h3>Firibgarlik tekshiruvi</h3><p>Oldindan to‘lov, avans, karta talabi, takroriy rasmlar va shubhali havolalar avtomatik aniqlanadi.</p></div>
+        </div>
+      </div>
+    </section>
 
-      <!-- Call-to-action for Landlords -->
-      <section class="landlord-cta-section">
-        <div class="landlord-cta-card">
-          <div class="cta-text-side">
-            <span class="cta-pill-badge">{{ t('cta_landlord_badge') }}</span>
-            <h3 class="cta-title">{{ t('cta_landlord_title') }}</h3>
-            <p class="cta-desc">
-              {{ t('cta_landlord_desc') }}
-            </p>
-            <button class="btn btn-dark cta-main-btn" @click="showPostAd = true">
-              {{ t('cta_landlord_btn') }}
-            </button>
-          </div>
-          <div class="cta-visual-side">
-            <div class="cta-stat-pill">
-              <span class="stat-number">{{ t('cta_stat_num') }}</span>
-              <span class="stat-desc">{{ t('cta_stat_desc') }}</span>
+    <!-- CTA + OWNERS -->
+    <section class="sec pt0">
+      <div class="wrap owners">
+        <div class="cta-box">
+          <ClientOnly><HeroScene variant="cta" /></ClientOnly>
+          <div class="cta-in">
+            <p class="label lt">Joyliy</p>
+            <h2>Yangi manzilingiz <em>shu yerdan</em> boshlanadi.</h2>
+            <div class="row">
+              <a href="#top" class="btn-light" @click.prevent="toTop">Uy topish</a>
+              <button type="button" class="btn-ghost" @click="showPostAd = true">{{ t('post_ad') }}</button>
             </div>
           </div>
         </div>
-      </section>
-    </div>
+        <div class="own">
+          <p class="label">{{ t('cta_landlord_badge') }}</p>
+          <h3>{{ t('cta_landlord_title') }}</h3>
+          <p class="muted">{{ t('cta_landlord_desc') }}</p>
+          <ol>
+            <li>Turi va manzilni tanlang</li>
+            <li>Narx, xonalar va rasmlarni qo‘shing</li>
+            <li>Moderatsiyadan so‘ng e’lon sayt va Telegram kanalda chiqadi</li>
+          </ol>
+          <button type="button" class="btn-dark" @click="showPostAd = true">{{ t('cta_landlord_btn') }}</button>
+        </div>
+      </div>
+    </section>
   </div>
 </template>
 
 <style scoped>
-.iconly-homepage {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-/* Category Pill Tabs (Smooth Edge Touch Scroll) */
-.category-pill-container {
-  padding: 4px 0 12px;
-}
-
-.category-pill-scroll {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  padding: 2px 0;
-  -webkit-overflow-scrolling: touch;
-}
-
-.category-pill-scroll::-webkit-scrollbar {
-  display: none;
-}
-
-.category-pill-btn {
-  font-family: var(--font-sans);
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  background: var(--surface);
-  border: 1px solid var(--border-subtle);
-  padding: 6px 14px;
-  border-radius: var(--radius-full);
-  white-space: nowrap;
-  transition: all 0.18s var(--ease);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
-  min-height: 36px;
-  display: inline-flex;
-  align-items: center;
-  flex-shrink: 0;
-}
-
-@media (min-width: 480px) {
-  .category-pill-btn {
-    font-size: 13.5px;
-    padding: 8px 18px;
-    min-height: 40px;
-  }
-}
-
-.category-pill-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.cat-svg {
-  width: 14px;
-  height: 14px;
-  flex-shrink: 0;
-}
-
-.category-pill-btn:hover {
-  color: var(--text-primary);
-  border-color: rgba(23, 25, 29, 0.15);
-}
-
-.category-pill-btn:active {
-  transform: scale(0.96);
-}
-
-.category-pill-btn.active {
-  background: #17191D;
-  color: #FFFFFF;
-  border-color: #17191D;
-  box-shadow: 0 4px 12px rgba(23, 25, 29, 0.15);
-}
-
-:root[data-theme="dark"] .category-pill-btn.active {
-  background: var(--blue-primary);
-  border-color: var(--blue-primary);
-}
-
-/* Catalog Section */
-.catalog-section {
-  padding: 12px 0 28px;
-}
-
-@media (min-width: 768px) {
-  .catalog-section {
-    padding: 16px 0 36px;
-  }
-}
-
-.section-heading-bar {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  margin-bottom: 16px;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.section-title {
-  font-family: var(--font-sans);
-  font-size: clamp(20px, 5.5vw, 26px);
-  font-weight: 800;
-  letter-spacing: -0.025em;
-  color: var(--text-primary);
-  margin: 0 0 4px;
-}
-
-.section-subtitle {
-  font-size: clamp(12.5px, 3.5vw, 14px);
-  color: var(--text-secondary);
-  margin: 0;
-}
-
-.heading-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.btn-map-action {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  min-height: 38px;
-  height: 38px;
-  padding: 0 16px;
-  border-radius: var(--radius-full);
-  background: var(--surface);
-  border: 1px solid var(--border-subtle);
-  color: var(--text-primary);
-  font-size: 13px;
-  font-weight: 600;
-  transition: all 0.18s ease;
-}
-
-.btn-map-action:hover {
-  border-color: var(--blue-primary);
-  color: var(--blue-primary);
-}
-
-.btn-map-action:active {
-  transform: scale(0.96);
-}
-
-.action-icon {
-  width: 15px;
-  height: 15px;
-}
-
-.btn-clear-action {
-  min-height: 38px;
-  height: 38px;
-  padding: 0 14px;
-  border-radius: var(--radius-full);
-  background: rgba(239, 68, 68, 0.1);
-  color: #DC2626;
-  font-size: 12.5px;
-  font-weight: 700;
-  border: none;
-  transition: opacity 0.15s ease;
-}
-
-.btn-clear-action:hover {
-  opacity: 0.85;
-}
-
-/* Audience Filter Row */
-.audience-pill-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 20px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
-}
-
-.audience-pill-row::-webkit-scrollbar {
-  display: none;
-}
-
-.aud-lbl {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.aud-scroll {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.aud-pill-btn {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  background: var(--surface);
-  border: 1px solid var(--border-subtle);
-  padding: 5px 10px;
-  border-radius: var(--radius-full);
-  white-space: nowrap;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  transition: all 0.15s ease;
-  min-height: 32px;
-}
-
-.aud-pill-btn:hover {
-  color: var(--text-primary);
-}
-
-.aud-pill-btn.active {
-  background: var(--blue-pale);
-  color: var(--blue-deep);
-  border-color: rgba(40, 120, 200, 0.3);
-}
-
-.aud-pill-count {
-  font-size: 10px;
-  font-weight: 700;
-  background: rgba(23, 25, 29, 0.08);
-  padding: 1px 5px;
-  border-radius: var(--radius-full);
-}
-
-/* Dominant Featured Card */
-.iconly-featured-card {
-  background: var(--surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: 20px;
-  padding: 10px;
-  margin-bottom: 22px;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 14px;
-  cursor: pointer;
-  box-shadow: 0 8px 30px rgba(40, 120, 200, 0.06);
-  transition: all 0.25s var(--ease);
-}
-
-@media (min-width: 480px) {
-  .iconly-featured-card {
-    border-radius: var(--radius-card);
-    padding: 14px;
-    gap: 18px;
-    margin-bottom: 28px;
-  }
-}
-
-@media (min-width: 900px) {
-  .iconly-featured-card {
-    grid-template-columns: 1.2fr 1fr;
-    padding: 18px;
-    gap: 28px;
-    align-items: center;
-  }
-}
-
-.iconly-featured-card:hover {
-  border-color: rgba(40, 120, 200, 0.35);
-  box-shadow: 0 18px 44px rgba(40, 120, 200, 0.12);
-  transform: translateY(-2px);
-}
-
-.featured-media-frame {
-  position: relative;
-  aspect-ratio: 16/10;
-  border-radius: 14px;
-  overflow: hidden;
-  background: var(--surface-subtle);
-}
-
-@media (min-width: 480px) {
-  .featured-media-frame {
-    border-radius: var(--radius-inner);
-  }
-}
-
-.featured-photo {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.featured-top-left-tag {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  display: flex;
-  gap: 5px;
-  z-index: 3;
-}
-
-@media (min-width: 480px) {
-  .featured-top-left-tag {
-    top: 12px;
-    left: 12px;
-    gap: 6px;
-  }
-}
-
-.hot-rent-pill {
-  background: #17191D;
-  color: #FFFFFF;
-  font-size: 10.5px;
-  font-weight: 700;
-  padding: 3px 8px;
-  border-radius: var(--radius-full);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.flame-svg {
-  width: 13px;
-  height: 13px;
-  color: #F59E0B;
-}
-
-.owner-pill {
-  background: #10B981;
-  color: #FFFFFF;
-  font-size: 10.5px;
-  font-weight: 700;
-  padding: 3px 8px;
-  border-radius: var(--radius-full);
-}
-
-/* Frosted Specs Overlay across Bottom of Image */
-.featured-frosted-specs-overlay {
-  position: absolute;
-  bottom: 8px;
-  left: 8px;
-  right: 8px;
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border: 1px solid rgba(255, 255, 255, 0.9);
-  border-radius: var(--radius-sm);
-  padding: 8px 12px;
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
-}
-
-@media (min-width: 480px) {
-  .featured-frosted-specs-overlay {
-    bottom: 12px;
-    left: 12px;
-    right: 12px;
-    padding: 10px 18px;
-    border-radius: var(--radius-md);
-  }
-}
-
-:root[data-theme="dark"] .featured-frosted-specs-overlay {
-  background: rgba(22, 27, 34, 0.88);
-}
-
-.frosted-spec-cell {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.f-lbl {
-  font-size: 10px;
-  color: var(--text-secondary);
-}
-
-.f-val {
-  font-size: 12.5px;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-@media (min-width: 480px) {
-  .f-lbl {
-    font-size: 11px;
-  }
-  .f-val {
-    font-size: 13.5px;
-  }
-}
-
-.frosted-spec-div {
-  width: 1px;
-  height: 18px;
-  background: var(--border-subtle);
-}
-
-@media (min-width: 480px) {
-  .frosted-spec-div {
-    height: 22px;
-  }
-}
-
-.featured-content-plate {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 4px 2px;
-}
-
-@media (min-width: 480px) {
-  .featured-content-plate {
-    gap: 12px;
-    padding: 6px 4px;
-  }
-}
-
-.featured-price-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.price-side {
-  display: flex;
-  align-items: baseline;
-  min-width: 0;
-}
-
-.f-price-value {
-  font-family: var(--font-sans);
-  font-size: clamp(20px, 5.5vw, 24px);
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  color: var(--text-primary);
-  white-space: nowrap;
-}
-
-.f-price-period {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-secondary);
-  margin-left: 3px;
-}
-
-.f-score-indicator {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  border: 3px solid #10B981;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  font-weight: 800;
-  color: var(--text-primary);
-  flex-shrink: 0;
-}
-
-.f-card-title {
-  font-family: var(--font-sans);
-  font-size: clamp(15.5px, 4vw, 18px);
-  font-weight: 700;
-  color: var(--text-primary);
-  line-height: 1.35;
-  margin: 0;
-  word-break: break-word;
-}
-
-.f-location-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12.5px;
-  color: var(--text-secondary);
-}
-
-.pin-mini {
-  width: 14px;
-  height: 14px;
-  color: var(--blue-primary);
-  flex-shrink: 0;
-}
-
-.f-action-bar {
-  margin-top: 4px;
-}
-
-.inspect-cta {
-  height: 42px;
-  min-height: 42px;
-  padding: 0 20px;
-  border-radius: var(--radius-full);
-}
-
-.arrow-mini {
-  width: 14px;
-  height: 14px;
-}
-
-/* Empty State Card */
-.empty-state-card {
-  background: var(--surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-card);
-  padding: 36px 20px;
-  text-align: center;
-  max-width: 480px;
-  margin: 30px auto;
-}
-
-.empty-icon-wrap {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 56px;
-  height: 56px;
-  margin: 0 auto 12px;
-  background: var(--blue-pale);
-  border-radius: var(--radius-md);
-  color: var(--blue-primary);
-}
-
-.empty-search-svg {
-  width: 26px;
-  height: 26px;
-}
-
-/* Popular Districts Section */
-.districts-section {
-  padding: 24px 0;
-}
-
-@media (min-width: 768px) {
-  .districts-section {
-    padding: 36px 0;
-  }
-}
-
-.districts-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 8px;
-}
-
-@media (min-width: 480px) {
-  .districts-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-  }
-}
-
-@media (min-width: 768px) {
-  .districts-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 14px;
-  }
-}
-
-.district-pill-card {
-  background: var(--surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: 14px 16px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  transition: all 0.2s var(--ease);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
-  min-height: 48px;
-}
-
-.district-pill-card:hover {
-  border-color: var(--blue-primary);
-  box-shadow: 0 8px 24px rgba(40, 120, 200, 0.1);
-  transform: translateY(-2px);
-}
-
-.district-pill-card:active {
-  transform: scale(0.98);
-}
-
-.district-pill-card.active {
-  background: var(--blue-pale);
-  border-color: var(--blue-primary);
-}
-
-.district-info-left {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 2px;
-}
-
-.district-name-bold {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.district-count-tag {
-  font-size: 11.5px;
-  color: var(--text-secondary);
-}
-
-.district-arrow-circle {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background: var(--surface-subtle);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-secondary);
-  transition: all 0.2s ease;
-  flex-shrink: 0;
-}
-
-.district-pill-card:hover .district-arrow-circle {
-  background: var(--blue-primary);
-  color: #FFFFFF;
-}
-
-.d-arr {
-  width: 14px;
-  height: 14px;
-}
-
-/* Why Joyliy Section */
-.why-joyliy-section {
-  padding: 28px 0;
-}
-
-@media (min-width: 768px) {
-  .why-joyliy-section {
-    padding: 40px 0;
-  }
-}
-
-.why-heading-wrap {
-  text-align: center;
-  margin-bottom: 24px;
-}
-
-@media (min-width: 768px) {
-  .why-heading-wrap {
-    margin-bottom: 32px;
-  }
-}
-
-.why-cards-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 14px;
-}
-
-@media (min-width: 768px) {
-  .why-cards-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
-  }
-}
-
-.why-card {
-  background: var(--surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-card);
-  padding: 22px 18px;
-  box-shadow: 0 4px 18px rgba(23, 25, 29, 0.03);
-  transition: all 0.2s var(--ease);
-}
-
-@media (min-width: 768px) {
-  .why-card {
-    padding: 28px 24px;
-  }
-}
-
-.why-card:hover {
-  border-color: rgba(40, 120, 200, 0.3);
-  transform: translateY(-2px);
-  box-shadow: 0 12px 32px rgba(40, 120, 200, 0.08);
-}
-
-.why-icon-circle {
-  width: 44px;
-  height: 44px;
-  border-radius: var(--radius-md);
-  background: var(--blue-pale);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 14px;
-  color: var(--blue-primary);
-}
-
-.why-svg {
-  width: 22px;
-  height: 22px;
-}
-
-.why-card-title {
-  font-family: var(--font-sans);
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 0 0 6px;
-}
-
-.why-card-desc {
-  font-size: 13px;
-  color: var(--text-secondary);
-  line-height: 1.5;
-  margin: 0;
-}
-
-/* Landlord CTA Banner */
-.landlord-cta-section {
-  padding: 24px 0 36px;
-}
-
-@media (min-width: 768px) {
-  .landlord-cta-section {
-    padding: 32px 0 48px;
-  }
-}
-
-.landlord-cta-card {
-  background: var(--hero-gradient);
-  border: 1px solid rgba(255, 255, 255, 0.9);
-  border-radius: var(--radius-card);
-  padding: 24px 18px;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 20px;
-  align-items: center;
-  box-shadow: 0 12px 36px rgba(40, 120, 200, 0.08);
-}
-
-@media (min-width: 480px) {
-  .landlord-cta-card {
-    border-radius: var(--radius-hero);
-    padding: 32px 24px;
-  }
-}
-
-@media (min-width: 768px) {
-  .landlord-cta-card {
-    grid-template-columns: 1.4fr 0.6fr;
-    padding: 44px 40px;
-  }
-}
-
-:root[data-theme="dark"] .landlord-cta-card {
-  background: linear-gradient(135deg, #161B22 0%, #1A2332 100%);
-  border-color: rgba(255, 255, 255, 0.08);
-}
-
-.cta-pill-badge {
-  display: inline-block;
-  background: rgba(40, 120, 200, 0.15);
-  color: var(--blue-deep);
-  font-size: 11px;
-  font-weight: 700;
-  padding: 4px 10px;
-  border-radius: var(--radius-full);
-  margin-bottom: 10px;
-}
-
-.cta-title {
-  font-family: var(--font-sans);
-  font-size: clamp(20px, 5vw, 30px);
-  font-weight: 800;
-  color: var(--text-primary);
-  margin: 0 0 8px;
-  letter-spacing: -0.02em;
-  word-break: break-word;
-}
-
-.cta-desc {
-  font-size: 13.5px;
-  color: var(--text-secondary);
-  margin: 0 0 18px;
-  max-width: 520px;
-  line-height: 1.5;
-}
-
-.cta-main-btn {
-  min-height: 44px;
-  height: 44px;
-  padding: 0 22px;
-}
-
-.cta-visual-side {
-  display: flex;
-  justify-content: center;
-}
-
-.cta-stat-pill {
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.95);
-  border-radius: var(--radius-card);
-  padding: 16px 24px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  box-shadow: 0 8px 24px rgba(40, 120, 200, 0.1);
-}
-
-:root[data-theme="dark"] .cta-stat-pill {
-  background: rgba(22, 27, 34, 0.9);
-  border-color: rgba(255, 255, 255, 0.1);
-}
-
-.stat-number {
-  font-size: 26px;
-  font-weight: 800;
-  color: var(--blue-primary);
-  letter-spacing: -0.02em;
-}
-
-.stat-desc {
-  font-size: 11.5px;
-  color: var(--text-secondary);
-  font-weight: 600;
-}
-
-/* --- Catalog Total Pill & Server Pagination Styling (Iconly Design System) --- */
-.catalog-total-pill {
-  display: inline-flex;
-  align-items: center;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--blue-primary);
-  background: rgba(40, 120, 200, 0.08);
-  border: 1px solid rgba(40, 120, 200, 0.18);
-  padding: 3px 10px;
-  border-radius: 999px;
-  margin-left: 10px;
-  vertical-align: middle;
-}
-
-:root[data-theme="dark"] .catalog-total-pill {
-  background: rgba(40, 120, 200, 0.2);
-  border-color: rgba(40, 120, 200, 0.35);
-  color: #60a5fa;
-}
-
-.catalog-pagination-wrap {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 36px;
-  margin-bottom: 24px;
-}
-
-.btn-load-more {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  min-height: 48px;
-  padding: 0 28px;
-  background: #ffffff;
-  color: var(--text-primary);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 999px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-:root[data-theme="dark"] .btn-load-more {
-  background: #161b22;
-  color: #f0f6fc;
-  border-color: rgba(255, 255, 255, 0.12);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-}
-
-.btn-load-more:hover:not(:disabled) {
-  transform: translateY(-2px);
-  border-color: var(--blue-primary);
-  color: var(--blue-primary);
-  box-shadow: 0 8px 24px rgba(40, 120, 200, 0.12);
-}
-
-.btn-load-more:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.arr-down-mini {
-  width: 16px;
-  height: 16px;
-}
-
-.load-spinner {
-  width: 18px;
-  height: 18px;
-  border: 2px solid rgba(40, 120, 200, 0.2);
-  border-top-color: var(--blue-primary);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
+.home { overflow-x: clip; }
+.sec { padding-block: clamp(64px, 8vw, 112px); }
+.sec.pt0 { padding-top: 0; }
+.label { font: 600 11px/1.2 var(--font-sans); letter-spacing: .16em; text-transform: uppercase; color: var(--tx-muted); margin: 0; }
+.label.lt { color: var(--brand-sand); }
+.sr { position: absolute; left: -9999px; }
+h2 { margin: 12px 0 0; font: 300 clamp(2rem, 4vw, 3.4rem)/1.06 var(--font-sans); letter-spacing: -.04em; color: var(--tx); text-wrap: balance; max-width: 18ch; }
+h3 { margin: 0; font: 400 clamp(1.5rem, 2.4vw, 2.1rem)/1.15 var(--font-sans); letter-spacing: -.03em; text-wrap: balance; }
+h2 em, h3 em { font-style: normal; font-weight: 600; color: var(--blue-primary); }
+.muted { color: var(--tx-muted); margin: 0; }
+.ic { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.spark { width: 16px; height: 16px; fill: currentColor; flex: none; }
+.head { display: flex; justify-content: space-between; align-items: end; gap: 20px; flex-wrap: wrap; margin-bottom: clamp(22px, 3vw, 40px); }
+.head-acts { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn-line, .btn-dark, .btn-light, .btn-ghost { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 999px; padding: 12px 20px; font: 600 14px var(--font-sans); cursor: pointer; text-decoration: none; white-space: nowrap; transition: background .2s, border-color .2s; }
+.btn-line { background: transparent; border: 1px solid var(--brand-sand); color: var(--tx); }
+.btn-line:hover { border-color: var(--blue-primary); }
+.btn-dark { background: var(--accent-black); color: var(--on-ink); border: 0; }
+.btn-dark:hover { background: var(--blue-primary); }
+.btn-light { background: #F5F1E9; color: #262521; border: 0; }
+.btn-ghost { background: transparent; color: #F5F1E9; border: 1px solid rgba(245, 241, 233, .5); }
+
+.chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; scrollbar-width: none; margin-bottom: 14px; }
+.chip { flex: none; border: 1px solid var(--brand-sand); background: transparent; border-radius: 999px; padding: 9px 16px; font: 700 13px var(--font-sans); cursor: pointer; color: var(--tx); }
+.chip.sm { padding: 7px 13px; font-size: 12px; }
+.chip[aria-pressed="true"] { background: var(--accent-black); color: var(--on-ink); border-color: var(--accent-black); }
+.aud { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-bottom: 24px; }
+.aud .label { margin-right: 4px; }
+.sort { margin-left: auto; }
+.sort select { appearance: none; border: 1px solid var(--brand-sand); background: var(--surface); border-radius: 999px; padding: 8px 16px; font: 600 13px var(--font-sans); color: var(--tx); cursor: pointer; }
+.ai-banner { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; padding: 14px 18px; border-radius: 20px; background: var(--surface); margin-bottom: 24px; }
+.orb { width: 30px; height: 30px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #FBF8F2, #D5C8B5 45%, #514437); flex: none; }
+.toks { display: flex; flex-wrap: wrap; gap: 6px; flex: 1; min-width: 0; }
+.tok { display: inline-flex; gap: 6px; align-items: center; padding: 6px 11px; border-radius: 999px; background: var(--surface-subtle); font: 700 12px var(--font-sans); }
+.tok i { font-style: normal; color: var(--tx-muted); font-weight: 500; }
+.tok.q { font-weight: 600; }
+.link { background: none; border: 0; padding: 4px 0; font: 700 13px var(--font-sans); cursor: pointer; color: var(--blue-primary); }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 30px 20px; }
+.skel { display: grid; gap: 10px; }
+.sk-ph { aspect-ratio: 4 / 3; border-radius: 20px; }
+.sk-l { height: 14px; border-radius: 8px; }
+.sk-l.s { width: 60%; }
+.sk-ph, .sk-l { background: linear-gradient(110deg, var(--surface-subtle) 30%, var(--bg) 50%, var(--surface-subtle) 70%) 0 0 / 300% 100%; animation: shim 1.6s linear infinite; }
+@keyframes shim { to { background-position: -300% 0; } }
+.empty { padding: 56px 20px; text-align: center; border: 1px dashed var(--brand-sand); border-radius: 28px; display: grid; gap: 12px; justify-items: center; }
+.empty b { font: 600 22px var(--font-sans); }
+.empty p { color: var(--tx-muted); max-width: 44ch; margin: 0; }
+.more { display: flex; justify-content: center; margin-top: 36px; }
+
+.tabs { display: flex; gap: 4px; background: var(--surface-subtle); padding: 4px; border-radius: 999px; }
+.tabs button { border: 0; background: transparent; border-radius: 999px; padding: 9px 18px; font: 700 13px var(--font-sans); cursor: pointer; color: var(--tx-muted); }
+.tabs button[aria-pressed="true"] { background: var(--surface); color: var(--tx); }
+.ed { display: grid; grid-template-columns: repeat(12, 1fr); gap: 20px; }
+
+.adv { background: var(--panel); color: #F5F1E9; border-radius: clamp(24px, 4vw, 44px); padding: clamp(24px, 5.5vw, 76px); display: grid; grid-template-columns: 1fr 1fr; gap: clamp(28px, 5vw, 72px); align-items: center; }
+.adv h2 { color: #F5F1E9; margin-bottom: 16px; }
+.adv h2 em { color: var(--brand-sand); }
+.adv .sub { color: #CFC6B8; max-width: 42ch; margin: 0 0 26px; }
+.adv-qs { display: grid; gap: 8px; }
+.adv-qs .label { margin-bottom: 6px; }
+.adv-qs button { text-align: left; border: 1px solid rgba(213, 200, 181, .25); background: rgba(255, 255, 255, .03); color: #F5F1E9; border-radius: 16px; padding: 14px 16px; cursor: pointer; font: 500 14px var(--font-sans); display: flex; justify-content: space-between; gap: 12px; align-items: center; }
+.adv-qs button:hover { border-color: var(--brand-sand); background: rgba(255, 255, 255, .06); }
+@media (max-width: 900px) { .adv { grid-template-columns: 1fr; } }
+
+.loc { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; }
+.lc { position: relative; border-radius: 20px; overflow: hidden; text-align: left; border: 0; padding: 0; cursor: pointer; min-height: 230px; display: flex; color: #F5F1E9; background: linear-gradient(160deg, #6B5A48, #3B3229); }
+.lc img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform .8s; }
+.lc:hover img { transform: scale(1.05); }
+.lc::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(38, 37, 33, 0) 30%, rgba(38, 37, 33, .82)); }
+.lc .t { position: relative; z-index: 1; margin-top: auto; padding: 18px; display: grid; gap: 4px; }
+.lc .t b { font: 700 22px/1.1 var(--font-sans); letter-spacing: -.02em; }
+.lc .t span { font-size: 13px; opacity: .92; }
+.lc:nth-child(1), .lc:nth-child(2) { grid-column: span 3; min-height: 320px; }
+.lc:nth-child(n+3) { grid-column: span 2; }
+@media (max-width: 900px) { .loc { grid-template-columns: 1fr 1fr; } .lc:nth-child(n) { grid-column: span 1; min-height: 190px; } .lc:nth-child(1) { grid-column: span 2; } }
+
+.rail { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(250px, 290px); gap: 18px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 12px; scrollbar-width: thin; scrollbar-color: var(--brand-sand) transparent; }
+.rail > * { scroll-snap-align: start; }
+.rail-ctrl { display: flex; gap: 8px; }
+.rail-ctrl button { width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--brand-sand); background: transparent; cursor: pointer; display: grid; place-items: center; color: var(--tx); }
+.rail-ctrl button:hover { background: var(--surface); }
+
+.duo { display: grid; grid-template-columns: 1.3fr .7fr; gap: 20px; }
+@media (max-width: 900px) { .duo { grid-template-columns: 1fr; } }
+.tile { border-radius: 28px; background: var(--surface); padding: clamp(22px, 3vw, 36px); display: grid; gap: 14px; align-content: end; }
+.map-tile { position: relative; overflow: hidden; min-height: 380px; background: var(--surface-subtle); }
+.map-art { position: absolute; inset: 0; }
+.map-art svg { width: 100%; height: 100%; }
+.pin { position: absolute; transform: translate(-50%, -100%); background: var(--surface); color: var(--tx); border-radius: 999px; padding: 6px 11px; font: 700 12px var(--font-sans); box-shadow: 0 10px 24px -12px rgba(0, 0, 0, .45); white-space: nowrap; }
+.pin small { font-weight: 500; opacity: .7; margin-left: 4px; }
+.tile-body { position: relative; display: grid; gap: 14px; justify-items: start; background: var(--glass-strong); backdrop-filter: blur(12px); border-radius: 20px; padding: 18px; max-width: 420px; }
+.rm-tile { justify-items: start; }
+
+.stats { position: relative; border-radius: 28px; overflow: hidden; isolation: isolate; padding: clamp(18px, 4vw, 56px); min-height: 360px; display: flex; align-items: flex-end; }
+.stats :deep(.hero-scene) { z-index: -1; }
+.stat-panel { border-radius: 28px; padding: clamp(18px, 3vw, 32px); display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; width: 100%; background: var(--glass); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border: 1px solid var(--glass-line); }
+.stat-panel div { display: grid; gap: 6px; }
+.stat-panel b { font: 300 clamp(2rem, 4vw, 3.2rem)/1 var(--font-sans); letter-spacing: -.05em; color: var(--tx); }
+.stat-panel span { font-size: 13px; color: var(--blue-primary); font-weight: 600; }
+@media (max-width: 900px) { .stat-panel { grid-template-columns: 1fr 1fr; } }
+.why { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 20px; }
+@media (max-width: 900px) { .why { grid-template-columns: 1fr; } }
+.why div { padding: 26px; border-radius: 28px; background: var(--surface); display: grid; gap: 10px; align-content: start; }
+.why b { font: 300 44px/1 var(--font-sans); letter-spacing: -.05em; color: var(--blue-primary); }
+.why h3 { font: 700 17px/1.3 var(--font-sans); letter-spacing: 0; }
+.why p { color: var(--tx-muted); font-size: 14px; margin: 0; }
+
+.owners { display: grid; grid-template-columns: 1.1fr .9fr; gap: 24px; }
+@media (max-width: 960px) { .owners { grid-template-columns: 1fr; } }
+.cta-box { position: relative; border-radius: clamp(24px, 4vw, 44px); overflow: hidden; isolation: isolate; min-height: 440px; display: flex; align-items: center; }
+.cta-box :deep(.hero-scene) { z-index: -2; }
+.cta-box::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, rgba(28, 26, 23, .78), rgba(28, 26, 23, .2) 75%); }
+.cta-in { padding: clamp(24px, 5vw, 72px); color: #F5F1E9; display: grid; gap: 24px; max-width: 640px; }
+.cta-in h2 { color: #F5F1E9; margin: 0; font-size: clamp(2.1rem, 4.4vw, 3.8rem); }
+.cta-in h2 em { color: var(--brand-sand); }
+.cta-in .row { display: flex; gap: 12px; flex-wrap: wrap; }
+.own { background: var(--surface); border-radius: clamp(24px, 4vw, 44px); padding: clamp(24px, 4vw, 48px); display: grid; gap: 16px; align-content: center; justify-items: start; }
+.own ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; counter-reset: s; }
+.own li { display: grid; grid-template-columns: 32px 1fr; gap: 12px; align-items: center; font-size: 14px; counter-increment: s; }
+.own li::before { content: counter(s); width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: var(--surface-subtle); font-weight: 700; }
+@media (prefers-reduced-motion: reduce) { .sk-ph, .sk-l { animation: none; } .lc img { transition: none; } }
 </style>

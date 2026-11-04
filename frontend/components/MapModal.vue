@@ -495,9 +495,9 @@ onBeforeUnmount(() => {
 }
 
 .owner-toggle-pill.active {
-  background: var(--blue-primary, #2878C8);
+  background: var(--blue-primary, #514437);
   color: #fff;
-  border-color: var(--blue-primary, #2878C8);
+  border-color: var(--blue-primary, #514437);
 }
 
 .map-body-wrapper {
@@ -598,7 +598,7 @@ onBeforeUnmount(() => {
 .card-price {
   font-size: 15px;
   font-weight: 700;
-  color: var(--blue-primary, #2878C8);
+  color: var(--blue-primary, #514437);
   display: flex;
   align-items: center;
   gap: 6px;
@@ -639,7 +639,7 @@ onBeforeUnmount(() => {
   font-size: 13px;
   font-weight: 600;
   border-radius: var(--radius-xs, 4px);
-  background: var(--blue-primary, #2878C8);
+  background: var(--blue-primary, #514437);
   color: #ffffff;
   border: none;
   cursor: pointer;

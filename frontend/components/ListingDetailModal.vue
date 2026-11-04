@@ -356,7 +356,7 @@ const sourceViewLabel = computed(() => {
 }
 
 .exhibit-tag {
-  color: var(--blue-primary, #2878C8);
+  color: var(--blue-primary, #514437);
   font-weight: 700;
   letter-spacing: 0.1em;
 }
@@ -445,8 +445,8 @@ const sourceViewLabel = computed(() => {
 }
 
 .gallery-thumb-btn.active {
-  border-color: var(--blue-primary, #2878C8);
-  box-shadow: 0 0 0 2px var(--blue-primary, #2878C8);
+  border-color: var(--blue-primary, #514437);
+  box-shadow: 0 0 0 2px var(--blue-primary, #514437);
 }
 
 .gallery-thumb-btn img {
@@ -564,8 +564,8 @@ const sourceViewLabel = computed(() => {
   width: 36px;
   height: 36px;
   border-radius: 8px;
-  background: rgba(40, 120, 200, 0.1);
-  color: var(--blue-primary, #2878C8);
+  background: rgba(81, 68, 55, 0.1);
+  color: var(--blue-primary, #514437);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -627,7 +627,7 @@ const sourceViewLabel = computed(() => {
 }
 
 .prov-source {
-  color: var(--blue-primary, #2878C8);
+  color: var(--blue-primary, #514437);
   font-weight: 700;
 }
 
@@ -644,7 +644,7 @@ const sourceViewLabel = computed(() => {
 }
 
 .report-action-btn:hover {
-  color: var(--blue-primary, #2878C8);
+  color: var(--blue-primary, #514437);
 }
 
 .exhibition-cbar {
@@ -697,7 +697,7 @@ const sourceViewLabel = computed(() => {
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
-  color: var(--blue-primary, #2878C8);
+  color: var(--blue-primary, #514437);
   letter-spacing: 0.5px;
 }
 

@@ -427,7 +427,7 @@ useHead(() => {
 }
 
 .breadcrumb-link:hover {
-  color: var(--blue-primary, #2878C8);
+  color: var(--blue-primary, #514437);
 }
 
 .breadcrumb-sep {
@@ -486,8 +486,8 @@ useHead(() => {
 }
 
 .pill-link.active {
-  background: var(--blue-primary, #2878C8);
-  border-color: var(--blue-primary, #2878C8);
+  background: var(--blue-primary, #514437);
+  border-color: var(--blue-primary, #514437);
   color: #FFFFFF;
 }
 
@@ -538,7 +538,7 @@ useHead(() => {
   display: inline-flex;
   align-items: center;
   padding: 10px 20px;
-  background: var(--blue-primary, #2878C8);
+  background: var(--blue-primary, #514437);
   color: #FFFFFF;
   border-radius: 10px;
   font-weight: 600;
@@ -577,12 +577,12 @@ useHead(() => {
 }
 
 .district-anchor-card:hover {
-  border-color: var(--blue-primary, #2878C8);
+  border-color: var(--blue-primary, #514437);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .district-anchor-card.active {
-  border-color: var(--blue-primary, #2878C8);
+  border-color: var(--blue-primary, #514437);
   background: #F0F7FF;
 }
 

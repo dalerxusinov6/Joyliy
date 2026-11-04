@@ -67,6 +67,19 @@ const onFilterMaklersiz = () => {
   if (el) el.scrollIntoView({ behavior: 'smooth' })
 }
 
+const bnActive = ref<'home' | 'search'>('home')
+const bnHome = async () => {
+  bnActive.value = 'home'
+  if (route.path !== '/') await navigateTo('/')
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+const bnSearch = async () => {
+  bnActive.value = 'search'
+  if (route.path !== '/') await navigateTo('/')
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+  setTimeout(() => (document.getElementById('p-ai-in') as HTMLInputElement | null)?.focus({ preventScroll: true }), 450)
+}
+
 const scrollToResults = () => {
   const el = document.getElementById('katalog')
   if (el) {
@@ -235,82 +248,22 @@ onUnmounted(() => {
 
     <!-- Mobile Bottom Navigation (Floating Pill Capsule - Iconly Mobile Reference: ONLY ICONS) -->
     <nav class="bn" :aria-label="t('mobile_nav')">
-      <!-- 1. Bosh sahifa -->
-      <button
-        type="button"
-        :class="{ on: !showRoommates && !showCompare && !showAssistant && !showSaved }"
-        @click="scrollToResults"
-        :aria-label="t('home')"
-        :title="t('home')"
-      >
-        <svg class="i" viewBox="0 0 24 24">
-          <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-          <polyline points="9 22 9 12 15 12 15 22" />
-        </svg>
+      <button type="button" :class="{ on: bnActive === 'home' }" :aria-label="t('home')" @click="bnHome">
+        <svg class="i" viewBox="0 0 24 24"><path d="M3 11l9-7 9 7" /><path d="M5 10v10h14V10" /></svg>
+        <span class="bn-l">{{ t('home') }}</span>
       </button>
-
-      <!-- 2. Hamxona (Roommates) -->
-      <button
-        type="button"
-        :class="{ on: showRoommates }"
-        @click="showRoommates = true"
-        :aria-label="t('roommates_tab')"
-        :title="t('roommates_tab')"
-      >
-        <svg class="i" viewBox="0 0 24 24">
-          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-          <circle cx="9" cy="7" r="4" />
-          <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-          <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-        </svg>
+      <button type="button" :class="{ on: bnActive === 'search' }" aria-label="Qidiruv" @click="bnSearch">
+        <svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" /><path d="M20 20l-4-4" /></svg>
+        <span class="bn-l">Qidiruv</span>
       </button>
-
-      <!-- 3. Taqqoslash (Compare) -->
-      <button
-        type="button"
-        class="btn-with-badge"
-        :class="{ on: showCompare }"
-        @click="showCompare = true"
-        :aria-label="t('compare')"
-        :title="t('compare')"
-      >
-        <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
-          <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
-          <path d="M7 21h10"/>
-          <path d="M12 3v18"/>
-          <path d="M3 7h18"/>
-        </svg>
-        <span v-if="compareList.length > 0" class="bn-badge">{{ compareList.length }}</span>
-      </button>
-
-      <!-- 4. Chatbot (AI Maslahatchi) -->
-      <button
-        type="button"
-        class="btn-with-badge"
-        :class="{ on: showAssistant }"
-        @click="showAssistant = true"
-        :aria-label="t('ai_assistant')"
-        :title="t('ai_assistant')"
-      >
-        <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
-        </svg>
-      </button>
-
-      <!-- 5. Saqlanganlar (Saved) -->
-      <button
-        type="button"
-        class="btn-with-badge"
-        :class="{ on: showSaved }"
-        @click="showSaved = true"
-        :aria-label="t('saved')"
-        :title="t('saved')"
-      >
-        <svg class="i" viewBox="0 0 24 24">
-          <path d="M12 21s-8-5-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 6-8 11-8 11z" />
-        </svg>
+      <button type="button" class="btn-with-badge" :class="{ on: showSaved }" :aria-label="t('saved')" @click="showSaved = true">
+        <svg class="i" viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" /></svg>
+        <span class="bn-l">{{ t('saved') }}</span>
         <span v-if="favCount > 0" class="bn-badge">{{ favCount }}</span>
+      </button>
+      <button type="button" :class="{ on: showProfile }" :aria-label="t('profile')" @click="showProfile = true">
+        <svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" /><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" /></svg>
+        <span class="bn-l">{{ t('profile') }}</span>
       </button>
     </nav>
   </div>
@@ -335,8 +288,8 @@ main {
   display: flex;
   align-items: center;
   gap: 16px;
-  background: #17191D;
-  color: #ffffff;
+  background: var(--accent-black);
+  color: var(--on-ink);
   padding: 8px 10px 8px 16px;
   border-radius: var(--radius-full, 9999px);
   box-shadow: 0 12px 32px rgba(23, 25, 29, 0.22);
@@ -358,7 +311,7 @@ main {
 }
 
 .fc-pill {
-  background: var(--blue-primary, #2878C8);
+  background: var(--blue-primary, #514437);
   color: #ffffff;
   font-size: 11px;
   font-weight: 700;
@@ -392,7 +345,7 @@ main {
 }
 
 .fc-btn-view {
-  background: var(--blue-primary, #2878C8);
+  background: var(--blue-primary, #514437);
   color: #ffffff;
   border: none;
   font-size: 12.5px;

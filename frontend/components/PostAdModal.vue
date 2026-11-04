@@ -476,7 +476,7 @@ const onSubmit = async () => {
   font-size: 10px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  background: var(--blue-primary, #2878C8);
+  background: var(--blue-primary, #514437);
   color: #FFFFFF;
   padding: 3px 8px;
   border-radius: var(--radius-xs);
@@ -535,9 +535,9 @@ const onSubmit = async () => {
 }
 
 .deal-btn.active {
-  background: #17191D;
+  background: #262521;
   color: #FFFFFF;
-  border-color: #17191D;
+  border-color: #262521;
   box-shadow: 0 4px 12px rgba(23, 25, 29, 0.15);
 }
 
@@ -566,7 +566,7 @@ const onSubmit = async () => {
 }
 
 .field-control:focus {
-  border-color: var(--blue-primary, #2878C8);
+  border-color: var(--blue-primary, #514437);
   outline: none;
 }
 
@@ -592,7 +592,7 @@ const onSubmit = async () => {
 .owner-declaration-box input {
   width: 17px;
   height: 17px;
-  accent-color: var(--blue-primary, #2878C8);
+  accent-color: var(--blue-primary, #514437);
   margin-top: 2px;
   flex: none;
 }
@@ -625,7 +625,7 @@ const onSubmit = async () => {
 }
 
 .bot-reference a {
-  color: var(--blue-primary, #2878C8);
+  color: var(--blue-primary, #514437);
   font-weight: 700;
   text-decoration: underline;
 }
@@ -664,7 +664,7 @@ const onSubmit = async () => {
 
 .photo-dropzone:hover,
 .photo-dropzone.is-dragging {
-  border-color: var(--blue-primary, #2878C8);
+  border-color: var(--blue-primary, #514437);
   background: #F0F7FF;
 }
 
@@ -688,7 +688,7 @@ const onSubmit = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--blue-primary, #2878C8);
+  color: var(--blue-primary, #514437);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
@@ -720,15 +720,15 @@ const onSubmit = async () => {
   justify-content: center;
   gap: 10px;
   font-size: 13px;
-  color: var(--blue-primary, #2878C8);
+  color: var(--blue-primary, #514437);
   padding: 12px;
 }
 
 .spinner-sm {
   width: 18px;
   height: 18px;
-  border: 2px solid rgba(40, 120, 200, 0.2);
-  border-top-color: var(--blue-primary, #2878C8);
+  border: 2px solid rgba(81, 68, 55, 0.2);
+  border-top-color: var(--blue-primary, #514437);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -786,7 +786,7 @@ const onSubmit = async () => {
   position: absolute;
   bottom: 4px;
   left: 4px;
-  background: rgba(40, 120, 200, 0.9);
+  background: rgba(81, 68, 55, 0.9);
   color: #FFFFFF;
   font-size: 9px;
   font-weight: 700;
@@ -814,8 +814,8 @@ const onSubmit = async () => {
 }
 
 .add-more-photos-btn:hover {
-  border-color: var(--blue-primary, #2878C8);
-  color: var(--blue-primary, #2878C8);
+  border-color: var(--blue-primary, #514437);
+  color: var(--blue-primary, #514437);
   background: #F0F7FF;
 }
 
